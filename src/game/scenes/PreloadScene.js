@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { CHARACTERS } from '../config/characters'
 
 export class PreloadScene extends Scene {
 
@@ -41,6 +42,12 @@ export class PreloadScene extends Scene {
     // Carga de assets (NEAREST para mantener pixel art nítido en sprites)
     this.load.setPath('assets')
     this.load.image('bg-menu', 'backgrounds/fondoIntro.png')
+    this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
+
+    // Sprites de personajes
+    CHARACTERS.forEach((char) => {
+      this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
+    })
 
     // Aplicar filtro NEAREST a texturas pixel art tras la carga
     this.load.on('filecomplete', (key) => {

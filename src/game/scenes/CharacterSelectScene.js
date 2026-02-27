@@ -1,30 +1,6 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
-
-// Datos de personajes (MVP: solo El Trianero disponible)
-const CHARACTERS = [
-  {
-    id: 'trianero',
-    name: 'EL TRIANERO',
-    description: 'Nacido y criado en Triana.\nEquilibrado en todo.',
-    stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
-    available: true,
-  },
-  {
-    id: 'abuela',
-    name: 'LA AGÜELA',
-    description: 'Veterana de mil velás.\nSabiduría y temple.',
-    stats: { peso: 3, equilibrio: 8, altura: 4, edad: 9 },
-    available: true,
-  },
-  {
-    id: 'chaval',
-    name: 'ER CHAVAL',
-    description: 'Joven y ágil.\nSin miedo a nada.',
-    stats: { peso: 3, equilibrio: 4, altura: 6, edad: 2 },
-    available: true,
-  }
-]
+import { CHARACTERS } from '../config/characters'
 
 const STAT_COLORS = {
   peso: 0xe74c3c,
@@ -34,197 +10,383 @@ const STAT_COLORS = {
 }
 
 const STAT_MAX = 10
-const BAR_WIDTH = 120
+
+// Card dimensions
+const CARD_WIDTH = 240
+const CARD_HEIGHT = 360
+const CARD_GAP = 40
+const CARD_STEP = CARD_WIDTH + CARD_GAP
+const CARDS_Y = 100
+const CARD_PADDING = 6
+
+// Imagen ocupa la parte superior de la card
+const IMG_X = CARD_PADDING
+const IMG_Y = CARD_PADDING
+const IMG_W = CARD_WIDTH - CARD_PADDING * 2
+const IMG_H = 230
+
+// Stats en la parte inferior
+const STATS_Y = IMG_Y + IMG_H + 8
+const STATS_X = CARD_PADDING + 4
+const BAR_WIDTH = CARD_WIDTH - CARD_PADDING * 2 - 44
 const BAR_HEIGHT = 10
+const STAT_ROW_H = 20
+
+const VISIBLE_AREA_LEFT = 60
+const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
+
+// Franja oscura para el carrusel
+const BAND_Y = 60
+const BAND_H = 480
 
 export class CharacterSelectScene extends Scene {
 
   constructor() {
     super(SCENES.CHARACTER_SELECT)
-    this.selectedIndex = 0
   }
 
   create() {
     this.selectedIndex = 0
-    this.cameras.main.setBackgroundColor(COLORS.DARK_BG)
+    this.isScrolling = false
 
+    this.drawBackground()
     this.drawHeader()
-    this.drawCharacterCards()
+    this.createCarousel()
     this.drawSelectedDetail()
     this.drawNavigation()
     this.setupInput()
   }
 
+  drawBackground() {
+    // Imagen de fondo
+    const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-characters')
+    const scaleX = GAME_WIDTH / bg.width
+    const scaleY = GAME_HEIGHT / bg.height
+    const scale = Math.max(scaleX, scaleY)
+    bg.setScale(scale)
+
+    // Overlay oscuro sobre toda la pantalla para atenuar el fondo
+    const overlay = this.add.graphics()
+    overlay.fillStyle(0x0a0a1e, 0.65)
+    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+
+    // Franja central oscura ancha con más opacidad (zona de fichas)
+    const band = this.add.graphics()
+    // Degradado simulado: borde superior difuso
+    band.fillStyle(0x0a0a1e, 0.3)
+    band.fillRect(0, BAND_Y - 20, GAME_WIDTH, 20)
+    // Cuerpo principal de la franja
+    band.fillStyle(0x0d0d24, 0.85)
+    band.fillRect(0, BAND_Y, GAME_WIDTH, BAND_H)
+    // Degradado simulado: borde inferior difuso
+    band.fillStyle(0x0a0a1e, 0.3)
+    band.fillRect(0, BAND_Y + BAND_H, GAME_WIDTH, 20)
+
+    // Líneas decorativas en los bordes de la franja
+    const lines = this.add.graphics()
+    lines.lineStyle(2, COLORS.GOLD, 0.4)
+    lines.lineBetween(0, BAND_Y, GAME_WIDTH, BAND_Y)
+    lines.lineBetween(0, BAND_Y + BAND_H, GAME_WIDTH, BAND_Y + BAND_H)
+    // Línea interior sutil
+    lines.lineStyle(1, COLORS.GOLD, 0.15)
+    lines.lineBetween(0, BAND_Y + 3, GAME_WIDTH, BAND_Y + 3)
+    lines.lineBetween(0, BAND_Y + BAND_H - 3, GAME_WIDTH, BAND_Y + BAND_H - 3)
+  }
+
   drawHeader() {
-    // Título
-    this.add.text(GAME_WIDTH / 2, 40, 'ELIGE TU PERSONAJE', {
-      fontFamily: 'monospace',
-      fontSize: '24px',
+    // Fondo decorativo del título
+    const headerBg = this.add.graphics()
+    headerBg.fillStyle(0x0a0a1e, 0.7)
+    headerBg.fillRect(GAME_WIDTH / 2 - 280, 6, 560, 50)
+    headerBg.lineStyle(1, COLORS.GOLD, 0.3)
+    headerBg.strokeRect(GAME_WIDTH / 2 - 280, 6, 560, 50)
+
+    // Esquinas decorativas retro
+    const corners = this.add.graphics()
+    corners.lineStyle(2, COLORS.GOLD, 0.8)
+    const cx = GAME_WIDTH / 2
+    const cLen = 12
+    // Esquina superior izquierda
+    corners.lineBetween(cx - 276, 10, cx - 276 + cLen, 10)
+    corners.lineBetween(cx - 276, 10, cx - 276, 10 + cLen)
+    // Esquina superior derecha
+    corners.lineBetween(cx + 276, 10, cx + 276 - cLen, 10)
+    corners.lineBetween(cx + 276, 10, cx + 276, 10 + cLen)
+    // Esquina inferior izquierda
+    corners.lineBetween(cx - 276, 52, cx - 276 + cLen, 52)
+    corners.lineBetween(cx - 276, 52, cx - 276, 52 - cLen)
+    // Esquina inferior derecha
+    corners.lineBetween(cx + 276, 52, cx + 276 - cLen, 52)
+    corners.lineBetween(cx + 276, 52, cx + 276, 52 - cLen)
+
+    // Texto principal con Jersey 10
+    this.add.text(GAME_WIDTH / 2, 31, 'ELIGE TU PERSONAJE', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '42px',
       color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 4,
-      letterSpacing: 4,
+      stroke: '#1a0a00',
+      strokeThickness: 6,
+      letterSpacing: 6,
+      shadow: {
+        offsetX: 3,
+        offsetY: 3,
+        color: '#000000',
+        blur: 0,
+        fill: true,
+      },
     }).setOrigin(0.5)
 
-    // Línea decorativa
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.GOLD, 0.6)
-    g.fillRect(GAME_WIDTH / 2 - 200, 62, 400, 2)
+    // Línea decorativa debajo — doble con diamante central
+    const lineG = this.add.graphics()
+    lineG.fillStyle(COLORS.GOLD, 0.6)
+    // Línea superior
+    lineG.fillRect(cx - 200, 58, 400, 1)
+    // Diamante central
+    const dSize = 4
+    lineG.fillStyle(COLORS.GOLD, 0.9)
+    lineG.fillRect(cx - dSize, 58 - dSize + 1, dSize * 2, dSize * 2)
+    // Línea inferior
+    lineG.fillStyle(COLORS.GOLD, 0.35)
+    lineG.fillRect(cx - 160, 62, 320, 1)
   }
 
-  drawCharacterCards() {
-    // Limpiamos cards anteriores si existen
-    if (this.cardContainers) {
-      this.cardContainers.forEach(c => c.destroy())
-    }
+  createCarousel() {
+    this.carouselContainer = this.add.container(0, 0)
     this.cardContainers = []
 
-    const cardWidth = 200
-    const cardHeight = 280
-    const gap = 40
-    const totalWidth = CHARACTERS.length * cardWidth + (CHARACTERS.length - 1) * gap
-    const startX = (GAME_WIDTH - totalWidth) / 2
+    this.buildCards()
+
+    const maskShape = this.make.graphics()
+    maskShape.fillStyle(0xffffff)
+    maskShape.fillRect(VISIBLE_AREA_LEFT, CARDS_Y - 10, VISIBLE_AREA_RIGHT - VISIBLE_AREA_LEFT, CARD_HEIGHT + 20)
+    const mask = maskShape.createGeometryMask()
+    this.carouselContainer.setMask(mask)
+  }
+
+  buildCards() {
+    this.cardContainers.forEach(c => c.destroy())
+    this.cardContainers = []
 
     CHARACTERS.forEach((char, i) => {
-      const x = startX + i * (cardWidth + gap)
-      const y = 100
-      const isSelected = i === this.selectedIndex
-      const container = this.add.container(x, y)
-
-      const g = this.add.graphics()
-
-      // Fondo de la card
-      if (!char.available) {
-        g.fillStyle(0x1a1a2e, 0.6)
-      } else if (isSelected) {
-        g.fillStyle(COLORS.UI_BG, 1)
-      } else {
-        g.fillStyle(COLORS.UI_BG, 0.7)
-      }
-      g.fillRect(0, 0, cardWidth, cardHeight)
-
-      // Borde
-      if (isSelected && char.available) {
-        g.lineStyle(3, COLORS.GOLD, 1)
-        // Esquinas decorativas
-        const cornerSize = 8
-        // Esquina superior izquierda
-        g.fillStyle(COLORS.GOLD, 1)
-        g.fillRect(-2, -2, cornerSize, 3)
-        g.fillRect(-2, -2, 3, cornerSize)
-        // Esquina superior derecha
-        g.fillRect(cardWidth - cornerSize + 2, -2, cornerSize, 3)
-        g.fillRect(cardWidth - 1, -2, 3, cornerSize)
-        // Esquina inferior izquierda
-        g.fillRect(-2, cardHeight - 1, cornerSize, 3)
-        g.fillRect(-2, cardHeight - cornerSize + 2, 3, cornerSize)
-        // Esquina inferior derecha
-        g.fillRect(cardWidth - cornerSize + 2, cardHeight - 1, cornerSize, 3)
-        g.fillRect(cardWidth - 1, cardHeight - cornerSize + 2, 3, cornerSize)
-      } else {
-        g.lineStyle(2, COLORS.UI_BORDER, 0.8)
-      }
-      g.strokeRect(0, 0, cardWidth, cardHeight)
-
-      container.add(g)
-
-      // Zona del sprite (placeholder: silueta pixel art)
-      const spriteG = this.add.graphics()
-      spriteG.fillStyle(0x2a2a4a, 1)
-      spriteG.fillRect(50, 20, 100, 100)
-      spriteG.lineStyle(1, 0x4a4a6a, 1)
-      spriteG.strokeRect(50, 20, 100, 100)
-
-      // Silueta placeholder del personaje
-      this.drawCharacterSilhouette(spriteG, 100, 70, char.id, char.available)
-
-      container.add(spriteG)
-
-      // Nombre del personaje
-      const nameColor = char.available ? '#ffffff' : '#555555'
-      const nameText = this.add.text(cardWidth / 2, 135, char.name, {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: nameColor,
-        stroke: '#000000',
-        strokeThickness: 2,
-        align: 'center',
-      }).setOrigin(0.5)
-      container.add(nameText)
-
-      // Stats en miniatura
-      if (char.available) {
-        this.drawMiniStats(container, char.stats, 25, 158)
-      } else {
-        // Candado
-        const lockText = this.add.text(cardWidth / 2, 200, '???', {
-          fontFamily: 'monospace',
-          fontSize: '20px',
-          color: '#444444',
-        }).setOrigin(0.5)
-        container.add(lockText)
-
-        const lockedText = this.add.text(cardWidth / 2, 235, 'BLOQUEADO', {
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          color: '#444444',
-        }).setOrigin(0.5)
-        container.add(lockedText)
-      }
-
+      const container = this.createCard(char, i)
+      this.carouselContainer.add(container)
       this.cardContainers.push(container)
     })
+
+    this.updateCarouselPositions(false)
   }
 
-  drawCharacterSilhouette(graphics, cx, cy, charId, available) {
-    const color = available ? 0x88aadd : 0x444466
-    graphics.fillStyle(color, 1)
+  createCard(char, index) {
+    const container = this.add.container(0, CARDS_Y)
+    const isSelected = index === this.selectedIndex
 
-    // Cabeza
-    graphics.fillRect(cx - 6, cy - 24, 12, 12)
-    // Cuerpo
-    graphics.fillRect(cx - 8, cy - 12, 16, 18)
-    // Piernas
-    graphics.fillRect(cx - 8, cy + 6, 6, 12)
-    graphics.fillRect(cx + 2, cy + 6, 6, 12)
-    // Brazos
-    graphics.fillRect(cx - 14, cy - 10, 6, 14)
-    graphics.fillRect(cx + 8, cy - 10, 6, 14)
+    const g = this.add.graphics()
+
+    // Sombra de la card (solo la seleccionada)
+    if (isSelected && char.available) {
+      g.fillStyle(COLORS.GOLD, 0.12)
+      g.fillRect(-4, -4, CARD_WIDTH + 8, CARD_HEIGHT + 8)
+    }
+
+    // Fondo de la card
+    g.fillStyle(COLORS.UI_BG, char.available ? 1 : 0.5)
+    g.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
+
+    // Borde
+    if (isSelected && char.available) {
+      g.lineStyle(3, COLORS.GOLD, 1)
+    } else {
+      g.lineStyle(2, COLORS.UI_BORDER, 0.8)
+    }
+    g.strokeRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
+
+    // Borde interior (doble marco)
+    if (isSelected && char.available) {
+      g.lineStyle(1, COLORS.GOLD, 0.4)
+      g.strokeRect(3, 3, CARD_WIDTH - 6, CARD_HEIGHT - 6)
+    }
+
+    container.add(g)
+
+    // --- IMAGEN DEL PERSONAJE ---
+    const hasSprite = this.textures.exists(char.sprite) &&
+      this.textures.get(char.sprite).key !== '__MISSING'
+
+    if (hasSprite) {
+      const sprite = this.add.image(
+        IMG_X + IMG_W / 2,
+        IMG_Y + IMG_H / 2,
+        char.sprite,
+      )
+      const scaleX = IMG_W / sprite.width
+      const scaleY = IMG_H / sprite.height
+      const scale = Math.max(scaleX, scaleY)
+      sprite.setScale(scale)
+
+      const cropX = (sprite.displayWidth - IMG_W) / 2
+      const cropY = (sprite.displayHeight - IMG_H) / 2
+      sprite.setCrop(
+        cropX / scale,
+        cropY / scale,
+        IMG_W / scale,
+        IMG_H / scale,
+      )
+
+      container.add(sprite)
+
+      // Degradado oscuro en la parte inferior de la imagen (para legibilidad del nombre)
+      const imgGrad = this.add.graphics()
+      imgGrad.fillStyle(0x000000, 0.3)
+      imgGrad.fillRect(IMG_X, IMG_Y + IMG_H - 50, IMG_W, 20)
+      imgGrad.fillStyle(0x000000, 0.55)
+      imgGrad.fillRect(IMG_X, IMG_Y + IMG_H - 30, IMG_W, 30)
+      container.add(imgGrad)
+
+      // Borde de la imagen
+      const imgBorder = this.add.graphics()
+      imgBorder.lineStyle(2, COLORS.UI_BORDER, 1)
+      imgBorder.strokeRect(IMG_X, IMG_Y, IMG_W, IMG_H)
+      container.add(imgBorder)
+    } else {
+      // Placeholder: fondo oscuro con silueta
+      const spriteG = this.add.graphics()
+      spriteG.fillStyle(0x2a2a4a, 1)
+      spriteG.fillRect(IMG_X, IMG_Y, IMG_W, IMG_H)
+      spriteG.lineStyle(2, COLORS.UI_BORDER, 1)
+      spriteG.strokeRect(IMG_X, IMG_Y, IMG_W, IMG_H)
+      this.drawCharacterSilhouette(spriteG, IMG_X + IMG_W / 2, IMG_Y + IMG_H / 2, char.available)
+      container.add(spriteG)
+    }
+
+    // --- NOMBRE superpuesto sobre la imagen (parte inferior) ---
+    const nameColor = char.available ? '#ffd700' : '#555555'
+    const nameText = this.add.text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, char.name, {
+      fontFamily: 'monospace',
+      fontSize: '16px',
+      color: nameColor,
+      stroke: '#000000',
+      strokeThickness: 5,
+      align: 'center',
+    }).setOrigin(0.5, 1)
+    container.add(nameText)
+
+    // --- STATS en la parte inferior ---
+    if (char.available) {
+      this.drawStats(container, char.stats)
+    } else {
+      const lockText = this.add.text(CARD_WIDTH / 2, STATS_Y + 30, '???', {
+        fontFamily: 'monospace',
+        fontSize: '24px',
+        color: '#444444',
+      }).setOrigin(0.5)
+      container.add(lockText)
+
+      const lockedText = this.add.text(CARD_WIDTH / 2, STATS_Y + 60, 'BLOQUEADO', {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#444444',
+      }).setOrigin(0.5)
+      container.add(lockedText)
+    }
+
+    return container
   }
 
-  drawMiniStats(container, stats, x, y) {
+  drawStats(container, stats) {
     const statNames = { peso: 'PES', equilibrio: 'EQU', altura: 'ALT', edad: 'EDA' }
     const entries = Object.entries(stats)
 
     entries.forEach(([key, value], i) => {
-      const sy = y + i * 22
+      const sy = STATS_Y + i * STAT_ROW_H
 
-      // Nombre del stat
-      const label = this.add.text(x, sy, statNames[key], {
+      const label = this.add.text(STATS_X, sy + 1, statNames[key], {
         fontFamily: 'monospace',
-        fontSize: '9px',
-        color: '#aaaaaa',
+        fontSize: '10px',
+        color: '#999999',
       })
       container.add(label)
 
-      // Barra del stat
       const barG = this.add.graphics()
+      const barX = STATS_X + 38
+
       // Fondo de la barra
-      barG.fillStyle(0x1a1a2e, 1)
-      barG.fillRect(x + 35, sy + 2, BAR_WIDTH, BAR_HEIGHT)
+      barG.fillStyle(0x0a0a1e, 1)
+      barG.fillRect(barX, sy + 2, BAR_WIDTH, BAR_HEIGHT)
+
       // Relleno
       const fillWidth = (value / STAT_MAX) * BAR_WIDTH
       barG.fillStyle(STAT_COLORS[key], 1)
-      barG.fillRect(x + 35, sy + 2, fillWidth, BAR_HEIGHT)
+      barG.fillRect(barX, sy + 2, fillWidth, BAR_HEIGHT)
+
       // Borde
-      barG.lineStyle(1, 0x4a4a6a, 1)
-      barG.strokeRect(x + 35, sy + 2, BAR_WIDTH, BAR_HEIGHT)
+      barG.lineStyle(1, 0x3a3a5a, 1)
+      barG.strokeRect(barX, sy + 2, BAR_WIDTH, BAR_HEIGHT)
+
       container.add(barG)
     })
   }
 
+  drawCharacterSilhouette(graphics, cx, cy, available) {
+    const color = available ? 0x88aadd : 0x444466
+    graphics.fillStyle(color, 1)
+    graphics.fillRect(cx - 10, cy - 36, 20, 18)
+    graphics.fillRect(cx - 14, cy - 18, 28, 28)
+    graphics.fillRect(cx - 12, cy + 10, 10, 18)
+    graphics.fillRect(cx + 2, cy + 10, 10, 18)
+    graphics.fillRect(cx - 22, cy - 14, 8, 20)
+    graphics.fillRect(cx + 14, cy - 14, 8, 20)
+  }
+
+  updateCarouselPositions(animate = true) {
+    const centerX = GAME_WIDTH / 2 - CARD_WIDTH / 2
+    const targetOffset = centerX - this.selectedIndex * CARD_STEP
+
+    if (animate && !this.isScrolling) {
+      this.isScrolling = true
+      this.cardContainers.forEach((container, i) => {
+        const targetX = targetOffset + i * CARD_STEP
+        this.tweens.add({
+          targets: container,
+          x: targetX,
+          duration: 250,
+          ease: 'Cubic.easeOut',
+          onComplete: () => {
+            if (i === this.selectedIndex) {
+              this.isScrolling = false
+            }
+          },
+        })
+      })
+    } else {
+      this.cardContainers.forEach((container, i) => {
+        container.x = targetOffset + i * CARD_STEP
+      })
+    }
+
+    this.cardContainers.forEach((container, i) => {
+      const isSelected = i === this.selectedIndex
+      const distance = Math.abs(i - this.selectedIndex)
+
+      const targetAlpha = isSelected ? 1 : Math.max(0.4, 1 - distance * 0.25)
+      const targetScale = isSelected ? 1 : Math.max(0.85, 1 - distance * 0.06)
+
+      if (animate) {
+        this.tweens.add({
+          targets: container,
+          alpha: targetAlpha,
+          scaleX: targetScale,
+          scaleY: targetScale,
+          duration: 250,
+          ease: 'Cubic.easeOut',
+        })
+      } else {
+        container.setAlpha(targetAlpha)
+        container.setScale(targetScale)
+      }
+    })
+  }
+
   drawSelectedDetail() {
-    // Panel inferior con detalle del personaje seleccionado
     if (this.detailContainer) {
       this.detailContainer.destroy()
     }
@@ -234,31 +396,33 @@ export class CharacterSelectScene extends Scene {
 
     this.detailContainer = this.add.container(0, 0)
 
-    const panelY = 420
-    const panelH = 100
+    const panelY = 478
+    const panelH = 50
+    const panelW = 460
+    const px = GAME_WIDTH / 2 - panelW / 2
+
     const g = this.add.graphics()
-    g.fillStyle(COLORS.UI_BG, 0.9)
-    g.fillRect(GAME_WIDTH / 2 - 250, panelY, 500, panelH)
-    g.lineStyle(2, COLORS.UI_BORDER, 1)
-    g.strokeRect(GAME_WIDTH / 2 - 250, panelY, 500, panelH)
+    g.fillStyle(0x0d0d24, 0.9)
+    g.fillRect(px, panelY, panelW, panelH)
+    g.lineStyle(1, COLORS.UI_BORDER, 0.6)
+    g.strokeRect(px, panelY, panelW, panelH)
     this.detailContainer.add(g)
 
-    // Descripción
     const desc = this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, char.description, {
       fontFamily: 'monospace',
-      fontSize: '13px',
-      color: '#cccccc',
+      fontSize: '12px',
+      color: '#bbbbbb',
       align: 'center',
-      lineSpacing: 8,
+      lineSpacing: 6,
     }).setOrigin(0.5)
     this.detailContainer.add(desc)
   }
 
   drawNavigation() {
-    // Flechas de navegación
-    const arrowY = 230
+    const arrowY = 270
 
-    this.leftArrow = this.add.text(60, arrowY, '<', {
+    // Flechas con estilo retro
+    this.leftArrow = this.add.text(30, arrowY, '\u25C0', {
       fontFamily: 'monospace',
       fontSize: '36px',
       color: '#ffd700',
@@ -266,7 +430,7 @@ export class CharacterSelectScene extends Scene {
       strokeThickness: 4,
     }).setOrigin(0.5).setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.text(GAME_WIDTH - 60, arrowY, '>', {
+    this.rightArrow = this.add.text(GAME_WIDTH - 30, arrowY, '\u25B6', {
       fontFamily: 'monospace',
       fontSize: '36px',
       color: '#ffd700',
@@ -274,36 +438,94 @@ export class CharacterSelectScene extends Scene {
       strokeThickness: 4,
     }).setOrigin(0.5).setInteractive({ useHandCursor: true })
 
-    // Botón de jugar
+    // Indicador de posición (puntos)
+    this.dotsContainer = this.add.container(GAME_WIDTH / 2, 470)
+    this.updateDots()
+
+    // === BOTÓN JUGAR RETRO ===
     const btnY = 560
-    const btnG = this.add.graphics()
-    btnG.fillStyle(COLORS.UI_HIGHLIGHT, 1)
-    btnG.fillRect(GAME_WIDTH / 2 - 90, btnY, 180, 40)
-    btnG.lineStyle(2, COLORS.WHITE, 1)
-    btnG.strokeRect(GAME_WIDTH / 2 - 90, btnY, 180, 40)
+    const btnW = 220
+    const btnH = 48
+    const bx = GAME_WIDTH / 2 - btnW / 2
 
-    this.playBtn = this.add.text(GAME_WIDTH / 2, btnY + 20, 'JUGAR', {
-      fontFamily: 'monospace',
-      fontSize: '18px',
+    const btnG = this.add.graphics()
+
+    // Sombra del botón
+    btnG.fillStyle(0x000000, 0.5)
+    btnG.fillRect(bx + 3, btnY + 3, btnW, btnH)
+
+    // Cuerpo principal del botón
+    btnG.fillStyle(0x8b1a2b, 1)
+    btnG.fillRect(bx, btnY, btnW, btnH)
+
+    // Borde exterior claro (bisel superior-izquierdo)
+    btnG.fillStyle(0xff6b7a, 1)
+    btnG.fillRect(bx, btnY, btnW, 3)         // top
+    btnG.fillRect(bx, btnY, 3, btnH)         // left
+
+    // Borde interior oscuro (bisel inferior-derecho)
+    btnG.fillStyle(0x4a0a15, 1)
+    btnG.fillRect(bx, btnY + btnH - 3, btnW, 3)  // bottom
+    btnG.fillRect(bx + btnW - 3, btnY, 3, btnH)  // right
+
+    // Borde pixel exterior
+    btnG.lineStyle(2, COLORS.GOLD, 0.6)
+    btnG.strokeRect(bx - 2, btnY - 2, btnW + 4, btnH + 4)
+
+    // Pequeños decoradores en las esquinas del botón
+    const cS = 6
+    btnG.fillStyle(COLORS.GOLD, 0.8)
+    btnG.fillRect(bx - 2, btnY - 2, cS, 2)
+    btnG.fillRect(bx - 2, btnY - 2, 2, cS)
+    btnG.fillRect(bx + btnW + 2 - cS, btnY - 2, cS, 2)
+    btnG.fillRect(bx + btnW, btnY - 2, 2, cS)
+    btnG.fillRect(bx - 2, btnY + btnH, cS, 2)
+    btnG.fillRect(bx - 2, btnY + btnH - cS + 2, 2, cS)
+    btnG.fillRect(bx + btnW + 2 - cS, btnY + btnH, cS, 2)
+    btnG.fillRect(bx + btnW, btnY + btnH - cS + 2, 2, cS)
+
+    // Texto del botón
+    this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, '\u2694  JUGAR  \u2694', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '28px',
       color: '#ffffff',
       stroke: '#000000',
-      strokeThickness: 3,
+      strokeThickness: 4,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 0,
+        fill: true,
+      },
     }).setOrigin(0.5)
 
-    // Zona interactiva del botón
-    const btnZone = this.add.zone(GAME_WIDTH / 2, btnY + 20, 180, 40)
+    const btnZone = this.add.zone(GAME_WIDTH / 2, btnY + btnH / 2, btnW, btnH)
       .setInteractive({ useHandCursor: true })
+    btnZone.on('pointerdown', () => this.startGame())
 
-    btnZone.on('pointerdown', () => {
-      this.startGame()
-    })
-
-    // Instrucción
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 30, '< >  ELEGIR     ESPACIO  JUGAR', {
+    // Instrucciones en la parte inferior
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 20, '\u25C0 \u25B6  ELEGIR     ESPACIO  JUGAR', {
       fontFamily: 'monospace',
       fontSize: '10px',
-      color: '#666688',
+      color: '#555577',
     }).setOrigin(0.5)
+  }
+
+  updateDots() {
+    this.dotsContainer.removeAll(true)
+    const dotSpacing = 16
+    const totalW = (CHARACTERS.length - 1) * dotSpacing
+    const startX = -totalW / 2
+
+    CHARACTERS.forEach((_, i) => {
+      const isActive = i === this.selectedIndex
+      const dot = this.add.graphics()
+      dot.fillStyle(isActive ? COLORS.GOLD : 0x444466, 1)
+      const size = isActive ? 5 : 3
+      dot.fillRect(startX + i * dotSpacing - size / 2, -size / 2, size, size)
+      this.dotsContainer.add(dot)
+    })
   }
 
   setupInput() {
@@ -314,20 +536,33 @@ export class CharacterSelectScene extends Scene {
     this.input.keyboard.on('keydown-RIGHT', () => this.navigate(1))
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
+
+    this.input.on('pointerdown', (pointer) => {
+      this.swipeStartX = pointer.x
+    })
+
+    this.input.on('pointerup', (pointer) => {
+      if (this.swipeStartX === undefined) return
+      const diff = pointer.x - this.swipeStartX
+      if (Math.abs(diff) > 50) {
+        this.navigate(diff < 0 ? 1 : -1)
+      }
+      this.swipeStartX = undefined
+    })
   }
 
   navigate(direction) {
+    if (this.isScrolling) return
+
     this.selectedIndex = Phaser.Math.Wrap(
       this.selectedIndex + direction,
       0,
-      CHARACTERS.length
+      CHARACTERS.length,
     )
-    this.refreshUI()
-  }
 
-  refreshUI() {
-    this.drawCharacterCards()
+    this.buildCards()
     this.drawSelectedDetail()
+    this.updateDots()
   }
 
   startGame() {
