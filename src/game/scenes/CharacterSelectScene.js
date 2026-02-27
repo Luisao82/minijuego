@@ -12,18 +12,18 @@ const CHARACTERS = [
   },
   {
     id: 'abuela',
-    name: 'LA ABUELA',
+    name: 'LA AGÜELA',
     description: 'Veterana de mil velás.\nSabiduría y temple.',
     stats: { peso: 3, equilibrio: 8, altura: 4, edad: 9 },
-    available: false,
+    available: true,
   },
   {
     id: 'chaval',
     name: 'ER CHAVAL',
     description: 'Joven y ágil.\nSin miedo a nada.',
     stats: { peso: 3, equilibrio: 4, altura: 6, edad: 2 },
-    available: false,
-  },
+    available: true,
+  }
 ]
 
 const STAT_COLORS = {
