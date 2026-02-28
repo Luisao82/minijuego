@@ -155,9 +155,9 @@ export class GameScene extends Scene {
     // Bandera al final
     g.fillStyle(COLORS.WOOD_DARK, 1)
     g.fillRect(878, poleY - 30, 3, 36)
-    g.fillStyle(COLORS.RED, 1)
+    g.fillStyle(COLORS.WHITE, 1)
     g.fillRect(881, poleY - 30, 18, 12)
-    g.fillStyle(COLORS.YELLOW, 1)
+    g.fillStyle(COLORS.WHITE, 1)
     g.fillRect(881, poleY - 22, 18, 4)
 
     // Marcas de distancia bajo el palo

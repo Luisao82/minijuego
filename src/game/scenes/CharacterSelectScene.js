@@ -16,7 +16,7 @@ const CARD_WIDTH = 240
 const CARD_HEIGHT = 360
 const CARD_GAP = 40
 const CARD_STEP = CARD_WIDTH + CARD_GAP
-const CARDS_Y = 100
+const CARDS_Y = 150
 const CARD_PADDING = 6
 
 // Imagen ocupa la parte superior de la card
@@ -35,9 +35,9 @@ const STAT_ROW_H = 20
 const VISIBLE_AREA_LEFT = 60
 const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
 
-// Franja oscura para el carrusel
-const BAND_Y = 60
-const BAND_H = 480
+// Franja oscura — más abajo para mostrar más fondo
+const BAND_Y = 120
+const BAND_H = 440
 
 export class CharacterSelectScene extends Scene {
 
@@ -54,6 +54,7 @@ export class CharacterSelectScene extends Scene {
     this.createCarousel()
     this.drawSelectedDetail()
     this.drawNavigation()
+    this.drawPlayButton()
     this.setupInput()
   }
 
@@ -65,62 +66,71 @@ export class CharacterSelectScene extends Scene {
     const scale = Math.max(scaleX, scaleY)
     bg.setScale(scale)
 
-    // Overlay oscuro sobre toda la pantalla para atenuar el fondo
+    // Overlay más suave arriba para que se vea el fondo, más denso abajo
     const overlay = this.add.graphics()
-    overlay.fillStyle(0x0a0a1e, 0.65)
-    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    // Parte superior: overlay ligero para que se vea la imagen
+    overlay.fillStyle(0x0a0a1e, 0.35)
+    overlay.fillRect(0, 0, GAME_WIDTH, BAND_Y)
+    // Parte inferior bajo la franja
+    overlay.fillStyle(0x0a0a1e, 0.55)
+    overlay.fillRect(0, BAND_Y + BAND_H, GAME_WIDTH, GAME_HEIGHT - BAND_Y - BAND_H)
 
-    // Franja central oscura ancha con más opacidad (zona de fichas)
+    // Franja central oscura (zona de fichas)
     const band = this.add.graphics()
     // Degradado simulado: borde superior difuso
-    band.fillStyle(0x0a0a1e, 0.3)
-    band.fillRect(0, BAND_Y - 20, GAME_WIDTH, 20)
+    band.fillStyle(0x0a0a1e, 0.25)
+    band.fillRect(0, BAND_Y - 30, GAME_WIDTH, 15)
+    band.fillStyle(0x0a0a1e, 0.45)
+    band.fillRect(0, BAND_Y - 15, GAME_WIDTH, 15)
     // Cuerpo principal de la franja
-    band.fillStyle(0x0d0d24, 0.85)
+    band.fillStyle(0x0d0d24, 0.82)
     band.fillRect(0, BAND_Y, GAME_WIDTH, BAND_H)
     // Degradado simulado: borde inferior difuso
-    band.fillStyle(0x0a0a1e, 0.3)
-    band.fillRect(0, BAND_Y + BAND_H, GAME_WIDTH, 20)
+    band.fillStyle(0x0a0a1e, 0.45)
+    band.fillRect(0, BAND_Y + BAND_H, GAME_WIDTH, 15)
+    band.fillStyle(0x0a0a1e, 0.25)
+    band.fillRect(0, BAND_Y + BAND_H + 15, GAME_WIDTH, 15)
 
     // Líneas decorativas en los bordes de la franja
     const lines = this.add.graphics()
     lines.lineStyle(2, COLORS.GOLD, 0.4)
     lines.lineBetween(0, BAND_Y, GAME_WIDTH, BAND_Y)
     lines.lineBetween(0, BAND_Y + BAND_H, GAME_WIDTH, BAND_Y + BAND_H)
-    // Línea interior sutil
     lines.lineStyle(1, COLORS.GOLD, 0.15)
     lines.lineBetween(0, BAND_Y + 3, GAME_WIDTH, BAND_Y + 3)
     lines.lineBetween(0, BAND_Y + BAND_H - 3, GAME_WIDTH, BAND_Y + BAND_H - 3)
   }
 
   drawHeader() {
-    // Fondo decorativo del título
+    const cx = GAME_WIDTH / 2
+    const headerY = 55
+
+    // Fondo decorativo del título — flotando sobre el fondo visible
     const headerBg = this.add.graphics()
-    headerBg.fillStyle(0x0a0a1e, 0.7)
-    headerBg.fillRect(GAME_WIDTH / 2 - 280, 6, 560, 50)
+    headerBg.fillStyle(0x0a0a1e, 0.6)
+    headerBg.fillRect(cx - 280, headerY - 25, 560, 50)
     headerBg.lineStyle(1, COLORS.GOLD, 0.3)
-    headerBg.strokeRect(GAME_WIDTH / 2 - 280, 6, 560, 50)
+    headerBg.strokeRect(cx - 280, headerY - 25, 560, 50)
 
     // Esquinas decorativas retro
     const corners = this.add.graphics()
     corners.lineStyle(2, COLORS.GOLD, 0.8)
-    const cx = GAME_WIDTH / 2
     const cLen = 12
-    // Esquina superior izquierda
-    corners.lineBetween(cx - 276, 10, cx - 276 + cLen, 10)
-    corners.lineBetween(cx - 276, 10, cx - 276, 10 + cLen)
-    // Esquina superior derecha
-    corners.lineBetween(cx + 276, 10, cx + 276 - cLen, 10)
-    corners.lineBetween(cx + 276, 10, cx + 276, 10 + cLen)
-    // Esquina inferior izquierda
-    corners.lineBetween(cx - 276, 52, cx - 276 + cLen, 52)
-    corners.lineBetween(cx - 276, 52, cx - 276, 52 - cLen)
-    // Esquina inferior derecha
-    corners.lineBetween(cx + 276, 52, cx + 276 - cLen, 52)
-    corners.lineBetween(cx + 276, 52, cx + 276, 52 - cLen)
+    const left = cx - 276
+    const right = cx + 276
+    const top = headerY - 21
+    const bottom = headerY + 21
+    corners.lineBetween(left, top, left + cLen, top)
+    corners.lineBetween(left, top, left, top + cLen)
+    corners.lineBetween(right, top, right - cLen, top)
+    corners.lineBetween(right, top, right, top + cLen)
+    corners.lineBetween(left, bottom, left + cLen, bottom)
+    corners.lineBetween(left, bottom, left, bottom - cLen)
+    corners.lineBetween(right, bottom, right - cLen, bottom)
+    corners.lineBetween(right, bottom, right, bottom - cLen)
 
     // Texto principal con Jersey 10
-    this.add.text(GAME_WIDTH / 2, 31, 'ELIGE TU PERSONAJE', {
+    this.add.text(cx, headerY, 'ELIGE TU PERSONAJE', {
       fontFamily: '"Jersey 10", cursive',
       fontSize: '42px',
       color: '#ffd700',
@@ -138,16 +148,14 @@ export class CharacterSelectScene extends Scene {
 
     // Línea decorativa debajo — doble con diamante central
     const lineG = this.add.graphics()
+    const lineY = headerY + 28
     lineG.fillStyle(COLORS.GOLD, 0.6)
-    // Línea superior
-    lineG.fillRect(cx - 200, 58, 400, 1)
-    // Diamante central
+    lineG.fillRect(cx - 200, lineY, 400, 1)
     const dSize = 4
     lineG.fillStyle(COLORS.GOLD, 0.9)
-    lineG.fillRect(cx - dSize, 58 - dSize + 1, dSize * 2, dSize * 2)
-    // Línea inferior
+    lineG.fillRect(cx - dSize, lineY - dSize + 1, dSize * 2, dSize * 2)
     lineG.fillStyle(COLORS.GOLD, 0.35)
-    lineG.fillRect(cx - 160, 62, 320, 1)
+    lineG.fillRect(cx - 160, lineY + 4, 320, 1)
   }
 
   createCarousel() {
@@ -234,7 +242,7 @@ export class CharacterSelectScene extends Scene {
 
       container.add(sprite)
 
-      // Degradado oscuro en la parte inferior de la imagen (para legibilidad del nombre)
+      // Degradado oscuro en la parte inferior de la imagen
       const imgGrad = this.add.graphics()
       imgGrad.fillStyle(0x000000, 0.3)
       imgGrad.fillRect(IMG_X, IMG_Y + IMG_H - 50, IMG_W, 20)
@@ -248,7 +256,6 @@ export class CharacterSelectScene extends Scene {
       imgBorder.strokeRect(IMG_X, IMG_Y, IMG_W, IMG_H)
       container.add(imgBorder)
     } else {
-      // Placeholder: fondo oscuro con silueta
       const spriteG = this.add.graphics()
       spriteG.fillStyle(0x2a2a4a, 1)
       spriteG.fillRect(IMG_X, IMG_Y, IMG_W, IMG_H)
@@ -309,16 +316,13 @@ export class CharacterSelectScene extends Scene {
       const barG = this.add.graphics()
       const barX = STATS_X + 38
 
-      // Fondo de la barra
       barG.fillStyle(0x0a0a1e, 1)
       barG.fillRect(barX, sy + 2, BAR_WIDTH, BAR_HEIGHT)
 
-      // Relleno
       const fillWidth = (value / STAT_MAX) * BAR_WIDTH
       barG.fillStyle(STAT_COLORS[key], 1)
       barG.fillRect(barX, sy + 2, fillWidth, BAR_HEIGHT)
 
-      // Borde
       barG.lineStyle(1, 0x3a3a5a, 1)
       barG.strokeRect(barX, sy + 2, BAR_WIDTH, BAR_HEIGHT)
 
@@ -396,8 +400,8 @@ export class CharacterSelectScene extends Scene {
 
     this.detailContainer = this.add.container(0, 0)
 
-    const panelY = 478
-    const panelH = 50
+    const panelY = CARDS_Y + CARD_HEIGHT + 10
+    const panelH = 46
     const panelW = 460
     const px = GAME_WIDTH / 2 - panelW / 2
 
@@ -419,7 +423,7 @@ export class CharacterSelectScene extends Scene {
   }
 
   drawNavigation() {
-    const arrowY = 270
+    const arrowY = CARDS_Y + CARD_HEIGHT / 2
 
     // Flechas con estilo retro
     this.leftArrow = this.add.text(30, arrowY, '\u25C0', {
@@ -439,77 +443,92 @@ export class CharacterSelectScene extends Scene {
     }).setOrigin(0.5).setInteractive({ useHandCursor: true })
 
     // Indicador de posición (puntos)
-    this.dotsContainer = this.add.container(GAME_WIDTH / 2, 470)
+    this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_HEIGHT + 66)
     this.updateDots()
 
-    // === BOTÓN JUGAR RETRO ===
-    const btnY = 560
-    const btnW = 220
-    const btnH = 48
-    const bx = GAME_WIDTH / 2 - btnW / 2
-
-    const btnG = this.add.graphics()
-
-    // Sombra del botón
-    btnG.fillStyle(0x000000, 0.5)
-    btnG.fillRect(bx + 3, btnY + 3, btnW, btnH)
-
-    // Cuerpo principal del botón
-    btnG.fillStyle(0x8b1a2b, 1)
-    btnG.fillRect(bx, btnY, btnW, btnH)
-
-    // Borde exterior claro (bisel superior-izquierdo)
-    btnG.fillStyle(0xff6b7a, 1)
-    btnG.fillRect(bx, btnY, btnW, 3)         // top
-    btnG.fillRect(bx, btnY, 3, btnH)         // left
-
-    // Borde interior oscuro (bisel inferior-derecho)
-    btnG.fillStyle(0x4a0a15, 1)
-    btnG.fillRect(bx, btnY + btnH - 3, btnW, 3)  // bottom
-    btnG.fillRect(bx + btnW - 3, btnY, 3, btnH)  // right
-
-    // Borde pixel exterior
-    btnG.lineStyle(2, COLORS.GOLD, 0.6)
-    btnG.strokeRect(bx - 2, btnY - 2, btnW + 4, btnH + 4)
-
-    // Pequeños decoradores en las esquinas del botón
-    const cS = 6
-    btnG.fillStyle(COLORS.GOLD, 0.8)
-    btnG.fillRect(bx - 2, btnY - 2, cS, 2)
-    btnG.fillRect(bx - 2, btnY - 2, 2, cS)
-    btnG.fillRect(bx + btnW + 2 - cS, btnY - 2, cS, 2)
-    btnG.fillRect(bx + btnW, btnY - 2, 2, cS)
-    btnG.fillRect(bx - 2, btnY + btnH, cS, 2)
-    btnG.fillRect(bx - 2, btnY + btnH - cS + 2, 2, cS)
-    btnG.fillRect(bx + btnW + 2 - cS, btnY + btnH, cS, 2)
-    btnG.fillRect(bx + btnW, btnY + btnH - cS + 2, 2, cS)
-
-    // Texto del botón
-    this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, '\u2694  JUGAR  \u2694', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '28px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 4,
-      shadow: {
-        offsetX: 2,
-        offsetY: 2,
-        color: '#000000',
-        blur: 0,
-        fill: true,
-      },
-    }).setOrigin(0.5)
-
-    const btnZone = this.add.zone(GAME_WIDTH / 2, btnY + btnH / 2, btnW, btnH)
-      .setInteractive({ useHandCursor: true })
-    btnZone.on('pointerdown', () => this.startGame())
-
     // Instrucciones en la parte inferior
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 20, '\u25C0 \u25B6  ELEGIR     ESPACIO  JUGAR', {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 15, '\u25C0 \u25B6  ELEGIR     ESPACIO  JUGAR', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#555577',
     }).setOrigin(0.5)
+  }
+
+  drawPlayButton() {
+    // Posición: justo debajo de la franja, centrado
+    const btnY = BAND_Y + BAND_H + 40
+
+    // Banderas blancas pixel art dibujadas con graphics
+    const flagSize = 18
+    const flagSpacing = 160
+
+    const flagsG = this.add.graphics()
+
+    // Bandera izquierda
+    const lfx = GAME_WIDTH / 2 - flagSpacing
+    flagsG.fillStyle(0x888888, 1)
+    flagsG.fillRect(lfx, btnY - flagSize + 2, 3, flagSize + 6)
+    flagsG.fillStyle(0xffffff, 0.9)
+    flagsG.fillRect(lfx + 3, btnY - flagSize + 2, 14, 10)
+    flagsG.lineStyle(1, 0xcccccc, 0.8)
+    flagsG.strokeRect(lfx + 3, btnY - flagSize + 2, 14, 10)
+
+    // Bandera derecha (espejada)
+    const rfx = GAME_WIDTH / 2 + flagSpacing
+    flagsG.fillStyle(0x888888, 1)
+    flagsG.fillRect(rfx - 2, btnY - flagSize + 2, 3, flagSize + 6)
+    flagsG.fillStyle(0xffffff, 0.9)
+    flagsG.fillRect(rfx - 17, btnY - flagSize + 2, 14, 10)
+    flagsG.lineStyle(1, 0xcccccc, 0.8)
+    flagsG.strokeRect(rfx - 17, btnY - flagSize + 2, 14, 10)
+
+    // Texto JUGAR — solo letras, grande y llamativo
+    this.playText = this.add.text(GAME_WIDTH / 2, btnY, 'JUGAR', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '52px',
+      color: '#ffd700',
+      stroke: '#1a0800',
+      strokeThickness: 8,
+      letterSpacing: 12,
+      shadow: {
+        offsetX: 4,
+        offsetY: 4,
+        color: '#000000',
+        blur: 0,
+        fill: true,
+      },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+
+    this.playText.on('pointerdown', () => this.startGame())
+
+    // Efecto pulsante: respiración suave de escala + brillo
+    this.tweens.add({
+      targets: this.playText,
+      scaleX: 1.08,
+      scaleY: 1.08,
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
+
+    // Texto secundario parpadeante debajo
+    const hintText = this.add.text(GAME_WIDTH / 2, btnY + 38, 'PULSA PARA COMENZAR', {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 2,
+    }).setOrigin(0.5)
+
+    this.tweens.add({
+      targets: hintText,
+      alpha: 0.3,
+      duration: 600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
   }
 
   updateDots() {
