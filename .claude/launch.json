@@ -5,7 +5,7 @@
       "name": "dev",
       "runtimeExecutable": "/usr/local/bin/node",
       "runtimeArgs": ["./node_modules/.bin/vite", "--config", "vite/config.dev.mjs"],
-      "port": 8080
+      "port": 9876
     }
   ]
 }

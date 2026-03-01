@@ -54,3 +54,36 @@ export const PIXEL_FONT_SMALL = {
   fontSize: '10px',
   strokeThickness: 2,
 }
+
+// Configuración de la Fase 1 — Impulso ("La carrera")
+export const PHASE1 = {
+  BASE_SPEED: 0.15,             // Velocidad inicial de la barra (pos/seg)
+  BASE_ACCELERATION: 0.25,      // Aceleración base por segundo
+  WEIGHT_FACTOR: 0.06,          // Aceleración extra por punto de peso
+  MAX_PASSES: 3,                // Máximo de pasadas antes de que se acabe el tiempo
+  PASS_SPEED_INCREASE: 0.1,     // Incremento de velocidad base por pasada completada
+  ZONES: {
+    RED: { start: 0, end: 0.4 },
+    YELLOW: { start: 0.4, end: 0.75 },
+    GREEN: { start: 0.75, end: 1.0 },
+  },
+  BAR: {
+    WIDTH: 600,
+    HEIGHT: 36,
+  },
+}
+
+// Configuración del palo (cucaña)
+export const POLE = {
+  START_X: 860,             // Derecha — donde empieza el personaje (junto a barcaza)
+  END_X: 150,               // Izquierda — donde está la bandera
+  Y_FACTOR: 0.42,           // Posición Y relativa al alto del juego
+}
+
+// Configuración del movimiento del personaje
+export const MOVEMENT = {
+  MIN_RUN_DURATION: 0.8,    // Duración mínima del recorrido (seg)
+  MAX_RUN_DURATION: 4.0,    // Duración máxima del recorrido (seg)
+  FALL_DURATION: 350,       // Duración de la caída al agua (ms)
+  RESULT_DISPLAY_MS: 1500,  // Tiempo mostrando resultado antes de que el personaje corra
+}

@@ -9,6 +9,29 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- Fase 1 — Impulso ("La carrera"): barra de poder con aceleración progresiva, zonas roja/amarilla/verde y máximo 3 pasadas.
+- Entidad `PowerBar` (entities/PowerBar.js): modelo puro de la barra de poder con posición, velocidad, zonas e impulso.
+- Sistema `ImpulseSystem` (systems/ImpulseSystem.js): lógica de negocio para la mecánica de impulso (aceleración, reset, parada y cálculo de resultado).
+- Constantes de Fase 1 en `gameConfig.js` (`PHASE1`): velocidad base, aceleración, factor de peso, zonas y dimensiones de la barra.
+- Influencia del peso del personaje en la dificultad de la barra (más peso = más aceleración = más difícil).
+- Movimiento del personaje tras el impulso: avanza por el palo de derecha a izquierda con desaceleración progresiva.
+- Caída al agua con efecto splash cuando el personaje se queda sin impulso.
+- Pantalla de game over con distancia alcanzada y opción de reinicio.
+- Constantes `POLE` y `MOVEMENT` en `gameConfig.js` para posiciones del palo y parámetros de movimiento.
+
+### Changed
+
+- Layout del juego invertido: barcaza a la derecha, bandera a la izquierda (personaje avanza de derecha a izquierda según GDD).
+- `GameScene.js`: reescrita con mecánica completa de Fase 1 (impulso + movimiento + caída).
+- Personaje ahora es un objeto redibujable (se mueve por el palo en cada frame).
+- Tras el resultado del impulso, el personaje empieza a correr automáticamente (sin necesidad de pulsar).
+
+### Removed
+
+- Placeholder "EN DESARROLLO" de la pantalla de juego.
+
+---
+
 - Estructura de carpetas Clean Architecture (config, scenes, entities, systems, components, utils).
 - Archivo de configuración centralizado `gameConfig.js` con constantes, colores y nombres de escenas.
 - BootScene: escena de arranque inicial.
