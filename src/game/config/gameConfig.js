@@ -80,11 +80,28 @@ export const PHASE1 = {
   },
 }
 
-// Configuración del palo (cucaña)
+// Configuración del barco (barcaza)
+// Proporciones basadas en referencia visual: barco 8m, palo 7m → ratio palo:barco = 7:8
+const BOAT_IMAGE_W = 333
+const BOAT_IMAGE_H = 182
+const BOAT_SCALE = 1.25                                    // Escala grande para coincidir con referencia visual
+const BOAT_W = Math.round(BOAT_IMAGE_W * BOAT_SCALE)     // ~416px
+const BOAT_H = Math.round(BOAT_IMAGE_H * BOAT_SCALE)     // ~228px
+const POLE_LENGTH = Math.round(BOAT_W * 7 / 8)           // ~364px (ratio 7:8)
+
+export const BOAT = {
+  DISPLAY_WIDTH: BOAT_W,
+  DISPLAY_HEIGHT: BOAT_H,
+  RIGHT_X: 985,               // Borde derecho del barco (pegado al borde de pantalla)
+  DECK_Y_RATIO: 0.32,         // El palo se ancla al 32% desde arriba del barco (zona superior del casco)
+}
+
+// Configuración del palo (cucaña) — prolongación horizontal del barco (7:8)
 export const POLE = {
-  START_X: 860,             // Derecha — donde empieza el personaje (junto a barcaza)
-  END_X: 300, //150,               // Izquierda — donde está la bandera
-  Y_FACTOR: 0.52,           // Posición Y relativa al alto del juego
+  LENGTH: POLE_LENGTH,
+  START_X: BOAT.RIGHT_X - BOAT_W,                          // Borde izquierdo del barco (palo pegado)
+  END_X: BOAT.RIGHT_X - BOAT_W - POLE_LENGTH,             // Donde está la bandera
+  Y_FACTOR: 0.555,                                         // Ajustado para mantener el barco en su posición con DECK_Y_RATIO 0.32
 }
 
 // Configuración del movimiento del personaje

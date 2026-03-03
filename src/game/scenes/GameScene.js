@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT } from '../config/gameConfig'
 import { PowerBar } from '../entities/PowerBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 
@@ -15,8 +15,8 @@ export class GameScene extends Scene {
     this.impulseResult = null
 
     // Posición del personaje
-    this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
-    this.waterY = GAME_HEIGHT * 0.6
+    this.poleY = GAME_HEIGHT * POLE.Y_FACTOR 
+    this.waterY = this.poleY + 60  // El agua está justo debajo del palo
     this.playerX = POLE.START_X
     this.playerY = this.poleY - 4
 
@@ -326,7 +326,7 @@ export class GameScene extends Scene {
     this.phase = 'done'
 
     const centerX = GAME_WIDTH / 2
-    const centerY = GAME_HEIGHT / 2
+    const centerY = CONTROL_PANEL.Y / 2
 
     const g = this.add.graphics()
     g.fillStyle(COLORS.DARK_BG, 0.85)
@@ -405,26 +405,26 @@ export class GameScene extends Scene {
   drawPole() {
     const g = this.add.graphics()
 
-    // Barcaza (DERECHA)
-    g.fillStyle(0x5c3a1e, 1)
-    g.fillRect(884, this.poleY + 10, 120, 25)
-    g.fillRect(894, this.poleY + 35, 100, 10)
-    g.lineStyle(1, 0x3d2510, 1)
-    g.strokeRect(884, this.poleY + 10, 120, 25)
-
-    // Soporte del palo (DERECHA)
-    g.fillStyle(0x4a3520, 1)
-    g.fillRect(866, this.poleY - 15, 20, 30)
-
-    // Palo de la cucaña (de derecha a izquierda)
+    // Palo — prolongación horizontal del barco, pegado a su borde izquierdo
+    // Se extiende desde el barco hacia la izquierda con un pequeño overlap
+    const poleOverlap = 20
     g.fillStyle(COLORS.WOOD_LIGHT, 1)
-    g.fillRect(POLE.END_X - 10, this.poleY - 4, POLE.START_X - POLE.END_X + 30, 10)
+    g.fillRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 6)
+    // Borde superior/inferior para dar volumen
+    g.lineStyle(1, COLORS.WOOD_DARK, 0.6)
+    g.strokeRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 6)
 
     // Bandera (IZQUIERDA — final del recorrido)
     g.fillStyle(COLORS.WOOD_DARK, 1)
-    g.fillRect(POLE.END_X - 6, this.poleY - 30, 3, 36)
+    g.fillRect(POLE.END_X - 2, this.poleY - 28, 3, 30)
     g.fillStyle(COLORS.WHITE, 1)
-    g.fillRect(POLE.END_X - 24, this.poleY - 30, 18, 12)
+    g.fillRect(POLE.END_X - 18, this.poleY - 28, 16, 10)
+
+    // Barco (sprite) — centro del barco alineado verticalmente con el palo
+    const boatCenterX = BOAT.RIGHT_X - BOAT.DISPLAY_WIDTH / 2
+    const boatCenterY = this.poleY + BOAT.DISPLAY_HEIGHT * (0.15 - BOAT.DECK_Y_RATIO)
+    this.add.image(boatCenterX, boatCenterY, 'boat')
+      .setDisplaySize(BOAT.DISPLAY_WIDTH, BOAT.DISPLAY_HEIGHT)
   }
 
   // ========================================
@@ -443,23 +443,26 @@ export class GameScene extends Scene {
     const px = this.playerX
     const py = this.playerY
 
-    // Cabeza
-    g.fillStyle(0xffcc88, 1)
-    g.fillRect(px - 6, py - 36, 12, 12)
     // Pelo
     g.fillStyle(0x3d2510, 1)
     g.fillRect(px - 6, py - 38, 12, 4)
-    // Camiseta
-    g.fillStyle(0xcc3333, 1)
-    g.fillRect(px - 8, py - 24, 16, 14)
-    // Pantalón
-    g.fillStyle(0x2244aa, 1)
-    g.fillRect(px - 7, py - 10, 6, 10)
-    g.fillRect(px + 1, py - 10, 6, 10)
-    // Brazos
+    // Cabeza
     g.fillStyle(0xffcc88, 1)
-    g.fillRect(px - 14, py - 22, 6, 12)
-    g.fillRect(px + 8, py - 22, 6, 12)
+    g.fillRect(px - 6, py - 34, 12, 12)
+    // Torso (piel desnuda)
+    g.fillStyle(0xf0bb78, 1)
+    g.fillRect(px - 7, py - 22, 14, 14)
+    // Bañador rojo
+    g.fillStyle(0xcc2222, 1)
+    g.fillRect(px - 7, py - 8, 14, 6)
+    // Piernas (piel)
+    g.fillStyle(0xf0bb78, 1)
+    g.fillRect(px - 6, py - 2, 5, 6)
+    g.fillRect(px + 1, py - 2, 5, 6)
+    // Brazos (piel)
+    g.fillStyle(0xf0bb78, 1)
+    g.fillRect(px - 12, py - 20, 5, 12)
+    g.fillRect(px + 7, py - 20, 5, 12)
   }
 
   // ========================================

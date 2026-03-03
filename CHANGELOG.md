@@ -21,6 +21,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Fondo pixel art (`fondo_a.png` 256×192) para la escena de juego, escalado ×4 con filtro NEAREST.
 - Panel de control inferior (1/5 de pantalla, ~154px) como zona dedicada para controles del jugador.
 - Constante `CONTROL_PANEL` en `gameConfig.js` con dimensiones y posiciones del panel.
+- Sprite del barco (`barco.png`) reemplaza la barcaza dibujada con rectángulos.
+- Constante `BOAT` en `gameConfig.js` con dimensiones, escala y posición del barco.
 
 ### Changed
 
@@ -29,6 +31,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Personaje ahora es un objeto redibujable (se mueve por el palo en cada frame).
 - El personaje arranca a correr inmediatamente al parar la barra, sin pausa de resultado intermedia (más dinamismo).
 - Barra de impulso reubicada dentro del panel de control inferior.
+- Palo y barco reposicionados más a la izquierda con proporción 7:8 (palo 7m, barco 8m).
+- Reajuste completo de dimensiones según referencia visual: barco escala ×1.25, palo como prolongación horizontal del casco, posición Y al 50%.
 
 ### Removed
 
