@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL } from '../config/gameConfig'
 import { PowerBar } from '../entities/PowerBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 
@@ -16,7 +16,7 @@ export class GameScene extends Scene {
 
     // Posición del personaje
     this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
-    this.waterY = GAME_HEIGHT * 0.45
+    this.waterY = GAME_HEIGHT * 0.6
     this.playerX = POLE.START_X
     this.playerY = this.poleY - 4
 
@@ -36,6 +36,7 @@ export class GameScene extends Scene {
     this.drawSimpleBackground()
     this.drawPole()
     this.createPlayer()
+    this.createControlPanel()
     this.createHUD()
     this.startPhase1()
     this.setupInput()
@@ -56,7 +57,7 @@ export class GameScene extends Scene {
   createPowerBarUI() {
     const { WIDTH, HEIGHT } = PHASE1.BAR
     const centerX = GAME_WIDTH / 2
-    const barY = GAME_HEIGHT * 0.72
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
     const barX = centerX - WIDTH / 2
 
     // Gráficos estáticos de la barra
@@ -86,23 +87,19 @@ export class GameScene extends Scene {
     this.barCursor = this.add.graphics()
     this.phase1UI.push(this.barCursor)
 
-    // Contador de intentos
-    this.passText = this.add.text(centerX, barY - 20, '', {
+    // Contador de intentos (encima de la barra)
+    this.passText = this.add.text(centerX, barY - 16, '', {
       fontFamily: 'monospace',
       fontSize: '12px',
       color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 3,
     }).setOrigin(0.5)
     this.phase1UI.push(this.passText)
 
-    // Texto de instrucción
-    this.instructionText = this.add.text(centerX, barY + HEIGHT + 30, '¡PULSA PARA DETENER!', {
+    // Texto de instrucción (debajo de la barra)
+    this.instructionText = this.add.text(centerX, barY + HEIGHT + 20, '¡PULSA PARA DETENER!', {
       fontFamily: 'monospace',
-      fontSize: '16px',
+      fontSize: '14px',
       color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 3,
     }).setOrigin(0.5)
     this.phase1UI.push(this.instructionText)
 
@@ -121,8 +118,6 @@ export class GameScene extends Scene {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#aaaaaa',
-        stroke: '#000000',
-        strokeThickness: 2,
       }).setOrigin(0, 0.5)
     )
 
@@ -172,7 +167,7 @@ export class GameScene extends Scene {
     const { WIDTH, HEIGHT } = PHASE1.BAR
     const centerX = GAME_WIDTH / 2
     const barX = centerX - WIDTH / 2
-    const barY = GAME_HEIGHT * 0.72
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
     const cursorX = barX + this.powerBar.position * WIDTH
 
     this.barCursor.clear()
@@ -196,64 +191,11 @@ export class GameScene extends Scene {
     this.passText.setText(`INTENTO ${attempt}/${this.powerBar.maxPasses}`)
   }
 
-  // ========================================
-  // RESULTADO DE FASE 1
-  // ========================================
-
-  showImpulseResult() {
-    if (this.instructionTween) this.instructionTween.stop()
-    this.instructionText.setAlpha(0)
-
-    const result = this.impulseResult
-    const centerX = GAME_WIDTH / 2
-    const barY = GAME_HEIGHT * 0.72
-    const { HEIGHT } = PHASE1.BAR
-
-    const zoneStyles = {
-      red: { color: '#ff4444', label: '¡MALA!' },
-      yellow: { color: '#ffdd44', label: 'REGULAR' },
-      green: { color: '#44ff44', label: '¡ÓPTIMA!' },
-    }
-    const style = zoneStyles[result.zone]
-
-    const panelY = barY + HEIGHT + 20
-    const panelG = this.add.graphics()
-    panelG.fillStyle(COLORS.DARK_BG, 0.85)
-    panelG.fillRect(centerX - 160, panelY, 320, 80)
-    panelG.lineStyle(2, COLORS.GOLD, 0.8)
-    panelG.strokeRect(centerX - 160, panelY, 320, 80)
-    this.phase1UI.push(panelG)
-
-    const zoneText = this.add.text(centerX, panelY + 18, `ZONA: ${style.label}`, {
-      fontFamily: 'monospace',
-      fontSize: '18px',
-      color: style.color,
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5)
-    this.phase1UI.push(zoneText)
-
-    const impulsePercent = Math.round(result.impulseValue * 100)
-    const impulseText = this.add.text(centerX, panelY + 48, `IMPULSO: ${impulsePercent}%`, {
-      fontFamily: 'monospace',
-      fontSize: '14px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-    this.phase1UI.push(impulseText)
-
-    // Tras mostrar resultado, el personaje empieza a correr automáticamente
-    this.time.delayedCall(MOVEMENT.RESULT_DISPLAY_MS, () => {
-      if (this.phase !== 'impulse_result') return
-      this.startRunning()
-    })
-  }
-
-  onBarFinished() {
-    this.impulseResult = this.impulseSystem.getResult()
-    this.phase = 'impulse_result'
-    this.showImpulseResult()
+  onBarStopped() {
+    this.impulseResult = this.impulseSystem.isActive()
+      ? this.impulseSystem.stop()
+      : this.impulseSystem.getResult()
+    this.startRunning()
   }
 
   cleanPhase1UI() {
@@ -438,9 +380,7 @@ export class GameScene extends Scene {
 
   handleTap() {
     if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
-      this.impulseResult = this.impulseSystem.stop()
-      this.phase = 'impulse_result'
-      this.showImpulseResult()
+      this.onBarStopped()
     } else if (this.phase === 'done' && this.canRestart) {
       this.scene.restart({ character: this.characterData })
     }
@@ -451,15 +391,15 @@ export class GameScene extends Scene {
   // ========================================
 
   drawSimpleBackground() {
+    // Fondo pixel art a tamaño completo (el panel se dibuja encima)
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-game')
+      .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
+  }
+
+  createControlPanel() {
     const g = this.add.graphics()
-
-    // Cielo
-    g.fillStyle(0x4a9fd9, 1)
-    g.fillRect(0, 0, GAME_WIDTH, this.waterY)
-
-    // Río
-    g.fillStyle(COLORS.RIVER_BLUE, 1)
-    g.fillRect(0, this.waterY, GAME_WIDTH, GAME_HEIGHT - this.waterY)
+    g.fillStyle(COLORS.BLACK, 1)
+    g.fillRect(0, CONTROL_PANEL.Y, GAME_WIDTH, CONTROL_PANEL.HEIGHT)
   }
 
   drawPole() {
@@ -569,7 +509,7 @@ export class GameScene extends Scene {
       this.updatePassCounter()
 
       if (this.powerBar.finished) {
-        this.onBarFinished()
+        this.onBarStopped()
       }
     }
 

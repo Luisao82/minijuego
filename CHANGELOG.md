@@ -18,13 +18,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Caída al agua con efecto splash cuando el personaje se queda sin impulso.
 - Pantalla de game over con distancia alcanzada y opción de reinicio.
 - Constantes `POLE` y `MOVEMENT` en `gameConfig.js` para posiciones del palo y parámetros de movimiento.
+- Fondo pixel art (`fondo_a.png` 256×192) para la escena de juego, escalado ×4 con filtro NEAREST.
+- Panel de control inferior (1/5 de pantalla, ~154px) como zona dedicada para controles del jugador.
+- Constante `CONTROL_PANEL` en `gameConfig.js` con dimensiones y posiciones del panel.
 
 ### Changed
 
 - Layout del juego invertido: barcaza a la derecha, bandera a la izquierda (personaje avanza de derecha a izquierda según GDD).
-- `GameScene.js`: reescrita con mecánica completa de Fase 1 (impulso + movimiento + caída).
+- `GameScene.js`: reescrita con mecánica completa de Fase 1 (impulso + movimiento + caída). Fondo reemplazado de rectángulos por imagen pixel art.
 - Personaje ahora es un objeto redibujable (se mueve por el palo en cada frame).
-- Tras el resultado del impulso, el personaje empieza a correr automáticamente (sin necesidad de pulsar).
+- El personaje arranca a correr inmediatamente al parar la barra, sin pausa de resultado intermedia (más dinamismo).
+- Barra de impulso reubicada dentro del panel de control inferior.
 
 ### Removed
 

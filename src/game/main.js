@@ -26,7 +26,12 @@ const config = {
 }
 
 const StartGame = (parent) => {
-  return new Game({ ...config, parent })
+  const game = new Game({ ...config, parent })
+  // Exponer instancia para testing (eliminar en producción)
+  if (import.meta.env.DEV) {
+    window.__GAME__ = game
+  }
+  return game
 }
 
 export default StartGame

@@ -55,6 +55,13 @@ export const PIXEL_FONT_SMALL = {
   strokeThickness: 2,
 }
 
+// Panel de control inferior (1/5 de la pantalla)
+export const CONTROL_PANEL = {
+  HEIGHT: Math.round(GAME_HEIGHT / 5),  // ~154px
+  get Y() { return GAME_HEIGHT - this.HEIGHT },  // ~614
+  get CENTER_Y() { return this.Y + this.HEIGHT / 2 },  // ~691
+}
+
 // Configuración de la Fase 1 — Impulso ("La carrera")
 export const PHASE1 = {
   BASE_SPEED: 0.15,             // Velocidad inicial de la barra (pos/seg)
@@ -76,8 +83,8 @@ export const PHASE1 = {
 // Configuración del palo (cucaña)
 export const POLE = {
   START_X: 860,             // Derecha — donde empieza el personaje (junto a barcaza)
-  END_X: 150,               // Izquierda — donde está la bandera
-  Y_FACTOR: 0.42,           // Posición Y relativa al alto del juego
+  END_X: 300, //150,               // Izquierda — donde está la bandera
+  Y_FACTOR: 0.52,           // Posición Y relativa al alto del juego
 }
 
 // Configuración del movimiento del personaje

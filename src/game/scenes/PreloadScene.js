@@ -43,6 +43,7 @@ export class PreloadScene extends Scene {
     this.load.setPath('assets')
     this.load.image('bg-menu', 'backgrounds/fondoIntro.png')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
+    this.load.image('bg-game', 'backgrounds/fondo_a.png')
 
     // Sprites de personajes
     CHARACTERS.forEach((char) => {
