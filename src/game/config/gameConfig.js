@@ -102,6 +102,7 @@ export const POLE = {
   START_X: BOAT.RIGHT_X - BOAT_W,                          // Borde izquierdo del barco (palo pegado)
   END_X: BOAT.RIGHT_X - BOAT_W - POLE_LENGTH,             // Donde está la bandera
   Y_FACTOR: 0.555,                                         // Ajustado para mantener el barco en su posición con DECK_Y_RATIO 0.32
+  FLAG_GRAB_RANGE: 20,                                     // Margen de colisión para coger la bandera (~alcance del brazo)
 }
 
 // Configuración del movimiento del personaje

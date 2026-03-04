@@ -16,6 +16,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Influencia del peso del personaje en la dificultad de la barra (más peso = más aceleración = más difícil).
 - Movimiento del personaje tras el impulso: avanza por el palo de derecha a izquierda con desaceleración progresiva.
 - Caída al agua con efecto splash cuando el personaje se queda sin impulso.
+- Colisión con la bandera: el personaje coge la bandera al llegar al final del palo.
+- Animación de caída con bandera: el personaje cae al agua sujetando la bandera en un brazo levantado.
+- Celebración en el agua: el personaje saca la cabeza y agita la bandera con el brazo tras caer.
+- Pantalla de victoria (`¡BANDERA!`) diferenciada de la pantalla de fallo (`¡AL AGUA!`).
 - Pantalla de game over con distancia alcanzada y opción de reinicio.
 - Constantes `POLE` y `MOVEMENT` en `gameConfig.js` para posiciones del palo y parámetros de movimiento.
 - Fondo pixel art (`fondo_a.png` 256×192) para la escena de juego, escalado ×4 con filtro NEAREST.
@@ -30,6 +34,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - `GameScene.js`: reescrita con mecánica completa de Fase 1 (impulso + movimiento + caída). Fondo reemplazado de rectángulos por imagen pixel art.
 - Personaje ahora es un objeto redibujable (se mueve por el palo en cada frame).
 - El personaje arranca a correr inmediatamente al parar la barra, sin pausa de resultado intermedia (más dinamismo).
+- Bandera separada como gráfico independiente del palo para permitir ocultarla al ser cogida.
 - Barra de impulso reubicada dentro del panel de control inferior.
 - Palo y barco reposicionados más a la izquierda con proporción 7:8 (palo 7m, barco 8m).
 - Reajuste completo de dimensiones según referencia visual: barco escala ×1.25, palo como prolongación horizontal del casco, posición Y al 50%.

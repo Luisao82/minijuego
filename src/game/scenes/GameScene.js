@@ -27,6 +27,10 @@ export class GameScene extends Scene {
     this.runDuration = 0
     this.runElapsed = 0
 
+    // Bandera
+    this.hasFlag = false
+    this.flagGraphics = null
+
     // UI tracking para limpieza
     this.phase1UI = []
     this.canRestart = false
@@ -249,6 +253,15 @@ export class GameScene extends Scene {
     if (this.runElapsed >= this.runDuration) {
       this.playerX = POLE.START_X - this.maxDistance
       this.distanceTraveled = this.maxDistance
+
+      // Si llegó al rango de la bandera, la coge
+      if (this.playerX <= POLE.END_X + POLE.FLAG_GRAB_RANGE) {
+        this.playerX = POLE.END_X
+        this.distanceTraveled = POLE.START_X - POLE.END_X
+        this.grabFlag()
+        return
+      }
+
       this.redrawPlayer()
       this.startFalling()
       return
@@ -261,16 +274,26 @@ export class GameScene extends Scene {
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.playerX = POLE.START_X - this.distanceTraveled
 
-    // Seguridad: no pasar de la bandera
-    if (this.playerX <= POLE.END_X) {
+    // Colisión con la bandera: el personaje la coge (incluye rango de alcance)
+    if (this.playerX <= POLE.END_X + POLE.FLAG_GRAB_RANGE) {
       this.playerX = POLE.END_X
       this.distanceTraveled = POLE.START_X - POLE.END_X
-      this.redrawPlayer()
-      this.startFalling()
+      this.grabFlag()
       return
     }
 
     this.redrawPlayer()
+  }
+
+  // ========================================
+  // COLISIÓN CON LA BANDERA
+  // ========================================
+
+  grabFlag() {
+    this.hasFlag = true
+    this.flagGraphics.setVisible(false)
+    this.redrawPlayer()
+    this.startFalling()
   }
 
   // ========================================
@@ -289,7 +312,14 @@ export class GameScene extends Scene {
       onComplete: () => {
         this.playerGraphics.setVisible(false)
         this.createSplash()
-        this.showGameOver()
+        if (this.hasFlag) {
+          this.time.delayedCall(600, () => this.showCelebration())
+        } else {
+          this.time.delayedCall(400, () => {
+            this.showHeadInWater()
+            this.showGameOver()
+          })
+        }
       },
     })
   }
@@ -322,6 +352,19 @@ export class GameScene extends Scene {
   // GAME OVER
   // ========================================
 
+  showHeadInWater() {
+    const g = this.add.graphics()
+    const cx = this.playerX
+    const wy = this.waterY
+
+    // Pelo
+    g.fillStyle(0x3d2510, 1)
+    g.fillRect(cx - 6, wy - 16, 10, 4)
+    // Cabeza
+    g.fillStyle(0xffcc88, 1)
+    g.fillRect(cx - 6, wy - 12, 10, 10)
+  }
+
   showGameOver() {
     this.phase = 'done'
 
@@ -351,6 +394,107 @@ export class GameScene extends Scene {
     }).setOrigin(0.5)
 
     // Reinicio con retardo para evitar doble tap
+    this.time.delayedCall(1000, () => {
+      this.canRestart = true
+      const restartText = this.add.text(centerX, centerY + 80, 'PULSA PARA REINTENTAR', {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#aaaaaa',
+      }).setOrigin(0.5)
+      this.tweens.add({
+        targets: restartText,
+        alpha: 0.3,
+        duration: 500,
+        yoyo: true,
+        repeat: -1,
+      })
+    })
+  }
+
+  // ========================================
+  // CELEBRACIÓN (bandera cogida)
+  // ========================================
+
+  showCelebration() {
+    this.phase = 'celebrating'
+
+    this.celebGraphics = this.add.graphics()
+    this.celebFrame = 0
+    this.drawCelebration()
+
+    // Alternar frames para efecto de agitar bandera
+    this.celebTimer = this.time.addEvent({
+      delay: 350,
+      callback: () => {
+        this.celebFrame = 1 - this.celebFrame
+        this.drawCelebration()
+      },
+      loop: true,
+    })
+
+    // Mostrar pantalla de victoria tras la celebración
+    this.time.delayedCall(2500, () => {
+      this.celebTimer.destroy()
+      this.showVictory()
+    })
+  }
+
+  drawCelebration() {
+    const g = this.celebGraphics
+    g.clear()
+    const cx = this.playerX
+    const wy = this.waterY
+
+    // Cabeza asomando del agua
+    g.fillStyle(0x3d2510, 1)
+    g.fillRect(cx - 6, wy - 14, 10, 4)
+    g.fillStyle(0xffcc88, 1)
+    g.fillRect(cx - 6, wy - 11, 10, 10)
+
+    // Brazo levantado agitando la bandera (1px separado de la cabeza, más corto)
+    const wave = this.celebFrame === 0 ? -2 : 2
+    g.fillStyle(0xf0bb78, 1)
+    g.fillRect(cx + wave - 2, wy - 28, 5, 14)
+
+    // Palo de la bandera (más corto)
+    g.fillStyle(COLORS.WOOD_DARK, 1)
+    g.fillRect(cx + wave - 1, wy - 45, 3, 16)
+
+    // Bandera blanca (cambia de lado al agitar)
+    g.fillStyle(COLORS.WHITE, 1)
+    if (this.celebFrame === 0) {
+      g.fillRect(cx + wave + 2, wy - 45, 14, 10)
+    } else {
+      g.fillRect(cx + wave - 16, wy - 45, 14, 10)
+    }
+  }
+
+  showVictory() {
+    this.phase = 'done'
+
+    const centerX = GAME_WIDTH / 2
+    const centerY = CONTROL_PANEL.Y / 2
+
+    const g = this.add.graphics()
+    g.fillStyle(COLORS.DARK_BG, 0.85)
+    g.fillRect(centerX - 200, centerY - 60, 400, 120)
+    g.lineStyle(2, COLORS.GOLD, 0.8)
+    g.strokeRect(centerX - 200, centerY - 60, 400, 120)
+
+    this.add.text(centerX, centerY - 20, '¡BANDERA!', {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 5,
+    }).setOrigin(0.5)
+
+    this.add.text(centerX, centerY + 20, '¡HAS COGIDO LA BANDERA!', {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      color: '#ffffff',
+    }).setOrigin(0.5)
+
     this.time.delayedCall(1000, () => {
       this.canRestart = true
       const restartText = this.add.text(centerX, centerY + 80, 'PULSA PARA REINTENTAR', {
@@ -414,11 +558,12 @@ export class GameScene extends Scene {
     g.lineStyle(1, COLORS.WOOD_DARK, 0.6)
     g.strokeRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 6)
 
-    // Bandera (IZQUIERDA — final del recorrido)
-    g.fillStyle(COLORS.WOOD_DARK, 1)
-    g.fillRect(POLE.END_X - 2, this.poleY - 28, 3, 30)
-    g.fillStyle(COLORS.WHITE, 1)
-    g.fillRect(POLE.END_X - 18, this.poleY - 28, 16, 10)
+    // Bandera (IZQUIERDA — separada para poder ocultarla al cogerla)
+    this.flagGraphics = this.add.graphics()
+    this.flagGraphics.fillStyle(COLORS.WOOD_DARK, 1)
+    this.flagGraphics.fillRect(POLE.END_X - 2, this.poleY - 28, 3, 30)
+    this.flagGraphics.fillStyle(COLORS.WHITE, 1)
+    this.flagGraphics.fillRect(POLE.END_X - 18, this.poleY - 28, 16, 10)
 
     // Barco (sprite) — centro del barco alineado verticalmente con el palo
     const boatCenterX = BOAT.RIGHT_X - BOAT.DISPLAY_WIDTH / 2
@@ -445,10 +590,10 @@ export class GameScene extends Scene {
 
     // Pelo
     g.fillStyle(0x3d2510, 1)
-    g.fillRect(px - 6, py - 38, 12, 4)
+    g.fillRect(px - 5, py - 36, 10, 4)
     // Cabeza
     g.fillStyle(0xffcc88, 1)
-    g.fillRect(px - 6, py - 34, 12, 12)
+    g.fillRect(px - 5, py - 32, 10, 10)
     // Torso (piel desnuda)
     g.fillStyle(0xf0bb78, 1)
     g.fillRect(px - 7, py - 22, 14, 14)
@@ -459,10 +604,26 @@ export class GameScene extends Scene {
     g.fillStyle(0xf0bb78, 1)
     g.fillRect(px - 6, py - 2, 5, 6)
     g.fillRect(px + 1, py - 2, 5, 6)
-    // Brazos (piel)
-    g.fillStyle(0xf0bb78, 1)
-    g.fillRect(px - 12, py - 20, 5, 12)
-    g.fillRect(px + 7, py - 20, 5, 12)
+
+    if (this.hasFlag) {
+      // Brazo derecho normal
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px + 7, py - 20, 5, 12)
+      // Brazo izquierdo levantado sujetando la bandera
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px - 12, py - 42, 5, 22)
+      // Palo de la bandera
+      g.fillStyle(COLORS.WOOD_DARK, 1)
+      g.fillRect(px - 11, py - 64, 3, 24)
+      // Bandera blanca
+      g.fillStyle(COLORS.WHITE, 1)
+      g.fillRect(px - 8, py - 64, 14, 10)
+    } else {
+      // Brazos normales (piel)
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px - 12, py - 20, 5, 12)
+      g.fillRect(px + 7, py - 20, 5, 12)
+    }
   }
 
   // ========================================
