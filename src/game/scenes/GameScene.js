@@ -39,6 +39,7 @@ export class GameScene extends Scene {
     // Bandera
     this.hasFlag = false
     this.flagGraphics = null
+    this.canGrabFlag = false  // true cuando hay colisión AABB con la bandera (ventana de agarre)
 
     // UI tracking para limpieza
     this.phase1UI = []
@@ -237,16 +238,22 @@ export class GameScene extends Scene {
       this.playerX = POLE.START_X - this.maxDistance
       this.distanceTraveled = this.maxDistance
 
-      // Si llegó al rango de la bandera, la coge (AABB)
-      if (this.checkFlagCollision()) {
+      // No pasar del extremo del palo
+      if (this.playerX < POLE.END_X) {
         this.playerX = POLE.END_X
         this.distanceTraveled = POLE.START_X - POLE.END_X
-        this.grabFlag()
-        return
       }
 
-      this.redrawPlayer()
-      this.startFalling()
+      // Actualizar ventana de agarre (el jugador debe pulsar para coger)
+      this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
+
+      // Si hay colisión, esperar tap del jugador; si no, caer
+      if (!this.canGrabFlag) {
+        this.redrawPlayer()
+        this.startFalling()
+      } else {
+        this.redrawPlayer()
+      }
       return
     }
 
@@ -257,13 +264,8 @@ export class GameScene extends Scene {
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.playerX = POLE.START_X - this.distanceTraveled
 
-    // Colisión con la bandera (AABB: comprueba X e Y)
-    if (this.checkFlagCollision()) {
-      this.playerX = POLE.END_X
-      this.distanceTraveled = POLE.START_X - POLE.END_X
-      this.grabFlag()
-      return
-    }
+    // Actualizar ventana de agarre cada frame
+    this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
 
     this.redrawPlayer()
   }
@@ -316,16 +318,14 @@ export class GameScene extends Scene {
     // Actualizar distancia recorrida para el HUD
     this.distanceTraveled = POLE.START_X - this.playerX
 
-    // Colisión con la bandera durante el salto (AABB: comprueba X e Y)
-    if (!this.hasFlag && this.checkFlagCollision()) {
-      this.grabFlag()
-      // No return: el salto continúa, la parábola gestiona la caída
-    }
+    // Actualizar ventana de agarre cada frame (el jugador debe pulsar para coger)
+    this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
 
     // Llegó al agua
     if (this.playerY >= this.waterY) {
       this.playerY = this.waterY
       this.isJumping = false
+      this.canGrabFlag = false
       this.playerGraphics.setVisible(false)
       this.createSplash()
       if (this.hasFlag) {
@@ -594,13 +594,22 @@ export class GameScene extends Scene {
 
   setupInput() {
     this.input.on('pointerdown', () => this.handleTap())
-    this.input.keyboard.on('keydown-SPACE', () => this.handleTap())
+    this.input.keyboard.on('keydown-SPACE', (event) => {
+      if (event.repeat) return  // Ignorar tecla mantenida
+      this.handleTap()
+    })
     this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
   }
 
   handleTap() {
     if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
       this.onBarStopped()
+    } else if ((this.phase === 'running' || this.phase === 'jumping') && this.canGrabFlag && !this.hasFlag) {
+      // Coger la bandera tiene prioridad sobre el salto
+      this.playerX = POLE.END_X
+      this.distanceTraveled = POLE.START_X - POLE.END_X
+      this.canGrabFlag = false
+      this.grabFlag()
     } else if (this.phase === 'running' && !this.hasJumped) {
       this.startJump()
     } else if (this.phase === 'done' && this.canRestart) {
