@@ -65,17 +65,17 @@ export const CONTROL_PANEL = {
 // Configuración de la Fase 1 — Impulso ("La carrera")
 export const PHASE1 = {
   BASE_SPEED: 0.15,             // Velocidad inicial de la barra (pos/seg)
-  BASE_ACCELERATION: 0.25,      // Aceleración base por segundo
-  WEIGHT_FACTOR: 0.06,          // Aceleración extra por punto de peso
-  MAX_PASSES: 3,                // Máximo de pasadas antes de que se acabe el tiempo
+  BASE_ACCELERATION: 0.1,      // Aceleración base por segundo
+  WEIGHT_FACTOR: 0.1,          // Aceleración extra por punto de peso
+  MAX_PASSES: 5,                // Máximo de pasadas antes de que se acabe el tiempo
   PASS_SPEED_INCREASE: 0.1,     // Incremento de velocidad base por pasada completada
   ZONES: {
     RED: { start: 0, end: 0.4 },
     YELLOW: { start: 0.4, end: 0.75 },
-    GREEN: { start: 0.75, end: 1.0 },
+    GREEN: { start: 0.75, end: 1 },
   },
   BAR: {
-    WIDTH: 600,
+    WIDTH: 400,
     HEIGHT: 36,
   },
 }

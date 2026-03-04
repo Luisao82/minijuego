@@ -69,24 +69,6 @@ export class GameScene extends Scene {
     this.drawBarZones(barBg, barX, barY, WIDTH, HEIGHT)
     this.phase1UI.push(barBg)
 
-    // Etiquetas de zona
-    const zoneLabelStyle = {
-      fontFamily: 'monospace',
-      fontSize: '10px',
-      color: '#000000',
-      fontStyle: 'bold',
-    }
-    const { ZONES } = PHASE1
-    const redCenter = barX + (ZONES.RED.end / 2) * WIDTH
-    const yellowCenter = barX + ((ZONES.YELLOW.start + ZONES.YELLOW.end) / 2) * WIDTH
-    const greenCenter = barX + ((ZONES.GREEN.start + ZONES.GREEN.end) / 2) * WIDTH
-
-    this.phase1UI.push(
-      this.add.text(redCenter, barY + HEIGHT / 2, 'MALA', zoneLabelStyle).setOrigin(0.5),
-      this.add.text(yellowCenter, barY + HEIGHT / 2, 'REGULAR', zoneLabelStyle).setOrigin(0.5),
-      this.add.text(greenCenter, barY + HEIGHT / 2, 'ÓPTIMA', zoneLabelStyle).setOrigin(0.5),
-    )
-
     // Cursor móvil
     this.barCursor = this.add.graphics()
     this.phase1UI.push(this.barCursor)
@@ -132,37 +114,29 @@ export class GameScene extends Scene {
     const g = graphics
     const { ZONES } = PHASE1
 
-    g.fillStyle(0x111111, 1)
+    g.fillStyle(0x000000, 1)
     g.fillRect(x - 3, y - 3, width + 6, height + 6)
 
     const redWidth = ZONES.RED.end * width
-    g.fillStyle(COLORS.RED, 1)
+    g.fillGradientStyle(COLORS.RED,COLORS.YELLOW,COLORS.RED,COLORS.YELLOW ,1,1,1,1)
     g.fillRect(x, y, redWidth, height)
 
     const yellowX = ZONES.YELLOW.start * width
     const yellowWidth = (ZONES.YELLOW.end - ZONES.YELLOW.start) * width
+  
+    
     g.fillStyle(COLORS.YELLOW, 1)
     g.fillRect(x + yellowX, y, yellowWidth, height)
 
     const greenX = ZONES.GREEN.start * width
     const greenWidth = (ZONES.GREEN.end - ZONES.GREEN.start) * width
-    g.fillStyle(COLORS.GREEN, 1)
+
+    g.fillGradientStyle(COLORS.YELLOW,COLORS.GREEN,COLORS.YELLOW,COLORS.GREEN ,1,1,1,1)
     g.fillRect(x + greenX, y, greenWidth, height)
 
     g.lineStyle(2, COLORS.WHITE, 0.8)
     g.strokeRect(x, y, width, height)
 
-    g.lineStyle(2, 0x000000, 0.6)
-    const sep1 = x + ZONES.RED.end * width
-    const sep2 = x + ZONES.YELLOW.end * width
-    g.beginPath()
-    g.moveTo(sep1, y)
-    g.lineTo(sep1, y + height)
-    g.strokePath()
-    g.beginPath()
-    g.moveTo(sep2, y)
-    g.lineTo(sep2, y + height)
-    g.strokePath()
   }
 
   updatePowerBarUI() {
@@ -551,12 +525,12 @@ export class GameScene extends Scene {
 
     // Palo — prolongación horizontal del barco, pegado a su borde izquierdo
     // Se extiende desde el barco hacia la izquierda con un pequeño overlap
-    const poleOverlap = 20
+    const poleOverlap = 30
     g.fillStyle(COLORS.WOOD_LIGHT, 1)
-    g.fillRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 6)
+    g.fillRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 9)
     // Borde superior/inferior para dar volumen
     g.lineStyle(1, COLORS.WOOD_DARK, 0.6)
-    g.strokeRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 6)
+    g.strokeRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 9)
 
     // Bandera (IZQUIERDA — separada para poder ocultarla al cogerla)
     this.flagGraphics = this.add.graphics()
@@ -595,7 +569,7 @@ export class GameScene extends Scene {
     g.fillStyle(0xffcc88, 1)
     g.fillRect(px - 5, py - 32, 10, 10)
     // Torso (piel desnuda)
-    g.fillStyle(0xf0bb78, 1)
+    g.fillStyle(0xffffff, 1)
     g.fillRect(px - 7, py - 22, 14, 14)
     // Bañador rojo
     g.fillStyle(0xcc2222, 1)
@@ -633,28 +607,21 @@ export class GameScene extends Scene {
   createHUD() {
     const g = this.add.graphics()
 
-    g.fillStyle(COLORS.DARK_BG, 0.8)
+    g.fillStyle(COLORS.DARK_BG, 0.4)
     g.fillRect(0, 0, GAME_WIDTH, 36)
     g.fillStyle(COLORS.GOLD, 1)
     g.fillRect(0, 36, GAME_WIDTH, 2)
 
     const charName = this.characterData?.name || 'JUGADOR'
     this.add.text(16, 10, charName, {
-      fontFamily: 'monospace',
-      fontSize: '14px',
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '18px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 2,
     })
 
-    this.add.text(GAME_WIDTH / 2, 10, 'FASE 1: IMPULSO', {
-      fontFamily: 'monospace',
-      fontSize: '14px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5, 0)
-
+   
     this.add.text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', {
       fontFamily: 'monospace',
       fontSize: '10px',

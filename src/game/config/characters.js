@@ -15,7 +15,7 @@ export const CHARACTERS = [
     name: 'LA AGÜELA',
     description: 'Veterana de mil velás.\nSabiduría y temple.',
     sprite: 'char-abuela',
-    stats: { peso: 3, equilibrio: 8, altura: 4, edad: 9 },
+    stats: { peso: 10, equilibrio: 8, altura: 4, edad: 9 },
     available: true,
   },
   {
