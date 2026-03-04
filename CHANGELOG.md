@@ -19,6 +19,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Colisión con la bandera: el personaje coge la bandera al llegar al final del palo.
 - Animación de caída con bandera: el personaje cae al agua sujetando la bandera en un brazo levantado.
 - Celebración en el agua: el personaje saca la cabeza y agita la bandera con el brazo tras caer.
+- Mecánica de salto: el jugador puede pulsar durante la carrera para lanzarse hacia delante con trayectoria parabólica (~1.5 cuerpos de avance extra).
+- Colisión con bandera durante el salto: si el personaje alcanza la bandera saltando, la coge en el aire.
+- Pose de salto (brazos estirados hacia delante tipo superman) y pose de salto con bandera.
+- Constantes `JUMP` en `gameConfig.js` (EXTRA_DISTANCE, VY0, GRAVITY) configurables para futura stat del personaje.
+- Cabeza del personaje asomando del agua tras caer sin bandera.
 - Pantalla de victoria (`¡BANDERA!`) diferenciada de la pantalla de fallo (`¡AL AGUA!`).
 - Pantalla de game over con distancia alcanzada y opción de reinicio.
 - Constantes `POLE` y `MOVEMENT` en `gameConfig.js` para posiciones del palo y parámetros de movimiento.

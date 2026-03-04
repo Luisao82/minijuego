@@ -105,6 +105,13 @@ export const POLE = {
   FLAG_GRAB_RANGE: 20,                                     // Margen de colisión para coger la bandera (~alcance del brazo)
 }
 
+// Configuración del salto
+export const JUMP = {
+  EXTRA_DISTANCE: 5,     // Avance extra del salto en px (~1.5 cuerpos, futura stat 'jump' del personaje)
+  VY0: -100,              // Velocidad vertical inicial del salto (px/s, negativa = arriba)
+  GRAVITY: 600,           // Gravedad durante el salto (px/s²)
+}
+
 // Configuración del movimiento del personaje
 export const MOVEMENT = {
   MIN_RUN_DURATION: 0.8,    // Duración mínima del recorrido (seg)

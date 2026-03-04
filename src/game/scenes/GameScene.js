@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP } from '../config/gameConfig'
 import { PowerBar } from '../entities/PowerBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 
@@ -26,6 +26,15 @@ export class GameScene extends Scene {
     this.initialSpeed = 0
     this.runDuration = 0
     this.runElapsed = 0
+
+    // Salto
+    this.isJumping = false
+    this.hasJumped = false
+    this.jumpElapsed = 0
+    this.jumpStartX = 0
+    this.jumpStartY = 0
+    this.jumpVx = 0
+    this.jumpVy0 = 0
 
     // Bandera
     this.hasFlag = false
@@ -228,8 +237,8 @@ export class GameScene extends Scene {
       this.playerX = POLE.START_X - this.maxDistance
       this.distanceTraveled = this.maxDistance
 
-      // Si llegó al rango de la bandera, la coge
-      if (this.playerX <= POLE.END_X + POLE.FLAG_GRAB_RANGE) {
+      // Si llegó al rango de la bandera, la coge (AABB)
+      if (this.checkFlagCollision()) {
         this.playerX = POLE.END_X
         this.distanceTraveled = POLE.START_X - POLE.END_X
         this.grabFlag()
@@ -248,8 +257,8 @@ export class GameScene extends Scene {
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.playerX = POLE.START_X - this.distanceTraveled
 
-    // Colisión con la bandera: el personaje la coge (incluye rango de alcance)
-    if (this.playerX <= POLE.END_X + POLE.FLAG_GRAB_RANGE) {
+    // Colisión con la bandera (AABB: comprueba X e Y)
+    if (this.checkFlagCollision()) {
       this.playerX = POLE.END_X
       this.distanceTraveled = POLE.START_X - POLE.END_X
       this.grabFlag()
@@ -260,14 +269,107 @@ export class GameScene extends Scene {
   }
 
   // ========================================
+  // SALTO
+  // ========================================
+
+  startJump() {
+    this.hasJumped = true
+    this.isJumping = true
+    this.phase = 'jumping'
+    this.jumpElapsed = 0
+    this.jumpStartX = this.playerX
+    this.jumpStartY = this.playerY
+
+    // Velocidad horizontal actual de la carrera (puede ser ~0 si ya frenó)
+    const t = this.runElapsed
+    const T = this.runDuration
+    const currentRunSpeed = T > 0 ? Math.max(this.initialSpeed * (1 - t / T), 0) : 0
+
+    // Tiempo estimado de vuelo hasta el agua (fórmula cuadrática)
+    // 0.5*g*t² + vy0*t - drop = 0, drop = waterY - playerY
+    const drop = this.waterY - this.playerY
+    const a = 0.5 * JUMP.GRAVITY
+    const b = JUMP.VY0
+    const c = -drop
+    const discriminant = b * b - 4 * a * c
+    const flightTime = (-b + Math.sqrt(discriminant)) / (2 * a)
+
+    // Velocidad extra del salto para cubrir EXTRA_DISTANCE
+    const jumpDistance = this.characterData?.stats?.jump
+      ? this.characterData.stats.jump
+      : JUMP.EXTRA_DISTANCE
+    const boostSpeed = jumpDistance / flightTime
+
+    this.jumpVx = currentRunSpeed + boostSpeed
+    this.jumpVy0 = JUMP.VY0
+  }
+
+  updateJumping(delta) {
+    const dt = delta / 1000
+    this.jumpElapsed += dt
+
+    // Posición con física de proyectil
+    this.playerX = this.jumpStartX - this.jumpVx * this.jumpElapsed
+    this.playerY = this.jumpStartY + this.jumpVy0 * this.jumpElapsed
+      + 0.5 * JUMP.GRAVITY * this.jumpElapsed * this.jumpElapsed
+
+    // Actualizar distancia recorrida para el HUD
+    this.distanceTraveled = POLE.START_X - this.playerX
+
+    // Colisión con la bandera durante el salto (AABB: comprueba X e Y)
+    if (!this.hasFlag && this.checkFlagCollision()) {
+      this.grabFlag()
+      // No return: el salto continúa, la parábola gestiona la caída
+    }
+
+    // Llegó al agua
+    if (this.playerY >= this.waterY) {
+      this.playerY = this.waterY
+      this.isJumping = false
+      this.playerGraphics.setVisible(false)
+      this.createSplash()
+      if (this.hasFlag) {
+        this.time.delayedCall(600, () => this.showCelebration())
+      } else {
+        this.time.delayedCall(400, () => {
+          this.showHeadInWater()
+          this.showGameOver()
+        })
+      }
+      this.phase = 'splash_done'
+      return
+    }
+
+    this.redrawPlayer()
+  }
+
+  // ========================================
   // COLISIÓN CON LA BANDERA
   // ========================================
+
+  checkFlagCollision() {
+    // Hitbox del personaje (aproximado)
+    const charTop = this.playerY - 36
+    const charBottom = this.playerY + 4
+    const charLeft = this.playerX - 12
+
+    // Hitbox de la bandera (palo + tela)
+    const flagTop = this.poleY - 28
+    const flagBottom = this.poleY + 2
+    const flagRight = POLE.END_X + POLE.FLAG_GRAB_RANGE
+
+    // Overlap en ambos ejes (AABB)
+    return charLeft <= flagRight && charTop < flagBottom && charBottom > flagTop
+  }
 
   grabFlag() {
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
     this.redrawPlayer()
-    this.startFalling()
+    // Si estamos saltando, la parábola ya gestiona la caída al agua
+    if (!this.isJumping) {
+      this.startFalling()
+    }
   }
 
   // ========================================
@@ -499,6 +601,8 @@ export class GameScene extends Scene {
   handleTap() {
     if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
       this.onBarStopped()
+    } else if (this.phase === 'running' && !this.hasJumped) {
+      this.startJump()
     } else if (this.phase === 'done' && this.canRestart) {
       this.scene.restart({ character: this.characterData })
     }
@@ -579,17 +683,30 @@ export class GameScene extends Scene {
     g.fillRect(px - 6, py - 2, 5, 6)
     g.fillRect(px + 1, py - 2, 5, 6)
 
-    if (this.hasFlag) {
-      // Brazo derecho normal
-      g.fillStyle(0xf0bb78, 1)
-      g.fillRect(px + 7, py - 20, 5, 12)
-      // Brazo izquierdo levantado sujetando la bandera
+    if (this.isJumping && this.hasFlag) {
+      // Saltando con bandera: brazo izquierdo arriba con bandera, derecho adelante
       g.fillStyle(0xf0bb78, 1)
       g.fillRect(px - 12, py - 42, 5, 22)
-      // Palo de la bandera
       g.fillStyle(COLORS.WOOD_DARK, 1)
       g.fillRect(px - 11, py - 64, 3, 24)
-      // Bandera blanca
+      g.fillStyle(COLORS.WHITE, 1)
+      g.fillRect(px - 8, py - 64, 14, 10)
+      // Brazo derecho estirado hacia delante (izquierda en pantalla)
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px - 19, py - 20, 12, 5)
+    } else if (this.isJumping) {
+      // Saltando sin bandera: ambos brazos estirados hacia delante (pose superman)
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px - 19, py - 22, 12, 5)
+      g.fillRect(px - 19, py - 16, 12, 5)
+    } else if (this.hasFlag) {
+      // En el palo con bandera: brazo izquierdo arriba con bandera
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px + 7, py - 20, 5, 12)
+      g.fillStyle(0xf0bb78, 1)
+      g.fillRect(px - 12, py - 42, 5, 22)
+      g.fillStyle(COLORS.WOOD_DARK, 1)
+      g.fillRect(px - 11, py - 64, 3, 24)
       g.fillStyle(COLORS.WHITE, 1)
       g.fillRect(px - 8, py - 64, 14, 10)
     } else {
@@ -646,6 +763,10 @@ export class GameScene extends Scene {
 
     if (this.phase === 'running') {
       this.updateRunning(delta)
+    }
+
+    if (this.phase === 'jumping') {
+      this.updateJumping(delta)
     }
   }
 }
