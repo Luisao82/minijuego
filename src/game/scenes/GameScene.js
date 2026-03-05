@@ -1,7 +1,9 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE } from '../config/gameConfig'
 import { PowerBar } from '../entities/PowerBar'
+import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
+import { BalanceSystem } from '../systems/BalanceSystem'
 
 export class GameScene extends Scene {
 
@@ -40,6 +42,12 @@ export class GameScene extends Scene {
     this.hasFlag = false
     this.flagGraphics = null
     this.canGrabFlag = false  // true cuando hay colisión AABB con la bandera (ventana de agarre)
+
+    // Equilibrio (Fase 2)
+    this.balanceBar = null
+    this.balanceSystem = null
+    this.balanceUI = []
+    this.balanceInputDir = 0  // -1 izq, 0 nada, +1 der
 
     // UI tracking para limpieza
     this.phase1UI = []
@@ -365,11 +373,232 @@ export class GameScene extends Scene {
   grabFlag() {
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
-    this.redrawPlayer()
-    // Si estamos saltando, la parábola ya gestiona la caída al agua
-    if (!this.isJumping) {
-      this.startFalling()
+
+    if (this.isJumping) {
+      // Saltando: aterrizar de vuelta en el palo para iniciar equilibrio
+      this.isJumping = false
+      this.playerY = this.poleY - 4
+      this.phase = 'running' // Temporalmente para salir del update de jumping
     }
+
+    this.redrawPlayer()
+    // Siempre iniciar fase de equilibrio al coger la bandera
+    this.startBalancing()
+  }
+
+  // ========================================
+  // FASE 2 — EQUILIBRIO
+  // ========================================
+
+  startBalancing() {
+    this.phase = 'balancing'
+    const equilibrio = this.characterData?.stats?.equilibrio || 5
+    this.balanceBar = new BalanceBar(equilibrio)
+    this.balanceSystem = new BalanceSystem(this.balanceBar)
+    this.balanceInputDir = 0
+    this.createBalanceUI()
+  }
+
+  createBalanceUI() {
+    const { WIDTH, HEIGHT } = BALANCE.BAR
+    const centerX = GAME_WIDTH / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+    const barX = centerX - WIDTH / 2
+
+    // Fondo de la barra
+    const barBg = this.add.graphics()
+    barBg.fillStyle(COLORS.BLACK, 1)
+    barBg.fillRect(barX - 3, barY - 3, WIDTH + 6, HEIGHT + 6)
+    // Interior oscuro
+    barBg.fillStyle(0x1a1a2e, 1)
+    barBg.fillRect(barX, barY, WIDTH, HEIGHT)
+    // Borde
+    barBg.lineStyle(2, COLORS.WHITE, 0.6)
+    barBg.strokeRect(barX, barY, WIDTH, HEIGHT)
+
+    // Línea central verde (equilibrio perfecto)
+    barBg.fillStyle(COLORS.GREEN, 1)
+    barBg.fillRect(centerX - 1, barY - 4, 2, HEIGHT + 8)
+
+    // Marcas de límite izquierda y derecha
+    const limitOffset = BALANCE.LIMIT * (WIDTH / 2)
+    barBg.fillStyle(COLORS.RED, 0.6)
+    barBg.fillRect(centerX - limitOffset - 1, barY - 2, 2, HEIGHT + 4)
+    barBg.fillRect(centerX + limitOffset - 1, barY - 2, 2, HEIGHT + 4)
+
+    // Zonas de peligro (fondo rojizo cerca de los límites)
+    barBg.fillStyle(COLORS.RED, 0.1)
+    barBg.fillRect(barX, barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
+    barBg.fillRect(barX + WIDTH - WIDTH * ((1 - BALANCE.LIMIT) / 2), barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
+
+    this.balanceUI.push(barBg)
+
+    // Cursor rojo móvil
+    this.balanceCursor = this.add.graphics()
+    this.balanceUI.push(this.balanceCursor)
+
+    // Texto de instrucción
+    const instrText = this.add.text(centerX, barY - 20, '¡MANTÉN EL EQUILIBRIO!', {
+      fontFamily: 'monospace',
+      fontSize: '12px',
+      color: '#ffffff',
+    }).setOrigin(0.5)
+    this.balanceUI.push(instrText)
+
+    // Temporizador visual
+    this.balanceTimerText = this.add.text(centerX, barY + HEIGHT + 16, '', {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#aaaaaa',
+    }).setOrigin(0.5)
+    this.balanceUI.push(this.balanceTimerText)
+
+    // Botón izquierdo (◀) — cerca del pulgar izquierdo
+    const btnSize = BALANCE.BUTTON_SIZE
+    const btnY = CONTROL_PANEL.CENTER_Y - btnSize / 2
+    const btnMargin = 40
+
+    this.btnLeft = this.add.graphics()
+    this.drawBalanceButton(this.btnLeft, btnMargin, btnY, btnSize, '◀')
+    this.btnLeft.setInteractive(
+      new Phaser.Geom.Rectangle(btnMargin, btnY, btnSize, btnSize),
+      Phaser.Geom.Rectangle.Contains,
+    )
+    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1 })
+    this.btnLeft.on('pointerup', () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0 })
+    this.btnLeft.on('pointerout', () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0 })
+    this.balanceUI.push(this.btnLeft)
+
+    // Texto del botón izquierdo
+    const btnLeftText = this.add.text(btnMargin + btnSize / 2, btnY + btnSize / 2, '◀', {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5)
+    this.balanceUI.push(btnLeftText)
+
+    // Botón derecho (▶) — cerca del pulgar derecho
+    const btnRightX = GAME_WIDTH - btnMargin - btnSize
+
+    this.btnRight = this.add.graphics()
+    this.drawBalanceButton(this.btnRight, btnRightX, btnY, btnSize, '▶')
+    this.btnRight.setInteractive(
+      new Phaser.Geom.Rectangle(btnRightX, btnY, btnSize, btnSize),
+      Phaser.Geom.Rectangle.Contains,
+    )
+    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1 })
+    this.btnRight.on('pointerup', () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0 })
+    this.btnRight.on('pointerout', () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0 })
+    this.balanceUI.push(this.btnRight)
+
+    // Texto del botón derecho
+    const btnRightText = this.add.text(btnRightX + btnSize / 2, btnY + btnSize / 2, '▶', {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5)
+    this.balanceUI.push(btnRightText)
+  }
+
+  drawBalanceButton(graphics, x, y, size) {
+    const g = graphics
+    // Fondo del botón pixel art
+    g.fillStyle(0x2a2a4a, 1)
+    g.fillRect(x, y, size, size)
+    // Borde exterior
+    g.lineStyle(2, COLORS.GOLD, 0.8)
+    g.strokeRect(x, y, size, size)
+    // Borde interior (doble marco retro)
+    g.lineStyle(1, COLORS.GOLD, 0.3)
+    g.strokeRect(x + 3, y + 3, size - 6, size - 6)
+  }
+
+  updateBalanceUI() {
+    if (!this.balanceCursor || !this.balanceBar) return
+
+    const { WIDTH, HEIGHT } = BALANCE.BAR
+    const centerX = GAME_WIDTH / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+
+    // Posición del cursor: position va de -1 a +1, mapear a la barra
+    const cursorX = centerX + this.balanceBar.position * (WIDTH / 2)
+
+    this.balanceCursor.clear()
+    this.balanceCursor.fillStyle(COLORS.RED, 1)
+    this.balanceCursor.fillRect(cursorX - 2, barY - 6, 4, HEIGHT + 12)
+    // Triángulos indicadores arriba y abajo
+    this.balanceCursor.fillTriangle(
+      cursorX, barY - 12,
+      cursorX - 6, barY - 4,
+      cursorX + 6, barY - 4,
+    )
+    this.balanceCursor.fillTriangle(
+      cursorX, barY + HEIGHT + 12,
+      cursorX - 6, barY + HEIGHT + 4,
+      cursorX + 6, barY + HEIGHT + 4,
+    )
+
+    // Actualizar temporizador
+    if (this.balanceTimerText) {
+      const remaining = Math.max(0, BALANCE.DURATION - this.balanceSystem.getElapsedTime())
+      this.balanceTimerText.setText(`${remaining.toFixed(1)}s`)
+    }
+  }
+
+  updateBalancing(delta) {
+    const dt = delta / 1000
+
+    // Aplicar fuerza del input del jugador
+    if (this.balanceInputDir !== 0) {
+      this.balanceBar.applyForce(this.balanceInputDir, dt)
+    }
+
+    // Actualizar sistema (drift + física)
+    this.balanceSystem.update(dt)
+
+    // Actualizar UI
+    this.updateBalanceUI()
+
+    // ¿Ha perdido el equilibrio?
+    if (this.balanceSystem.isFailed()) {
+      this.onBalanceLost()
+      return
+    }
+
+    // ¿Ha aguantado suficiente?
+    if (this.balanceSystem.hasWon()) {
+      this.onBalanceWon()
+    }
+  }
+
+  onBalanceLost() {
+    this.cleanBalanceUI()
+    // Suelta la bandera al caer
+    this.hasFlag = false
+    this.flagGraphics.setVisible(true)
+    this.startFalling()
+  }
+
+  onBalanceWon() {
+    this.cleanBalanceUI()
+    // Cae al agua con la bandera → celebración
+    this.startFalling()
+  }
+
+  cleanBalanceUI() {
+    this.balanceUI.forEach(el => {
+      if (el && el.destroy) el.destroy()
+    })
+    this.balanceUI = []
+    this.balanceCursor = null
+    this.balanceTimerText = null
+    this.btnLeft = null
+    this.btnRight = null
+    this.balanceInputDir = 0
   }
 
   // ========================================
@@ -599,6 +828,22 @@ export class GameScene extends Scene {
       this.handleTap()
     })
     this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
+
+    // Flechas para el equilibrio
+    this.input.keyboard.on('keydown-LEFT', (event) => {
+      if (event.repeat) return
+      if (this.phase === 'balancing') this.balanceInputDir = -1
+    })
+    this.input.keyboard.on('keydown-RIGHT', (event) => {
+      if (event.repeat) return
+      if (this.phase === 'balancing') this.balanceInputDir = 1
+    })
+    this.input.keyboard.on('keyup-LEFT', () => {
+      if (this.balanceInputDir === -1) this.balanceInputDir = 0
+    })
+    this.input.keyboard.on('keyup-RIGHT', () => {
+      if (this.balanceInputDir === 1) this.balanceInputDir = 0
+    })
   }
 
   handleTap() {
@@ -776,6 +1021,10 @@ export class GameScene extends Scene {
 
     if (this.phase === 'jumping') {
       this.updateJumping(delta)
+    }
+
+    if (this.phase === 'balancing') {
+      this.updateBalancing(delta)
     }
   }
 }

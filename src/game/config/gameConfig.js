@@ -112,6 +112,24 @@ export const JUMP = {
   GRAVITY: 600,           // Gravedad durante el salto (px/s²)
 }
 
+// Configuración de la Fase 2 — Equilibrio
+export const BALANCE = {
+  DURATION: 5,                    // Segundos aguantando para ganar
+  DRIFT_BASE: 0.3,               // Fuerza base de deriva natural
+  DRIFT_VARIANCE: 0.2,           // Variación aleatoria de la deriva
+  DRIFT_CHANGE_INTERVAL: 1.5,    // Segundos entre cambios de dirección del drift
+  INPUT_ACCELERATION: 2.5,       // Aceleración al mantener pulsado un botón
+  INPUT_MAX_SPEED: 1.8,          // Velocidad máxima de corrección por input
+  FRICTION: 3.0,                 // Rozamiento (frena la velocity al soltar)
+  LIMIT: 0.85,                   // Posición límite antes de caer (0-1)
+  EQUILIBRIO_FACTOR: 0.04,       // Reducción del drift por punto de equilibrio del personaje
+  BAR: {
+    WIDTH: 300,
+    HEIGHT: 20,
+  },
+  BUTTON_SIZE: 80,               // Tamaño de los botones táctiles izq/der
+}
+
 // Configuración del movimiento del personaje
 export const MOVEMENT = {
   MIN_RUN_DURATION: 0.8,    // Duración mínima del recorrido (seg)

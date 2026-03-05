@@ -25,6 +25,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Constantes `JUMP` en `gameConfig.js` (EXTRA_DISTANCE, VY0, GRAVITY) configurables para futura stat del personaje.
 - Mecánica de agarre preciso: la bandera ya no se coge automáticamente al colisionar; el jugador debe pulsar (click/tap/espacio) durante la ventana de colisión para cogerla.
 - Filtro de tecla mantenida: mantener pulsado espacio no cuenta como múltiples pulsaciones.
+- Fase 2 — Equilibrio: tras coger la bandera (corriendo o saltando), el jugador debe mantener el equilibrio sobre el palo con botones izquierda/derecha.
+- Entidad `BalanceBar` (entities/BalanceBar.js): modelo puro de la barra de equilibrio con posición, velocidad, fuerzas y límites.
+- Sistema `BalanceSystem` (systems/BalanceSystem.js): lógica de drift aleatorio, dificultad progresiva e influencia de la stat de equilibrio.
+- Constantes `BALANCE` en `gameConfig.js`: drift, aceleración, fricción, límites, duración y dimensiones de UI.
+- Botones táctiles ◀ ▶ en el panel inferior para controlar el equilibrio (mobile-first).
+- Soporte de flechas izquierda/derecha del teclado para el equilibrio en escritorio.
+- Barra visual de equilibrio con línea verde central, marcas de límite rojas y cursor rojo móvil.
+- Temporizador visual de cuenta atrás durante la fase de equilibrio.
 - Cabeza del personaje asomando del agua tras caer sin bandera.
 - Pantalla de victoria (`¡BANDERA!`) diferenciada de la pantalla de fallo (`¡AL AGUA!`).
 - Pantalla de game over con distancia alcanzada y opción de reinicio.
@@ -45,6 +53,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Barra de impulso reubicada dentro del panel de control inferior.
 - Palo y barco reposicionados más a la izquierda con proporción 7:8 (palo 7m, barco 8m).
 - Reajuste completo de dimensiones según referencia visual: barco escala ×1.25, palo como prolongación horizontal del casco, posición Y al 50%.
+- `grabFlag()`: al coger la bandera saltando, el personaje aterriza en el palo e inicia la fase de equilibrio (antes caía al agua directamente, saltándose la Fase 2).
 
 ### Removed
 
