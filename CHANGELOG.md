@@ -23,16 +23,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Colisión con bandera durante el salto: si el personaje alcanza la bandera saltando, la coge en el aire.
 - Pose de salto (brazos estirados hacia delante tipo superman) y pose de salto con bandera.
 - Constantes `JUMP` en `gameConfig.js` (EXTRA_DISTANCE, VY0, GRAVITY) configurables para futura stat del personaje.
-- Mecánica de agarre preciso: la bandera ya no se coge automáticamente al colisionar; el jugador debe pulsar (click/tap/espacio) durante la ventana de colisión para cogerla.
-- Filtro de tecla mantenida: mantener pulsado espacio no cuenta como múltiples pulsaciones.
-- Fase 2 — Equilibrio: tras coger la bandera (corriendo o saltando), el jugador debe mantener el equilibrio sobre el palo con botones izquierda/derecha.
+- Fase 2 — Equilibrio: se activa al empezar a correr tras el impulso. El jugador debe mantener el equilibrio con ◀ ▶ mientras el personaje avanza por el palo.
 - Entidad `BalanceBar` (entities/BalanceBar.js): modelo puro de la barra de equilibrio con posición, velocidad, fuerzas y límites.
 - Sistema `BalanceSystem` (systems/BalanceSystem.js): lógica de drift aleatorio, dificultad progresiva e influencia de la stat de equilibrio.
 - Constantes `BALANCE` en `gameConfig.js`: drift, aceleración, fricción, límites, duración y dimensiones de UI.
 - Botones táctiles ◀ ▶ en el panel inferior para controlar el equilibrio (mobile-first).
 - Soporte de flechas izquierda/derecha del teclado para el equilibrio en escritorio.
 - Barra visual de equilibrio con línea verde central, marcas de límite rojas y cursor rojo móvil.
-- Temporizador visual de cuenta atrás durante la fase de equilibrio.
+- Temporizador visual del tiempo en equilibrio durante la carrera.
+- Auto-grab de la bandera: el personaje coge la bandera automáticamente al llegar (corriendo o saltando), sin necesidad de pulsar.
 - Cabeza del personaje asomando del agua tras caer sin bandera.
 - Pantalla de victoria (`¡BANDERA!`) diferenciada de la pantalla de fallo (`¡AL AGUA!`).
 - Pantalla de game over con distancia alcanzada y opción de reinicio.
@@ -53,10 +52,20 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Barra de impulso reubicada dentro del panel de control inferior.
 - Palo y barco reposicionados más a la izquierda con proporción 7:8 (palo 7m, barco 8m).
 - Reajuste completo de dimensiones según referencia visual: barco escala ×1.25, palo como prolongación horizontal del casco, posición Y al 50%.
-- `grabFlag()`: al coger la bandera saltando, el personaje aterriza en el palo e inicia la fase de equilibrio (antes caía al agua directamente, saltándose la Fase 2).
+- Fase 2 rediseñada: el equilibrio ahora es simultáneo a la carrera (antes era una fase separada tras coger la bandera).
+- El personaje ya no cae al agua al terminar la carrera si no llega a la bandera; se queda en el palo manteniendo equilibrio y puede saltar.
+- Los taps en la zona del panel inferior no disparan el salto (previene conflicto con botones de equilibrio).
+- Fase 2 — Equilibrio: reescrito el modelo de física con sistema unificado de aceleraciones (F=ma). Drift e input del jugador actúan sobre la misma velocity, creando un efecto péndulo natural con riesgo de overshoot.
+- Límites de equilibrio reducidos de 0.85 a 0.5 (más cerca del centro = más tensión visual y mecánica).
+- Dificultad progresiva suavizada (de 10%/s a 3%/s).
+- Constantes de equilibrio reorganizadas: DRIFT_ACCELERATION, INPUT_FORCE y DAMPING reemplazan DRIFT_BASE, INPUT_ACCELERATION, INPUT_MAX_SPEED y FRICTION.
 
 ### Removed
 
+- Mecánica de agarre preciso (precision grab): la bandera vuelve a cogerse automáticamente (el reto ahora es mantener el equilibrio).
+- Fase `balancing` separada del `update()` loop (la lógica de equilibrio ahora vive dentro de `updateRunning()`).
+- Condición de victoria por tiempo en el equilibrio (`hasWon`/`DURATION`). El equilibrio está activo toda la carrera.
+- Aplicación directa de drift a la posición (`applyDrift`). Todo pasa por velocity ahora.
 - Placeholder "EN DESARROLLO" de la pantalla de juego.
 
 ---

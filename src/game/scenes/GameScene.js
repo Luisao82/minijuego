@@ -41,9 +41,8 @@ export class GameScene extends Scene {
     // Bandera
     this.hasFlag = false
     this.flagGraphics = null
-    this.canGrabFlag = false  // true cuando hay colisión AABB con la bandera (ventana de agarre)
 
-    // Equilibrio (Fase 2)
+    // Equilibrio (Fase 2 — activo durante la carrera)
     this.balanceBar = null
     this.balanceSystem = null
     this.balanceUI = []
@@ -235,45 +234,72 @@ export class GameScene extends Scene {
     this.initialSpeed = 2 * this.maxDistance / this.runDuration
     this.runElapsed = 0
     this.distanceTraveled = 0
+
+    // Iniciar equilibrio (Fase 2) junto con la carrera
+    const equilibrio = this.characterData?.stats?.equilibrio || 5
+    this.balanceBar = new BalanceBar(equilibrio)
+    this.balanceSystem = new BalanceSystem(this.balanceBar)
+    this.balanceInputDir = 0
+    this.createBalanceUI()
   }
 
   updateRunning(delta) {
     const dt = delta / 1000
+
+    // Actualizar equilibrio (Fase 2)
+    if (this.balanceBar) {
+      this.balanceSystem.update(dt, this.balanceInputDir)
+      this.updateBalanceUI()
+
+      if (this.balanceSystem.isFailed()) {
+        this.onBalanceLost()
+        return
+      }
+    }
+
+    // Si la carrera ya terminó, el personaje se queda en el palo manteniendo equilibrio
+    // (puede saltar para intentar llegar a la bandera)
+    if (this.runElapsed >= this.runDuration) {
+      return
+    }
+
     this.runElapsed += dt
 
-    // ¿Ha terminado el recorrido?
+    // ¿Ha terminado el recorrido en este frame?
     if (this.runElapsed >= this.runDuration) {
       this.playerX = POLE.START_X - this.maxDistance
       this.distanceTraveled = this.maxDistance
 
-      // No pasar del extremo del palo
       if (this.playerX < POLE.END_X) {
         this.playerX = POLE.END_X
         this.distanceTraveled = POLE.START_X - POLE.END_X
       }
 
-      // Actualizar ventana de agarre (el jugador debe pulsar para coger)
-      this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
-
-      // Si hay colisión, esperar tap del jugador; si no, caer
-      if (!this.canGrabFlag) {
+      // Auto-grab si llega a la bandera
+      if (!this.hasFlag && this.checkFlagCollision()) {
         this.redrawPlayer()
-        this.startFalling()
-      } else {
-        this.redrawPlayer()
+        this.grabFlag()
+        return
       }
+
+      this.redrawPlayer()
       return
     }
 
+    // Movimiento con desaceleración lineal
     const t = this.runElapsed
     const T = this.runDuration
-
-    // Desaceleración lineal: x(t) = v0 * t * (1 - t/(2T))
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.playerX = POLE.START_X - this.distanceTraveled
 
-    // Actualizar ventana de agarre cada frame
-    this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
+    // Auto-grab si pasa por la bandera durante la carrera
+    if (!this.hasFlag && this.checkFlagCollision()) {
+      this.playerX = POLE.END_X
+      this.distanceTraveled = POLE.START_X - POLE.END_X
+      this.redrawPlayer()
+      this.grabFlag()
+      return
+    }
 
     this.redrawPlayer()
   }
@@ -283,6 +309,10 @@ export class GameScene extends Scene {
   // ========================================
 
   startJump() {
+    this.cleanBalanceUI()
+    this.balanceBar = null
+    this.balanceSystem = null
+
     this.hasJumped = true
     this.isJumping = true
     this.phase = 'jumping'
@@ -326,14 +356,16 @@ export class GameScene extends Scene {
     // Actualizar distancia recorrida para el HUD
     this.distanceTraveled = POLE.START_X - this.playerX
 
-    // Actualizar ventana de agarre cada frame (el jugador debe pulsar para coger)
-    this.canGrabFlag = !this.hasFlag && this.checkFlagCollision()
+    // Auto-grab bandera si colisiona durante el salto
+    if (!this.hasFlag && this.checkFlagCollision()) {
+      this.hasFlag = true
+      this.flagGraphics.setVisible(false)
+    }
 
     // Llegó al agua
     if (this.playerY >= this.waterY) {
       this.playerY = this.waterY
       this.isJumping = false
-      this.canGrabFlag = false
       this.playerGraphics.setVisible(false)
       this.createSplash()
       if (this.hasFlag) {
@@ -373,31 +405,17 @@ export class GameScene extends Scene {
   grabFlag() {
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
-
-    if (this.isJumping) {
-      // Saltando: aterrizar de vuelta en el palo para iniciar equilibrio
-      this.isJumping = false
-      this.playerY = this.poleY - 4
-      this.phase = 'running' // Temporalmente para salir del update de jumping
-    }
-
+    this.cleanBalanceUI()
+    this.balanceBar = null
+    this.balanceSystem = null
     this.redrawPlayer()
-    // Siempre iniciar fase de equilibrio al coger la bandera
-    this.startBalancing()
+    // Cae al agua con la bandera → celebración
+    this.startFalling()
   }
 
   // ========================================
   // FASE 2 — EQUILIBRIO
   // ========================================
-
-  startBalancing() {
-    this.phase = 'balancing'
-    const equilibrio = this.characterData?.stats?.equilibrio || 5
-    this.balanceBar = new BalanceBar(equilibrio)
-    this.balanceSystem = new BalanceSystem(this.balanceBar)
-    this.balanceInputDir = 0
-    this.createBalanceUI()
-  }
 
   createBalanceUI() {
     const { WIDTH, HEIGHT } = BALANCE.BAR
@@ -427,7 +445,7 @@ export class GameScene extends Scene {
     barBg.fillRect(centerX + limitOffset - 1, barY - 2, 2, HEIGHT + 4)
 
     // Zonas de peligro (fondo rojizo cerca de los límites)
-    barBg.fillStyle(COLORS.RED, 0.1)
+    barBg.fillStyle(COLORS.RED, 0.2)
     barBg.fillRect(barX, barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
     barBg.fillRect(barX + WIDTH - WIDTH * ((1 - BALANCE.LIMIT) / 2), barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
 
@@ -542,50 +560,17 @@ export class GameScene extends Scene {
       cursorX + 6, barY + HEIGHT + 4,
     )
 
-    // Actualizar temporizador
-    if (this.balanceTimerText) {
-      const remaining = Math.max(0, BALANCE.DURATION - this.balanceSystem.getElapsedTime())
-      this.balanceTimerText.setText(`${remaining.toFixed(1)}s`)
-    }
-  }
-
-  updateBalancing(delta) {
-    const dt = delta / 1000
-
-    // Aplicar fuerza del input del jugador
-    if (this.balanceInputDir !== 0) {
-      this.balanceBar.applyForce(this.balanceInputDir, dt)
-    }
-
-    // Actualizar sistema (drift + física)
-    this.balanceSystem.update(dt)
-
-    // Actualizar UI
-    this.updateBalanceUI()
-
-    // ¿Ha perdido el equilibrio?
-    if (this.balanceSystem.isFailed()) {
-      this.onBalanceLost()
-      return
-    }
-
-    // ¿Ha aguantado suficiente?
-    if (this.balanceSystem.hasWon()) {
-      this.onBalanceWon()
+    // Actualizar temporizador (tiempo en equilibrio)
+    if (this.balanceTimerText && this.balanceSystem) {
+      const elapsed = this.balanceSystem.getElapsedTime()
+      this.balanceTimerText.setText(`${elapsed.toFixed(1)}s`)
     }
   }
 
   onBalanceLost() {
     this.cleanBalanceUI()
-    // Suelta la bandera al caer
-    this.hasFlag = false
-    this.flagGraphics.setVisible(true)
-    this.startFalling()
-  }
-
-  onBalanceWon() {
-    this.cleanBalanceUI()
-    // Cae al agua con la bandera → celebración
+    this.balanceBar = null
+    this.balanceSystem = null
     this.startFalling()
   }
 
@@ -822,21 +807,19 @@ export class GameScene extends Scene {
   // ========================================
 
   setupInput() {
-    this.input.on('pointerdown', () => this.handleTap())
+    this.input.on('pointerdown', (pointer) => this.handleTap(pointer))
     this.input.keyboard.on('keydown-SPACE', (event) => {
-      if (event.repeat) return  // Ignorar tecla mantenida
-      this.handleTap()
+      if (event.repeat) return
+      this.handleTap(null)
     })
     this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
 
-    // Flechas para el equilibrio
-    this.input.keyboard.on('keydown-LEFT', (event) => {
-      if (event.repeat) return
-      if (this.phase === 'balancing') this.balanceInputDir = -1
+    // Flechas para el equilibrio (activo durante la carrera)
+    this.input.keyboard.on('keydown-LEFT', () => {
+      if (this.phase === 'running' && this.balanceBar) this.balanceInputDir = -1
     })
-    this.input.keyboard.on('keydown-RIGHT', (event) => {
-      if (event.repeat) return
-      if (this.phase === 'balancing') this.balanceInputDir = 1
+    this.input.keyboard.on('keydown-RIGHT', () => {
+      if (this.phase === 'running' && this.balanceBar) this.balanceInputDir = 1
     })
     this.input.keyboard.on('keyup-LEFT', () => {
       if (this.balanceInputDir === -1) this.balanceInputDir = 0
@@ -846,16 +829,12 @@ export class GameScene extends Scene {
     })
   }
 
-  handleTap() {
+  handleTap(pointer) {
     if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
       this.onBarStopped()
-    } else if ((this.phase === 'running' || this.phase === 'jumping') && this.canGrabFlag && !this.hasFlag) {
-      // Coger la bandera tiene prioridad sobre el salto
-      this.playerX = POLE.END_X
-      this.distanceTraveled = POLE.START_X - POLE.END_X
-      this.canGrabFlag = false
-      this.grabFlag()
     } else if (this.phase === 'running' && !this.hasJumped) {
+      // Ignorar taps en la zona del panel (botones de equilibrio)
+      if (pointer && pointer.y >= CONTROL_PANEL.Y) return
       this.startJump()
     } else if (this.phase === 'done' && this.canRestart) {
       this.scene.restart({ character: this.characterData })
@@ -1021,10 +1000,6 @@ export class GameScene extends Scene {
 
     if (this.phase === 'jumping') {
       this.updateJumping(delta)
-    }
-
-    if (this.phase === 'balancing') {
-      this.updateBalancing(delta)
     }
   }
 }

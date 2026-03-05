@@ -1,5 +1,6 @@
 // Sistema de equilibrio — controla la mecánica de la Fase 2
 // Gestiona el drift aleatorio que desestabiliza al jugador
+// El drift actúa como aceleración sobre la velocity del bar (modelo F=ma)
 
 import { BALANCE } from '../config/gameConfig'
 
@@ -9,12 +10,12 @@ export class BalanceSystem {
     this.bar = balanceBar
     this.elapsed = 0
     this.driftDirection = Math.random() > 0.5 ? 1 : -1
-    this.driftIntensity = BALANCE.DRIFT_BASE
+    this.driftIntensity = BALANCE.DRIFT_ACCELERATION
     this.timeSinceLastChange = 0
     this.nextChangeTime = BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
   }
 
-  update(dt) {
+  update(dt, inputDirection) {
     if (this.bar.failed) return
 
     this.elapsed += dt
@@ -25,29 +26,32 @@ export class BalanceSystem {
       this.timeSinceLastChange = 0
       this.nextChangeTime = BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
 
-      // Cambiar dirección (a veces mantiene, a veces cambia)
+      // Cambiar dirección (70% de probabilidad de cambiar)
       if (Math.random() > 0.3) {
         this.driftDirection *= -1
       }
 
-      // Variar intensidad
-      this.driftIntensity = BALANCE.DRIFT_BASE
+      // Variar intensidad alrededor de la base
+      this.driftIntensity = BALANCE.DRIFT_ACCELERATION
         + (Math.random() * 2 - 1) * BALANCE.DRIFT_VARIANCE
     }
 
-    // Dificultad progresiva: el drift se intensifica con el tiempo
-    const difficultyMultiplier = 1 + this.elapsed * 0.1
+    // Dificultad progresiva suave
+    const difficultyMultiplier = 1 + this.elapsed * BALANCE.DIFFICULTY_INCREASE
 
     // Reducir drift según stat de equilibrio del personaje
     const equilibrioReduction = 1 - (this.bar.equilibrioStat * BALANCE.EQUILIBRIO_FACTOR)
     const effectiveReduction = Math.max(0.2, equilibrioReduction)
 
-    // Aplicar drift como fuerza al bar
-    const driftForce = this.driftDirection * this.driftIntensity
-      * difficultyMultiplier * effectiveReduction * dt
-    this.bar.applyDrift(driftForce)
+    // Calcular aceleración efectiva del drift y pasarla al bar
+    const driftAccel = this.driftDirection * this.driftIntensity
+      * difficultyMultiplier * effectiveReduction
+    this.bar.setDriftAcceleration(driftAccel)
 
-    // Actualizar bar (física, fricción, posición)
+    // Pasar input del jugador al bar
+    this.bar.setInputDirection(inputDirection)
+
+    // Actualizar bar (toda la física: drift + input + damping + posición)
     this.bar.update(dt)
   }
 
@@ -61,9 +65,5 @@ export class BalanceSystem {
 
   getElapsedTime() {
     return this.elapsed
-  }
-
-  hasWon() {
-    return this.elapsed >= BALANCE.DURATION && !this.bar.failed
   }
 }
