@@ -9,6 +9,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- `CollectionScene`: vista ampliada al pulsar una ficha conseguida — overlay oscuro con panel 520×660 px, imagen 220 px, contador "x{N} conseguidos", estrellas animadas y "Toca para cerrar". Se activa con `showRewardDetail()`. Sin confeti (solo aparece al ganar por primera vez).
+- `CollectionScene`: botón "VOLVER A JUGAR" junto a "VOLVER AL MENÚ" en la barra inferior, permitiendo reiniciar con el mismo personaje directamente desde la colección.
+- Confeti pixel art (cuadraditos de colores) en `RewardScene` **únicamente la primera vez** que se obtiene cada premio (comprobación via `isFirstWin` antes de `addReward`).
+
+### Changed
+
+- `RewardScene`: imagen del premio ampliada de 128 px a **380 px**, ocupando casi todo el alto disponible del panel para mayor impacto visual en móvil.
+- `CollectionScene`: los premios no conseguidos muestran "???" en lugar del nombre real, manteniendo el suspense.
+- `CollectionScene`: fichas conseguidas son ahora interactivas (efecto hover + pulsar para ampliar). La vista ampliada no muestra confeti.
+
 - `RewardStorageService` (`services/RewardStorageService.js`): capa de abstracción para persistencia de premios. Patrón Adaptador — backend intercambiable sin tocar el resto del juego. Implementación v1 en `localStorage`.
 - `CollectionScene`: pantalla "Mis Premios" con carrusel de fichas estilo CharacterSelectScene. Muestra 4 fichas a la vez (nombre arriba, imagen centrada, contador `x{N}` abajo), con navegación ◀▶, swipe táctil y dots. Accesible desde game over y pantalla de premio.
 - Botón "VER PREMIOS" en el panel de game over (`GameScene`).

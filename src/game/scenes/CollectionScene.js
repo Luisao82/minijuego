@@ -22,6 +22,9 @@ const IMG_Y_LOCAL = Math.round((CARD_H - IMG_SIZE) / 2)   // centra imagen en la
 const BAND_Y = 110
 const BAND_H = 480
 
+// --- Colores del confeti ---
+const CONFETTI_COLORS = [0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b]
+
 export class CollectionScene extends Scene {
 
   constructor() {
@@ -32,6 +35,7 @@ export class CollectionScene extends Scene {
     this.characterData = data?.character || null
     this.pageStart = 0
     this.scrolling = false
+    this.detailOpen = false
   }
 
   create() {
@@ -43,7 +47,7 @@ export class CollectionScene extends Scene {
     this.drawHeader()
     this.createCarousel()
     this.drawNavigation()
-    this.drawBackButton()
+    this.drawButtons()
     this.setupInput()
   }
 
@@ -185,8 +189,9 @@ export class CollectionScene extends Scene {
     }
     container.add(g)
 
-    // --- Nombre (parte superior) ---
-    container.add(this.add.text(CARD_W / 2, 14, reward.nombre, {
+    // --- Nombre (parte superior) — oculto con "???" si no se ha ganado ---
+    const displayName = earned ? reward.nombre : '???'
+    container.add(this.add.text(CARD_W / 2, 14, displayName, {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: earned ? '#ffd700' : '#444455',
@@ -238,6 +243,43 @@ export class CollectionScene extends Scene {
       strokeThickness: earned ? 3 : 1,
     }).setOrigin(0.5))
 
+    // --- Área interactiva para premios conseguidos (pulsar para ampliar) ---
+    if (earned) {
+      const hit = this.add.graphics()
+      hit.fillStyle(0xffffff, 0.001)
+      hit.fillRect(0, 0, CARD_W, CARD_H)
+      hit.setInteractive(
+        new Phaser.Geom.Rectangle(0, 0, CARD_W, CARD_H),
+        Phaser.Geom.Rectangle.Contains,
+      )
+      hit.on('pointerover', () => {
+        g.clear()
+        g.fillStyle(COLORS.GOLD, 0.15)
+        g.fillRect(-4, -4, CARD_W + 8, CARD_H + 8)
+        g.fillStyle(COLORS.UI_BG, 1)
+        g.fillRect(0, 0, CARD_W, CARD_H)
+        g.lineStyle(2, COLORS.GOLD, 1)
+        g.strokeRect(0, 0, CARD_W, CARD_H)
+        g.lineStyle(1, COLORS.GOLD, 0.5)
+        g.strokeRect(3, 3, CARD_W - 6, CARD_H - 6)
+      })
+      hit.on('pointerout', () => {
+        g.clear()
+        g.fillStyle(COLORS.GOLD, 0.08)
+        g.fillRect(-4, -4, CARD_W + 8, CARD_H + 8)
+        g.fillStyle(COLORS.UI_BG, 1)
+        g.fillRect(0, 0, CARD_W, CARD_H)
+        g.lineStyle(2, COLORS.GOLD, 1)
+        g.strokeRect(0, 0, CARD_W, CARD_H)
+        g.lineStyle(1, COLORS.GOLD, 0.3)
+        g.strokeRect(3, 3, CARD_W - 6, CARD_H - 6)
+      })
+      hit.on('pointerdown', () => {
+        if (!this.detailOpen) this.showRewardDetail(reward, count)
+      })
+      container.add(hit)
+    }
+
     return container
   }
 
@@ -278,7 +320,7 @@ export class CollectionScene extends Scene {
   // ========================================
 
   drawNavigation() {
-    const arrowY = CARDS_Y + CARD_H / 2  // centro vertical de las fichas (= centro de pantalla)
+    const arrowY = CARDS_Y + CARD_H / 2  // centro vertical de las fichas
 
     this.leftArrow = this.add.text(28, arrowY, '◀', {
       fontFamily: 'monospace',
@@ -329,7 +371,7 @@ export class CollectionScene extends Scene {
   }
 
   scroll(dir) {
-    if (this.scrolling) return
+    if (this.scrolling || this.detailOpen) return
     const next = this.pageStart + dir
     if (next < 0 || next > this.maxPageStart) return
     this.pageStart = next
@@ -338,51 +380,245 @@ export class CollectionScene extends Scene {
   }
 
   // ========================================
-  // BOTÓN VOLVER
+  // BOTONES (dos botones inferiores)
   // ========================================
 
-  drawBackButton() {
-    const btnW = 220
+  drawButtons() {
     const btnH = 38
-    const btnX = GAME_WIDTH / 2 - btnW / 2
+    const btnW = 220
+    const gap = 16
     const btnY = BAND_Y + BAND_H + 22
+    const totalW = btnW * 2 + gap
+    const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
+
+    this.makeButton(startX, btnY, btnW, btnH, 'VOLVER AL MENÚ', () => {
+      this.scene.start(SCENES.MENU)
+    })
+
+    this.makeButton(startX + btnW + gap, btnY, btnW, btnH, 'VOLVER A JUGAR', () => {
+      this.scene.start(SCENES.GAME, { character: this.characterData })
+    })
+  }
+
+  makeButton(x, y, w, h, label, onPress) {
+    const g = this.add.graphics()
 
     const drawNormal = () => {
       g.clear()
       g.fillStyle(0x16213e, 1)
-      g.fillRect(btnX, btnY, btnW, btnH)
+      g.fillRect(x, y, w, h)
       g.lineStyle(2, COLORS.GOLD, 0.8)
-      g.strokeRect(btnX, btnY, btnW, btnH)
+      g.strokeRect(x, y, w, h)
       g.lineStyle(1, COLORS.GOLD, 0.2)
-      g.strokeRect(btnX + 3, btnY + 3, btnW - 6, btnH - 6)
+      g.strokeRect(x + 3, y + 3, w - 6, h - 6)
     }
 
     const drawHover = () => {
       g.clear()
       g.fillStyle(0x2a2a6e, 1)
-      g.fillRect(btnX, btnY, btnW, btnH)
+      g.fillRect(x, y, w, h)
       g.lineStyle(2, COLORS.GOLD, 1)
-      g.strokeRect(btnX, btnY, btnW, btnH)
+      g.strokeRect(x, y, w, h)
     }
 
-    const g = this.add.graphics()
     drawNormal()
 
-    this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, 'VOLVER AL MENÚ', {
+    this.add.text(x + w / 2, y + h / 2, label, {
       fontFamily: 'monospace',
-      fontSize: '13px',
+      fontSize: '12px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 2,
     }).setOrigin(0.5)
 
-    g.setInteractive(
-      new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH),
-      Phaser.Geom.Rectangle.Contains,
-    )
+    g.setInteractive(new Phaser.Geom.Rectangle(x, y, w, h), Phaser.Geom.Rectangle.Contains)
     g.on('pointerover', drawHover)
     g.on('pointerout', drawNormal)
-    g.on('pointerdown', () => this.scene.start(SCENES.MENU))
+    g.on('pointerdown', onPress)
+  }
+
+  // ========================================
+  // VISTA AMPLIADA AL PULSAR UN PREMIO
+  // ========================================
+
+  showRewardDetail(reward, count) {
+    this.detailOpen = true
+
+    const PW = 520
+    const PH = 660
+    const PX = Math.round((GAME_WIDTH - PW) / 2)
+    const PY = Math.round((GAME_HEIGHT - PH) / 2)
+    const CX = GAME_WIDTH / 2
+    const IMG_BIG = 220
+    const toDestroy = []
+
+    // --- Overlay oscuro bloqueante ---
+    const overlay = this.add.graphics().setDepth(10)
+    overlay.fillStyle(0x000000, 0.88)
+    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    overlay.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT),
+      Phaser.Geom.Rectangle.Contains,
+    )
+    toDestroy.push(overlay)
+
+    // --- Panel ---
+    const panel = this.add.graphics().setDepth(11)
+    panel.fillStyle(0x000000, 0.5)
+    panel.fillRect(PX + 5, PY + 5, PW, PH)
+    panel.fillStyle(COLORS.DARK_BG, 1)
+    panel.fillRect(PX, PY, PW, PH)
+    panel.lineStyle(3, COLORS.GOLD, 1)
+    panel.strokeRect(PX, PY, PW, PH)
+    panel.lineStyle(1, COLORS.GOLD, 0.3)
+    panel.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10)
+    panel.fillStyle(COLORS.GOLD, 0.1)
+    panel.fillRect(PX, PY, PW, 52)
+    toDestroy.push(panel)
+
+    // --- Título con nombre del premio ---
+    const title = this.add.text(CX, PY + 27, reward.nombre, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '13px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 4,
+      align: 'center',
+      wordWrap: { width: PW - 40 },
+    }).setOrigin(0.5).setDepth(12)
+    toDestroy.push(title)
+
+    // --- Separador ---
+    const sep = this.add.graphics().setDepth(12)
+    sep.lineStyle(1, COLORS.GOLD, 0.4)
+    sep.strokeRect(PX + 24, PY + 52, PW - 48, 1)
+    toDestroy.push(sep)
+
+    // --- Imagen grande ---
+    const imgCY = PY + 62 + IMG_BIG / 2 + 10   // PY+182
+    if (this.textures.exists(reward.id) && this.textures.get(reward.id).key !== '__MISSING') {
+      const img = this.add.image(CX, imgCY, reward.id)
+        .setDisplaySize(IMG_BIG, IMG_BIG)
+        .setOrigin(0.5)
+        .setDepth(12)
+      toDestroy.push(img)
+    } else {
+      const imgG = this.add.graphics().setDepth(12)
+      imgG.fillStyle(0x2a2a4a, 1)
+      imgG.fillRect(CX - IMG_BIG / 2, PY + 62, IMG_BIG, IMG_BIG)
+      imgG.lineStyle(2, COLORS.GOLD, 0.8)
+      imgG.strokeRect(CX - IMG_BIG / 2, PY + 62, IMG_BIG, IMG_BIG)
+      toDestroy.push(imgG)
+      const qMark = this.add.text(CX, imgCY, '?', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '64px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(12)
+      toDestroy.push(qMark)
+    }
+
+    // --- Contador de veces conseguido ---
+    const countY = imgCY + IMG_BIG / 2 + 30
+    const countText = this.add.text(CX, countY, `x${count} conseguido${count !== 1 ? 's' : ''}`, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '14px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(12)
+    toDestroy.push(countText)
+
+    // --- Estrellas decorativas ---
+    const starPositions = [
+      { x: CX - IMG_BIG / 2 - 22, y: imgCY - IMG_BIG / 2 - 12 },
+      { x: CX + IMG_BIG / 2 + 22, y: imgCY - IMG_BIG / 2 - 12 },
+      { x: CX - IMG_BIG / 2 - 16, y: imgCY + IMG_BIG / 2 + 16 },
+      { x: CX + IMG_BIG / 2 + 16, y: imgCY + IMG_BIG / 2 + 16 },
+    ]
+    starPositions.forEach((pos, i) => {
+      const star = this.add.text(pos.x, pos.y, '★', {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        color: '#ffd700',
+      }).setOrigin(0.5).setAlpha(0).setDepth(12)
+      toDestroy.push(star)
+      this.tweens.add({
+        targets: star,
+        alpha: 1,
+        scaleX: { from: 0.4, to: 1 },
+        scaleY: { from: 0.4, to: 1 },
+        delay: 200 + i * 100,
+        duration: 300,
+        ease: 'Back.easeOut',
+      })
+      this.tweens.add({
+        targets: star,
+        alpha: { from: 1, to: 0.3 },
+        delay: 600 + i * 100,
+        duration: 800,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      })
+    })
+
+    // --- Hint "Toca para cerrar" ---
+    const hint = this.add.text(CX, PY + PH - 22, 'Toca para cerrar', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#888899',
+    }).setOrigin(0.5).setDepth(12)
+    toDestroy.push(hint)
+
+    // --- Función de cierre ---
+    const close = () => {
+      this.detailOpen = false
+      toDestroy.forEach(o => { if (o && o.active) o.destroy() })
+      this.input.keyboard.off('keydown-ESC', close)
+      // Destruir también los tweens de estrella que son repeat:-1
+      this.tweens.killAll()
+      // Pequeña pausa antes de que el scroll vuelva a estar activo
+    }
+
+    overlay.on('pointerdown', close)
+    this.input.keyboard.on('keydown-ESC', close)
+  }
+
+  // ========================================
+  // CONFETI
+  // ========================================
+
+  spawnConfetti(areaX, areaY, areaW, areaH, count = 55) {
+    const pieces = []
+    for (let i = 0; i < count; i++) {
+      const color = Phaser.Utils.Array.GetRandom(CONFETTI_COLORS)
+      const size = Phaser.Math.Between(4, 9)
+      const startX = Phaser.Math.Between(areaX + 10, areaX + areaW - 10)
+      const endX = startX + Phaser.Math.Between(-90, 90)
+      const delay = Phaser.Math.Between(0, 1000)
+      const duration = Phaser.Math.Between(1100, 2600)
+
+      const g = this.add.graphics().setDepth(13)
+      g.fillStyle(color, 1)
+      g.fillRect(-size / 2, -size / 2, size, size)
+      g.x = startX
+      g.y = areaY - 5
+      pieces.push(g)
+
+      this.tweens.add({
+        targets: g,
+        x: endX,
+        y: areaY + areaH + 10,
+        angle: Phaser.Math.Between(-540, 540),
+        alpha: { from: 1, to: 0.15 },
+        delay,
+        duration,
+        ease: 'Quad.easeIn',
+      })
+    }
+    return pieces
   }
 
   // ========================================
@@ -392,14 +628,16 @@ export class CollectionScene extends Scene {
   setupInput() {
     this.input.keyboard.on('keydown-LEFT', () => this.scroll(-1))
     this.input.keyboard.on('keydown-RIGHT', () => this.scroll(1))
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
+    this.input.keyboard.on('keydown-ESC', () => {
+      if (!this.detailOpen) this.scene.start(SCENES.MENU)
+    })
 
     // Soporte swipe táctil
     this.input.on('pointerdown', (p) => { this.swipeX = p.x })
     this.input.on('pointerup', (p) => {
       if (this.swipeX === undefined) return
       const diff = p.x - this.swipeX
-      if (Math.abs(diff) > 60) this.scroll(diff < 0 ? 1 : -1)
+      if (Math.abs(diff) > 60 && !this.detailOpen) this.scroll(diff < 0 ? 1 : -1)
       this.swipeX = undefined
     })
   }
