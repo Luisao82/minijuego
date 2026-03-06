@@ -7,7 +7,7 @@ export const CHARACTERS = [
     name: 'EL TRIANERO',
     description: 'Nacido y criado en Triana.\nEquilibrado en todo.',
     sprite: 'char-trianero',
-    stats: { peso: 5, equilibrio: 1, altura: 5, edad: 5 },
+    stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
     available: true,
   },
   {
@@ -32,6 +32,14 @@ export const CHARACTERS = [
     description: 'Joven, guapa y alegre.\nCasi nunca pierde el equilibrio.',
     sprite: 'char-flamenca',
     stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
+    available: true,
+  },
+  {
+    id: 'guiri',
+    name: 'El guiri',
+    description: 'Turista despistado, que le gusta las tradiciones "baratas" de Sevillanas\nLe cuesta mantener el equilibrio.',
+    sprite: 'char-guiri',
+    stats: { peso: 4, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
   },
 ]

@@ -125,15 +125,15 @@ export const BALANCE = {
   DRIFT_CHANGE_INTERVAL: 1.8,    // Segundos entre cambios de dirección del drift
 
   // Fuerza del input del jugador (debe superar al drift máximo para que sea posible corregir)
-  INPUT_FORCE: 5.0,              // Contrafuerza al mantener pulsado (unidades/s²)
+  INPUT_FORCE: 5,              // Contrafuerza al mantener pulsado (unidades/s²)
 
   DAMPING: 0.5,                  // Amortiguamiento ligero (previene acumulación infinita)
 
   // Límites según stat de equilibrio del personaje
   LIMIT_MIN: 0.25,               // Límite con equilibrio 0  (muy cerca del centro = muy difícil)
-  LIMIT_MAX: 0.60,               // Límite con equilibrio 10 (más separado = más fácil)
+  LIMIT_MAX: 0.9, //0.6,               // Límite con equilibrio 10 (más separado = más fácil)
 
-  DIFFICULTY_INCREASE: 0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
+  DIFFICULTY_INCREASE: 0, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
 
   BAR: {
     WIDTH: 300,
@@ -145,7 +145,7 @@ export const BALANCE = {
 // Configuración del movimiento del personaje
 export const MOVEMENT = {
   MIN_RUN_DURATION: 0.8,    // Duración mínima del recorrido (seg)
-  MAX_RUN_DURATION: 4.0,    // Duración máxima del recorrido (seg)
+  MAX_RUN_DURATION: 8, //4.0,    // Duración máxima del recorrido (seg)
   FALL_DURATION: 350,       // Duración de la caída al agua (ms)
   RESULT_DISPLAY_MS: 1500,  // Tiempo mostrando resultado antes de que el personaje corra
 }
