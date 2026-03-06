@@ -9,6 +9,24 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- `RewardStorageService` (`services/RewardStorageService.js`): capa de abstracción para persistencia de premios. Patrón Adaptador — backend intercambiable sin tocar el resto del juego. Implementación v1 en `localStorage`.
+- `CollectionScene`: pantalla "Mis Premios" con carrusel de fichas estilo CharacterSelectScene. Muestra 4 fichas a la vez (nombre arriba, imagen centrada, contador `x{N}` abajo), con navegación ◀▶, swipe táctil y dots. Accesible desde game over y pantalla de premio.
+- Botón "VER PREMIOS" en el panel de game over (`GameScene`).
+- Botón "VER PREMIOS" en `RewardScene`, junto a "VOLVER A JUGAR" (dos botones en fila dentro del panel).
+- Constante `SCENES.COLLECTION` en `gameConfig.js`.
+- Sistema de premios: fichero `rewards.json` (en `public/assets/`) con estructura `id`, `nombre`, `imagen` y `probabilidad`. Cinco premios temáticos de Triana.
+- `RewardScene`: pantalla de resultado de victoria con "¡Enhorabuena, has conseguido...", imagen del premio (o placeholder pixel art), nombre del premio y botones de acción.
+- Carga dinámica de imágenes de premios en `PreloadScene` a partir del JSON (encadenando `filecomplete-json-rewards`).
+- Constante `SCENES.REWARD` en `gameConfig.js`.
+- Selección aleatoria de premio al coger la bandera: `GameScene.startRewardScreen()`.
+
+### Changed
+
+- Al coger la bandera, el juego transiciona a `RewardScene` en lugar de mostrar un panel inline de victoria.
+- Panel de game over expandido para incluir el botón "VER PREMIOS".
+- `RewardScene` guarda el premio en `localStorage` vía `rewardStorage.addReward()` al inicializarse (`init()`).
+- GDD en Notion actualizado con el diseño de persistencia por capas (sección "Persistencia — Diseño por capas").
+
 - Fase 1 — Impulso ("La carrera"): barra de poder con aceleración progresiva, zonas roja/amarilla/verde y máximo 3 pasadas.
 - Entidad `PowerBar` (entities/PowerBar.js): modelo puro de la barra de poder con posición, velocidad, zonas e impulso.
 - Sistema `ImpulseSystem` (systems/ImpulseSystem.js): lógica de negocio para la mecánica de impulso (aceleración, reset, parada y cálculo de resultado).

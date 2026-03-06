@@ -51,6 +51,17 @@ export class PreloadScene extends Scene {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
+    // Premios: carga el JSON y luego las imágenes de cada premio
+    this.load.json('rewards', 'rewards.json')
+    this.load.on('filecomplete-json-rewards', () => {
+      const rewards = this.cache.json.get('rewards')
+      if (rewards && Array.isArray(rewards)) {
+        rewards.forEach(reward => {
+          this.load.image(reward.id, reward.imagen)
+        })
+      }
+    })
+
     // Aplicar filtro NEAREST a texturas pixel art tras la carga
     this.load.on('filecomplete', (key) => {
       const texture = this.textures.get(key)

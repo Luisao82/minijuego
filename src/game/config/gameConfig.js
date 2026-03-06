@@ -32,6 +32,8 @@ export const SCENES = {
   CHARACTER_SELECT: 'CharacterSelectScene',
   GAME: 'GameScene',
   GAME_OVER: 'GameOverScene',
+  REWARD: 'RewardScene',
+  COLLECTION: 'CollectionScene',
 }
 
 // Configuración de texto pixel art (temporal hasta tener bitmap fonts)

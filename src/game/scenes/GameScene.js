@@ -51,6 +51,7 @@ export class GameScene extends Scene {
     // UI tracking para limpieza
     this.phase1UI = []
     this.canRestart = false
+    this.collectionBtnBounds = null
   }
 
   create() {
@@ -662,14 +663,18 @@ export class GameScene extends Scene {
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
+    const panelW = 400
+    const panelH = 184
 
     const g = this.add.graphics()
-    g.fillStyle(COLORS.DARK_BG, 0.85)
-    g.fillRect(centerX - 200, centerY - 60, 400, 120)
+    g.fillStyle(COLORS.DARK_BG, 0.88)
+    g.fillRect(centerX - panelW / 2, centerY - panelH / 2, panelW, panelH)
     g.lineStyle(2, COLORS.GOLD, 0.8)
-    g.strokeRect(centerX - 200, centerY - 60, 400, 120)
+    g.strokeRect(centerX - panelW / 2, centerY - panelH / 2, panelW, panelH)
+    g.lineStyle(1, COLORS.GOLD, 0.2)
+    g.strokeRect(centerX - panelW / 2 + 3, centerY - panelH / 2 + 3, panelW - 6, panelH - 6)
 
-    this.add.text(centerX, centerY - 20, '¡AL AGUA!', {
+    this.add.text(centerX, centerY - 52, '¡AL AGUA!', {
       fontFamily: 'monospace',
       fontSize: '28px',
       color: '#ff6644',
@@ -679,16 +684,17 @@ export class GameScene extends Scene {
 
     const poleLength = POLE.START_X - POLE.END_X
     const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
-    this.add.text(centerX, centerY + 20, `DISTANCIA: ${distPercent}%`, {
+    this.add.text(centerX, centerY - 14, `DISTANCIA: ${distPercent}%`, {
       fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
     }).setOrigin(0.5)
 
-    // Reinicio con retardo para evitar doble tap
+    // Retardo para evitar doble tap accidental
     this.time.delayedCall(1000, () => {
       this.canRestart = true
-      const restartText = this.add.text(centerX, centerY + 80, 'PULSA PARA REINTENTAR', {
+
+      const restartText = this.add.text(centerX, centerY + 22, 'PULSA PARA REINTENTAR', {
         fontFamily: 'monospace',
         fontSize: '12px',
         color: '#aaaaaa',
@@ -699,6 +705,49 @@ export class GameScene extends Scene {
         duration: 500,
         yoyo: true,
         repeat: -1,
+      })
+
+      // Botón VER PREMIOS
+      const btnW = 200
+      const btnH = 32
+      const btnX = centerX - btnW / 2
+      const btnY = centerY + 52
+
+      this.collectionBtnBounds = new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH)
+
+      const btnG = this.add.graphics()
+
+      const drawNormal = () => {
+        btnG.clear()
+        btnG.fillStyle(0x16213e, 1)
+        btnG.fillRect(btnX, btnY, btnW, btnH)
+        btnG.lineStyle(2, COLORS.GOLD, 0.8)
+        btnG.strokeRect(btnX, btnY, btnW, btnH)
+      }
+
+      const drawHover = () => {
+        btnG.clear()
+        btnG.fillStyle(0x2a2a6e, 1)
+        btnG.fillRect(btnX, btnY, btnW, btnH)
+        btnG.lineStyle(2, COLORS.GOLD, 1)
+        btnG.strokeRect(btnX, btnY, btnW, btnH)
+      }
+
+      drawNormal()
+
+      this.add.text(centerX, btnY + btnH / 2, 'VER PREMIOS', {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 2,
+      }).setOrigin(0.5)
+
+      btnG.setInteractive(this.collectionBtnBounds, Phaser.Geom.Rectangle.Contains)
+      btnG.on('pointerover', drawHover)
+      btnG.on('pointerout', drawNormal)
+      btnG.on('pointerdown', () => {
+        this.scene.start(SCENES.COLLECTION, { character: this.characterData })
       })
     })
   }
@@ -724,10 +773,10 @@ export class GameScene extends Scene {
       loop: true,
     })
 
-    // Mostrar pantalla de victoria tras la celebración
+    // Lanzar pantalla de recompensa tras la celebración
     this.time.delayedCall(2500, () => {
       this.celebTimer.destroy()
-      this.showVictory()
+      this.startRewardScreen()
     })
   }
 
@@ -761,47 +810,13 @@ export class GameScene extends Scene {
     }
   }
 
-  showVictory() {
+  startRewardScreen() {
     this.phase = 'done'
-
-    const centerX = GAME_WIDTH / 2
-    const centerY = CONTROL_PANEL.Y / 2
-
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.DARK_BG, 0.85)
-    g.fillRect(centerX - 200, centerY - 60, 400, 120)
-    g.lineStyle(2, COLORS.GOLD, 0.8)
-    g.strokeRect(centerX - 200, centerY - 60, 400, 120)
-
-    this.add.text(centerX, centerY - 20, '¡BANDERA!', {
-      fontFamily: 'monospace',
-      fontSize: '28px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 5,
-    }).setOrigin(0.5)
-
-    this.add.text(centerX, centerY + 20, '¡HAS COGIDO LA BANDERA!', {
-      fontFamily: 'monospace',
-      fontSize: '14px',
-      color: '#ffffff',
-    }).setOrigin(0.5)
-
-    this.time.delayedCall(1000, () => {
-      this.canRestart = true
-      const restartText = this.add.text(centerX, centerY + 80, 'PULSA PARA REINTENTAR', {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: '#aaaaaa',
-      }).setOrigin(0.5)
-      this.tweens.add({
-        targets: restartText,
-        alpha: 0.3,
-        duration: 500,
-        yoyo: true,
-        repeat: -1,
-      })
-    })
+    const rewards = this.cache.json.get('rewards') || []
+    const reward = rewards.length > 0
+      ? rewards[Phaser.Math.Between(0, rewards.length - 1)]
+      : null
+    this.scene.start(SCENES.REWARD, { reward, character: this.characterData })
   }
 
   // ========================================
@@ -839,6 +854,11 @@ export class GameScene extends Scene {
       if (pointer && pointer.y >= CONTROL_PANEL.Y) return
       this.startJump()
     } else if (this.phase === 'done' && this.canRestart) {
+      // Evitar reinicio si se pulsó el botón VER PREMIOS
+      if (pointer && this.collectionBtnBounds &&
+          Phaser.Geom.Rectangle.Contains(this.collectionBtnBounds, pointer.x, pointer.y)) {
+        return
+      }
       this.scene.restart({ character: this.characterData })
     }
   }

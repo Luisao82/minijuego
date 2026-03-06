@@ -3,6 +3,8 @@ import { PreloadScene } from './scenes/PreloadScene'
 import { MenuScene } from './scenes/MenuScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
 import { GameScene } from './scenes/GameScene'
+import { RewardScene } from './scenes/RewardScene'
+import { CollectionScene } from './scenes/CollectionScene'
 import { AUTO, Scale, Game } from 'phaser'
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig'
 
@@ -22,6 +24,8 @@ const config = {
     MenuScene,
     CharacterSelectScene,
     GameScene,
+    RewardScene,
+    CollectionScene,
   ],
 }
 

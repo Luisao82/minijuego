@@ -1,0 +1,14 @@
+[
+  {
+    "id": "reward_pali",
+    "nombre": "Llavero del Pali",
+    "imagen": "premios/pali.png",
+    "probabilidad": 0.25
+  },
+  {
+    "id": "reward_curro",
+    "nombre": "Pin del Curro",
+    "imagen": "premios/curro.png",
+    "probabilidad": 0.25
+  }
+]
