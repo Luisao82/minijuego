@@ -438,16 +438,18 @@ export class GameScene extends Scene {
     barBg.fillStyle(COLORS.GREEN, 1)
     barBg.fillRect(centerX - 1, barY - 4, 2, HEIGHT + 8)
 
-    // Marcas de límite izquierda y derecha
-    const limitOffset = BALANCE.LIMIT * (WIDTH / 2)
+    // Marcas de límite — posición calculada según stat del personaje (this.balanceBar.limit)
+    const limit = this.balanceBar.limit
+    const limitOffset = limit * (WIDTH / 2)
     barBg.fillStyle(COLORS.RED, 0.6)
     barBg.fillRect(centerX - limitOffset - 1, barY - 2, 2, HEIGHT + 4)
     barBg.fillRect(centerX + limitOffset - 1, barY - 2, 2, HEIGHT + 4)
 
-    // Zonas de peligro (fondo rojizo cerca de los límites)
+    // Zonas de peligro (fondo rojizo fuera de los límites)
+    const dangerWidth = WIDTH * ((1 - limit) / 2)
     barBg.fillStyle(COLORS.RED, 0.2)
-    barBg.fillRect(barX, barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
-    barBg.fillRect(barX + WIDTH - WIDTH * ((1 - BALANCE.LIMIT) / 2), barY, WIDTH * ((1 - BALANCE.LIMIT) / 2), HEIGHT)
+    barBg.fillRect(barX, barY, dangerWidth, HEIGHT)
+    barBg.fillRect(barX + WIDTH - dangerWidth, barY, dangerWidth, HEIGHT)
 
     this.balanceUI.push(barBg)
 

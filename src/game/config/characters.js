@@ -7,7 +7,7 @@ export const CHARACTERS = [
     name: 'EL TRIANERO',
     description: 'Nacido y criado en Triana.\nEquilibrado en todo.',
     sprite: 'char-trianero',
-    stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
+    stats: { peso: 5, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
   },
   {

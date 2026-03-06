@@ -114,15 +114,27 @@ export const JUMP = {
 
 // Configuración de la Fase 2 — Equilibrio
 // Modelo unificado de aceleraciones (F=ma): drift e input actúan sobre la misma velocity
+// La stat "equilibrio" del personaje (0-10) escala TANTO la velocidad del drift COMO los límites:
+//   equilibrio 10 → más fácil (drift lento + límites separados)
+//   equilibrio  0 → más difícil (drift rápido + límites muy juntos)
 export const BALANCE = {
-  DRIFT_ACCELERATION: 1.0,       // Aceleración base del drift natural (unidades/s²)
+  // Velocidad del drift según stat de equilibrio del personaje
+  DRIFT_MIN: 1.5,                // Aceleración con equilibrio 10 (más lento = más fácil)
+  DRIFT_MAX: 2.8,                // Aceleración con equilibrio 0  (más rápido = más difícil)
   DRIFT_VARIANCE: 0.3,           // Variación aleatoria sobre la base
   DRIFT_CHANGE_INTERVAL: 1.8,    // Segundos entre cambios de dirección del drift
-  INPUT_FORCE: 3.5,              // Contrafuerza del jugador al mantener pulsado (unidades/s²)
+
+  // Fuerza del input del jugador (debe superar al drift máximo para que sea posible corregir)
+  INPUT_FORCE: 5.0,              // Contrafuerza al mantener pulsado (unidades/s²)
+
   DAMPING: 0.5,                  // Amortiguamiento ligero (previene acumulación infinita)
-  LIMIT: 0.5,                    // Posición límite antes de caer (más cerca del centro = más difícil)
-  DIFFICULTY_INCREASE: 0.03,     // Incremento del drift por segundo (suave, progresivo)
-  EQUILIBRIO_FACTOR: 0.04,       // Reducción del drift por punto de equilibrio del personaje
+
+  // Límites según stat de equilibrio del personaje
+  LIMIT_MIN: 0.25,               // Límite con equilibrio 0  (muy cerca del centro = muy difícil)
+  LIMIT_MAX: 0.60,               // Límite con equilibrio 10 (más separado = más fácil)
+
+  DIFFICULTY_INCREASE: 0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
+
   BAR: {
     WIDTH: 300,
     HEIGHT: 20,

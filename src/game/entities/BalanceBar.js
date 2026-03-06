@@ -11,8 +11,12 @@ export class BalanceBar {
     this.velocity = 0              // Velocidad actual del cursor (unidades/s)
     this.driftAcceleration = 0     // Aceleración del drift natural (set por BalanceSystem)
     this.inputDirection = 0        // -1, 0, +1 (set por la escena via input)
-    this.limit = BALANCE.LIMIT     // Umbral de caída
     this.equilibrioStat = equilibrioStat
+
+    // Límite calculado según stat: equilibrio 10 = más separado (fácil), 0 = más junto (difícil)
+    const t = Math.max(0, Math.min(10, equilibrioStat)) / 10
+    this.limit = BALANCE.LIMIT_MIN + t * (BALANCE.LIMIT_MAX - BALANCE.LIMIT_MIN)
+
     this.failed = false
   }
 

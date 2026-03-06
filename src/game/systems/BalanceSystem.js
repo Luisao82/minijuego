@@ -1,6 +1,7 @@
 // Sistema de equilibrio — controla la mecánica de la Fase 2
-// Gestiona el drift aleatorio que desestabiliza al jugador
-// El drift actúa como aceleración sobre la velocity del bar (modelo F=ma)
+// La stat "equilibrio" del personaje escala la velocidad base del drift:
+//   equilibrio 10 → drift lento (DRIFT_MIN) → más fácil
+//   equilibrio  0 → drift rápido (DRIFT_MAX) → más difícil
 
 import { BALANCE } from '../config/gameConfig'
 
@@ -9,8 +10,14 @@ export class BalanceSystem {
   constructor(balanceBar) {
     this.bar = balanceBar
     this.elapsed = 0
+
+    // Calcular velocidad base del drift según stat del personaje
+    // t=1 (equilibrio 10) → DRIFT_MIN (lento), t=0 (equilibrio 0) → DRIFT_MAX (rápido)
+    const t = Math.max(0, Math.min(10, balanceBar.equilibrioStat)) / 10
+    this.baseDrift = BALANCE.DRIFT_MAX - t * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)
+
     this.driftDirection = Math.random() > 0.5 ? 1 : -1
-    this.driftIntensity = BALANCE.DRIFT_ACCELERATION
+    this.driftIntensity = this.baseDrift
     this.timeSinceLastChange = 0
     this.nextChangeTime = BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
   }
@@ -31,21 +38,16 @@ export class BalanceSystem {
         this.driftDirection *= -1
       }
 
-      // Variar intensidad alrededor de la base
-      this.driftIntensity = BALANCE.DRIFT_ACCELERATION
+      // Variar intensidad alrededor del base calculado por stat
+      this.driftIntensity = this.baseDrift
         + (Math.random() * 2 - 1) * BALANCE.DRIFT_VARIANCE
     }
 
-    // Dificultad progresiva suave
+    // Dificultad progresiva suave (se intensifica con el tiempo)
     const difficultyMultiplier = 1 + this.elapsed * BALANCE.DIFFICULTY_INCREASE
 
-    // Reducir drift según stat de equilibrio del personaje
-    const equilibrioReduction = 1 - (this.bar.equilibrioStat * BALANCE.EQUILIBRIO_FACTOR)
-    const effectiveReduction = Math.max(0.2, equilibrioReduction)
-
-    // Calcular aceleración efectiva del drift y pasarla al bar
-    const driftAccel = this.driftDirection * this.driftIntensity
-      * difficultyMultiplier * effectiveReduction
+    // Aceleración efectiva del drift
+    const driftAccel = this.driftDirection * this.driftIntensity * difficultyMultiplier
     this.bar.setDriftAcceleration(driftAccel)
 
     // Pasar input del jugador al bar
