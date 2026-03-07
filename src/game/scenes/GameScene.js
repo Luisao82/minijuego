@@ -875,7 +875,7 @@ export class GameScene extends Scene {
 
   createControlPanel() {
     const g = this.add.graphics()
-    g.fillStyle(COLORS.BLACK, 1)
+    g.fillStyle(COLORS.BLACK, 0.8    )
     g.fillRect(0, CONTROL_PANEL.Y, GAME_WIDTH, CONTROL_PANEL.HEIGHT)
   }
 

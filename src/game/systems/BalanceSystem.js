@@ -19,7 +19,7 @@ export class BalanceSystem {
     this.driftDirection = Math.random() > 0.5 ? 1 : -1
     this.driftIntensity = this.baseDrift
     this.timeSinceLastChange = 0
-    this.nextChangeTime = BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
+    this.nextChangeTime =  BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
   }
 
   update(dt, inputDirection) {

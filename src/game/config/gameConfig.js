@@ -124,7 +124,7 @@ export const BALANCE = {
   DRIFT_MIN: 1.5,                // Aceleración con equilibrio 10 (más lento = más fácil)
   DRIFT_MAX: 2.8,                // Aceleración con equilibrio 0  (más rápido = más difícil)
   DRIFT_VARIANCE: 0.3,           // Variación aleatoria sobre la base
-  DRIFT_CHANGE_INTERVAL: 1.8,    // Segundos entre cambios de dirección del drift
+  DRIFT_CHANGE_INTERVAL: 0.8,//1.8,    // Segundos entre cambios de dirección del drift
 
   // Fuerza del input del jugador (debe superar al drift máximo para que sea posible corregir)
   INPUT_FORCE: 5,              // Contrafuerza al mantener pulsado (unidades/s²)
@@ -138,7 +138,7 @@ export const BALANCE = {
   DIFFICULTY_INCREASE: 0, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
 
   BAR: {
-    WIDTH: 300,
+    WIDTH: 550,
     HEIGHT: 20,
   },
   BUTTON_SIZE: 80,               // Tamaño de los botones táctiles izq/der
