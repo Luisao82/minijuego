@@ -2,55 +2,94 @@ import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 
 // ============================================================
-// TEXTO DE LA HISTORIA — editar aquí para actualizar el contenido
+// BLOQUES DE TEXTO — 1 imagen por bloque
+// Párrafos fusionados con \n\n para mostrar más texto por pantalla
 // ============================================================
-const HISTORIA_TEXTO = `¡Escúchame bien, valiente, que te lo voy a contar como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde!
-
-Para entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.
-
-——— El Milagro del Sabio ———
-
-Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje". Se encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia. En agradecimiento, mandó levantar esa joya que es la Parroquia de Santa Ana en 1266. Los vecinos empezaron a ir allí a "velar" a la Santa, y de ese "ir de velada" nos queda el nombre de nuestra fiesta.
-
-——— La Picaresca se echa al río ———
-
-Pero claro, en Triana el espíritu es inquieto. La gente rezaba, sí, pero luego el cuerpo pedía alegría. La fiesta bajó del altar a la orilla del Guadalquivir. Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen por arrobas— y en el olor a sardina asada que te quita el sentido. La Velá pasó de ser un rito de iglesia a ser la feria del pueblo, donde el río es el que manda.
-
-——— La Leyenda de la Cucaña ———
-
-Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio. Para demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.
-
-La leyenda cuenta que no solo era por el premio, sino por el honor. Un palo largo, embadurnado de jabón de Triana —¡que resbala más que una anguila en una bañera!—, y al final, el trofeo: una banderita que te corona como el rey del río. Si llegas, eres un héroe; si te caes —que te vas a caer—, el chapuzón en el Guadalquivir te bautiza como trianero de pura cepa.
-
-——— Tu Misión ———
-
-Ahora te toca a ti, artista. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo. Ten cuidado, que el jabón no tiene amigos y el río está esperando.
-
-¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!`
+const BLOCKS = [
+  {
+    title: 'La Velá de Santa Ana',
+    image: 'hist-intro',
+    pages: [
+      '¡Escúchame bien, valiente! Te lo voy a contar como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.\n\nPara entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
+    ],
+  },
+  {
+    title: 'El Milagro del Sabio',
+    image: 'hist-milagro',
+    pages: [
+      'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".\n\nSe encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia.',
+      'En agradecimiento, mandó levantar esa joya que es la Parroquia de Santa Ana en 1266. De ese "ir de velada" nos queda el nombre de nuestra fiesta.',
+    ],
+  },
+  {
+    title: 'La Picaresca se echa al río',
+    image: 'hist-picaresca',
+    pages: [
+      'Pero claro, en Triana el espíritu es inquieto. La gente rezaba, sí, pero luego el cuerpo pedía alegría. La fiesta bajó del altar a la orilla del Guadalquivir.',
+      'Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen por arrobas— y en el olor a sardina asada que te quita el sentido.\n\nLa Velá pasó de ser un rito de iglesia a ser la feria del pueblo, donde el río es el que manda.',
+    ],
+  },
+  {
+    title: 'La Leyenda de la Cucaña',
+    image: 'hist-leyenda',
+    pages: [
+      'Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio.\n\nPara demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.',
+      'Un palo largo, embadurnado de jabón de Triana —¡que resbala más que una anguila en una bañera!— y al final, el trofeo: una banderita que te corona como el rey del río.\n\nSi llegas, eres un héroe; si te caes —que te vas a caer—, el chapuzón en el Guadalquivir te bautiza como trianero de pura cepa.',
+    ],
+  },
+  {
+    title: 'Tu Misión',
+    image: 'hist-mision',
+    pages: [
+      'Ahora te toca a ti, artista. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo.\n\nTen cuidado, que el jabón no tiene amigos y el río está esperando.\n\n¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!',
+    ],
+  },
+]
 
 // ============================================================
-// Layout
+// LAYOUT
 // ============================================================
-const PANEL_W = 880
-const PANEL_H = 590
-const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2)   // 72
-const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2)  // 89
+const DLG_M    = 16
+const DLG_H    = 384                               // mitad de pantalla (768 / 2)
+const DLG_X    = DLG_M
+const DLG_Y    = GAME_HEIGHT - DLG_H - DLG_M     // 368
+const DLG_W    = GAME_WIDTH  - DLG_M * 2          // 992
 
-const PADDING = 48
-const TEXT_W = PANEL_W - PADDING * 2                     // 784
+const FACE_W   = 160
+const NARR_SIZE = 150
 
-const TITLE_H = 76
-const FOOTER_H = 56
+const TITLE_H  = 26
+const TEXT_X   = DLG_X + FACE_W + 14              // 190
+const TEXT_Y   = DLG_Y + TITLE_H + 16             // 616
+const TEXT_W   = DLG_W - FACE_W - 26              // 806
 
-const TEXT_AREA_TOP = PANEL_Y + TITLE_H                  // 165
-const TEXT_AREA_BOTTOM = PANEL_Y + PANEL_H - FOOTER_H    // 623
-const TEXT_AREA_H = TEXT_AREA_BOTTOM - TEXT_AREA_TOP      // 458
+// Zona de imagen histórica (encima del diálogo)
+const IMG_CX       = GAME_WIDTH / 2               // 512
+const IMG_AREA_TOP = 30
+const IMG_AREA_BTM = DLG_Y - 16                   // 558
+const IMG_CY       = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)  // 294
+const IMG_MAX_W    = 680
+const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP   // 528
 
-const CHAR_DELAY = 22  // ms por carácter (~45 chars/seg)
+// Máquina de escribir
+const CHAR_DELAY = 28   // ms por carácter
 
-// Paleta pergamino
-const AMBER = 0xd4a520
-const DARK_PARCHMENT = 0x1a0d00
+// Animación boca del narrador
+// Ciclo: neutral → medio abierta → abierta → medio abierta → (repite)
+const MOUTH_CYCLE = [
+  { key: 'narrator',        duration: 180 },
+  { key: 'narrator-m-open', duration: 120 },
+  { key: 'narrator-open',   duration: 80  },
+  { key: 'narrator-m-open', duration: 120 },
+]
+const BLINK_MIN = 3200
+const BLINK_MAX = 7000
+const BLINK_DUR = 130
+
+// Paleta
+const AMBER    = 0xd4a520
+const DLG_DARK = 0x0d0600
+const DLG_FACE = 0x5c3318   // marrón medio — contrasta con la barba negra
 
 export class HistoryScene extends Scene {
 
@@ -59,235 +98,378 @@ export class HistoryScene extends Scene {
   }
 
   create() {
-    this.fullText = HISTORIA_TEXTO
-    this.charIndex = 0
-    this.typing = true
-    this.done = false
+    // Estado
+    this.blockIdx        = 0
+    this.pageIdx         = 0
+    this.charIdx         = 0
+    this.isTyping        = false
+    this.waitingForInput = false
+    this.isTalking       = false
+    this.mouthFrame      = 0
+    this.typingTimer     = null
+    this.mouthTimer      = null
+    this.blinkTimer      = null
 
     this.drawBackground()
-    this.drawPanel()
-    this.drawTitle()
-    this.createTextArea()
-    this.drawFooter()
-    this.startTypewriter()
+    this.drawDialogBox()
+    this.drawBackButton()
+    this.createNarrator()
+    this.createHistImageLayer()
+    this.createTextObjects()
+    this.createContinueIndicator()
     this.setupInput()
+
+    // Arrancar primer bloque
+    this.loadBlock(0)
   }
 
-  // ========================================
-  // FONDO — imagen de historia + overlay sepia
-  // ========================================
+  // =====================================================
+  // FONDO
+  // =====================================================
 
   drawBackground() {
     if (this.textures.exists('bg-history') &&
         this.textures.get('bg-history').key !== '__MISSING') {
       const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-history')
-      const scaleX = GAME_WIDTH / bg.width
-      const scaleY = GAME_HEIGHT / bg.height
-      bg.setScale(Math.max(scaleX, scaleY))
+      bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
     } else {
-      // Fallback hasta que la imagen esté disponible
       this.add.graphics()
         .fillStyle(0x0a0800, 1)
         .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
 
-    // Overlay cálido sepia
     this.add.graphics()
-      .fillStyle(0x3d1800, 0.58)
+      .fillStyle(0x3d1800, 0.48)
       .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
-  // ========================================
-  // PANEL — marco estilo pergamino
-  // ========================================
+  // =====================================================
+  // CUADRO DE DIÁLOGO estilo RPG (parte inferior)
+  // =====================================================
 
-  drawPanel() {
-    const g = this.add.graphics()
+  drawDialogBox() {
+    const g = this.add.graphics().setDepth(2)
 
     // Sombra
-    g.fillStyle(0x000000, 0.45)
-    g.fillRect(PANEL_X + 7, PANEL_Y + 7, PANEL_W, PANEL_H)
+    g.fillStyle(0x000000, 0.55)
+    g.fillRect(DLG_X + 4, DLG_Y + 4, DLG_W, DLG_H)
 
-    // Fondo oscuro cálido
-    g.fillStyle(DARK_PARCHMENT, 0.94)
-    g.fillRect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
+    // Fondo oscuro
+    g.fillStyle(DLG_DARK, 0.97)
+    g.fillRect(DLG_X, DLG_Y, DLG_W, DLG_H)
 
-    // Borde ámbar dorado
+    // Borde dorado exterior
     g.lineStyle(3, AMBER, 1)
-    g.strokeRect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
+    g.strokeRect(DLG_X, DLG_Y, DLG_W, DLG_H)
 
     // Borde interior sutil
-    g.lineStyle(1, AMBER, 0.25)
-    g.strokeRect(PANEL_X + 5, PANEL_Y + 5, PANEL_W - 10, PANEL_H - 10)
+    g.lineStyle(1, AMBER, 0.18)
+    g.strokeRect(DLG_X + 4, DLG_Y + 4, DLG_W - 8, DLG_H - 8)
 
-    // Franja del título
-    g.fillStyle(AMBER, 0.1)
-    g.fillRect(PANEL_X, PANEL_Y, PANEL_W, TITLE_H)
+    // Zona retrato del narrador
+    g.fillStyle(DLG_FACE, 1)
+    g.fillRect(DLG_X + 3, DLG_Y + 3, FACE_W - 3, DLG_H - 6)
+    g.lineStyle(2, AMBER, 0.45)
+    g.strokeRect(DLG_X + 3, DLG_Y + 3, FACE_W - 3, DLG_H - 6)
+
+    // Separador vertical retrato | texto
+    g.lineStyle(2, AMBER, 0.6)
+    g.lineBetween(DLG_X + FACE_W + 1, DLG_Y + 6, DLG_X + FACE_W + 1, DLG_Y + DLG_H - 6)
+
+    // Banda del título del bloque
+    g.fillStyle(AMBER, 0.07)
+    g.fillRect(DLG_X + FACE_W + 2, DLG_Y, DLG_W - FACE_W - 2, TITLE_H + 6)
 
     // Separador bajo el título
-    g.lineStyle(1, AMBER, 0.55)
-    g.lineBetween(PANEL_X + PADDING, PANEL_Y + TITLE_H, PANEL_X + PANEL_W - PADDING, PANEL_Y + TITLE_H)
+    g.lineStyle(1, AMBER, 0.35)
+    g.lineBetween(DLG_X + FACE_W + 12, DLG_Y + TITLE_H + 6, DLG_X + DLG_W - 12, DLG_Y + TITLE_H + 6)
 
-    // Separador sobre el footer
-    g.lineStyle(1, AMBER, 0.3)
-    g.lineBetween(PANEL_X + PADDING, TEXT_AREA_BOTTOM, PANEL_X + PANEL_W - PADDING, TEXT_AREA_BOTTOM)
-
-    // Esquinas decorativas retro
-    const cLen = 16
-    const l = PANEL_X + 8
-    const r = PANEL_X + PANEL_W - 8
-    const t = PANEL_Y + 8
-    const b = PANEL_Y + PANEL_H - 8
-    g.lineStyle(2, AMBER, 0.85)
-    g.lineBetween(l, t, l + cLen, t); g.lineBetween(l, t, l, t + cLen)
-    g.lineBetween(r, t, r - cLen, t); g.lineBetween(r, t, r, t + cLen)
-    g.lineBetween(l, b, l + cLen, b); g.lineBetween(l, b, l, b - cLen)
-    g.lineBetween(r, b, r - cLen, b); g.lineBetween(r, b, r, b - cLen)
-
-    // Rombos decorativos en esquinas interiores
-    const cx = GAME_WIDTH / 2
-    const rhombG = this.add.graphics()
-    rhombG.fillStyle(AMBER, 0.6)
-    ;[PANEL_X + PADDING / 2, PANEL_X + PANEL_W - PADDING / 2].forEach(x => {
-      rhombG.fillRect(x - 4, PANEL_Y + TITLE_H - 4, 8, 8)
+    // Esquinas retro
+    const cLen = 11
+    const corners = [
+      [DLG_X + 2,         DLG_Y + 2,          1,  1],
+      [DLG_X + DLG_W - 2, DLG_Y + 2,         -1,  1],
+      [DLG_X + 2,         DLG_Y + DLG_H - 2,  1, -1],
+      [DLG_X + DLG_W - 2, DLG_Y + DLG_H - 2, -1, -1],
+    ]
+    g.lineStyle(2, AMBER, 0.9)
+    corners.forEach(([cx, cy, sx, sy]) => {
+      g.lineBetween(cx, cy, cx + cLen * sx, cy)
+      g.lineBetween(cx, cy, cx, cy + cLen * sy)
     })
-    rhombG.fillRect(cx - 4, PANEL_Y + TITLE_H - 4, 8, 8)
   }
 
-  // ========================================
-  // TÍTULO
-  // ========================================
+  // =====================================================
+  // BOTÓN VOLVER (esquina superior izquierda)
+  // =====================================================
 
-  drawTitle() {
-    const cx = GAME_WIDTH / 2
-    const titleY = PANEL_Y + TITLE_H / 2
+  drawBackButton() {
+    const btnW = 118
+    const btnH = 28
+    const btnX = 12
+    const btnY = 12
 
-    this.add.text(cx - 210, titleY, '✦', {
-      fontFamily: 'monospace', fontSize: '13px', color: '#d4a520',
-    }).setOrigin(0.5)
+    const g = this.add.graphics().setDepth(5)
 
-    this.add.text(cx + 210, titleY, '✦', {
-      fontFamily: 'monospace', fontSize: '13px', color: '#d4a520',
-    }).setOrigin(0.5)
-
-    this.add.text(cx, titleY, 'La Velá de Santa Ana', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '42px',
-      color: '#d4a520',
-      stroke: '#000000',
-      strokeThickness: 5,
-      letterSpacing: 2,
-    }).setOrigin(0.5)
-  }
-
-  // ========================================
-  // ÁREA DE TEXTO — máscara + scroll automático
-  // ========================================
-
-  createTextArea() {
-    // Máscara que recorta el texto al área visible del panel
-    const maskShape = this.make.graphics()
-    maskShape.fillStyle(0xffffff)
-    maskShape.fillRect(PANEL_X + PADDING - 6, TEXT_AREA_TOP + 6, TEXT_W + 12, TEXT_AREA_H - 12)
-
-    // Contenedor desplazable (su y cambia al hacer scroll)
-    this.textContainer = this.add.container(PANEL_X + PADDING, TEXT_AREA_TOP + 12)
-    this.textContainer.setMask(maskShape.createGeometryMask())
-
-    // Objeto de texto (empieza vacío, crece con el efecto máquina de escribir)
-    this.textObj = this.add.text(0, 0, '', {
-      fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '14px',
-      color: '#f0d99a',
-      wordWrap: { width: TEXT_W },
-      lineSpacing: 5,
-    })
-    this.textContainer.add(this.textObj)
-  }
-
-  // ========================================
-  // FOOTER — botones SALTAR / VOLVER AL MENÚ
-  // ========================================
-
-  drawFooter() {
-    const btnH = 34
-    const btnY = TEXT_AREA_BOTTOM + Math.round((FOOTER_H - btnH) / 2)
-
-    // Botón VOLVER AL MENÚ (izquierda)
-    this.makeButton(
-      PANEL_X + PADDING, btnY, 210, btnH,
-      '◀  VOLVER AL MENÚ',
-      () => this.goBack(),
-    )
-
-    // Botón SALTAR (derecha, se transforma al terminar)
-    const skipX = PANEL_X + PANEL_W - PADDING - 150
-    const skipG = this.add.graphics()
-    const drawSkipNormal = () => {
-      skipG.clear()
-      skipG.fillStyle(0x2a1800, 1)
-      skipG.fillRect(skipX, btnY, 150, btnH)
-      skipG.lineStyle(1, AMBER, 0.4)
-      skipG.strokeRect(skipX, btnY, 150, btnH)
-    }
-    const drawSkipHover = () => {
-      skipG.clear()
-      skipG.fillStyle(0x4a2c00, 1)
-      skipG.fillRect(skipX, btnY, 150, btnH)
-      skipG.lineStyle(1, AMBER, 0.85)
-      skipG.strokeRect(skipX, btnY, 150, btnH)
-    }
-    drawSkipNormal()
-
-    this.skipLabel = this.add.text(skipX + 75, btnY + btnH / 2, 'SALTAR  ▶▶', {
-      fontFamily: 'monospace', fontSize: '11px', color: '#a08040',
-    }).setOrigin(0.5)
-
-    skipG.setInteractive(
-      new Phaser.Geom.Rectangle(skipX, btnY, 150, btnH),
-      Phaser.Geom.Rectangle.Contains,
-    )
-    skipG.on('pointerover', drawSkipHover)
-    skipG.on('pointerout', drawSkipNormal)
-    skipG.on('pointerdown', () => this.skipToEnd())
-
-    this.skipG = skipG
-  }
-
-  makeButton(x, y, w, h, label, onPress) {
-    const g = this.add.graphics()
     const drawNormal = () => {
       g.clear()
-      g.fillStyle(0x2a1800, 1)
-      g.fillRect(x, y, w, h)
-      g.lineStyle(2, AMBER, 0.8)
-      g.strokeRect(x, y, w, h)
-      g.lineStyle(1, AMBER, 0.2)
-      g.strokeRect(x + 3, y + 3, w - 6, h - 6)
+      g.fillStyle(DLG_DARK, 0.9)
+      g.fillRect(btnX, btnY, btnW, btnH)
+      g.lineStyle(1, AMBER, 0.6)
+      g.strokeRect(btnX, btnY, btnW, btnH)
     }
     const drawHover = () => {
       g.clear()
-      g.fillStyle(0x5a3000, 1)
-      g.fillRect(x, y, w, h)
+      g.fillStyle(0x3d1800, 0.95)
+      g.fillRect(btnX, btnY, btnW, btnH)
       g.lineStyle(2, AMBER, 1)
-      g.strokeRect(x, y, w, h)
+      g.strokeRect(btnX, btnY, btnW, btnH)
     }
     drawNormal()
-    this.add.text(x + w / 2, y + h / 2, label, {
-      fontFamily: 'monospace', fontSize: '12px', color: '#d4a520',
-      stroke: '#000000', strokeThickness: 2,
-    }).setOrigin(0.5)
-    g.setInteractive(new Phaser.Geom.Rectangle(x, y, w, h), Phaser.Geom.Rectangle.Contains)
+
+    this.add.text(btnX + btnW / 2, btnY + btnH / 2, '◀ MENÚ', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '16px',
+      color: '#d4a520',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(6)
+
+    g.setInteractive(new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH), Phaser.Geom.Rectangle.Contains)
     g.on('pointerover', drawHover)
     g.on('pointerout', drawNormal)
-    g.on('pointerdown', onPress)
+    g.on('pointerdown', () => {
+      this.stopAllTimers()
+      this.scene.start(SCENES.MENU)
+    })
   }
 
-  // ========================================
-  // MÁQUINA DE ESCRIBIR
-  // ========================================
+  // =====================================================
+  // NARRADOR — retrato con animación de boca y parpadeo
+  // =====================================================
 
-  startTypewriter() {
+  createNarrator() {
+    const faceCX = DLG_X + Math.round(FACE_W / 2)
+    const faceCY = DLG_Y + Math.round(DLG_H / 2)
+
+    if (this.textures.exists('narrator') &&
+        this.textures.get('narrator').key !== '__MISSING') {
+      this.narratorImg = this.add.image(faceCX, faceCY, 'narrator')
+        .setDisplaySize(NARR_SIZE, NARR_SIZE)
+        .setOrigin(0.5)
+        .setDepth(3)
+    } else {
+      // Placeholder — cara pixel art básica hasta que exista narrator.png
+      this.narratorImg = this.drawNarratorPlaceholder(faceCX, faceCY)
+    }
+
+    this.scheduleNextBlink()
+  }
+
+  drawNarratorPlaceholder(cx, cy) {
+    const g = this.add.graphics().setDepth(3)
+    const s  = NARR_SIZE
+    const x  = cx - s / 2
+    const y  = cy - s / 2
+    g.fillStyle(0x2a1400, 1)
+    g.fillRect(x, y, s, s)
+    g.lineStyle(1, AMBER, 0.4)
+    g.strokeRect(x, y, s, s)
+    // Cara
+    g.fillStyle(0xd4926a, 1)
+    g.fillRect(x + s * 0.2, y + s * 0.15, s * 0.6, s * 0.7)
+    // Ojos
+    g.fillStyle(0x1a0a00, 1)
+    g.fillRect(x + s * 0.3, y + s * 0.32, s * 0.12, s * 0.1)
+    g.fillRect(x + s * 0.58, y + s * 0.32, s * 0.12, s * 0.1)
+    // Boca
+    g.fillRect(x + s * 0.35, y + s * 0.62, s * 0.3, s * 0.06)
+    return g  // Graphics no tiene setTexture → applyFrame lo detecta y no actúa
+  }
+
+  // ---- Boca ----
+
+  startTalking() {
+    this.isTalking  = true
+    this.mouthFrame = 0
+    this.scheduleMouthFrame()
+  }
+
+  stopTalking() {
+    this.isTalking = false
+    if (this.mouthTimer) { this.mouthTimer.remove(); this.mouthTimer = null }
+    this.applyFrame('narrator')
+  }
+
+  scheduleMouthFrame() {
+    if (!this.isTalking) return
+    const frame = MOUTH_CYCLE[this.mouthFrame % MOUTH_CYCLE.length]
+    this.applyFrame(frame.key)
+    this.mouthTimer = this.time.delayedCall(frame.duration, () => {
+      this.mouthFrame++
+      this.scheduleMouthFrame()
+    })
+  }
+
+  // ---- Parpadeo ----
+
+  scheduleNextBlink() {
+    const delay = Phaser.Math.Between(BLINK_MIN, BLINK_MAX)
+    this.blinkTimer = this.time.delayedCall(delay, () => {
+      this.applyFrame('narrator-eyes')
+      this.time.delayedCall(BLINK_DUR, () => {
+        // Restaurar frame base
+        if (!this.isTalking) {
+          this.applyFrame('narrator')
+        }
+        // Si está hablando, scheduleMouthFrame maneja el frame activo
+        this.scheduleNextBlink()
+      })
+    })
+  }
+
+  // ---- Aplicar frame (seguro para Graphics y para texturas no cargadas) ----
+
+  applyFrame(key) {
+    if (!this.narratorImg || typeof this.narratorImg.setTexture !== 'function') return
+    const tex = (this.textures.exists(key) && this.textures.get(key).key !== '__MISSING')
+      ? key
+      : (this.textures.exists('narrator') ? 'narrator' : null)
+    if (tex) this.narratorImg.setTexture(tex)
+  }
+
+  // =====================================================
+  // IMAGEN HISTÓRICA (encima del diálogo)
+  // =====================================================
+
+  createHistImageLayer() {
+    this.histImg           = null
+    this.histImgPlaceholder = this.add.graphics().setDepth(1)
+    this.histImgLabel       = this.add.text(IMG_CX, IMG_CY, '', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '22px',
+      color: '#7a6030',
+      align: 'center',
+    }).setOrigin(0.5).setDepth(2).setVisible(false)
+  }
+
+  updateHistImage() {
+    const block = BLOCKS[this.blockIdx]
+    const key   = block.image
+
+    // Desvanecer imagen anterior
+    if (this.histImg) {
+      const old = this.histImg
+      this.histImg = null
+      this.tweens.add({
+        targets: old, alpha: 0, duration: 200,
+        onComplete: () => { old.destroy() },
+      })
+    }
+    this.histImgPlaceholder.clear()
+    this.histImgLabel.setVisible(false)
+
+    if (this.textures.exists(key) && this.textures.get(key).key !== '__MISSING') {
+      this.histImg = this.add.image(IMG_CX, IMG_CY, key).setDepth(1).setAlpha(0)
+      const scaleX = IMG_MAX_W / this.histImg.width
+      const scaleY = IMG_MAX_H / this.histImg.height
+      this.histImg.setScale(Math.min(scaleX, scaleY))
+      this.tweens.add({ targets: this.histImg, alpha: 1, duration: 350 })
+    } else {
+      // Placeholder hasta que se creen las imágenes históricas
+      const pw = 460; const ph = 280
+      const px = IMG_CX - pw / 2; const py = IMG_CY - ph / 2
+      this.histImgPlaceholder.fillStyle(0x1a0a00, 0.65)
+      this.histImgPlaceholder.fillRect(px, py, pw, ph)
+      this.histImgPlaceholder.lineStyle(2, AMBER, 0.35)
+      this.histImgPlaceholder.strokeRect(px, py, pw, ph)
+      this.histImgLabel.setText(`[ ${block.title} ]`).setVisible(true)
+    }
+  }
+
+  // =====================================================
+  // TÍTULO DEL BLOQUE Y TEXTO DEL DIÁLOGO
+  // =====================================================
+
+  createTextObjects() {
+    // Título del bloque — primera línea del cuadro de texto
+    this.blockTitleObj = this.add.text(
+      DLG_X + FACE_W + 16,
+      DLG_Y + Math.round(TITLE_H / 2) + 3,
+      '',
+      {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '22px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 3,
+      },
+    ).setOrigin(0, 0.5).setDepth(4)
+
+    // Texto de diálogo
+    this.dialogText = this.add.text(TEXT_X, TEXT_Y, '', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '34px',
+      color: '#f0d99a',
+      stroke: '#000000',
+      strokeThickness: 2,
+      wordWrap: { width: TEXT_W },
+      lineSpacing: 4,
+    }).setDepth(4)
+  }
+
+  // =====================================================
+  // INDICADOR DE CONTINUAR (▼) — parpadeo en esquina
+  // =====================================================
+
+  createContinueIndicator() {
+    const x = DLG_X + DLG_W - 20
+    const y = DLG_Y + DLG_H - 14
+
+    this.continueInd = this.add.text(x, y, '▼', {
+      fontFamily: 'monospace',
+      fontSize: '16px',
+      color: '#ffd700',
+    }).setOrigin(0.5).setDepth(5).setVisible(false)
+
+    // El tween anima alpha, setVisible(true/false) controla si se ve
+    this.tweens.add({
+      targets: this.continueInd,
+      alpha: { from: 1, to: 0.15 },
+      duration: 480,
+      yoyo: true,
+      repeat: -1,
+    })
+  }
+
+  setContinueVisible(v) {
+    this.continueInd.setVisible(v)
+  }
+
+  // =====================================================
+  // SISTEMA DE BLOQUES Y PÁGINAS
+  // =====================================================
+
+  loadBlock(idx) {
+    this.blockIdx = idx
+    this.pageIdx  = 0
+    this.updateHistImage()
+    this.blockTitleObj.setText(BLOCKS[idx].title)
+    this.startPage()
+  }
+
+  startPage() {
+    const text = BLOCKS[this.blockIdx].pages[this.pageIdx]
+
+    this.fullPageText    = text
+    this.charIdx         = 0
+    this.isTyping        = true
+    this.waitingForInput = false
+
+    this.dialogText.setText('')
+    this.setContinueVisible(false)
+    this.startTalking()
+
     this.typingTimer = this.time.addEvent({
       delay: CHAR_DELAY,
       loop: true,
@@ -297,55 +479,135 @@ export class HistoryScene extends Scene {
   }
 
   typeNextChar() {
-    if (this.charIndex < this.fullText.length) {
-      this.charIndex++
-      this.textObj.setText(this.fullText.substring(0, this.charIndex))
-      this.scrollToLatest()
+    // Guarda: evita llamadas obsoletas del timer tras haber parado el typing
+    if (!this.isTyping) return
+    if (this.charIdx < this.fullPageText.length) {
+      this.charIdx++
+      this.dialogText.setText(this.fullPageText.substring(0, this.charIdx))
     } else {
-      this.typingTimer.destroy()
-      this.typing = false
-      this.done = true
-      this.onTypingDone()
+      this.onPageComplete()
     }
   }
 
-  // Mantiene visible el texto más reciente (scroll automático hacia abajo)
-  scrollToLatest() {
-    const normalY = TEXT_AREA_TOP + 12
-    const scrolledY = TEXT_AREA_BOTTOM - 12 - this.textObj.height
-    this.textContainer.y = Math.min(normalY, scrolledY)
+  onPageComplete() {
+    // Null-safe: puede llamarse desde advanceDialog() con timer ya destruido
+    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    this.isTyping = false
+    this.stopTalking()
+
+    const block     = BLOCKS[this.blockIdx]
+    const lastPage  = this.pageIdx >= block.pages.length - 1
+    const lastBlock = this.blockIdx >= BLOCKS.length - 1
+
+    if (lastPage && lastBlock) {
+      this.onHistoryEnd()
+    } else {
+      this.waitingForInput = true
+      this.setContinueVisible(true)
+    }
   }
 
-  skipToEnd() {
-    if (!this.typing) return
-    this.typingTimer.destroy()
-    this.typing = false
-    this.charIndex = this.fullText.length
-    this.textObj.setText(this.fullText)
-    this.scrollToLatest()
-    this.done = true
-    this.onTypingDone()
+  advanceDialog() {
+    if (this.isTyping) {
+      // Saltar al final: desactivar isTyping PRIMERO para que typeNextChar no reintente
+      this.isTyping = false
+      if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+      this.dialogText.setText(this.fullPageText)
+      this.onPageComplete()
+      return
+    }
+
+    if (!this.waitingForInput) return
+
+    this.waitingForInput = false
+    this.setContinueVisible(false)
+
+    const block = BLOCKS[this.blockIdx]
+
+    if (this.pageIdx < block.pages.length - 1) {
+      this.pageIdx++
+      this.startPage()
+    } else {
+      this.loadBlock(this.blockIdx + 1)
+    }
   }
 
-  onTypingDone() {
-    // Transformar el botón SALTAR → indicador de "fin"
-    if (this.skipLabel) this.skipLabel.setText('FIN  ✓').setColor('#d4a520')
-    if (this.skipG) this.skipG.removeAllListeners()
+  onHistoryEnd() {
+    this.dialogText.setText('¡Eso es todo, valiente! ¡A por el palo!')
+    this.setContinueVisible(false)
+    this.drawPlayButton()
   }
 
-  goBack() {
-    if (this.typing) this.typingTimer.destroy()
-    this.scene.start(SCENES.MENU)
+  drawPlayButton() {
+    const btnW = 180
+    const btnH = 36
+    const btnX = DLG_X + DLG_W - btnW - 14
+    const btnY = DLG_Y + DLG_H - btnH - 10
+
+    const g = this.add.graphics().setDepth(5)
+    const normal = () => {
+      g.clear()
+      g.fillStyle(0x0e2600, 1)
+      g.fillRect(btnX, btnY, btnW, btnH)
+      g.lineStyle(2, 0x44dd44, 0.85)
+      g.strokeRect(btnX, btnY, btnW, btnH)
+    }
+    const hover = () => {
+      g.clear()
+      g.fillStyle(0x1a4a00, 1)
+      g.fillRect(btnX, btnY, btnW, btnH)
+      g.lineStyle(2, 0x66ff66, 1)
+      g.strokeRect(btnX, btnY, btnW, btnH)
+    }
+    normal()
+
+    this.add.text(btnX + btnW / 2, btnY + btnH / 2, '¡A JUGAR! ▶', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '20px',
+      color: '#88ff88',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(6)
+
+    g.setInteractive(new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH), Phaser.Geom.Rectangle.Contains)
+    g.on('pointerover', hover)
+    g.on('pointerout', normal)
+    g.on('pointerdown', () => {
+      this.stopAllTimers()
+      this.scene.start(SCENES.CHARACTER_SELECT)
+    })
   }
 
-  // ========================================
+  // =====================================================
+  // LIMPIEZA DE TIMERS
+  // =====================================================
+
+  stopAllTimers() {
+    this.isTalking       = false
+    this.isTyping        = false
+    this.waitingForInput = false
+    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    if (this.mouthTimer)  { this.mouthTimer.remove();  this.mouthTimer  = null }
+    if (this.blinkTimer)  { this.blinkTimer.remove();  this.blinkTimer  = null }
+  }
+
+  // =====================================================
   // INPUT
-  // ========================================
+  // =====================================================
 
   setupInput() {
-    this.input.keyboard.on('keydown-ESC', () => this.goBack())
-    this.input.keyboard.on('keydown-SPACE', () => {
-      if (this.typing) this.skipToEnd()
+    // Click/tap en la zona del diálogo → avanzar
+    // Usamos input a nivel de escena + comprobación de coordenada Y
+    // para evitar conflictos con Graphics interactivos
+    this.input.on('pointerdown', (pointer) => {
+      if (pointer.y >= DLG_Y) this.advanceDialog()
+    })
+
+    this.input.keyboard.on('keydown-SPACE', () => this.advanceDialog())
+    this.input.keyboard.on('keydown-ENTER', () => this.advanceDialog())
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.stopAllTimers()
+      this.scene.start(SCENES.MENU)
     })
   }
 }

@@ -168,33 +168,53 @@ export class MenuScene extends Scene {
   }
 
   drawHistoriaButton() {
-    const btnW = 140
-    const btnH = 30
-    const btnX = GAME_WIDTH / 2 - btnW / 2
-    const btnY = SUB_Y + 148
+    const btnW = 190
+    const btnH = 50
+    const btnX = 16
+    const btnY = GAME_HEIGHT - 84   // anclado en esquina inferior izquierda, sobre créditos
+    const cL   = 9                  // longitud de las líneas de esquina decorativas
 
     this.historiaBounds = new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH)
 
     const g = this.add.graphics().setDepth(2)
+
+    const corners = (alpha) => {
+      g.lineStyle(2, AMBER, alpha)
+      // superior izquierda
+      g.lineBetween(btnX + 2,         btnY + 2,         btnX + 2 + cL, btnY + 2)
+      g.lineBetween(btnX + 2,         btnY + 2,         btnX + 2,      btnY + 2 + cL)
+      // superior derecha
+      g.lineBetween(btnX + btnW - 2,  btnY + 2,         btnX + btnW - 2 - cL, btnY + 2)
+      g.lineBetween(btnX + btnW - 2,  btnY + 2,         btnX + btnW - 2,      btnY + 2 + cL)
+      // inferior izquierda
+      g.lineBetween(btnX + 2,         btnY + btnH - 2,  btnX + 2 + cL, btnY + btnH - 2)
+      g.lineBetween(btnX + 2,         btnY + btnH - 2,  btnX + 2,      btnY + btnH - 2 - cL)
+      // inferior derecha
+      g.lineBetween(btnX + btnW - 2,  btnY + btnH - 2,  btnX + btnW - 2 - cL, btnY + btnH - 2)
+      g.lineBetween(btnX + btnW - 2,  btnY + btnH - 2,  btnX + btnW - 2,      btnY + btnH - 2 - cL)
+    }
+
     const drawNormal = () => {
       g.clear()
-      g.fillStyle(0x1a0a00, 0.85)
+      g.fillStyle(0x0d0600, 0.88)
       g.fillRect(btnX, btnY, btnW, btnH)
-      g.lineStyle(1, AMBER, 0.7)
+      g.lineStyle(1, AMBER, 0.5)
       g.strokeRect(btnX, btnY, btnW, btnH)
+      corners(0.85)
     }
     const drawHover = () => {
       g.clear()
-      g.fillStyle(0x3d1800, 0.95)
+      g.fillStyle(0x3d1800, 0.97)
       g.fillRect(btnX, btnY, btnW, btnH)
       g.lineStyle(2, AMBER, 1)
       g.strokeRect(btnX, btnY, btnW, btnH)
+      corners(1)
     }
     drawNormal()
 
-    this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, '📜  HISTORIA', {
+    this.add.text(btnX + btnW / 2, btnY + btnH / 2, '📜  HISTORIA', {
       fontFamily: '"Jersey 10", cursive',
-      fontSize: '14px',
+      fontSize: '22px',
       color: '#d4a520',
       stroke: '#000000',
       strokeThickness: 3,

@@ -45,6 +45,20 @@ export class PreloadScene extends Scene {
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
     this.load.image('bg-game', 'backgrounds/fondo_a.png')
     this.load.image('bg-history', 'backgrounds/fondoHistory.png')
+
+    // Narrador — Historia (4 frames para animación de boca y parpadeo)
+    this.load.image('narrator',        'sprites/narrator.png')
+    this.load.image('narrator-m-open', 'sprites/narrator_m_open.png')
+    this.load.image('narrator-open',   'sprites/narrator_open.png')
+    this.load.image('narrator-eyes',   'sprites/narrator_eyes.png')
+
+    // Imágenes históricas — una por bloque de texto
+    this.load.image('hist-intro',     'backgrounds/hist-intro.png')
+    this.load.image('hist-milagro',   'backgrounds/hist-milagro.png')
+    this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.png')
+    this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.png')
+    this.load.image('hist-mision',    'backgrounds/hist-mision.png')
+
     this.load.image('boat', 'sprites/barco.png')
 
     // Sprites de personajes

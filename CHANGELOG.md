@@ -9,9 +9,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
-- `HistoryScene`: nueva pantalla de historia accesible desde el menú principal. Muestra el texto de la Velá de Santa Ana con efecto máquina de escribir (22 ms/carácter). Panel estilo pergamino (880×590 px) con paleta ámbar, tipografía Courier New sobre fondo `fondoHistory.png` con overlay sepia. Incluye scroll automático, botón "SALTAR ▶▶" y vuelta al menú con ESC.
+- `HistoryScene`: rediseño completo al estilo RPG. Cuadro de diálogo en la parte inferior (178 px, full-width), narrador pixel art a la izquierda con animación de boca (4 frames: normal / m_open / open / eyes) y parpadeo aleatorio. Texto dividido en 5 bloques temáticos con páginas de 3 líneas; el jugador avanza pulsando el cuadro o ESPACIO. Imagen histórica centrada en pantalla (una por bloque) con fade al cambiar de bloque. Al finalizar aparece botón "¡A JUGAR!" directo a selección de personaje. Fallbacks completos mientras se crean los assets.
 - Botón "📜  HISTORIA" en `MenuScene`, posicionado bajo "PULSA PARA EMPEZAR". Navega a `HistoryScene` sin interferir con el click global de inicio.
-- Carga de `bg-history` (`fondoHistory.png`) en `PreloadScene`.
+- Carga de `bg-history`, 4 frames del narrador (`narrator.png`, `narrator_m_open.png`, `narrator_open.png`, `narrator_eyes.png`) y 5 imágenes históricas en `PreloadScene`.
 - Constante `SCENES.HISTORY` en `gameConfig.js`.
 
 - `CollectionScene`: vista ampliada al pulsar una ficha conseguida — overlay oscuro con panel 520×660 px, imagen 220 px, contador "x{N} conseguidos", estrellas animadas y "Toca para cerrar". Se activa con `showRewardDetail()`. Sin confeti (solo aparece al ganar por primera vez).
