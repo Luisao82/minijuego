@@ -1,6 +1,8 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 
+const AMBER = 0xd4a520
+
 const CENTER_X = GAME_WIDTH / 2
 const TITLE_Y = GAME_HEIGHT / 2 - 40
 const SUB_Y = TITLE_Y + 80
@@ -152,6 +154,9 @@ export class MenuScene extends Scene {
       },
     })
 
+    // Botón HISTORIA
+    this.drawHistoriaButton()
+
     // Créditos abajo
     this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'VELÁ DE SANTA ANA · TRIANA · SEVILLA', {
       fontFamily: '"Jersey 10", cursive',
@@ -162,9 +167,50 @@ export class MenuScene extends Scene {
     }).setOrigin(0.5).setDepth(2)
   }
 
+  drawHistoriaButton() {
+    const btnW = 140
+    const btnH = 30
+    const btnX = GAME_WIDTH / 2 - btnW / 2
+    const btnY = SUB_Y + 148
+
+    this.historiaBounds = new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH)
+
+    const g = this.add.graphics().setDepth(2)
+    const drawNormal = () => {
+      g.clear()
+      g.fillStyle(0x1a0a00, 0.85)
+      g.fillRect(btnX, btnY, btnW, btnH)
+      g.lineStyle(1, AMBER, 0.7)
+      g.strokeRect(btnX, btnY, btnW, btnH)
+    }
+    const drawHover = () => {
+      g.clear()
+      g.fillStyle(0x3d1800, 0.95)
+      g.fillRect(btnX, btnY, btnW, btnH)
+      g.lineStyle(2, AMBER, 1)
+      g.strokeRect(btnX, btnY, btnW, btnH)
+    }
+    drawNormal()
+
+    this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, '📜  HISTORIA', {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '14px',
+      color: '#d4a520',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(3)
+
+    g.setInteractive(this.historiaBounds, Phaser.Geom.Rectangle.Contains)
+    g.on('pointerover', drawHover)
+    g.on('pointerout', drawNormal)
+    g.on('pointerdown', () => this.scene.start(SCENES.HISTORY))
+  }
+
   setupInput() {
-    this.input.once('pointerdown', () => {
-      this.scene.start(SCENES.CHARACTER_SELECT)
+    this.input.on('pointerdown', (pointer) => {
+      if (!this.historiaBounds || !Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)) {
+        this.scene.start(SCENES.CHARACTER_SELECT)
+      }
     })
 
     this.input.keyboard.once('keydown-SPACE', () => {

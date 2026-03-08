@@ -444,12 +444,12 @@ export class CollectionScene extends Scene {
   showRewardDetail(reward, count) {
     this.detailOpen = true
 
-    const PW = 520
-    const PH = 660
+    const PW = 560
+    const PH = 700
     const PX = Math.round((GAME_WIDTH - PW) / 2)
     const PY = Math.round((GAME_HEIGHT - PH) / 2)
     const CX = GAME_WIDTH / 2
-    const IMG_BIG = 220
+    const IMG_BIG = 380
     const toDestroy = []
 
     // --- Overlay oscuro bloqueante ---
@@ -479,7 +479,7 @@ export class CollectionScene extends Scene {
     // --- Título con nombre del premio ---
     const title = this.add.text(CX, PY + 27, reward.nombre, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
+      fontSize: '16px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 4,
@@ -494,8 +494,8 @@ export class CollectionScene extends Scene {
     sep.strokeRect(PX + 24, PY + 52, PW - 48, 1)
     toDestroy.push(sep)
 
-    // --- Imagen grande ---
-    const imgCY = PY + 62 + IMG_BIG / 2 + 10   // PY+182
+    // --- Imagen grande — centrada verticalmente en el espacio disponible ---
+    const imgCY = PY + 154 + IMG_BIG / 2
     if (this.textures.exists(reward.id) && this.textures.get(reward.id).key !== '__MISSING') {
       const img = this.add.image(CX, imgCY, reward.id)
         .setDisplaySize(IMG_BIG, IMG_BIG)
@@ -523,7 +523,7 @@ export class CollectionScene extends Scene {
     const countY = imgCY + IMG_BIG / 2 + 30
     const countText = this.add.text(CX, countY, `x${count} conseguido${count !== 1 ? 's' : ''}`, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '14px',
+      fontSize: '16px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 3,

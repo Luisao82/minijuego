@@ -106,15 +106,15 @@ export class RewardScene extends Scene {
     sepG.lineStyle(1, COLORS.GOLD, 0.4)
     sepG.strokeRect(PANEL_X + 24, topY + 104, PANEL_W - 48, 1)
 
-    // Imagen del premio
-    const imgCY = topY + 114 + IMG_SIZE / 2 + 8   // topY + 232
+    // Imagen del premio — centrada verticalmente en el espacio disponible
+    const imgCY = topY + 153 + IMG_SIZE / 2
     this.drawRewardImage(CENTER_X, imgCY)
 
     // Nombre del premio
     const nombre = this.reward?.nombre || '¡Premio misterioso!'
-    this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 26, nombre, {
+    this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 22, nombre, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
+      fontSize: '16px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 3,

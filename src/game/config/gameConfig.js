@@ -29,6 +29,7 @@ export const SCENES = {
   BOOT: 'BootScene',
   PRELOAD: 'PreloadScene',
   MENU: 'MenuScene',
+  HISTORY: 'HistoryScene',
   CHARACTER_SELECT: 'CharacterSelectScene',
   GAME: 'GameScene',
   GAME_OVER: 'GameOverScene',
