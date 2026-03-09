@@ -10,5 +10,29 @@
     "nombre": "Pin del Curro",
     "imagen": "premios/curro.png",
     "probabilidad": 0.25
+  },
+  {
+    "id": "reward_wendolin",
+    "nombre": "La Wendolin",
+    "imagen": "premios/wendolin.png",
+    "probabilidad": 0.1
+  },
+  {
+    "id": "reward_sombrero",
+    "nombre": "El Sombrero de Finidi",
+    "imagen": "premios/sombrero.png",
+    "probabilidad": 0.1
+  },
+  {
+    "id": "reward_gambrinus",
+    "nombre": "Peluche de Gambrinus",
+    "imagen": "premios/gambrinus.png",
+    "probabilidad": 0.1
+  },
+  {
+    "id": "reward_maradona",
+    "nombre": "La camiseta del 10",
+    "imagen": "premios/maradona.png",
+    "probabilidad": 0.1
   }
 ]

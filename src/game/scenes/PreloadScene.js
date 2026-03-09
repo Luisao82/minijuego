@@ -54,7 +54,7 @@ export class PreloadScene extends Scene {
 
     // Imágenes históricas — una por bloque de texto
     this.load.image('hist-intro',     'backgrounds/hist-intro.png')
-    this.load.image('hist-milagro',   'backgrounds/hist-milagro.png')
+    this.load.image('hist-sabio',     'backgrounds/hist-sabio.png')
     this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.png')
     this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.png')
     this.load.image('hist-mision',    'backgrounds/hist-mision.png')

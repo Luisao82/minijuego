@@ -15,7 +15,7 @@ const BLOCKS = [
   },
   {
     title: 'El Milagro del Sabio',
-    image: 'hist-milagro',
+    image: 'hist-sabio',
     pages: [
       'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".\n\nSe encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia.',
       'En agradecimiento, mandó levantar esa joya que es la Parroquia de Santa Ana en 1266. De ese "ir de velada" nos queda el nombre de nuestra fiesta.',
@@ -154,8 +154,8 @@ export class HistoryScene extends Scene {
     g.fillStyle(0x000000, 0.55)
     g.fillRect(DLG_X + 4, DLG_Y + 4, DLG_W, DLG_H)
 
-    // Fondo oscuro
-    g.fillStyle(DLG_DARK, 0.97)
+    // Fondo semi-transparente — se ve un poco el fondo a través del cuadro
+    g.fillStyle(DLG_DARK, 0.78)
     g.fillRect(DLG_X, DLG_Y, DLG_W, DLG_H)
 
     // Borde dorado exterior
@@ -166,8 +166,8 @@ export class HistoryScene extends Scene {
     g.lineStyle(1, AMBER, 0.18)
     g.strokeRect(DLG_X + 4, DLG_Y + 4, DLG_W - 8, DLG_H - 8)
 
-    // Zona retrato del narrador
-    g.fillStyle(DLG_FACE, 1)
+    // Zona retrato del narrador — un poco más opaca para leer bien la cara
+    g.fillStyle(DLG_FACE, 0.88)
     g.fillRect(DLG_X + 3, DLG_Y + 3, FACE_W - 3, DLG_H - 6)
     g.lineStyle(2, AMBER, 0.45)
     g.strokeRect(DLG_X + 3, DLG_Y + 3, FACE_W - 3, DLG_H - 6)
@@ -318,11 +318,7 @@ export class HistoryScene extends Scene {
     this.blinkTimer = this.time.delayedCall(delay, () => {
       this.applyFrame('narrator-eyes')
       this.time.delayedCall(BLINK_DUR, () => {
-        // Restaurar frame base
-        if (!this.isTalking) {
-          this.applyFrame('narrator')
-        }
-        // Si está hablando, scheduleMouthFrame maneja el frame activo
+        if (!this.isTalking) this.applyFrame('narrator')
         this.scheduleNextBlink()
       })
     })
