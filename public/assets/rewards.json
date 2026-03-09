@@ -34,5 +34,11 @@
     "nombre": "La camiseta del 10",
     "imagen": "premios/maradona.png",
     "probabilidad": 0.1
+  },
+  {
+    "id": "reward_pacogandia",
+    "nombre": "El casete de los mejores chiste de Paco Gandía",
+    "imagen": "premios/pacogandia.png",
+    "probabilidad": 0.1
   }
 ]
