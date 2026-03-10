@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
+import { makeNavButton } from '../components/NavButton'
 
 // --- Layout de la cuadrícula de fichas ---
 const CARD_W = 200
@@ -384,57 +385,20 @@ export class CollectionScene extends Scene {
   // ========================================
 
   drawButtons() {
-    const btnH = 38
-    const btnW = 220
-    const gap = 16
+    const btnH = 58
+    const btnW = 240
+    const gap  = 20
     const btnY = BAND_Y + BAND_H + 22
     const totalW = btnW * 2 + gap
     const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
 
-    this.makeButton(startX, btnY, btnW, btnH, 'VOLVER AL MENÚ', () => {
+    makeNavButton(this, startX, btnY, btnW, btnH, 'VOLVER AL MENÚ', () => {
       this.scene.start(SCENES.MENU)
-    })
+    }, { depth: 3 })
 
-    this.makeButton(startX + btnW + gap, btnY, btnW, btnH, 'VOLVER A JUGAR', () => {
+    makeNavButton(this, startX + btnW + gap, btnY, btnW, btnH, 'VOLVER A JUGAR', () => {
       this.scene.start(SCENES.GAME, { character: this.characterData })
-    })
-  }
-
-  makeButton(x, y, w, h, label, onPress) {
-    const g = this.add.graphics()
-
-    const drawNormal = () => {
-      g.clear()
-      g.fillStyle(0x16213e, 1)
-      g.fillRect(x, y, w, h)
-      g.lineStyle(2, COLORS.GOLD, 0.8)
-      g.strokeRect(x, y, w, h)
-      g.lineStyle(1, COLORS.GOLD, 0.2)
-      g.strokeRect(x + 3, y + 3, w - 6, h - 6)
-    }
-
-    const drawHover = () => {
-      g.clear()
-      g.fillStyle(0x2a2a6e, 1)
-      g.fillRect(x, y, w, h)
-      g.lineStyle(2, COLORS.GOLD, 1)
-      g.strokeRect(x, y, w, h)
-    }
-
-    drawNormal()
-
-    this.add.text(x + w / 2, y + h / 2, label, {
-      fontFamily: 'monospace',
-      fontSize: '12px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-
-    g.setInteractive(new Phaser.Geom.Rectangle(x, y, w, h), Phaser.Geom.Rectangle.Contains)
-    g.on('pointerover', drawHover)
-    g.on('pointerout', drawNormal)
-    g.on('pointerdown', onPress)
+    }, { depth: 3 })
   }
 
   // ========================================

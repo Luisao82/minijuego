@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { makeNavButton } from '../components/NavButton'
 
 // ============================================================
 // BLOQUES DE TEXTO — 1 imagen por bloque
@@ -210,44 +211,17 @@ export class HistoryScene extends Scene {
   // =====================================================
 
   drawBackButton() {
-    const btnW = 118
-    const btnH = 28
+    const btnW = 170
+    const btnH = 58
     const btnX = 12
     const btnY = 12
 
-    const g = this.add.graphics().setDepth(5)
-
-    const drawNormal = () => {
-      g.clear()
-      g.fillStyle(DLG_DARK, 0.9)
-      g.fillRect(btnX, btnY, btnW, btnH)
-      g.lineStyle(1, AMBER, 0.6)
-      g.strokeRect(btnX, btnY, btnW, btnH)
-    }
-    const drawHover = () => {
-      g.clear()
-      g.fillStyle(0x3d1800, 0.95)
-      g.fillRect(btnX, btnY, btnW, btnH)
-      g.lineStyle(2, AMBER, 1)
-      g.strokeRect(btnX, btnY, btnW, btnH)
-    }
-    drawNormal()
-
-    this.add.text(btnX + btnW / 2, btnY + btnH / 2, '◀ MENÚ', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '16px',
-      color: '#d4a520',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5).setDepth(6)
-
-    g.setInteractive(new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH), Phaser.Geom.Rectangle.Contains)
-    g.on('pointerover', drawHover)
-    g.on('pointerout', drawNormal)
-    g.on('pointerdown', () => {
-      this.stopAllTimers()
-      this.scene.start(SCENES.MENU)
-    })
+    makeNavButton(
+      this, btnX, btnY, btnW, btnH,
+      '◀ MENÚ',
+      () => { this.stopAllTimers(); this.scene.start(SCENES.MENU) },
+      { depth: 5 },
+    )
   }
 
   // =====================================================

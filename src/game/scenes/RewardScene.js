@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
+import { makeNavButton } from '../components/NavButton'
 
 // Panel casi a pantalla completa en altura
 const PANEL_W = 560
@@ -193,61 +194,28 @@ export class RewardScene extends Scene {
 
   // Dos botones lado a lado dentro del panel
   drawButtons() {
-    const btnH = 42
-    const btnW = 220
-    const gap = 20
-    const btnY = PANEL_Y + PANEL_H - 62
+    const btnH = 58
+    const btnW = 240
+    const gap  = 16
+    const btnY = PANEL_Y + PANEL_H - btnH - 20
 
-    this.makeButton(
+    makeNavButton(
+      this,
       CENTER_X - btnW - gap / 2,
       btnY, btnW, btnH,
       'VOLVER A JUGAR',
       () => { if (this.canPlay) this.playAgain() },
+      { depth: 6 },
     )
 
-    this.makeButton(
+    makeNavButton(
+      this,
       CENTER_X + gap / 2,
       btnY, btnW, btnH,
       'VER PREMIOS',
       () => { if (this.canPlay) this.viewCollection() },
+      { depth: 6 },
     )
-  }
-
-  makeButton(x, y, w, h, label, onPress) {
-    const g = this.add.graphics()
-
-    const drawNormal = () => {
-      g.clear()
-      g.fillStyle(0x16213e, 1)
-      g.fillRect(x, y, w, h)
-      g.lineStyle(2, COLORS.GOLD, 0.8)
-      g.strokeRect(x, y, w, h)
-      g.lineStyle(1, COLORS.GOLD, 0.2)
-      g.strokeRect(x + 3, y + 3, w - 6, h - 6)
-    }
-
-    const drawHover = () => {
-      g.clear()
-      g.fillStyle(0x2a2a6e, 1)
-      g.fillRect(x, y, w, h)
-      g.lineStyle(2, COLORS.GOLD, 1)
-      g.strokeRect(x, y, w, h)
-    }
-
-    drawNormal()
-
-    this.add.text(x + w / 2, y + h / 2, label, {
-      fontFamily: 'monospace',
-      fontSize: '13px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-
-    g.setInteractive(new Phaser.Geom.Rectangle(x, y, w, h), Phaser.Geom.Rectangle.Contains)
-    g.on('pointerover', drawHover)
-    g.on('pointerout', drawNormal)
-    g.on('pointerdown', onPress)
   }
 
   // ========================================

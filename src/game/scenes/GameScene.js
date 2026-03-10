@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE } from '../config/gameConfig'
 import { PowerBar } from '../entities/PowerBar'
+import { makeNavButton } from '../components/NavButton'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { BalanceSystem } from '../systems/BalanceSystem'
@@ -664,7 +665,7 @@ export class GameScene extends Scene {
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
     const panelW = 400
-    const panelH = 184
+    const panelH = 222
 
     const g = this.add.graphics()
     g.fillStyle(COLORS.DARK_BG, 0.88)
@@ -708,47 +709,16 @@ export class GameScene extends Scene {
       })
 
       // Botón VER PREMIOS
-      const btnW = 200
-      const btnH = 32
+      const btnW = 220
+      const btnH = 58
       const btnX = centerX - btnW / 2
-      const btnY = centerY + 52
+      const btnY = centerY + 45
 
-      this.collectionBtnBounds = new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH)
-
-      const btnG = this.add.graphics()
-
-      const drawNormal = () => {
-        btnG.clear()
-        btnG.fillStyle(0x16213e, 1)
-        btnG.fillRect(btnX, btnY, btnW, btnH)
-        btnG.lineStyle(2, COLORS.GOLD, 0.8)
-        btnG.strokeRect(btnX, btnY, btnW, btnH)
-      }
-
-      const drawHover = () => {
-        btnG.clear()
-        btnG.fillStyle(0x2a2a6e, 1)
-        btnG.fillRect(btnX, btnY, btnW, btnH)
-        btnG.lineStyle(2, COLORS.GOLD, 1)
-        btnG.strokeRect(btnX, btnY, btnW, btnH)
-      }
-
-      drawNormal()
-
-      this.add.text(centerX, btnY + btnH / 2, 'VER PREMIOS', {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: '#ffd700',
-        stroke: '#000000',
-        strokeThickness: 2,
-      }).setOrigin(0.5)
-
-      btnG.setInteractive(this.collectionBtnBounds, Phaser.Geom.Rectangle.Contains)
-      btnG.on('pointerover', drawHover)
-      btnG.on('pointerout', drawNormal)
-      btnG.on('pointerdown', () => {
-        this.scene.start(SCENES.COLLECTION, { character: this.characterData })
-      })
+      this.collectionBtnBounds = makeNavButton(
+        this, btnX, btnY, btnW, btnH,
+        'VER PREMIOS',
+        () => this.scene.start(SCENES.COLLECTION, { character: this.characterData }),
+      )
     })
   }
 

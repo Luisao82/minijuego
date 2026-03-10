@@ -9,6 +9,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- `src/game/components/NavButton.js`: componente compartido `makeNavButton()` — botón de navegación estilo **Cartelón de Feria**: fondo dorado sólido `0xd4a520`, texto casi negro `#1a0800` (contraste WCAG AAA ~7:1), borde marrón `0x5c2d00`, efecto 3D con línea de brillo superior y sombra inferior, sombra exterior desplazada 3 px. Hover a dorado vivo `0xffcc00`. Fuente Jersey 10 26 px. Devuelve `Phaser.Geom.Rectangle` para exclusiones de input.
+
 - `HistoryScene`: rediseño completo al estilo RPG. Cuadro de diálogo en la parte inferior (178 px, full-width), narrador pixel art a la izquierda con animación de boca (4 frames: normal / m_open / open / eyes) y parpadeo aleatorio. Texto dividido en 5 bloques temáticos con páginas de 3 líneas; el jugador avanza pulsando el cuadro o ESPACIO. Imagen histórica centrada en pantalla (una por bloque) con fade al cambiar de bloque. Al finalizar aparece botón "¡A JUGAR!" directo a selección de personaje. Fallbacks completos mientras se crean los assets.
 - Botón "📜  HISTORIA" en `MenuScene`, posicionado bajo "PULSA PARA EMPEZAR". Navega a `HistoryScene` sin interferir con el click global de inicio.
 - Carga de `bg-history`, 4 frames del narrador (`narrator.png`, `narrator_m_open.png`, `narrator_open.png`, `narrator_eyes.png`) y 5 imágenes históricas en `PreloadScene`.
@@ -21,6 +23,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Changed
 
 - `HistoryScene`: cuadro de diálogo reducido a **1/3 de pantalla** (256 px de alto, antes 384 px). La zona de imagen histórica pasa a ocupar ~450 px de alto (antes ~322 px) y `IMG_MAX_W` sube a 840 px, mostrando las ilustraciones más grandes. BLOCKS reestructurado a **14 páginas individuales** (1 párrafo por página) para ajustarse a las ~5 líneas disponibles a 34 px; "Tu Misión" agrupa sus dos primeros párrafos con `\n` para mejor ritmo.
+- **Botones de navegación unificados** — rediseño completo a estilo **Cartelón de Feria** (fondo dorado sólido, texto negro, max contraste móvil). Tamaños: "◀ MENÚ" HistoryScene 170×58, "📜 HISTORIA" MenuScene 210×58, "VER PREMIOS" GameScene 220×58, "VOLVER AL MENÚ"/"VOLVER A JUGAR" CollectionScene 240×58, "VOLVER A JUGAR"/"VER PREMIOS" RewardScene 240×58. Panel game-over ampliado a 222 px.
 - `RewardScene`: imagen del premio ampliada de 128 px a **380 px**, ocupando casi todo el alto disponible del panel para mayor impacto visual en móvil.
 - `CollectionScene`: los premios no conseguidos muestran "???" en lugar del nombre real, manteniendo el suspense.
 - `CollectionScene`: fichas conseguidas son ahora interactivas (efecto hover + pulsar para ampliar). La vista ampliada no muestra confeti.
