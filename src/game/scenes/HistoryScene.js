@@ -3,21 +3,23 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 
 // ============================================================
 // BLOQUES DE TEXTO — 1 imagen por bloque
-// Párrafos fusionados con \n\n para mostrar más texto por pantalla
+// 1 párrafo por página (cuadro de texto = 1/3 pantalla, ~5 líneas)
 // ============================================================
 const BLOCKS = [
   {
     title: 'La Velá de Santa Ana',
     image: 'hist-intro',
     pages: [
-      '¡Escúchame bien, valiente! Te lo voy a contar como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.\n\nPara entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
+      '¡Escúchame bien, valiente! Te lo voy a contar como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.',
+      'Para entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
     ],
   },
   {
     title: 'El Milagro del Sabio',
     image: 'hist-sabio',
     pages: [
-      'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".\n\nSe encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia.',
+      'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".',
+      'Se encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia.',
       'En agradecimiento, mandó levantar esa joya que es la Parroquia de Santa Ana en 1266. De ese "ir de velada" nos queda el nombre de nuestra fiesta.',
     ],
   },
@@ -26,22 +28,26 @@ const BLOCKS = [
     image: 'hist-picaresca',
     pages: [
       'Pero claro, en Triana el espíritu es inquieto. La gente rezaba, sí, pero luego el cuerpo pedía alegría. La fiesta bajó del altar a la orilla del Guadalquivir.',
-      'Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen por arrobas— y en el olor a sardina asada que te quita el sentido.\n\nLa Velá pasó de ser un rito de iglesia a ser la feria del pueblo, donde el río es el que manda.',
+      'Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen por arrobas— y en el olor a sardina asada que te quita el sentido.',
+      'La Velá pasó de ser un rito de iglesia a ser la feria del pueblo, donde el río es el que manda.',
     ],
   },
   {
     title: 'La Leyenda de la Cucaña',
     image: 'hist-leyenda',
     pages: [
-      'Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio.\n\nPara demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.',
-      'Un palo largo, embadurnado de jabón de Triana —¡que resbala más que una anguila en una bañera!— y al final, el trofeo: una banderita que te corona como el rey del río.\n\nSi llegas, eres un héroe; si te caes —que te vas a caer—, el chapuzón en el Guadalquivir te bautiza como trianero de pura cepa.',
+      'Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio.',
+      'Para demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.',
+      'Un palo largo, embadurnado de jabón de Triana —¡que resbala más que una anguila en una bañera!— y al final, el trofeo: una banderita que te corona como el rey del río.',
+      'Si llegas, eres un héroe; si te caes —que te vas a caer—, el chapuzón en el Guadalquivir te bautiza como trianero de pura cepa.',
     ],
   },
   {
     title: 'Tu Misión',
     image: 'hist-mision',
     pages: [
-      'Ahora te toca a ti, artista. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo.\n\nTen cuidado, que el jabón no tiene amigos y el río está esperando.\n\n¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!',
+      'Ahora te toca a ti, artista. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo.\nTen cuidado, que el jabón no tiene amigos y el río está esperando.',
+      '¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!',
     ],
   },
 ]
@@ -50,9 +56,9 @@ const BLOCKS = [
 // LAYOUT
 // ============================================================
 const DLG_M    = 16
-const DLG_H    = 384                               // mitad de pantalla (768 / 2)
+const DLG_H    = 256                               // 1/3 de pantalla (768 / 3)
 const DLG_X    = DLG_M
-const DLG_Y    = GAME_HEIGHT - DLG_H - DLG_M     // 368
+const DLG_Y    = GAME_HEIGHT - DLG_H - DLG_M     // 496
 const DLG_W    = GAME_WIDTH  - DLG_M * 2          // 992
 
 const FACE_W   = 160
@@ -60,16 +66,16 @@ const NARR_SIZE = 150
 
 const TITLE_H  = 26
 const TEXT_X   = DLG_X + FACE_W + 14              // 190
-const TEXT_Y   = DLG_Y + TITLE_H + 16             // 616
+const TEXT_Y   = DLG_Y + TITLE_H + 16             // 538
 const TEXT_W   = DLG_W - FACE_W - 26              // 806
 
 // Zona de imagen histórica (encima del diálogo)
 const IMG_CX       = GAME_WIDTH / 2               // 512
 const IMG_AREA_TOP = 30
-const IMG_AREA_BTM = DLG_Y - 16                   // 558
-const IMG_CY       = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)  // 294
-const IMG_MAX_W    = 680
-const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP   // 528
+const IMG_AREA_BTM = DLG_Y - 16                   // 480
+const IMG_CY       = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)  // 255
+const IMG_MAX_W    = 840
+const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP   // 450
 
 // Máquina de escribir
 const CHAR_DELAY = 28   // ms por carácter
