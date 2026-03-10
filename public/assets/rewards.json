@@ -37,8 +37,14 @@
   },
   {
     "id": "reward_pacogandia",
-    "nombre": "El casete de los mejores chiste de Paco Gandía",
+    "nombre": "La cinta de los mejores chiste de Paco Gandía",
     "imagen": "premios/pacogandia.png",
     "probabilidad": 0.1
+  },
+  {
+    "id": "reward_giraldillo",
+    "nombre": "Pisacorbatas del Giraldillo",
+    "imagen": "premios/giraldillo.png",
+    "probabilidad": 0.3
   }
 ]
