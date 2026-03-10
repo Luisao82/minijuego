@@ -20,6 +20,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- `HistoryScene`: cuadro de diálogo reducido a **1/3 de pantalla** (256 px de alto, antes 384 px). La zona de imagen histórica pasa a ocupar ~450 px de alto (antes ~322 px) y `IMG_MAX_W` sube a 840 px, mostrando las ilustraciones más grandes. BLOCKS reestructurado a **14 páginas individuales** (1 párrafo por página) para ajustarse a las ~5 líneas disponibles a 34 px; "Tu Misión" agrupa sus dos primeros párrafos con `\n` para mejor ritmo.
 - `RewardScene`: imagen del premio ampliada de 128 px a **380 px**, ocupando casi todo el alto disponible del panel para mayor impacto visual en móvil.
 - `CollectionScene`: los premios no conseguidos muestran "???" en lugar del nombre real, manteniendo el suspense.
 - `CollectionScene`: fichas conseguidas son ahora interactivas (efecto hover + pulsar para ampliar). La vista ampliada no muestra confeti.
