@@ -46,5 +46,11 @@
     "nombre": "Pisacorbatas del Giraldillo",
     "imagen": "premios/giraldillo.png",
     "probabilidad": 0.3
+  },
+  {
+    "id": "reward_vajilla",
+    "nombre": "Vajilla completa de La Cartuja",
+    "imagen": "premios/vajilla.png",
+    "probabilidad": 0.3
   }
 ]
