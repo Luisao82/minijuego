@@ -9,6 +9,21 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- `src/game/entities/Player.js`: clase `Player` que encapsula todo el visual y las animaciones del personaje en `GameScene` (dibujo pixel art, estados NORMAL/JUMPING/JUMPING_FLAG/FLAG, celebración en el agua, cabeza asomando). Acepta `characterData.drawFn` opcional para personajes futuros con spritesheet propio.
+- `src/game/components/Narrator.js`: clase `Narrator` que encapsula el retrato animado del narrador (ciclo de boca, parpadeo aleatorio). Configurable mediante un objeto `config` con claves de textura y tiempos, permitiendo crear narradores distintos sin tocar la lógica de animación.
+- `src/game/components/CharacterCard.js`: factory function `createCharacterCard()` que genera fichas de personaje (`Phaser.GameObjects.Container`) con fondo, sprite/silueta, nombre y barras de estadísticas. Elimina código duplicado de `CharacterSelectScene`.
+- `src/game/components/RewardCard.js`: factory function `createRewardCard()` que genera fichas de premio (`Phaser.GameObjects.Container`) con fondo, imagen, nombre (oculto si no ganado), contador y efectos de hover. Elimina código duplicado de `CollectionScene`.
+- `src/game/utils/backgroundUtils.js`: utilidades compartidas `drawBandBackground()` y `drawSceneHeader()` que eliminan la duplicación de código de fondo y cabecera entre `CharacterSelectScene` y `CollectionScene`.
+
+### Changed
+
+- `GameScene`: refactorizado para usar `Player`. Eliminadas `createPlayer()`, `redrawPlayer()`, `showHeadInWater()`, `drawCelebration()` y toda la gestión de timers de celebración inline. Reducción de ~120 líneas.
+- `HistoryScene`: refactorizado para usar `Narrator`. Eliminadas `createNarrator()`, `drawNarratorPlaceholder()`, `startTalking()`, `stopTalking()`, `scheduleMouthFrame()`, `scheduleNextBlink()`, `applyFrame()` y variables de estado del narrador. Reducción de ~90 líneas.
+- `CharacterSelectScene`: refactorizado para usar `createCharacterCard()` y las utilidades de `backgroundUtils`. Eliminadas `createCard()`, `drawStats()`, `drawCharacterSilhouette()`, `drawBackground()` y `drawHeader()`. Reducción de ~150 líneas.
+- `CollectionScene`: refactorizado para usar `createRewardCard()` y las utilidades de `backgroundUtils`. Eliminadas `createCard()`, `drawBackground()` y `drawHeader()`. Reducción de ~150 líneas.
+
+### Added
+
 - `src/game/components/NavButton.js`: componente compartido `makeNavButton()` — botón de navegación estilo **Cartelón de Feria**: fondo dorado sólido `0xd4a520`, texto casi negro `#1a0800` (contraste WCAG AAA ~7:1), borde marrón `0x5c2d00`, efecto 3D con línea de brillo superior y sombra inferior, sombra exterior desplazada 3 px. Hover a dorado vivo `0xffcc00`. Fuente Jersey 10 26 px. Devuelve `Phaser.Geom.Rectangle` para exclusiones de input.
 
 - `HistoryScene`: rediseño completo al estilo RPG. Cuadro de diálogo en la parte inferior (178 px, full-width), narrador pixel art a la izquierda con animación de boca (4 frames: normal / m_open / open / eyes) y parpadeo aleatorio. Texto dividido en 5 bloques temáticos con páginas de 3 líneas; el jugador avanza pulsando el cuadro o ESPACIO. Imagen histórica centrada en pantalla (una por bloque) con fade al cambiar de bloque. Al finalizar aparece botón "¡A JUGAR!" directo a selección de personaje. Fallbacks completos mientras se crean los assets.
