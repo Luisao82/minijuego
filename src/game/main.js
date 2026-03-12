@@ -2,6 +2,7 @@ import { BootScene } from './scenes/BootScene'
 import { PreloadScene } from './scenes/PreloadScene'
 import { MenuScene } from './scenes/MenuScene'
 import { HistoryScene } from './scenes/HistoryScene'
+import { TutorialScene } from './scenes/TutorialScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
 import { GameScene } from './scenes/GameScene'
 import { RewardScene } from './scenes/RewardScene'
@@ -24,6 +25,7 @@ const config = {
     PreloadScene,
     MenuScene,
     HistoryScene,
+    TutorialScene,
     CharacterSelectScene,
     GameScene,
     RewardScene,

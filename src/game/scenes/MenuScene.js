@@ -138,25 +138,22 @@ export class MenuScene extends Scene {
       strokeThickness: 4,
     }).setOrigin(0.5).setAlpha(0).setDepth(2)
 
-    // Fade in del texto
     this.tweens.add({
       targets: this.startText,
       alpha: 1,
       duration: 400,
       onComplete: () => {
-        // Parpadeo
         this.time.addEvent({
           delay: 500,
           loop: true,
-          callback: () => {
-            this.startText.visible = !this.startText.visible
-          },
+          callback: () => { this.startText.visible = !this.startText.visible },
         })
       },
     })
 
-    // Botón HISTORIA
+    // Botones HISTORIA (izquierda) y TUTORIAL (derecha)
     this.drawHistoriaButton()
+    this.drawTutorialButton()
 
     // Créditos abajo
     this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'VELÁ DE SANTA ANA · TRIANA · SEVILLA', {
@@ -172,19 +169,35 @@ export class MenuScene extends Scene {
     const btnW = 210
     const btnH = 58
     const btnX = 16
-    const btnY = GAME_HEIGHT - 86   // anclado en esquina inferior izquierda, sobre créditos
+    const btnY = GAME_HEIGHT - 86
 
     this.historiaBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
-      '📜  HISTORIA',
+      'HISTORIA',
       () => this.scene.start(SCENES.HISTORY),
-      { depth: 2 },
+      { depth: 2, fontSize: '34px' },
+    )
+  }
+
+  drawTutorialButton() {
+    const btnW = 210
+    const btnH = 58
+    const btnX = GAME_WIDTH - 16 - btnW
+    const btnY = GAME_HEIGHT - 86
+
+    this.tutorialBounds = makeNavButton(
+      this, btnX, btnY, btnW, btnH,
+      'TUTORIAL',
+      () => this.scene.start(SCENES.TUTORIAL),
+      { depth: 2, fontSize: '34px' },
     )
   }
 
   setupInput() {
     this.input.on('pointerdown', (pointer) => {
-      if (!this.historiaBounds || !Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)) {
+      const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
+      const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
+      if (!inHistoria && !inTutorial) {
         this.scene.start(SCENES.CHARACTER_SELECT)
       }
     })
