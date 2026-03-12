@@ -15,7 +15,7 @@ const BLOCKS = [
   {
     title: 'Fase 1 — El Impulso',
     image: 'tut-02',
-    text: 'Para correr por el palo necesitas impulso. Verás una barra que se mueve. Pulsa el botón cuando el indicador llegue a la ZONA VERDE para coger el máximo impulso. ¡Más verde, más lejos llegas!',
+    text: 'Para correr por el palo necesitas impulso. Verás una barra que se mueve. Pulsa la pantalla, o cualquier tecla, cuando el indicador llegue a la ZONA VERDE para coger el máximo impulso. ¡Más verde, más lejos llegas!',
   },
   {
     title: 'Las Zonas de la Barra',
