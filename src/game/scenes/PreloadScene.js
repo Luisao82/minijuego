@@ -46,11 +46,25 @@ export class PreloadScene extends Scene {
     this.load.image('bg-game', 'backgrounds/fondo_a.png')
     this.load.image('bg-history', 'backgrounds/fondoHistory.png')
 
-    // Narrador — Historia (4 frames para animación de boca y parpadeo)
+    // Narrador — Historia (sprites en raíz de sprites/)
     this.load.image('narrator',        'sprites/narrator.png')
     this.load.image('narrator-m-open', 'sprites/narrator_m_open.png')
     this.load.image('narrator-open',   'sprites/narrator_open.png')
     this.load.image('narrator-eyes',   'sprites/narrator_eyes.png')
+
+    // Narrador — Tutorial (sprites en sprites/narrator/)
+    this.load.image('tutor-narrator',        'sprites/narrator/narrator.png')
+    this.load.image('tutor-narrator-m-open', 'sprites/narrator/narrator_m_open.png')
+    this.load.image('tutor-narrator-open',   'sprites/narrator/narrator_open.png')
+    this.load.image('tutor-narrator-eyes',   'sprites/narrator/narrator_eyes.png')
+
+    // Imágenes del tutorial — una por bloque
+    this.load.image('tut-01', 'tutorial/01-bienvenido.png')
+    this.load.image('tut-02', 'tutorial/02-impulso.png')
+    this.load.image('tut-03', 'tutorial/03-zonas.png')
+    this.load.image('tut-04', 'tutorial/04-equilibrio.png')
+    this.load.image('tut-05', 'tutorial/05-salto.png')
+    this.load.image('tut-06', 'tutorial/06-listo.png')
 
     // Imágenes históricas — una por bloque de texto
     this.load.image('hist-intro',     'backgrounds/hist-intro.png')

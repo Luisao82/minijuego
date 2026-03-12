@@ -30,6 +30,7 @@ export const SCENES = {
   PRELOAD: 'PreloadScene',
   MENU: 'MenuScene',
   HISTORY: 'HistoryScene',
+  TUTORIAL: 'TutorialScene',
   CHARACTER_SELECT: 'CharacterSelectScene',
   GAME: 'GameScene',
   GAME_OVER: 'GameOverScene',
