@@ -7,6 +7,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `BalanceSystem`: eliminado el timer de cambio aleatorio de dirección del drift (ocurría cada ~0.8s con 70% de probabilidad), que causaba saltos bruscos e impredecibles en el cursor. Sustituido por oscilación senoidal (`Math.sin(elapsed * DRIFT_FREQUENCY)`) que invierte la dirección gradualmente, permitiendo al jugador anticipar y corregir con inércia natural.
+- `gameConfig.js` — bloque `BALANCE`: rebalanceo de parámetros para mejorar la jugabilidad del equilibrio (`DRIFT_MIN` 1.5→0.8, `DRIFT_MAX` 2.8→2.2, `DRIFT_VARIANCE` 0.3→0.15, `INPUT_FORCE` 5→9, `DAMPING` 0.5→0.65). Eliminado `DRIFT_CHANGE_INTERVAL`; añadido `DRIFT_FREQUENCY: 0.45`.
+
 ### Added
 
 - `src/game/entities/Player.js`: clase `Player` que encapsula todo el visual y las animaciones del personaje en `GameScene` (dibujo pixel art, estados NORMAL/JUMPING/JUMPING_FLAG/FLAG, celebración en el agua, cabeza asomando). Acepta `characterData.drawFn` opcional para personajes futuros con spritesheet propio.
