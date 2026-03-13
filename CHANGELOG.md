@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- `src/game/systems/OilSystem.js`: sistema de grasa del palo. Divide el palo en 10 zonas, cada una con un nivel de grasa (0-100%) que se desgasta mientras el personaje pasa por ella. La grasa amplifica el drift del equilibrio (multiplicador configurable en `OIL.DRIFT_MULTIPLIER`). Persiste en `sessionStorage` entre reinicios; se resetea al 100% al coger la bandera o cerrar el navegador.
+- `gameConfig.js` — bloque `OIL`: constantes del sistema de grasa (`NUM_ZONES`, `WEAR_RATE`, `DRIFT_MULTIPLIER`, `OVERLAY_ALPHA`).
+- `GameScene`: overlay oscuro pixel art sobre el palo que se aclara zona a zona según se desgasta la grasa. Indicador `GRASA X%` junto a la barra de equilibrio (verde/naranja/rojo según nivel).
+
 ### Fixed
 
 - `BalanceSystem`: eliminado el timer de cambio aleatorio de dirección del drift (ocurría cada ~0.8s con 70% de probabilidad), que causaba saltos bruscos e impredecibles en el cursor. Sustituido por oscilación senoidal (`Math.sin(elapsed * DRIFT_FREQUENCY)`) que invierte la dirección gradualmente, permitiendo al jugador anticipar y corregir con inércia natural.

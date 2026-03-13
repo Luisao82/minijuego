@@ -26,7 +26,8 @@ export class BalanceSystem {
     this.elapsed = Math.random() * Math.PI * 2 / BALANCE.DRIFT_FREQUENCY
   }
 
-  update(dt, inputDirection) {
+  // oilMultiplier: proporcionado por OilSystem (0 = sin grasa, hasta OIL.DRIFT_MULTIPLIER)
+  update(dt, inputDirection, oilMultiplier = 0) {
     if (this.bar.failed) return
 
     this.elapsed += dt
@@ -40,9 +41,11 @@ export class BalanceSystem {
     //   el drift sube, llega a un máximo, baja, invierte y sube al otro lado.
     //   DRIFT_FREQUENCY controla la velocidad del ciclo (0.45 rad/s ≈ 14s por ciclo completo).
     //   El jugador puede anticipar y reaccionar porque el movimiento es continuo.
+    // La grasa del palo amplifica el drift: 100% grasa → * (1 + OIL.DRIFT_MULTIPLIER)
     const driftAccel = Math.sin(this.elapsed * BALANCE.DRIFT_FREQUENCY)
       * this.driftIntensity
       * difficultyMultiplier
+      * (1 + oilMultiplier)
 
     this.bar.setDriftAcceleration(driftAccel)
 

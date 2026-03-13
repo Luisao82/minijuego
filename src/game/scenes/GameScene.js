@@ -1,11 +1,12 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL } from '../config/gameConfig'
 import { Player } from '../entities/Player'
 import { PowerBar } from '../entities/PowerBar'
 import { makeNavButton } from '../components/NavButton'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { BalanceSystem } from '../systems/BalanceSystem'
+import { OilSystem } from '../systems/OilSystem'
 
 export class GameScene extends Scene {
 
@@ -48,6 +49,11 @@ export class GameScene extends Scene {
     this.balanceUI       = []
     this.balanceInputDir = 0
 
+    // Grasa
+    this.oilSystem   = null
+    this.oilOverlay  = null
+    this.oilGreaseText = null
+
     // UI
     this.phase1UI          = []
     this.canRestart        = false
@@ -57,6 +63,12 @@ export class GameScene extends Scene {
   create() {
     this.drawSimpleBackground()
     this.drawPole()
+
+    // Overlay de grasa — encima del palo, debajo del personaje
+    this.oilSystem  = new OilSystem()
+    this.oilOverlay = this.add.graphics()
+    this._drawOilOverlay()
+
     this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData)
     this.createControlPanel()
     this.createHUD()
@@ -219,8 +231,15 @@ export class GameScene extends Scene {
   updateRunning(delta) {
     const dt = delta / 1000
 
+    // Actualizar grasa y overlay en cada frame de running
+    const poleLength     = POLE.START_X - POLE.END_X
+    const progressRatio  = Math.max(0, Math.min(1, this.distanceTraveled / poleLength))
+    this.oilSystem.update(dt, progressRatio)
+    this._drawOilOverlay()
+
     if (this.balanceBar) {
-      this.balanceSystem.update(dt, this.balanceInputDir)
+      const oilMult = this.oilSystem.getDriftMultiplier(progressRatio)
+      this.balanceSystem.update(dt, this.balanceInputDir, oilMult)
       this.updateBalanceUI()
 
       if (this.balanceSystem.isFailed()) {
@@ -363,6 +382,7 @@ export class GameScene extends Scene {
     this.cleanBalanceUI()
     this.balanceBar    = null
     this.balanceSystem = null
+    this.oilSystem.reset()
     this.player.setFlag(true)
     this.player.redraw()
     this.startFalling()
@@ -418,6 +438,13 @@ export class GameScene extends Scene {
       color:      '#aaaaaa',
     }).setOrigin(0.5)
     this.balanceUI.push(this.balanceTimerText)
+
+    this.oilGreaseText = this.add.text(barX + WIDTH, barY + HEIGHT / 2, '', {
+      fontFamily: 'monospace',
+      fontSize:   '10px',
+      color:      '#8B4513',
+    }).setOrigin(1, 0.5)
+    this.balanceUI.push(this.oilGreaseText)
 
     const btnSize   = BALANCE.BUTTON_SIZE
     const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2
@@ -492,6 +519,13 @@ export class GameScene extends Scene {
     if (this.balanceTimerText && this.balanceSystem) {
       this.balanceTimerText.setText(`${this.balanceSystem.getElapsedTime().toFixed(1)}s`)
     }
+
+    if (this.oilGreaseText && this.oilSystem) {
+      const total = this.oilSystem.getTotalGrease()
+      const color = total > 60 ? '#cc4400' : total > 30 ? '#cc8800' : '#448800'
+      this.oilGreaseText.setText(`GRASA ${total}%`)
+      this.oilGreaseText.setStyle({ color })
+    }
   }
 
   onBalanceLost() {
@@ -503,12 +537,13 @@ export class GameScene extends Scene {
 
   cleanBalanceUI() {
     this.balanceUI.forEach(el => { if (el?.destroy) el.destroy() })
-    this.balanceUI       = []
-    this.balanceCursor   = null
+    this.balanceUI        = []
+    this.balanceCursor    = null
     this.balanceTimerText = null
-    this.btnLeft         = null
-    this.btnRight        = null
-    this.balanceInputDir = 0
+    this.oilGreaseText    = null
+    this.btnLeft          = null
+    this.btnRight         = null
+    this.balanceInputDir  = 0
   }
 
   // ========================================
@@ -674,6 +709,25 @@ export class GameScene extends Scene {
   // ========================================
   // FONDO Y ESCENARIO
   // ========================================
+
+  _drawOilOverlay() {
+    if (!this.oilOverlay || !this.oilSystem) return
+    this.oilOverlay.clear()
+
+    const zones     = this.oilSystem.getZones()
+    const zoneW     = POLE.LENGTH / OIL.NUM_ZONES
+    const poleY     = this.poleY - 3
+    const poleH     = 9
+
+    zones.forEach((grease, i) => {
+      const alpha = (grease / 100) * OIL.OVERLAY_ALPHA
+      if (alpha < 0.01) return
+      // Zona 0 = inicio del personaje (derecha), zona N-1 = bandera (izquierda)
+      const zoneX = POLE.START_X - (i + 1) * zoneW
+      this.oilOverlay.fillStyle(0x2a0e00, alpha)
+      this.oilOverlay.fillRect(zoneX, poleY, zoneW, poleH)
+    })
+  }
 
   drawSimpleBackground() {
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-game')
