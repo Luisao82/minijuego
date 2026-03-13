@@ -156,7 +156,7 @@ export const BALANCE = {
 //   100% grasa → drift * (1 + DRIFT_MULTIPLIER) → máxima dificultad
 //     0% grasa → drift * 1                       → comportamiento base
 export const OIL = {
-  NUM_ZONES: 10,          // Zonas en que se divide el palo
+  NUM_ZONES: 20,          // Zonas en que se divide el palo
   WEAR_RATE: 12,          // % de grasa desgastado por segundo en la zona activa
   DRIFT_MULTIPLIER: 1.2,  // Multiplicador máximo del drift al 100% de grasa
   OVERLAY_ALPHA: 0.55,    // Opacidad máxima del overlay oscuro sobre el palo
