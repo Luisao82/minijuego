@@ -441,10 +441,6 @@ export class GameScene extends Scene {
     }).setOrigin(0.5)
     this.balanceUI.push(this.balanceTimerText)
 
-    // Recuadro de grasa: esquina superior izquierda, debajo de la franja HUD (38px)
-    this.oilIndicator = createOilIndicator(this, 8, 44)
-    this.oilIndicator.update(this.oilSystem.getTotalGrease())
-    // No se añade a balanceUI: tiene ciclo de vida propio (destroy explícito en cleanBalanceUI)
 
     const btnSize   = BALANCE.BUTTON_SIZE
     const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2
@@ -520,9 +516,6 @@ export class GameScene extends Scene {
       this.balanceTimerText.setText(`${this.balanceSystem.getElapsedTime().toFixed(1)}s`)
     }
 
-    if (this.oilIndicator && this.oilSystem) {
-      this.oilIndicator.update(this.oilSystem.getTotalGrease())
-    }
   }
 
   onBalanceLost() {
@@ -537,8 +530,6 @@ export class GameScene extends Scene {
     this.balanceUI        = []
     this.balanceCursor    = null
     this.balanceTimerText = null
-    this.oilIndicator?.destroy()
-    this.oilIndicator     = null
     this.btnLeft          = null
     this.btnRight         = null
     this.balanceInputDir  = 0
@@ -785,6 +776,10 @@ export class GameScene extends Scene {
       fontSize:   '10px',
       color:      '#666666',
     }).setOrigin(1, 0)
+
+    // Indicador de grasa: siempre visible, esquina superior izquierda bajo la franja
+    this.oilIndicator = createOilIndicator(this, 8, 44)
+    this.oilIndicator.update(this.oilSystem.getTotalGrease())
   }
 
   // ========================================
@@ -802,5 +797,8 @@ export class GameScene extends Scene {
     if (this.phase === 'running') this.updateRunning(delta)
 
     if (this.phase === 'jumping') this.updateJumping(delta)
+
+    // Indicador de grasa siempre activo
+    this.oilIndicator?.update(this.oilSystem.getTotalGrease())
   }
 }
