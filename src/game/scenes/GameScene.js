@@ -441,12 +441,10 @@ export class GameScene extends Scene {
     }).setOrigin(0.5)
     this.balanceUI.push(this.balanceTimerText)
 
-    // Gota de grasa: centrada en el tercio derecho de la barra, justo encima
-    const indX = barX + WIDTH - 12   // alineada al borde derecho de la barra
-    const indY = CONTROL_PANEL.Y + 8
-    this.oilIndicator = createOilIndicator(this, indX, indY)
+    // Recuadro de grasa: esquina superior izquierda, debajo de la franja HUD (38px)
+    this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())
-    this.balanceUI.push(this.oilIndicator.container)
+    // No se añade a balanceUI: tiene ciclo de vida propio (destroy explícito en cleanBalanceUI)
 
     const btnSize   = BALANCE.BUTTON_SIZE
     const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2

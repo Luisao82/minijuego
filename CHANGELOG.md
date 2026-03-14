@@ -7,6 +7,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- `OilIndicator.js`: rediseño completo. Nueva forma de gota (💧) con punta única de 1px y zona ancha prolongada en la parte inferior. Tamaño PIXEL×5, grid 9×10. Recuadro HUD 111×111px (mitad del cartel de game over) con borde dorado doble (mismo estilo que fichas y panel de game over). Colocado en la esquina superior izquierda (x=8, y=44), debajo de la franja del HUD. Etiqueta "GRASA" en dorado + porcentaje con color dinámico (rojo/naranja/verde). Relleno de la gota en tonos negro-marrón (grasa de palo).
+- `GameScene`: eliminado doble-destroy del OilIndicator (ya no se añade a `balanceUI`; se gestiona con ciclo de vida propio).
+
 ### Added
 
 - `src/game/components/OilIndicator.js`: componente pixel art de gota de grasa. Teardrop de 8×9 píxeles (escala ×3) con borde negro, fondo oscuro y relleno dinámico que sube desde la base según el % total de grasa (rojo→marrón→verde). Etiqueta de porcentaje bajo la gota, visible sobre el panel de control durante la fase de equilibrio.

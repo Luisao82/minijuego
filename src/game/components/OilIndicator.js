@@ -1,101 +1,134 @@
-// Componente indicador de grasa — gota pixel art con relleno proporcional
-// El relleno sube desde la base según el % de grasa: 100% = llena, 0% = vacía
-// Uso: const ind = createOilIndicator(scene, x, y)
-//      ind.update(75)   → actualiza el relleno y el texto
-//      ind.destroy()    → limpia todos los objetos
+// Componente indicador de grasa — recuadro HUD con gota pixel art
+// Muestra el % total de grasa del palo con una gota 💧 que se llena/vacía
+//
+// Uso:
+//   const ind = createOilIndicator(scene, x, y)
+//   ind.update(75)   → actualiza relleno y texto
+//   ind.destroy()    → elimina todos los objetos
 
-// Escala: cada "píxel" del pixel art ocupa PIXEL × PIXEL px en pantalla
-const PIXEL = 3
+// Escala: cada "píxel" del pixel art ocupa PIXEL × PIXEL px reales
+const PIXEL = 5
 
-// Forma de la gota (teardrop): [colStart, width] por fila, de punta (arriba) a base (abajo)
+// Forma de la gota (💧): punta arriba, cuerpo ancho en la parte inferior
+// [colStart, width] por fila, de arriba (punta) a abajo (base)
+// Grid de 9 columnas × 10 filas → punta única, zona ancha prolongada, base redondeada
 const SHAPE = [
-  [3, 2],   // fila 0 — punta superior
-  [2, 4],   // fila 1
-  [1, 6],   // fila 2
-  [0, 8],   // fila 3
-  [0, 8],   // fila 4 — zona más ancha
-  [0, 8],   // fila 5
-  [1, 6],   // fila 6
-  [2, 4],   // fila 7
-  [3, 2],   // fila 8 — base
+  [4, 1],  // fila 0 — punta de 1 px
+  [3, 3],  // fila 1
+  [1, 7],  // fila 2 — se abre rápido
+  [0, 9],  // fila 3 — zona ancha
+  [0, 9],  // fila 4
+  [0, 9],  // fila 5
+  [0, 9],  // fila 6
+  [1, 7],  // fila 7 — se cierra
+  [2, 5],  // fila 8
+  [3, 3],  // fila 9 — base redondeada
 ]
 
-const DROP_W  = 8 * PIXEL   // 24 px
-const DROP_H  = SHAPE.length * PIXEL  // 27 px
-const CENTER_X = DROP_W / 2
+const DROP_W = 9 * PIXEL     // 45 px
+const DROP_H = SHAPE.length * PIXEL  // 50 px
+
+// Tamaño del recuadro HUD = mitad de la altura del cartel de game over (222 px)
+const BOX  = 111
+const PAD  = 8
 
 export function createOilIndicator(scene, x, y) {
   const container = scene.add.container(x, y)
 
-  const gStatic = scene.add.graphics()   // borde y fondo (estático, se dibuja una vez)
-  const gFill   = scene.add.graphics()   // relleno dinámico
+  const gBox       = scene.add.graphics()
+  const gDropBg    = scene.add.graphics()   // borde + fondo de la gota (estático)
+  const gDropFill  = scene.add.graphics()   // relleno dinámico
 
-  _drawStatic(gStatic)
+  // Posición de la gota centrada horizontalmente dentro del recuadro
+  const dropX = Math.floor((BOX - DROP_W) / 2)
+  const dropY = PAD + 14 + 5   // debajo de la etiqueta "GRASA"
 
-  // Etiqueta con el porcentaje, centrada bajo la gota
-  const label = scene.add.text(CENTER_X, DROP_H + 5, '100%', {
+  _drawBox(gBox)
+  _drawDropBg(gDropBg, dropX, dropY)
+
+  // Etiqueta fija
+  const labelTitle = scene.add.text(BOX / 2, PAD, 'GRASA', {
     fontFamily:      'monospace',
     fontSize:        '11px',
-    color:           '#cc4400',
+    color:           '#ffd700',
+    stroke:          '#000000',
+    strokeThickness: 2,
+  }).setOrigin(0.5, 0)
+
+  // Porcentaje dinámico
+  const labelPct = scene.add.text(BOX / 2, dropY + DROP_H + 5, '100%', {
+    fontFamily:      'monospace',
+    fontSize:        '14px',
+    color:           '#ff6644',
     stroke:          '#000000',
     strokeThickness: 3,
   }).setOrigin(0.5, 0)
 
-  container.add([gStatic, gFill, label])
+  container.add([gBox, gDropBg, gDropFill, labelTitle, labelPct])
 
   return {
-    update(percentage) { _update(gFill, label, percentage) },
-    destroy()          { container.destroy() },
+    update(percentage) {
+      _drawDropFill(gDropFill, dropX, dropY, percentage)
+      const pct   = Math.round(Math.max(0, Math.min(100, percentage)))
+      const color = pct > 60 ? '#ff6644' : pct > 30 ? '#ffaa00' : '#44bb44'
+      labelPct.setText(`${pct}%`)
+      labelPct.setStyle({ color })
+    },
+    destroy() { container.destroy() },
   }
 }
 
 // ─── helpers privados ────────────────────────────────────────────────────────
 
-function _drawStatic(g) {
-  // 1. Borde negro: silueta expandida 1 px real en cada lado
+function _drawBox(g) {
+  // Fondo oscuro semitransparente (igual que el panel de game over)
+  g.fillStyle(0x0a0510, 0.88)
+  g.fillRect(0, 0, BOX, BOX)
+
+  // Borde dorado exterior (igual que fichas y panel de game over)
+  g.lineStyle(2, 0xffd700, 0.9)
+  g.strokeRect(0, 0, BOX, BOX)
+
+  // Borde dorado interior fino (doble línea estilo feria)
+  g.lineStyle(1, 0xffd700, 0.25)
+  g.strokeRect(3, 3, BOX - 6, BOX - 6)
+}
+
+function _drawDropBg(g, ox, oy) {
+  // Silueta negra (borde): expandida 1 px real alrededor de cada fila
   g.fillStyle(0x000000, 1)
   SHAPE.forEach(([col, w], row) => {
-    g.fillRect(col * PIXEL - 1, row * PIXEL - 1, w * PIXEL + 2, PIXEL + 2)
+    g.fillRect(ox + col * PIXEL - 1, oy + row * PIXEL - 1, w * PIXEL + 2, PIXEL + 2)
   })
 
-  // 2. Fondo interior oscuro
-  g.fillStyle(0x111111, 1)
+  // Fondo interior oscuro (vacío de la gota)
+  g.fillStyle(0x100c08, 1)
   SHAPE.forEach(([col, w], row) => {
-    g.fillRect(col * PIXEL, row * PIXEL, w * PIXEL, PIXEL)
+    g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
   })
 }
 
-function _update(gFill, label, percentage) {
-  gFill.clear()
+function _drawDropFill(g, ox, oy, percentage) {
+  g.clear()
 
   const pct        = Math.max(0, Math.min(100, percentage))
   const rows       = SHAPE.length
   const filledRows = Math.round((pct / 100) * rows)
-  const fillColor  = _fillColor(pct)
 
-  // Relleno de abajo hacia arriba
+  // Color del relleno: negro-marrón (grasa de palo) según nivel
+  const fillColor = pct > 60 ? 0x1a0800 : pct > 30 ? 0x3d1800 : 0x5c3300
+
   for (let i = 0; i < filledRows; i++) {
-    const row    = rows - 1 - i
+    const row      = rows - 1 - i
     const [col, w] = SHAPE[row]
 
-    gFill.fillStyle(fillColor, 1)
-    gFill.fillRect(col * PIXEL, row * PIXEL, w * PIXEL, PIXEL)
+    g.fillStyle(fillColor, 1)
+    g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
 
-    // Brillo: línea semi-transparente en el borde superior del relleno
+    // Brillo semitransparente en el borde superior del relleno
     if (i === filledRows - 1 && w >= 4) {
-      gFill.fillStyle(0xffffff, 0.25)
-      gFill.fillRect((col + 1) * PIXEL, row * PIXEL, (w - 2) * PIXEL, 1)
+      g.fillStyle(0xffffff, 0.12)
+      g.fillRect(ox + (col + 1) * PIXEL, oy + row * PIXEL, (w - 2) * PIXEL, 1)
     }
   }
-
-  // Texto y color del porcentaje
-  const color = pct > 60 ? '#cc4400' : pct > 30 ? '#cc8800' : '#448800'
-  label.setText(`${Math.round(pct)}%`)
-  label.setStyle({ color })
-}
-
-function _fillColor(pct) {
-  if (pct > 60) return 0x6B0000   // rojo oscuro — mucha grasa
-  if (pct > 30) return 0x8B4500   // marrón — grasa media
-  return 0x2d6b00                  // verde oscuro — poca grasa
 }
