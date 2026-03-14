@@ -338,6 +338,7 @@ export class GameScene extends Scene {
       this.hasFlag = true
       this.flagGraphics.setVisible(false)
       this.player.setFlag(true)
+      this.oilSystem.reset()
     }
 
     if (this.player.y >= this.waterY) {
