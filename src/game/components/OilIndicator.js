@@ -1,5 +1,5 @@
-// Componente indicador de grasa — recuadro HUD con gota pixel art
-// La gota se llena desde abajo según el % de grasa total del palo
+// Componente indicador de grasa — recuadro HUD con icono de lata de aceite pixel art
+// El relleno dorado baja de nivel según disminuye el % de grasa
 //
 // Uso:
 //   const ind = createOilIndicator(scene, x, y)
@@ -8,28 +8,47 @@
 
 // ─── Configuración ───────────────────────────────────────────────────────────
 
-const PIXEL = 5   // px reales por "píxel" del pixel art
+const PIXEL = 4   // px reales por "píxel" del pixel art
 
-// Forma de la gota (💧): punta de 1 px, apertura rápida, cuerpo amplio.
-// Con PIXEL=5 la punta es de 5px reales → se ve claramente como pico.
-// [colStart, width] por fila, de arriba (punta) a abajo (base)
+// Silueta completa de la lata de aceite, fila por fila: [colStart, width]
+// Grid de 12 columnas × 13 filas
+//
+//  ..XXXX......   T-bar horizontal (tapa)
+//  ...XX.......   T-bar shaft
+//  .XXXXXXXXXX.   cuerpo superior      ← relleno empieza aquí (FILL_START)
+//  XXXXXXXXXXXX   cuerpo + asa
+//  XXXXXXXXXXXX   cuerpo + asa
+//  .XXXXXXXXXX.   cuerpo
+//  .XXXXXXXXX..   cuerpo / pitorro empieza
+//  ..XXXXXXXX..   pitorro
+//  ...XXXXXX...   pitorro se estrecha
+//  ....XXXX....   punta del pitorro    ← relleno termina aquí (FILL_END)
+//  .....XX.....   gota (decoración)
+//  .....XX.....   gota
+//  ......X.....   punta de la gota
+//
 const SHAPE = [
-  [4, 1],  // fila 0  — PUNTA: 1 solo píxel de ancho
-  [3, 3],  // fila 1  — se abre a 3px
-  [1, 7],  // fila 2  — salta a 7px (apertura brusca → forma gota)
-  [0, 9],  // fila 3  — ancho máximo, empieza el cuerpo
-  [0, 9],  // fila 4
-  [0, 9],  // fila 5
-  [0, 9],  // fila 6
-  [0, 9],  // fila 7
-  [0, 9],  // fila 8
-  [1, 7],  // fila 9  — se cierra
-  [3, 3],  // fila 10
-  [4, 1],  // fila 11 — base redondeada
+  [2, 4],   // fila 0  — T-bar horizontal
+  [3, 2],   // fila 1  — T-bar shaft
+  [1, 10],  // fila 2  — cuerpo superior    ← FILL_START
+  [0, 12],  // fila 3  — cuerpo + asa
+  [0, 12],  // fila 4  — cuerpo + asa
+  [1, 10],  // fila 5  — cuerpo
+  [1, 9],   // fila 6  — pitorro empieza
+  [2, 8],   // fila 7  — pitorro
+  [3, 6],   // fila 8  — pitorro se estrecha
+  [4, 4],   // fila 9  — punta pitorro     ← FILL_END
+  [5, 2],   // fila 10 — gota (decoración)
+  [5, 2],   // fila 11 — gota
+  [6, 1],   // fila 12 — punta de gota
 ]
 
-const DROP_W = 9 * PIXEL            // 45 px
-const DROP_H = SHAPE.length * PIXEL // 60 px
+const FILL_START = 2   // primera fila rellenable (índice en SHAPE)
+const FILL_END   = 9   // última fila rellenable
+const FILL_COUNT = FILL_END - FILL_START + 1   // 8 filas rellenables
+
+const SHAPE_W = 12 * PIXEL             // 48 px
+const SHAPE_H = SHAPE.length * PIXEL   // 52 px
 
 // Recuadro HUD: mitad de la altura del panel de game over (222 px)
 const BOX = 111
@@ -44,15 +63,15 @@ export function createOilIndicator(scene, x, y) {
   const container = scene.add.container(x, y)
 
   const gBox      = scene.add.graphics()   // recuadro (estático)
-  const gDropBg   = scene.add.graphics()   // borde + fondo de la gota (estático)
-  const gDropFill = scene.add.graphics()   // relleno dinámico
+  const gSilhouet = scene.add.graphics()   // silueta de la lata (estático)
+  const gFill     = scene.add.graphics()   // relleno dinámico
 
-  // Gota centrada horizontalmente en el recuadro
-  const dropX = Math.floor((BOX - DROP_W) / 2)
-  const dropY = PAD + 20 + 3   // debajo de la etiqueta "GRASA"
+  // Icono centrado horizontalmente en el recuadro
+  const iconX = Math.floor((BOX - SHAPE_W) / 2)
+  const iconY = PAD + 20 + 4
 
   _drawBox(gBox)
-  _drawDropBg(gDropBg, dropX, dropY)
+  _drawSilhouette(gSilhouet, iconX, iconY)
 
   // Etiqueta fija "GRASA"
   const labelTitle = scene.add.text(BOX / 2, PAD, 'GRASA', {
@@ -64,7 +83,7 @@ export function createOilIndicator(scene, x, y) {
   }).setOrigin(0.5, 0)
 
   // Porcentaje dinámico
-  const labelPct = scene.add.text(BOX / 2, dropY + DROP_H + 4, '100%', {
+  const labelPct = scene.add.text(BOX / 2, iconY + SHAPE_H + 4, '100%', {
     fontFamily:      FONT_PX,
     fontSize:        '18px',
     color:           '#ffd700',
@@ -72,11 +91,11 @@ export function createOilIndicator(scene, x, y) {
     strokeThickness: 3,
   }).setOrigin(0.5, 0)
 
-  container.add([gBox, gDropBg, gDropFill, labelTitle, labelPct])
+  container.add([gBox, gSilhouet, gFill, labelTitle, labelPct])
 
   return {
     update(percentage) {
-      _drawDropFill(gDropFill, dropX, dropY, percentage)
+      _drawFill(gFill, iconX, iconY, percentage)
       const pct   = Math.round(Math.max(0, Math.min(100, percentage)))
       const color = pct > 60 ? '#ffd700' : pct > 30 ? '#ffaa00' : '#ff6644'
       labelPct.setText(`${pct}%`)
@@ -89,50 +108,55 @@ export function createOilIndicator(scene, x, y) {
 // ─── Helpers privados ────────────────────────────────────────────────────────
 
 function _drawBox(g) {
+  // Fondo oscuro semitransparente
   g.fillStyle(0x0a0510, 0.88)
   g.fillRect(0, 0, BOX, BOX)
 
+  // Borde dorado exterior (mismo estilo que fichas y panel game over)
   g.lineStyle(2, 0xffd700, 0.9)
   g.strokeRect(0, 0, BOX, BOX)
 
+  // Borde interior fino
   g.lineStyle(1, 0xffd700, 0.25)
   g.strokeRect(3, 3, BOX - 6, BOX - 6)
 }
 
-function _drawDropBg(g, ox, oy) {
-  // Silueta negra: borde de 1px real alrededor de cada fila
+function _drawSilhouette(g, ox, oy) {
+  // Borde negro: silueta expandida 1 px real alrededor de cada fila
   g.fillStyle(0x000000, 1)
   SHAPE.forEach(([col, w], row) => {
     g.fillRect(ox + col * PIXEL - 1, oy + row * PIXEL - 1, w * PIXEL + 2, PIXEL + 2)
   })
 
-  // Fondo interior oscuro (cavidad vacía)
-  g.fillStyle(0x0d0a06, 1)
+  // Interior oscuro (cavidad vacía por defecto)
+  g.fillStyle(0x1a1208, 1)
   SHAPE.forEach(([col, w], row) => {
     g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
   })
 }
 
-function _drawDropFill(g, ox, oy, percentage) {
+function _drawFill(g, ox, oy, percentage) {
   g.clear()
 
   const pct        = Math.max(0, Math.min(100, percentage))
-  const rows       = SHAPE.length
-  const filledRows = Math.round((pct / 100) * rows)
+  const filledRows = Math.round((pct / 100) * FILL_COUNT)
 
-  // Amarillo dorado (grasa) → naranja → rojo según nivel
-  const fillColor = pct > 60 ? 0xd4a017 : pct > 30 ? 0xb87000 : 0x8b4500
+  if (filledRows === 0) return
+
+  // Color del relleno según nivel
+  const fillColor  = pct > 60 ? 0xd4a017 : pct > 30 ? 0xb87000 : 0x8b4500
+  const shineColor = 0xffee88
 
   for (let i = 0; i < filledRows; i++) {
-    const row      = rows - 1 - i
+    const row      = FILL_END - i          // rellena de abajo a arriba
     const [col, w] = SHAPE[row]
 
     g.fillStyle(fillColor, 1)
     g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
 
-    // Brillo en el borde superior del relleno (simula superficie líquida)
-    if (i === filledRows - 1 && w >= 4) {
-      g.fillStyle(0xffee88, 0.4)
+    // Brillo en la fila superior del relleno (simula superficie del líquido)
+    if (i === filledRows - 1 && w >= 3) {
+      g.fillStyle(shineColor, 0.45)
       g.fillRect(ox + (col + 1) * PIXEL, oy + row * PIXEL, (w - 2) * PIXEL, 2)
     }
   }
