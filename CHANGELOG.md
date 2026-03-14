@@ -7,6 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- `OilIndicator.js`: rediseño completo. Nueva forma de gota (💧) con punta única de 1px y zona ancha prolongada en la parte inferior. Tamaño PIXEL×5, grid 9×10. Recuadro HUD 111×111px (mitad del cartel de game over) con borde dorado doble (mismo estilo que fichas y panel de game over). Colocado en la esquina superior izquierda (x=8, y=44), debajo de la franja del HUD. Etiqueta "GRASA" en dorado + porcentaje con color dinámico (rojo/naranja/verde). Relleno de la gota en tonos negro-marrón (grasa de palo).
+- `GameScene`: eliminado doble-destroy del OilIndicator (ya no se añade a `balanceUI`; se gestiona con ciclo de vida propio).
+
+### Added
+
+- `src/game/components/OilIndicator.js`: componente pixel art de gota de grasa. Teardrop de 8×9 píxeles (escala ×3) con borde negro, fondo oscuro y relleno dinámico que sube desde la base según el % total de grasa (rojo→marrón→verde). Etiqueta de porcentaje bajo la gota, visible sobre el panel de control durante la fase de equilibrio.
+- `src/game/systems/OilSystem.js`: sistema de grasa del palo. Divide el palo en 10 zonas, cada una con un nivel de grasa (0-100%) que se desgasta mientras el personaje pasa por ella. La grasa amplifica el drift del equilibrio (multiplicador configurable en `OIL.DRIFT_MULTIPLIER`). Persiste en `sessionStorage` entre reinicios; se resetea al 100% al coger la bandera o cerrar el navegador.
+- `gameConfig.js` — bloque `OIL`: constantes del sistema de grasa (`NUM_ZONES`, `WEAR_RATE`, `DRIFT_MULTIPLIER`, `OVERLAY_ALPHA`).
+- `GameScene`: overlay negro sobre la mitad superior del palo que se aclara zona a zona según se desgasta la grasa. Gota `OilIndicator` en la esquina superior derecha del panel de control durante la fase de equilibrio.
+
+### Fixed
+
+- `BalanceSystem`: eliminado el timer de cambio aleatorio de dirección del drift (ocurría cada ~0.8s con 70% de probabilidad), que causaba saltos bruscos e impredecibles en el cursor. Sustituido por oscilación senoidal (`Math.sin(elapsed * DRIFT_FREQUENCY)`) que invierte la dirección gradualmente, permitiendo al jugador anticipar y corregir con inércia natural.
+- `gameConfig.js` — bloque `BALANCE`: rebalanceo de parámetros para mejorar la jugabilidad del equilibrio (`DRIFT_MIN` 1.5→0.8, `DRIFT_MAX` 2.8→2.2, `DRIFT_VARIANCE` 0.3→0.15, `INPUT_FORCE` 5→9, `DAMPING` 0.5→0.65). Eliminado `DRIFT_CHANGE_INTERVAL`; añadido `DRIFT_FREQUENCY: 0.45`.
+
 ### Added
 
 - `src/game/entities/Player.js`: clase `Player` que encapsula todo el visual y las animaciones del personaje en `GameScene` (dibujo pixel art, estados NORMAL/JUMPING/JUMPING_FLAG/FLAG, celebración en el agua, cabeza asomando). Acepta `characterData.drawFn` opcional para personajes futuros con spritesheet propio.

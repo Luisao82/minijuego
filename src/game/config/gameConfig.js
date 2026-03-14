@@ -123,27 +123,43 @@ export const JUMP = {
 //   equilibrio  0 → más difícil (drift rápido + límites muy juntos)
 export const BALANCE = {
   // Velocidad del drift según stat de equilibrio del personaje
-  DRIFT_MIN: 1.5,                // Aceleración con equilibrio 10 (más lento = más fácil)
-  DRIFT_MAX: 2.8,                // Aceleración con equilibrio 0  (más rápido = más difícil)
-  DRIFT_VARIANCE: 0.3,           // Variación aleatoria sobre la base
-  DRIFT_CHANGE_INTERVAL: 0.8,//1.8,    // Segundos entre cambios de dirección del drift
+  DRIFT_MIN: 0.8,                // ANTES: 1.5 — Aceleración con equilibrio 10 (reducida: drift más suave = más margen para reaccionar)
+  DRIFT_MAX: 2.2,                // ANTES: 2.8 — Aceleración con equilibrio 0 (reducida: sigue siendo difícil pero no imposible)
+  DRIFT_VARIANCE: 0.15,          // ANTES: 0.3 — Variación aleatoria sobre la base (reducida: comportamiento más predecible)
+  // FIX: eliminado DRIFT_CHANGE_INTERVAL (era 0.8s) — ya no hay flip aleatorio de dirección.
+  //   La oscilación ahora la controla DRIFT_FREQUENCY con Math.sin().
+  DRIFT_FREQUENCY: 0.45,         // NUEVO — Velocidad de la oscilación senoidal (rad/s).
+  //   Ciclo completo = 2π / 0.45 ≈ 14s. El drift sube, llega al máximo, baja e invierte suavemente.
 
   // Fuerza del input del jugador (debe superar al drift máximo para que sea posible corregir)
-  INPUT_FORCE: 5,              // Contrafuerza al mantener pulsado (unidades/s²)
+  INPUT_FORCE: 5,                // ANTES: 5 — Contrafuerza al mantener pulsado (unidades/s²).
+  //   Velocidad terminal input: 9/0.65 ≈ 13.8 u/s  vs  drift máx: 2.2/0.65 ≈ 3.4 u/s
+  //   El jugador tiene ~4× más fuerza que el drift → siempre puede corregir si reacciona.
 
-  DAMPING: 0.5,                  // Amortiguamiento ligero (previene acumulación infinita)
+  DAMPING: 0.65,                 // ANTES: 0.5 — Amortiguamiento de velocidad (mayor = correcciones más limpias y menos "resbaladizo")
 
   // Límites según stat de equilibrio del personaje
   LIMIT_MIN: 0.25,               // Límite con equilibrio 0  (muy cerca del centro = muy difícil)
   LIMIT_MAX: 0.9, //0.6,               // Límite con equilibrio 10 (más separado = más fácil)
 
-  DIFFICULTY_INCREASE: 0, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
+  DIFFICULTY_INCREASE: 0.04, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
 
   BAR: {
     WIDTH: 550,
     HEIGHT: 20,
   },
   BUTTON_SIZE: 80,               // Tamaño de los botones táctiles izq/der
+}
+
+// Configuración del sistema de grasa del palo
+// La grasa amplifica el drift en la fase de equilibrio
+//   100% grasa → drift * (1 + DRIFT_MULTIPLIER) → máxima dificultad
+//     0% grasa → drift * 1                       → comportamiento base
+export const OIL = {
+  NUM_ZONES: 30,          // Zonas en que se divide el palo
+  WEAR_RATE: 12,          // % de grasa desgastado por segundo en la zona activa
+  DRIFT_MULTIPLIER: 1.7,  //VALOR inicial 1.2 Multiplicador máximo del drift al 100% de grasa
+  OVERLAY_ALPHA: 0.55,    // Opacidad máxima del overlay oscuro sobre el palo
 }
 
 // Configuración del movimiento del personaje

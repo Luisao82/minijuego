@@ -16,38 +16,37 @@ export class BalanceSystem {
     const t = Math.max(0, Math.min(10, balanceBar.equilibrioStat)) / 10
     this.baseDrift = BALANCE.DRIFT_MAX - t * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)
 
-    this.driftDirection = Math.random() > 0.5 ? 1 : -1
+    // FIX: eliminados driftDirection, timeSinceLastChange y nextChangeTime.
+    // Antes el drift cambiaba de dirección aleatoriamente cada ~0.8s (70% prob.),
+    // lo que causaba saltos bruscos e impredecibles en el cursor.
+    // Ahora la oscilación la gestiona Math.sin() → inversión gradual sin snapshots.
     this.driftIntensity = this.baseDrift
-    this.timeSinceLastChange = 0
-    this.nextChangeTime =  BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
+
+    // Fase inicial aleatoria: evita que el drift siempre empiece hacia el mismo lado
+    this.elapsed = Math.random() * Math.PI * 2 / BALANCE.DRIFT_FREQUENCY
   }
 
-  update(dt, inputDirection) {
+  // oilMultiplier: proporcionado por OilSystem (0 = sin grasa, hasta OIL.DRIFT_MULTIPLIER)
+  update(dt, inputDirection, oilMultiplier = 0) {
     if (this.bar.failed) return
 
     this.elapsed += dt
-    this.timeSinceLastChange += dt
-
-    // Cambiar dirección/intensidad del drift periódicamente
-    if (this.timeSinceLastChange >= this.nextChangeTime) {
-      this.timeSinceLastChange = 0
-      this.nextChangeTime = BALANCE.DRIFT_CHANGE_INTERVAL * (0.7 + Math.random() * 0.6)
-
-      // Cambiar dirección (70% de probabilidad de cambiar)
-      if (Math.random() > 0.3) {
-        this.driftDirection *= -1
-      }
-
-      // Variar intensidad alrededor del base calculado por stat
-      this.driftIntensity = this.baseDrift
-        + (Math.random() * 2 - 1) * BALANCE.DRIFT_VARIANCE
-    }
 
     // Dificultad progresiva suave (se intensifica con el tiempo)
     const difficultyMultiplier = 1 + this.elapsed * BALANCE.DIFFICULTY_INCREASE
 
-    // Aceleración efectiva del drift
-    const driftAccel = this.driftDirection * this.driftIntensity * difficultyMultiplier
+    // FIX: antes → this.driftDirection * this.driftIntensity * difficultyMultiplier
+    //   driftDirection cambiaba bruscamente con Math.random() → saltos impredecibles.
+    // Ahora → oscilación senoidal suave:
+    //   el drift sube, llega a un máximo, baja, invierte y sube al otro lado.
+    //   DRIFT_FREQUENCY controla la velocidad del ciclo (0.45 rad/s ≈ 14s por ciclo completo).
+    //   El jugador puede anticipar y reaccionar porque el movimiento es continuo.
+    // La grasa del palo amplifica el drift: 100% grasa → * (1 + OIL.DRIFT_MULTIPLIER)
+    const driftAccel = Math.sin(this.elapsed * BALANCE.DRIFT_FREQUENCY)
+      * this.driftIntensity
+      * difficultyMultiplier
+      * (1 + oilMultiplier)
+
     this.bar.setDriftAcceleration(driftAccel)
 
     // Pasar input del jugador al bar
