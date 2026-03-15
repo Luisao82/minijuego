@@ -10,57 +10,23 @@
 
 const PIXEL = 4   // px de pantalla por cada "píxel" del pixel art
 
-// Silueta de la lata de aceite — grid 14 cols × 13 filas
-// Cada entrada: [colStart, width]
-//
-//  Col:  0123456789ABCD
-//  r00:  ...XXXXX......   T-bar horizontal de la tapa
-//  r01:  ....XX........   shaft de la tapa
-//  r02:  .XXXXXXXXXXXX.   cuerpo superior        ← FILL_START
-//  r03:  XXXXXXXXXXXXXX   cuerpo + asa izquierda
-//  r04:  XXXXXXXXXXXXXX   cuerpo + asa izquierda
-//  r05:  XXXXXXXXXXXXXX   cuerpo
-//  r06:  XXXXXXXXXXXXXX   cuerpo
-//  r07:  .XXXXXXXXXXXX.   cuerpo inferior        ← FILL_END
-//  r08:  ..XXXXXXXXXX..   pitorro — escalón 1
-//  r09:  ....XXXXXXXX..   pitorro — escalón 2
-//  r10:  ......XXXXX...   pitorro — escalón 3 (punta)
-//  r11:  .......XXX....   gota — cuerpo
-//  r12:  ........X.....   gota — punta
-//
-/*
 const SHAPE = [
-  [3,  5],   // r00 — T-bar horizontal
-  [4,  2],   // r01 — shaft
-  [1, 12],   // r02 — cuerpo superior   ← FILL_START
-  [0, 14],   // r03 — cuerpo + asa
-  [0, 14],   // r04 — cuerpo + asa
-  [0, 14],   // r05 — cuerpo
-  [0, 14],   // r06 — cuerpo
-  [1, 12],   // r07 — cuerpo inferior   ← FILL_END
-  [2, 10],   // r08 — pitorro escalón 1
-  [4,  8],   // r09 — pitorro escalón 2
-  [6,  5],   // r10 — pitorro punta
-  [7,  3],   // r11 — gota cuerpo
-  [8,  1],   // r12 — gota punta
-]
-  */
-const SHAPE = [
-  [7,  1],   // r12 — gota punta
-  [6,  3],   // r11 — gota cuerpo
-  [6,  3],   // r10 — pitorro punta
-  [5,  5],   // r09 — pitorro escalón 2
-  [5, 5],   // r08 — pitorro escalón 1
-  [4, 7],   // r07 — cuerpo inferior   ← FILL_END
-  [4, 7],   // r06 — cuerpo
-  [3, 9],   // r05 — cuerpo
-  [3, 9],   // r04 — cuerpo + asa
-  [2, 11],   // r03 — cuerpo + asa
-  [2, 11],   // r03 — cuerpo + asa
-  [2, 11],   // r03 — cuerpo + asa
-  [3, 9],   // r02 — cuerpo superior   ← FILL_START
-  [4, 7],   // r01 — shaft
-  [6, 3]   // r00 — T-bar horizontal
+  [7, 1],
+  [6, 3],
+  [6, 3],
+  [5, 5],
+  [5, 5],
+  [4, 7],
+  [4, 7],
+  [3, 9],
+  [3, 9],
+  [2, 11],
+  [2, 11],
+  [2, 11],
+  [2, 11],
+  [3, 9],
+  [4, 7],
+  [6, 3]
 ]
 
 const FILL_START = 0                      // primera fila rellenable
@@ -71,7 +37,7 @@ const SHAPE_W = 14 * PIXEL   // 56 px
 const SHAPE_H = SHAPE.length * PIXEL   // 52 px
 
 // Caja HUD: mitad de la altura del panel de game over (222 px)
-const BOX = 111
+const BOX = 135
 const PAD = 6
 
 const FONT_PX = '"Jersey 10", cursive'
@@ -86,22 +52,22 @@ export function createOilIndicator(scene, x, y) {
   const gFill   = scene.add.graphics()
 
   const iconX = Math.floor((BOX - SHAPE_W) / 2)
-  const iconY = PAD + 22
+  const iconY = PAD + 35  
 
   _drawBox(gBox)
   _drawShape(gShape, iconX, iconY)
 
   const labelTitle = scene.add.text(BOX / 2, PAD, 'GRASA', {
     fontFamily:      FONT_PX,
-    fontSize:        '16px',
+    fontSize:        '25px',
     color:           '#ffd700',
     stroke:          '#000000',
     strokeThickness: 3,
   }).setOrigin(0.5, 0)
 
-  const labelPct = scene.add.text(BOX / 2, iconY + SHAPE_H + 4, '100%', {
+  const labelPct = scene.add.text(BOX / 2, iconY + SHAPE_H + 2, '100%', {
     fontFamily:      FONT_PX,
-    fontSize:        '18px',
+    fontSize:        '25px',
     color:           '#ffd700',
     stroke:          '#000000',
     strokeThickness: 3,
