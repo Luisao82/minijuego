@@ -113,7 +113,7 @@ export function createOilIndicator(scene, x, y) {
     update(percentage) {
       _drawFill(gFill, iconX, iconY, percentage)
       const pct   = Math.round(Math.max(0, Math.min(100, percentage)))
-      const color = pct > 60 ? '#ffd700' : pct > 30 ? '#ffaa00' : '#ff6644'
+      const color = pct > 60 ? '#ff3300' : pct > 30 ? '#ffaa00' : '#33cc33'
       labelPct.setText(`${pct}%`)
       labelPct.setStyle({ color })
     },
@@ -137,14 +137,14 @@ function _drawBox(g) {
 }
 
 function _drawShape(g, ox, oy) {
-  // 1. Borde negro: cada fila expandida 1 px en todas las direcciones
-  g.fillStyle(0x000000, 1)
+  // 1. Borde ámbar oscuro: visible sobre el fondo oscuro del recuadro
+  g.fillStyle(0x5a3a00, 1)
   SHAPE.forEach(([col, w], row) => {
     g.fillRect(ox + col * PIXEL - 1, oy + row * PIXEL - 1, w * PIXEL + 2, PIXEL + 2)
   })
 
-  // 2. Interior oscuro (aceite vacío)
-  g.fillStyle(0x12100a, 1)
+  // 2. Interior apagado — silueta siempre visible aunque esté vacía
+  g.fillStyle(0x221a08, 1)
   SHAPE.forEach(([col, w], row) => {
     g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
   })
@@ -158,7 +158,8 @@ function _drawFill(g, ox, oy, percentage) {
 
   if (filledRows === 0) return
 
-  const fillColor = pct > 60 ? 0xd4a017 : pct > 30 ? 0xb87000 : 0x8b4500
+  // Rojo = mucha grasa (difícil) → naranja → verde = sin grasa (fácil)
+  const fillColor = pct > 60 ? 0xcc1100 : pct > 30 ? 0xcc7700 : 0x228822
 
   // Rellena de abajo (FILL_END) hacia arriba (FILL_START) según el nivel
   for (let i = 0; i < filledRows; i++) {
