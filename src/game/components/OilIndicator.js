@@ -149,14 +149,23 @@ function _drawShape(g, ox, oy) {
     g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
   })
 
-  // 3. Brillo estático inferior-derecho: 2 píxeles que dan profundidad
-  //    siempre visibles independientemente del nivel de relleno
-  //    fila 12 [3,9] → borde derecho en col 11 | fila 13 [4,7] → col 10
-  const [col12, w12] = SHAPE[12]
-  const [col13, w13] = SHAPE[13]
-  g.fillStyle(0xffffff, 0.32)
-  g.fillRect(ox + (col12 + w12 - 1) * PIXEL, oy + 12 * PIXEL, PIXEL - 1, PIXEL - 1)
-  g.fillRect(ox + (col13 + w13 - 1) * PIXEL, oy + 13 * PIXEL, PIXEL - 1, PIXEL - 1)
+  // 3. Reflejo inferior-derecho — trazo en L de 4 píxeles que simula
+  //    luz reflejada en la superficie de la lata. Siempre visible,
+  //    independientemente del nivel de relleno, para dar profundidad.
+  //    Filas 11-13, pegado al borde derecho del cuerpo.
+  const shine = [11, 12, 13]   // filas donde aparece el reflejo
+  shine.forEach((rowIdx, i) => {
+    const [col, w] = SHAPE[rowIdx]
+    const rx = ox + (col + w - 1) * PIXEL   // borde derecho de esa fila
+    const ry = oy + rowIdx * PIXEL
+    // Trazo vertical (1 px de ancho real)
+    g.fillStyle(0xffffff, i === 0 ? 0.15 : 0.22)
+    g.fillRect(rx, ry, PIXEL - 1, PIXEL - 1)
+  })
+  // Píxel horizontal extra en la fila 13 (forma la pata de la L)
+  const [col13b, w13b] = SHAPE[13]
+  g.fillStyle(0xffffff, 0.15)
+  g.fillRect(ox + (col13b + w13b - 2) * PIXEL, oy + 13 * PIXEL, PIXEL - 1, PIXEL - 1)
 }
 
 function _drawFill(g, ox, oy, percentage) {
