@@ -148,6 +148,15 @@ function _drawShape(g, ox, oy) {
   SHAPE.forEach(([col, w], row) => {
     g.fillRect(ox + col * PIXEL, oy + row * PIXEL, w * PIXEL, PIXEL)
   })
+
+  // 3. Brillo estático inferior-derecho: 2 píxeles que dan profundidad
+  //    siempre visibles independientemente del nivel de relleno
+  //    fila 12 [3,9] → borde derecho en col 11 | fila 13 [4,7] → col 10
+  const [col12, w12] = SHAPE[12]
+  const [col13, w13] = SHAPE[13]
+  g.fillStyle(0xffffff, 0.32)
+  g.fillRect(ox + (col12 + w12 - 1) * PIXEL, oy + 12 * PIXEL, PIXEL - 1, PIXEL - 1)
+  g.fillRect(ox + (col13 + w13 - 1) * PIXEL, oy + 13 * PIXEL, PIXEL - 1, PIXEL - 1)
 }
 
 function _drawFill(g, ox, oy, percentage) {
@@ -158,8 +167,7 @@ function _drawFill(g, ox, oy, percentage) {
 
   if (filledRows === 0) return
 
-  // Rojo = mucha grasa (difícil) → naranja → verde = sin grasa (fácil)
-  const fillColor = pct > 60 ? 0xcc1100 : pct > 30 ? 0xcc7700 : 0x228822
+  const fillColor = 0xd4a017   // amarillo aceite, siempre igual
 
   // Rellena de abajo (FILL_END) hacia arriba (FILL_START) según el nivel
   for (let i = 0; i < filledRows; i++) {
