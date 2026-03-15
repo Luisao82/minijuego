@@ -28,6 +28,7 @@ const PIXEL = 4   // px de pantalla por cada "píxel" del pixel art
 //  r11:  .......XXX....   gota — cuerpo
 //  r12:  ........X.....   gota — punta
 //
+/*
 const SHAPE = [
   [3,  5],   // r00 — T-bar horizontal
   [4,  2],   // r01 — shaft
@@ -43,10 +44,28 @@ const SHAPE = [
   [7,  3],   // r11 — gota cuerpo
   [8,  1],   // r12 — gota punta
 ]
+  */
+const SHAPE = [
+  [7,  1],   // r12 — gota punta
+  [6,  3],   // r11 — gota cuerpo
+  [6,  3],   // r10 — pitorro punta
+  [5,  5],   // r09 — pitorro escalón 2
+  [5, 5],   // r08 — pitorro escalón 1
+  [4, 7],   // r07 — cuerpo inferior   ← FILL_END
+  [4, 7],   // r06 — cuerpo
+  [3, 9],   // r05 — cuerpo
+  [3, 9],   // r04 — cuerpo + asa
+  [2, 11],   // r03 — cuerpo + asa
+  [2, 11],   // r03 — cuerpo + asa
+  [2, 11],   // r03 — cuerpo + asa
+  [3, 9],   // r02 — cuerpo superior   ← FILL_START
+  [4, 7],   // r01 — shaft
+  [6, 3]   // r00 — T-bar horizontal
+]
 
-const FILL_START = 2    // primera fila del cuerpo (rellenable)
-const FILL_END   = 7    // última fila del cuerpo (rellenable)
-const FILL_COUNT = FILL_END - FILL_START + 1   // 6 filas
+const FILL_START = 0                      // primera fila rellenable
+const FILL_END   = SHAPE.length - 1       // última fila rellenable (14)
+const FILL_COUNT = SHAPE.length           // todas las filas (15)
 
 const SHAPE_W = 14 * PIXEL   // 56 px
 const SHAPE_H = SHAPE.length * PIXEL   // 52 px
