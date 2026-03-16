@@ -449,18 +449,18 @@ export class GameScene extends Scene {
     this.btnLeft = this.add.image(btnMargin + btnSize / 2, btnY + btnSize / 2, 'btn-balance-left')
       .setDisplaySize(btnSize, btnSize)
       .setInteractive()
-    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1; this.btnLeft.setTexture('btn-balance-left-press') })
-    this.btnLeft.on('pointerup',   () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left') })
-    this.btnLeft.on('pointerout',  () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left') })
+    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1; this.btnLeft.setTexture('btn-balance-left-press').setDisplaySize(btnSize, btnSize) })
+    this.btnLeft.on('pointerup',   () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left').setDisplaySize(btnSize, btnSize) })
+    this.btnLeft.on('pointerout',  () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left').setDisplaySize(btnSize, btnSize) })
     this.balanceUI.push(this.btnLeft)
 
     const btnRightX = GAME_WIDTH - btnMargin - btnSize
     this.btnRight = this.add.image(btnRightX + btnSize / 2, btnY + btnSize / 2, 'btn-balance-right')
       .setDisplaySize(btnSize, btnSize)
       .setInteractive()
-    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1; this.btnRight.setTexture('btn-balance-right-press') })
-    this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right') })
-    this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right') })
+    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1; this.btnRight.setTexture('btn-balance-right-press').setDisplaySize(btnSize, btnSize) })
+    this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
+    this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
     this.balanceUI.push(this.btnRight)
   }
 
