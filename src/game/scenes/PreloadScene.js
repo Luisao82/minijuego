@@ -41,8 +41,10 @@ export class PreloadScene extends Scene {
 
     // Carga de assets (NEAREST para mantener pixel art nítido en sprites)
     this.load.setPath('assets')
-    this.load.image('btn-balance-left',  'ui/buttons/buttonRed.png')
-    this.load.image('btn-balance-right', 'ui/buttons/buttonBlue.png')
+    this.load.image('btn-balance-left',       'ui/buttons/buttonRed.png')
+    this.load.image('btn-balance-left-press', 'ui/buttons/buttonRedPress.png')
+    this.load.image('btn-balance-right',       'ui/buttons/buttonBlue.png')
+    this.load.image('btn-balance-right-press', 'ui/buttons/buttonBluePress.png')
 
     this.load.image('bg-menu', 'backgrounds/fondoIntro.png')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
