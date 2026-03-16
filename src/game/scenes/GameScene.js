@@ -446,46 +446,22 @@ export class GameScene extends Scene {
     const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2
     const btnMargin = 40
 
-    this.btnLeft = this.add.graphics()
-    this.drawBalanceButton(this.btnLeft, btnMargin, btnY, btnSize)
-    this.btnLeft.setInteractive(
-      new Phaser.Geom.Rectangle(btnMargin, btnY, btnSize, btnSize),
-      Phaser.Geom.Rectangle.Contains,
-    )
-    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1 })
-    this.btnLeft.on('pointerup',   () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0 })
-    this.btnLeft.on('pointerout',  () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0 })
+    this.btnLeft = this.add.image(btnMargin + btnSize / 2, btnY + btnSize / 2, 'btn-balance-left')
+      .setDisplaySize(btnSize, btnSize)
+      .setInteractive()
+    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1; this.btnLeft.setAlpha(0.65) })
+    this.btnLeft.on('pointerup',   () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setAlpha(1) })
+    this.btnLeft.on('pointerout',  () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setAlpha(1) })
     this.balanceUI.push(this.btnLeft)
 
-    const btnLeftText = this.add.text(btnMargin + btnSize / 2, btnY + btnSize / 2, '◀', {
-      fontFamily: 'monospace',
-      fontSize:   '28px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5)
-    this.balanceUI.push(btnLeftText)
-
     const btnRightX = GAME_WIDTH - btnMargin - btnSize
-    this.btnRight = this.add.graphics()
-    this.drawBalanceButton(this.btnRight, btnRightX, btnY, btnSize)
-    this.btnRight.setInteractive(
-      new Phaser.Geom.Rectangle(btnRightX, btnY, btnSize, btnSize),
-      Phaser.Geom.Rectangle.Contains,
-    )
-    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1 })
-    this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0 })
-    this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0 })
+    this.btnRight = this.add.image(btnRightX + btnSize / 2, btnY + btnSize / 2, 'btn-balance-right')
+      .setDisplaySize(btnSize, btnSize)
+      .setInteractive()
+    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1; this.btnRight.setAlpha(0.65) })
+    this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setAlpha(1) })
+    this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setAlpha(1) })
     this.balanceUI.push(this.btnRight)
-
-    const btnRightText = this.add.text(btnRightX + btnSize / 2, btnY + btnSize / 2, '▶', {
-      fontFamily: 'monospace',
-      fontSize:   '28px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5)
-    this.balanceUI.push(btnRightText)
   }
 
   drawBalanceButton(graphics, x, y, size) {
