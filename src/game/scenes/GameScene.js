@@ -652,10 +652,24 @@ export class GameScene extends Scene {
     this.input.keyboard.on('keydown-SPACE', (event) => { if (!event.repeat) this.handleTap(null) })
     this.input.keyboard.on('keydown-ESC',   () => this.scene.start(SCENES.MENU))
 
-    this.input.keyboard.on('keydown-LEFT',  () => { if (this.phase === 'running' && this.balanceBar) this.balanceInputDir = -1 })
-    this.input.keyboard.on('keydown-RIGHT', () => { if (this.phase === 'running' && this.balanceBar) this.balanceInputDir =  1 })
-    this.input.keyboard.on('keyup-LEFT',    () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0 })
-    this.input.keyboard.on('keyup-RIGHT',   () => { if (this.balanceInputDir ===  1) this.balanceInputDir = 0 })
+    this.input.keyboard.on('keydown-LEFT',  (e) => {
+      if (e.repeat || this.phase !== 'running' || !this.balanceBar) return
+      this.balanceInputDir = -1
+      if (this.btnLeft) this.btnLeft.setTexture('btn-balance-left-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    })
+    this.input.keyboard.on('keydown-RIGHT', (e) => {
+      if (e.repeat || this.phase !== 'running' || !this.balanceBar) return
+      this.balanceInputDir = 1
+      if (this.btnRight) this.btnRight.setTexture('btn-balance-right-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    })
+    this.input.keyboard.on('keyup-LEFT',  () => {
+      if (this.balanceInputDir === -1) this.balanceInputDir = 0
+      if (this.btnLeft) this.btnLeft.setTexture('btn-balance-left').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    })
+    this.input.keyboard.on('keyup-RIGHT', () => {
+      if (this.balanceInputDir === 1) this.balanceInputDir = 0
+      if (this.btnRight) this.btnRight.setTexture('btn-balance-right').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    })
   }
 
   handleTap(pointer) {
