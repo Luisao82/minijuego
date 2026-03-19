@@ -85,6 +85,9 @@ export class PreloadScene extends Scene {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
+    // Sprite de prueba para el personaje en juego
+    this.load.image('char-character', 'sprites/characters/character.png')
+
     // Premios: carga el JSON y luego las imágenes de cada premio
     this.load.json('rewards', 'rewards.json')
     this.load.on('filecomplete-json-rewards', () => {

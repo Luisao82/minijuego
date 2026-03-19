@@ -25,6 +25,17 @@ export class Player {
     this._state         = PLAYER_STATE.NORMAL
     this._graphics      = scene.add.graphics()
 
+    // Imagen PNG del personaje — reemplaza el dibujo con Graphics si está cargada.
+    // Usa el sprite del personaje seleccionado; si no existe, 'char-character' como fallback.
+    const spriteKey = (characterData?.sprite && scene.textures.exists(characterData.sprite))
+      ? characterData.sprite
+      : 'char-character'
+    this._img = scene.textures.exists(spriteKey)
+      ? scene.add.image(this._x, this._y + 4, spriteKey)
+          .setOrigin(0.5, 1)
+          .setDisplaySize(32, 48)
+      : null
+
     // Celebración
     this._celebGraphics = null
     this._celebTimer    = null
@@ -63,6 +74,13 @@ export class Player {
   // ── Dibujado ─────────────────────────────────────────────────
 
   redraw() {
+    // Si hay imagen PNG, posicionarla y omitir el dibujo con graphics
+    if (this._img) {
+      this._img.setPosition(this._x, this._y + 4)
+      this._graphics.clear()
+      return
+    }
+
     const g  = this._graphics
     const px = this._x
     const py = this._y
@@ -142,6 +160,7 @@ export class Player {
 
   setVisible(visible) {
     this._graphics.setVisible(visible)
+    this._img?.setVisible(visible)
   }
 
   // ── Cabeza en el agua (game over sin bandera) ─────────────────
@@ -226,6 +245,8 @@ export class Player {
       this._celebGraphics.destroy()
       this._celebGraphics = null
     }
+    this._img?.destroy()
+    this._img = null
     this._graphics.destroy()
   }
 }
