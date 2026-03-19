@@ -25,13 +25,12 @@ export class Player {
     this._state         = PLAYER_STATE.NORMAL
     this._graphics      = scene.add.graphics()
 
-    // Imagen PNG del personaje — reemplaza el dibujo con Graphics si está cargada.
-    // Usa el sprite del personaje seleccionado; si no existe, 'char-character' como fallback.
-    const spriteKey = (characterData?.sprite && scene.textures.exists(characterData.sprite))
-      ? characterData.sprite
-      : 'char-character'
-    this._img = scene.textures.exists(spriteKey)
-      ? scene.add.image(this._x, this._y + 4, spriteKey)
+    // Imagen PNG del personaje en juego — reemplaza el dibujo con Graphics si está cargada.
+    // 'char-character' es el sprite de prueba hasta que cada personaje tenga su gameSprite propio.
+    // Cuando el personaje tenga characterData.gameSprite definido, se usará ese en su lugar.
+    const gameSprite = characterData?.gameSprite ?? 'char-character'
+    this._img = scene.textures.exists(gameSprite)
+      ? scene.add.image(this._x, this._y + 4, gameSprite)
           .setOrigin(0.5, 1)
           .setDisplaySize(32, 48)
       : null
