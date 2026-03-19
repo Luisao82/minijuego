@@ -199,7 +199,7 @@ export class GameScene extends Scene {
   }
 
   // ========================================
-  // MOVIMIENTO DEL PERSONAJE
+  // MOVIMIENTO DE LOS PERSONAJES
   // ========================================
 
   startRunning() {
