@@ -25,15 +25,39 @@ export class Player {
     this._state         = PLAYER_STATE.NORMAL
     this._graphics      = scene.add.graphics()
 
-    // Imagen PNG del personaje en juego — reemplaza el dibujo con Graphics si está cargada.
-    // 'char-character' es el sprite de prueba hasta que cada personaje tenga su gameSprite propio.
-    // Cuando el personaje tenga characterData.gameSprite definido, se usará ese en su lugar.
-    const gameSprite = characterData?.gameSprite ?? 'char-character'
-    this._img = scene.textures.exists(gameSprite)
-      ? scene.add.image(this._x, this._y + 4, gameSprite)
+    // Imágenes PNG del personaje en juego — reemplazan el dibujo con Graphics si están cargadas.
+    // 'char-character' = pose estática / 'char-character-mov' = pose con brazos y piernas abiertos.
+    // Ambas se alternan según la velocidad de movimiento para simular la animación.
+    const CHAR_W = 32 //64   // ancho de pantalla; ajustar si la imagen se ve pequeña o grande
+    const CHAR_H = 48 //96   // alto de pantalla (pies en poleY mediante setOrigin(0.5, 1))
+
+    const baseKey = characterData?.gameSprite     ?? 'char-character'
+    const movKey  = characterData?.gameSpriteMov  ?? 'char-character-mov'
+    const jumpKey = characterData?.gameSpriteJump ?? 'char-character-jump'
+
+    this._img = scene.textures.exists(baseKey)
+      ? scene.add.image(this._x, this._y + 4, baseKey)
           .setOrigin(0.5, 1)
-          .setDisplaySize(32, 48)
+          .setDisplaySize(CHAR_W, CHAR_H)
       : null
+
+    this._imgMov = (this._img && scene.textures.exists(movKey))
+      ? scene.add.image(this._x, this._y + 4, movKey)
+          .setOrigin(0.5, 1)
+          .setDisplaySize(CHAR_W, CHAR_H)
+          .setVisible(false)
+      : null
+
+    this._imgJump = (this._img && scene.textures.exists(jumpKey))
+      ? scene.add.image(this._x, this._y + 4, jumpKey)
+          .setOrigin(0.5, 1)
+          .setDisplaySize(CHAR_W, CHAR_H)
+          .setVisible(false)
+      : null
+
+    // Estado de animación
+    this._animTimer = 0    // acumulador de tiempo desde el último cambio de frame
+    this._animFrame = 0    // 0 = pose base, 1 = pose mov
 
     // Celebración
     this._celebGraphics = null
@@ -61,6 +85,7 @@ export class Player {
     } else {
       this._state = hasFlag ? PLAYER_STATE.FLAG : PLAYER_STATE.NORMAL
     }
+    this._syncJumpImage()
   }
 
   setFlag(hasFlag) {
@@ -70,12 +95,28 @@ export class Player {
       : (hasFlag ? PLAYER_STATE.FLAG : PLAYER_STATE.NORMAL)
   }
 
+  // Muestra la imagen de salto cuando el estado es JUMPING o JUMPING_FLAG,
+  // y la oculta (volviendo a la animación de movimiento) en el resto de casos.
+  _syncJumpImage() {
+    if (!this._imgJump) return
+    const jumping = this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG
+    this._imgJump.setVisible(jumping)
+    if (jumping) {
+      // Mientras el personaje está en el aire, ocultamos las otras imágenes
+      this._img?.setVisible(false)
+      this._imgMov?.setVisible(false)
+    }
+    // Al volver al palo, updateAnimation se encargará de restablecer _img/_imgMov
+  }
+
   // ── Dibujado ─────────────────────────────────────────────────
 
   redraw() {
     // Si hay imagen PNG, posicionarla y omitir el dibujo con graphics
     if (this._img) {
       this._img.setPosition(this._x, this._y + 4)
+      this._imgMov?.setPosition(this._x, this._y + 4)
+      this._imgJump?.setPosition(this._x, this._y + 4)
       this._graphics.clear()
       return
     }
@@ -94,6 +135,38 @@ export class Player {
 
     this._drawBody(g, px, py)
     this._drawArms(g, px, py)
+  }
+
+  // Anima el personaje alternando entre la pose base y la pose de movimiento.
+  // speed: velocidad actual en unidades de juego por segundo.
+  // Si no hay imágenes o speed es 0, muestra la pose base estática.
+  updateAnimation(dt, speed) {
+    if (!this._img || !this._imgMov) return
+    // Durante el salto, la imagen de salto ya está activa; no tocar el resto
+    if (this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG) return
+
+    const SPEED_THRESHOLD = 15   // px/s — por debajo de esto, el personaje queda estático
+    const INTERVAL_FACTOR = 10   // px — intervalo = INTERVAL_FACTOR / speed (segundos)
+    const MIN_INTERVAL    = 0.07 // s — intervalo mínimo incluso a máxima velocidad
+
+    if (speed < SPEED_THRESHOLD) {
+      // Parado: pose base, sin animación
+      this._animFrame = 0
+      this._animTimer = 0
+      this._img.setVisible(true)
+      this._imgMov.setVisible(false)
+      return
+    }
+
+    const interval = Math.max(MIN_INTERVAL, INTERVAL_FACTOR / speed)
+    this._animTimer += dt
+
+    if (this._animTimer >= interval) {
+      this._animTimer -= interval
+      this._animFrame = 1 - this._animFrame
+      this._img.setVisible(this._animFrame === 0)
+      this._imgMov.setVisible(this._animFrame === 1)
+    }
   }
 
   _drawBody(g, px, py) {
@@ -160,6 +233,12 @@ export class Player {
   setVisible(visible) {
     this._graphics.setVisible(visible)
     this._img?.setVisible(visible)
+    if (!visible) {
+      // Cuando se oculta todo, apagamos también las imágenes secundarias
+      this._imgMov?.setVisible(false)
+      this._imgJump?.setVisible(false)
+    }
+    // Al mostrarse de nuevo, _syncJumpImage / updateAnimation restablecerán el frame correcto
   }
 
   // ── Cabeza en el agua (game over sin bandera) ─────────────────
@@ -246,6 +325,10 @@ export class Player {
     }
     this._img?.destroy()
     this._img = null
+    this._imgMov?.destroy()
+    this._imgMov = null
+    this._imgJump?.destroy()
+    this._imgJump = null
     this._graphics.destroy()
   }
 }

@@ -262,6 +262,8 @@ export class GameScene extends Scene {
         this.distanceTraveled = POLE.START_X - POLE.END_X
       }
 
+      this.player.updateAnimation(dt, 0)   // personaje parado al final de la carrera
+
       if (!this.hasFlag && this.checkFlagCollision()) {
         this.player.redraw()
         this.grabFlag()
@@ -276,6 +278,10 @@ export class GameScene extends Scene {
     const T = this.runDuration
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.player.x         = POLE.START_X - this.distanceTraveled
+
+    // Velocidad instantánea: derivada de distanceTraveled respecto al tiempo
+    const currentSpeed = T > 0 ? Math.max(0, this.initialSpeed * (1 - t / T)) : 0
+    this.player.updateAnimation(dt, currentSpeed)
 
     if (!this.hasFlag && this.checkFlagCollision()) {
       this.player.x        = POLE.END_X
