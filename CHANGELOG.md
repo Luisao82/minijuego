@@ -7,6 +7,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- `src/game/config/spriteConfig.js`: configuración central del spritesheet de personajes. Define `SPRITE_CONFIG` (dimensiones de frame: 16×24 px, escala ×2) y `SPRITE_FRAMES` (9 frames: STAND, WALK, JUMP, STAND_FLAG, JUMP_FLAG, CELEB_A, CELEB_B, FALL, WATER).
+
+### Changed
+
+- `Player.js`: refactorizado para usar un único `Phaser.GameObjects.Sprite` con `setFrame()` en lugar de tres imágenes separadas. Carga el spritesheet del personaje seleccionado (`sprite-{id}`) o `sprite-default` como fallback; si ninguno existe, usa el dibujado pixel art con Graphics. Añadido estado `FALLING` y método `setFalling()`. `showHead()` y `startCelebration()` ahora usan los frames WATER/CELEB_A/CELEB_B del sprite.
+- `GameScene.js`: añadido método `preload()` que carga dinámicamente el spritesheet del personaje elegido (`sprites/characters/{id}.png`) con filtro NEAREST. Solo carga el personaje seleccionado, nunca todos. Añadida llamada a `player.setFalling()` en `startFalling()`.
+- `PreloadScene.js`: eliminada carga de los tres sprites genéricos (`char-character`, `char-character-mov`, `char-character-jump`). Añadida carga del spritesheet `sprite-default` (`sprites/characters/default.png`) como fallback global.
+
 ### Changed
 
 - `OilIndicator.js`: rediseño completo. Nueva forma de gota (💧) con punta única de 1px y zona ancha prolongada en la parte inferior. Tamaño PIXEL×5, grid 9×10. Recuadro HUD 111×111px (mitad del cartel de game over) con borde dorado doble (mismo estilo que fichas y panel de game over). Colocado en la esquina superior izquierda (x=8, y=44), debajo de la franja del HUD. Etiqueta "GRASA" en dorado + porcentaje con color dinámico (rojo/naranja/verde). Relleno de la gota en tonos negro-marrón (grasa de palo).

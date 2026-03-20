@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
+import { SPRITE_CONFIG } from '../config/spriteConfig'
 
 export class PreloadScene extends Scene {
 
@@ -85,10 +86,12 @@ export class PreloadScene extends Scene {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
-    // Sprites de prueba para el personaje en juego (animación de movimiento)
-    this.load.image('char-character',      'sprites/characters/character.png')
-    this.load.image('char-character-mov',  'sprites/characters/character_mov.png')
-    this.load.image('char-character-jump', 'sprites/characters/character_jump.png')
+    // Spritesheet por defecto — se usa cuando el personaje seleccionado
+    // no tiene aún su propio spritesheet creado.
+    this.load.spritesheet('sprite-default', 'sprites/characters/spritesheet/default.png', {
+      frameWidth:  SPRITE_CONFIG.frameWidth,
+      frameHeight: SPRITE_CONFIG.frameHeight,
+    })
 
     // Premios: carga el JSON y luego las imágenes de cada premio
     this.load.json('rewards', 'rewards.json')

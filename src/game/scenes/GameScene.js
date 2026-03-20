@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL } from '../config/gameConfig'
+import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { Player } from '../entities/Player'
 import { PowerBar } from '../entities/PowerBar'
 import { makeNavButton } from '../components/NavButton'
@@ -59,6 +60,26 @@ export class GameScene extends Scene {
     this.phase1UI          = []
     this.canRestart        = false
     this.collectionBtnBounds = null
+  }
+
+  preload() {
+    const id = this.characterData?.id
+    if (!id) return
+    const key = `sprite-${id}`
+    if (this.textures.exists(key)) return
+
+    this.load.setPath('assets')
+    this.load.spritesheet(key, `sprites/characters/spritesheet/${id}.png`, {
+      frameWidth:  SPRITE_CONFIG.frameWidth,
+      frameHeight: SPRITE_CONFIG.frameHeight,
+    })
+    // Aplicar filtro NEAREST al spritesheet cargado dinámicamente
+    this.load.once(`filecomplete-spritesheet-${key}`, () => {
+      const texture = this.textures.get(key)
+      if (texture?.source.length > 0) {
+        texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+      }
+    })
   }
 
   create() {
@@ -523,6 +544,7 @@ export class GameScene extends Scene {
 
   startFalling() {
     this.phase = 'falling'
+    this.player.setFalling()
     const pos  = { y: this.player.y }
 
     this.tweens.add({

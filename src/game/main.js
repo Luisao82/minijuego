@@ -16,6 +16,7 @@ const config = {
   height: GAME_HEIGHT,
   parent: 'game-container',
   backgroundColor: '#000000',
+  pixelArt: false,   // filtrado NEAREST — imprescindible para sprites escalados
   scale: {
     mode: Scale.FIT,
     autoCenter: Scale.CENTER_BOTH,
