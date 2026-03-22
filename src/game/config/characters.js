@@ -45,9 +45,18 @@ export const CHARACTERS = [
   {
     id: 'retro01',
     name: 'Retro 01',
-    description: 'Personaje de juego retro\nLe cuesta mantener el equilibrio.',
+    description: 'Personaje de juego retro',
     sprite: 'char-retro01',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: true,
+    available: false,
   },
+  {
+    id: 'retro02',
+    name: 'Retro 02',
+    description: 'Personaje de juego retro',
+    sprite: 'char-retro02',
+    stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
+    available: false,
+  },
+  
 ]

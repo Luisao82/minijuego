@@ -6,7 +6,7 @@
 export const SPRITE_CONFIG = {
   frameWidth:  16,
   frameHeight: 24,
-  scale:       2,    // renderizado a 32×48 px en juego
+  scale:       3,    // renderizado a 32×48 px en juego
 }
 
 // Índices de frame dentro del spritesheet (tira horizontal).

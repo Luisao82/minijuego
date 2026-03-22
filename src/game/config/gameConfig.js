@@ -88,10 +88,10 @@ export const PHASE1 = {
 // Proporciones basadas en referencia visual: barco 8m, palo 7m → ratio palo:barco = 7:8
 const BOAT_IMAGE_W = 333
 const BOAT_IMAGE_H = 182
-const BOAT_SCALE = 1.25                                    // Escala grande para coincidir con referencia visual
+const BOAT_SCALE = 1.6                                    // Escala grande para coincidir con referencia visual
 const BOAT_W = Math.round(BOAT_IMAGE_W * BOAT_SCALE)     // ~416px
 const BOAT_H = Math.round(BOAT_IMAGE_H * BOAT_SCALE)     // ~228px
-const POLE_LENGTH = Math.round(BOAT_W * 7 / 8)           // ~364px (ratio 7:8)
+const POLE_LENGTH = Math.round(BOAT_W * 5 / 8)           // ~364px (ratio 7:8)
 
 export const BOAT = {
   DISPLAY_WIDTH: BOAT_W,
@@ -142,7 +142,7 @@ export const BALANCE = {
   LIMIT_MIN: 0.25,               // Límite con equilibrio 0  (muy cerca del centro = muy difícil)
   LIMIT_MAX: 0.9, //0.6,               // Límite con equilibrio 10 (más separado = más fácil)
 
-  DIFFICULTY_INCREASE: 0.04, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
+  DIFFICULTY_INCREASE: 0, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
 
   BAR: {
     WIDTH: 550,
