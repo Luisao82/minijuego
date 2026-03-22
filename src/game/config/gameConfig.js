@@ -85,13 +85,13 @@ export const PHASE1 = {
 }
 
 // Configuración del barco (barcaza)
-// Proporciones basadas en referencia visual: barco 8m, palo 7m → ratio palo:barco = 7:8
+// Proporciones basadas en referencia visual: barco 8m, palo 5m → ratio palo:barco = 5:8
 const BOAT_IMAGE_W = 333
 const BOAT_IMAGE_H = 182
 const BOAT_SCALE = 1.6                                    // Escala grande para coincidir con referencia visual
 const BOAT_W = Math.round(BOAT_IMAGE_W * BOAT_SCALE)     // ~416px
 const BOAT_H = Math.round(BOAT_IMAGE_H * BOAT_SCALE)     // ~228px
-const POLE_LENGTH = Math.round(BOAT_W * 5 / 8)           // ~364px (ratio 7:8)
+const POLE_LENGTH = Math.round(BOAT_W * 5 / 8)           // ~364px (ratio 5:8)
 
 export const BOAT = {
   DISPLAY_WIDTH: BOAT_W,
@@ -100,18 +100,18 @@ export const BOAT = {
   DECK_Y_RATIO: 0.32,         // El palo se ancla al 32% desde arriba del barco (zona superior del casco)
 }
 
-// Configuración del palo (cucaña) — prolongación horizontal del barco (7:8)
+// Configuración del palo (cucaña) — prolongación horizontal del barco (5:8)
 export const POLE = {
   LENGTH: POLE_LENGTH,
   START_X: BOAT.RIGHT_X - BOAT_W,                          // Borde izquierdo del barco (palo pegado)
   END_X: BOAT.RIGHT_X - BOAT_W - POLE_LENGTH,             // Donde está la bandera
   Y_FACTOR: 0.555,                                         // Ajustado para mantener el barco en su posición con DECK_Y_RATIO 0.32
-  FLAG_GRAB_RANGE: 20,                                     // Margen de colisión para coger la bandera (~alcance del brazo)
+  FLAG_GRAB_RANGE: 10,                                     // Margen de colisión para coger la bandera (~alcance del brazo)
 }
 
 // Configuración del salto
 export const JUMP = {
-  EXTRA_DISTANCE: 5,     // Avance extra del salto en px (~1.5 cuerpos, futura stat 'jump' del personaje)
+  EXTRA_DISTANCE: 5 ,     // Avance extra del salto en px (~1.5 cuerpos, futura stat 'jump' del personaje)
   VY0: -100,              // Velocidad vertical inicial del salto (px/s, negativa = arriba)
   GRAVITY: 600,           // Gravedad durante el salto (px/s²)
 }
