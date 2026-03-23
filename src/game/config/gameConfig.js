@@ -117,32 +117,29 @@ export const JUMP = {
 }
 
 // Configuración de la Fase 2 — Equilibrio
-// Modelo unificado de aceleraciones (F=ma): drift e input actúan sobre la misma velocity
-// La stat "equilibrio" del personaje (0-10) escala TANTO la velocidad del drift COMO los límites:
+// Modelo de inercia: drift constante en una dirección + input del jugador acumula velocity.
+// El drift invierte cuando el cursor cruza el centro (posición = 0).
+// La stat "equilibrio" del personaje (0-10) escala la fuerza máxima del drift y los límites:
 //   equilibrio 10 → más fácil (drift lento + límites separados)
 //   equilibrio  0 → más difícil (drift rápido + límites muy juntos)
 export const BALANCE = {
-  // Velocidad del drift según stat de equilibrio del personaje
-  DRIFT_MIN: 0.8,                // ANTES: 1.5 — Aceleración con equilibrio 10 (reducida: drift más suave = más margen para reaccionar)
-  DRIFT_MAX: 2.2,                // ANTES: 2.8 — Aceleración con equilibrio 0 (reducida: sigue siendo difícil pero no imposible)
-  DRIFT_VARIANCE: 0.15,          // ANTES: 0.3 — Variación aleatoria sobre la base (reducida: comportamiento más predecible)
-  // FIX: eliminado DRIFT_CHANGE_INTERVAL (era 0.8s) — ya no hay flip aleatorio de dirección.
-  //   La oscilación ahora la controla DRIFT_FREQUENCY con Math.sin().
-  DRIFT_FREQUENCY: 0.45,         // NUEVO — Velocidad de la oscilación senoidal (rad/s).
-  //   Ciclo completo = 2π / 0.45 ≈ 14s. El drift sube, llega al máximo, baja e invierte suavemente.
+  // Fuerza del drift según stat de equilibrio del personaje
+  DRIFT_MIN: 0.3,                // Fuerza inicial del drift (empieza suave)
+  DRIFT_MAX: 1.2,                // Fuerza máxima alcanzable del drift (con equilibrio 0)
+  DRIFT_GROWTH_PER_CROSS: 0.06,  // Incremento de fuerza por cada cruce del centro (dificultad orgánica)
 
-  // Fuerza del input del jugador (debe superar al drift máximo para que sea posible corregir)
-  INPUT_FORCE: 5,                // ANTES: 5 — Contrafuerza al mantener pulsado (unidades/s²).
-  //   Velocidad terminal input: 9/0.65 ≈ 13.8 u/s  vs  drift máx: 2.2/0.65 ≈ 3.4 u/s
-  //   El jugador tiene ~4× más fuerza que el drift → siempre puede corregir si reacciona.
+  // Fuerza del input del jugador
+  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 1.5 = 1.8
+  // Margen de control: 2.5 - 1.8 = 0.7
+  // Acel máx combinada: 2.5 + 1.8 = 4.3 u/s² → tarda ~1.2s en llegar al cap (antes 0.5s)
+  INPUT_FORCE: 2.5,
 
-  DAMPING: 0.65,                 // ANTES: 0.5 — Amortiguamiento de velocidad (mayor = correcciones más limpias y menos "resbaladizo")
+  DAMPING: 0.35,                 // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
+  VELOCITY_CAP: 5,               // Velocidad máxima absoluta del cursor (u/s) — evita acumulación descontrolada
 
   // Límites según stat de equilibrio del personaje
   LIMIT_MIN: 0.25,               // Límite con equilibrio 0  (muy cerca del centro = muy difícil)
-  LIMIT_MAX: 0.9, //0.6,               // Límite con equilibrio 10 (más separado = más fácil)
-
-  DIFFICULTY_INCREASE: 0, //0.03,     // Incremento del drift por segundo (dificultad progresiva suave)
+  LIMIT_MAX: 0.9,                // Límite con equilibrio 10 (más separado = más fácil)
 
   BAR: {
     WIDTH: 550,
@@ -158,8 +155,14 @@ export const BALANCE = {
 export const OIL = {
   NUM_ZONES: 30,          // Zonas en que se divide el palo
   WEAR_RATE: 12,          // % de grasa desgastado por segundo en la zona activa
-  DRIFT_MULTIPLIER: 1.7,  //VALOR inicial 1.2 Multiplicador máximo del drift al 100% de grasa
+  DRIFT_MULTIPLIER: 0.5,  // Multiplicador máximo del drift al 100% de grasa (drift × 1.5 como máximo)
   OVERLAY_ALPHA: 0.55,    // Opacidad máxima del overlay oscuro sobre el palo
+}
+
+// ─── DEBUG ────────────────────────────────────────────────────────────────────
+// Cambiar a true para mostrar el panel de debug correspondiente en pantalla.
+export const DEBUG = {
+  BALANCE_PANEL: false,   // Panel de parámetros de equilibrio en tiempo real
 }
 
 // Configuración del movimiento del personaje

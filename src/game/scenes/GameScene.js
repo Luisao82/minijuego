@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL, DEBUG } from '../config/gameConfig'
+import { BalanceDebugPanel } from '../components/BalanceDebugPanel'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { Player } from '../entities/Player'
 import { PowerBar } from '../entities/PowerBar'
@@ -50,6 +51,8 @@ export class GameScene extends Scene {
     this.balanceSystem   = null
     this.balanceUI       = []
     this.balanceInputDir = 0
+    this.balanceDebugPanel = null
+    this._lastOilMult      = 0
 
     // Grasa
     this.oilSystem    = null
@@ -261,6 +264,7 @@ export class GameScene extends Scene {
 
     if (this.balanceBar) {
       const oilMult = this.oilSystem.getDriftMultiplier(progressRatio)
+      this._lastOilMult = oilMult
       this.balanceSystem.update(dt, this.balanceInputDir, oilMult)
       this.updateBalanceUI()
 
@@ -489,6 +493,10 @@ export class GameScene extends Scene {
     this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
     this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
     this.balanceUI.push(this.btnRight)
+
+    if (DEBUG.BALANCE_PANEL) {
+      this.balanceDebugPanel = new BalanceDebugPanel(this)
+    }
   }
 
   drawBalanceButton(graphics, x, y, size) {
@@ -519,6 +527,7 @@ export class GameScene extends Scene {
       this.balanceTimerText.setText(`${this.balanceSystem.getElapsedTime().toFixed(1)}s`)
     }
 
+    this.balanceDebugPanel?.update(this.balanceBar, this.balanceSystem, this._lastOilMult, this.balanceInputDir)
   }
 
   onBalanceLost() {
@@ -536,6 +545,8 @@ export class GameScene extends Scene {
     this.btnLeft          = null
     this.btnRight         = null
     this.balanceInputDir  = 0
+    this.balanceDebugPanel?.destroy()
+    this.balanceDebugPanel = null
   }
 
   // ========================================
