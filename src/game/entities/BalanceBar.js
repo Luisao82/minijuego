@@ -16,8 +16,8 @@ export class BalanceBar {
     const t = Math.max(0, Math.min(10, equilibrioStat)) / 10
     this.limit = BALANCE.LIMIT_MIN + t * (BALANCE.LIMIT_MAX - BALANCE.LIMIT_MIN)
 
-    // Posición inicial aleatoria leve (±30% del límite) para variar la partida
-    this.position = (Math.random() * 2 - 1) * this.limit * 0.3
+    // Posición inicial aleatoria leve (±10% del límite) para variar la partida
+    this.position = (Math.random() * 2 - 1) * this.limit * 0.1
 
     this.failed = false
   }
