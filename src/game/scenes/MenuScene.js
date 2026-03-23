@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
+import { version } from '../../../package.json'
 
 const AMBER = 0xd4a520
 
@@ -155,11 +156,11 @@ export class MenuScene extends Scene {
     this.drawHistoriaButton()
     this.drawTutorialButton()
 
-    // Créditos abajo
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'VELÁ DE SANTA ANA · TRIANA · SEVILLA', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '13px',
-      color: '#ffcc44',
+    // Versión — se actualiza automáticamente desde package.json
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 16, `v${version}`, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '10px',
+      color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 3,
     }).setOrigin(0.5).setDepth(2)
