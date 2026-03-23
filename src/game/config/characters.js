@@ -48,7 +48,7 @@ export const CHARACTERS = [
     description: 'Personaje de juego retro',
     sprite: 'char-retro01',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: false,
+    available: true,
   },
   {
     id: 'retro02',
@@ -56,7 +56,7 @@ export const CHARACTERS = [
     description: 'Personaje de juego retro',
     sprite: 'char-retro02',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: false,
+    available: true,
   },
   
 ]
