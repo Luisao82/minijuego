@@ -1,7 +1,15 @@
 // Sistema de equilibrio — controla la mecánica de la Fase 2
-// La stat "equilibrio" del personaje escala la velocidad base del drift:
-//   equilibrio 10 → drift lento (DRIFT_MIN) → más fácil
-//   equilibrio  0 → drift rápido (DRIFT_MAX) → más difícil
+//
+// Modelo de inercia con drift direccional:
+//   - El drift sigue el signo de la velocidad actual del cursor:
+//     velocity > 0 → drift empuja derecha (+1), velocity < 0 → drift empuja izquierda (-1).
+//   - Esto amplifica la inercia: el jugador debe frenar activamente la dirección en la que va.
+//   - La fuerza crece ligeramente cuando la velocidad cambia de signo (dificultad orgánica).
+//   - El aceite amplifica la fuerza, pero INPUT_FORCE siempre la supera (control garantizado).
+//
+// La stat "equilibrio" del personaje escala la fuerza máxima alcanzable del drift:
+//   equilibrio 10 → DRIFT_MIN más bajo → más tiempo antes de llegar al máximo → más fácil
+//   equilibrio  0 → DRIFT_MAX más alto → drift más agresivo desde antes → más difícil
 
 import { BALANCE } from '../config/gameConfig'
 
@@ -11,19 +19,15 @@ export class BalanceSystem {
     this.bar = balanceBar
     this.elapsed = 0
 
-    // Calcular velocidad base del drift según stat del personaje
-    // t=1 (equilibrio 10) → DRIFT_MIN (lento), t=0 (equilibrio 0) → DRIFT_MAX (rápido)
+    // Fuerza máxima del drift escalada por la stat de equilibrio del personaje
     const t = Math.max(0, Math.min(10, balanceBar.equilibrioStat)) / 10
-    this.baseDrift = BALANCE.DRIFT_MAX - t * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)
+    this.maxDrift = BALANCE.DRIFT_MIN + (1 - t) * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)
 
-    // FIX: eliminados driftDirection, timeSinceLastChange y nextChangeTime.
-    // Antes el drift cambiaba de dirección aleatoriamente cada ~0.8s (70% prob.),
-    // lo que causaba saltos bruscos e impredecibles en el cursor.
-    // Ahora la oscilación la gestiona Math.sin() → inversión gradual sin snapshots.
-    this.driftIntensity = this.baseDrift
+    // Empieza con la fuerza mínima y crece con cada oscilación
+    this.driftForce = BALANCE.DRIFT_MIN
 
-    // Fase inicial aleatoria: evita que el drift siempre empiece hacia el mismo lado
-    this.elapsed = Math.random() * Math.PI * 2 / BALANCE.DRIFT_FREQUENCY
+    // Dirección inicial aleatoria: ±1
+    this.driftDirection = Math.random() < 0.5 ? 1 : -1
   }
 
   // oilMultiplier: proporcionado por OilSystem (0 = sin grasa, hasta OIL.DRIFT_MULTIPLIER)
@@ -32,27 +36,23 @@ export class BalanceSystem {
 
     this.elapsed += dt
 
-    // Dificultad progresiva suave (se intensifica con el tiempo)
-    const difficultyMultiplier = 1 + this.elapsed * BALANCE.DIFFICULTY_INCREASE
+    // El drift sigue el signo de la velocidad actual: amplifica la inercia existente.
+    // Cuando la velocidad cambia de signo (el cursor invierte dirección), la fuerza crece.
+    const velSign = Math.sign(this.bar.velocity)
+    if (velSign !== 0) {
+      if (velSign !== this.driftDirection) {
+        this.driftForce = Math.min(this.maxDrift, this.driftForce + BALANCE.DRIFT_GROWTH_PER_CROSS)
+      }
+      this.driftDirection = velSign
+    }
 
-    // FIX: antes → this.driftDirection * this.driftIntensity * difficultyMultiplier
-    //   driftDirection cambiaba bruscamente con Math.random() → saltos impredecibles.
-    // Ahora → oscilación senoidal suave:
-    //   el drift sube, llega a un máximo, baja, invierte y sube al otro lado.
-    //   DRIFT_FREQUENCY controla la velocidad del ciclo (0.45 rad/s ≈ 14s por ciclo completo).
-    //   El jugador puede anticipar y reaccionar porque el movimiento es continuo.
-    // La grasa del palo amplifica el drift: 100% grasa → * (1 + OIL.DRIFT_MULTIPLIER)
-    const driftAccel = Math.sin(this.elapsed * BALANCE.DRIFT_FREQUENCY)
-      * this.driftIntensity
-      * difficultyMultiplier
-      * (1 + oilMultiplier)
+    // Consumir el flag de cruce de centro (ya no se usa, pero evita acumulación interna)
+    this.bar.crossedCenter()
+
+    const driftAccel = this.driftDirection * this.driftForce * (1 + oilMultiplier)
 
     this.bar.setDriftAcceleration(driftAccel)
-
-    // Pasar input del jugador al bar
     this.bar.setInputDirection(inputDirection)
-
-    // Actualizar bar (toda la física: drift + input + damping + posición)
     this.bar.update(dt)
   }
 
