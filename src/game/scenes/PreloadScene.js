@@ -116,13 +116,40 @@ export class PreloadScene extends Scene {
   // ── Animación de franjas ───────────────────────────────────────
 
   _startStripeAnimation() {
+    this._stripePaused    = false
+    this._stripePauseLeft = 3   // máximo 3 paradas durante los 5 segundos
+
+    // Programar la primera parada aleatoria
+    this._scheduleNextPause()
+
     this._stripeTimer = this.time.addEvent({
       delay:    STRIPE_DELAY_MS,
       loop:     true,
       callback: () => {
+        if (this._stripePaused) return
         this._stripeScrollY = (this._stripeScrollY + STRIPE_SCROLL_PX) % PATTERN_TOTAL
         this._drawStripes()
       },
+    })
+  }
+
+  _scheduleNextPause() {
+    if (this._stripePauseLeft <= 0) return
+
+    // Tiempo aleatorio hasta la próxima parada (entre 400ms y 1800ms)
+    const delay = Phaser.Math.Between(400, 1800)
+
+    this.time.delayedCall(delay, () => {
+      if (this._stripePauseLeft <= 0) return
+      this._stripePaused = true
+      this._stripePauseLeft--
+
+      // Duración aleatoria de la parada (entre 80ms y 350ms)
+      const pauseDuration = Phaser.Math.Between(80, 350)
+      this.time.delayedCall(pauseDuration, () => {
+        this._stripePaused = false
+        this._scheduleNextPause()
+      })
     })
   }
 
