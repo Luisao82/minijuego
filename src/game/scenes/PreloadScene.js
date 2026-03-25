@@ -1,8 +1,46 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT, PIXEL_FONT_TITLE } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
+
+// Tamaño del "píxel de época": cada unidad lógica equivale a este número
+// de píxeles reales de pantalla. Todos los grosores de franja y el paso
+// de scroll son múltiplos exactos de este valor → el movimiento es siempre
+// en saltos discretos, nunca interpolado (look auténtico de hardware retro).
+const RETRO_PX = 6
+
+// Patrón de franjas estilo ZX Spectrum — azul y amarillo, anchos irregulares.
+// Los grosores son múltiplos de RETRO_PX para que el scroll sea pixel-perfect.
+// (1 rp = 4px, 2 rp = 8px, 3 rp = 12px, etc.)
+const SPECTRUM_PATTERN = [
+  { color: 0xFFFF00, h: 3 * RETRO_PX },   // amarillo — 3 rp
+  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
+  { color: 0xFFFF00, h: 2 * RETRO_PX },   // amarillo — 2 rp
+  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
+  { color: 0xFFFF00, h: 4 * RETRO_PX },   // amarillo — 4 rp
+  { color: 0x0000CD, h: 2 * RETRO_PX },   // azul     — 2 rp
+  { color: 0xFFFF00, h: 1 * RETRO_PX },   // amarillo — 1 rp
+  { color: 0x0000CD, h: 5 * RETRO_PX },   // azul     — 5 rp
+  { color: 0xFFFF00, h: 2 * RETRO_PX },   // amarillo — 2 rp
+  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
+  { color: 0xFFFF00, h: 5 * RETRO_PX },   // amarillo — 5 rp
+  { color: 0x0000CD, h: 3 * RETRO_PX },   // azul     — 3 rp
+]
+// Ciclo total: (3+1+2+1+4+2+1+5+2+1+5+3) × 4 = 120px por vuelta
+
+// Pre-computar array plano: un elemento por fila real de pantalla.
+const PATTERN_COLORS = []
+for (const stripe of SPECTRUM_PATTERN) {
+  for (let i = 0; i < stripe.h; i++) PATTERN_COLORS.push(stripe.color)
+}
+const PATTERN_TOTAL = PATTERN_COLORS.length   // 120
+
+// El scroll avanza exactamente 1 "píxel retro" por tick → salto discreto,
+// sin suavizado. A 80ms entre ticks el ojo percibe el movimiento chunky retro.
+const STRIPE_SCROLL_PX = RETRO_PX   // 4px reales = 1 píxel de época
+const STRIPE_DELAY_MS  = 45         // ms entre saltos (~22 pasos/s)
+const DISPLAY_MIN_MS   = 5000       // tiempo mínimo de pantalla
 
 export class PreloadScene extends Scene {
 
@@ -11,61 +49,121 @@ export class PreloadScene extends Scene {
   }
 
   preload() {
-    // Barra de carga pixel art
-    const barWidth = 300
-    const barHeight = 20
-    const x = (GAME_WIDTH - barWidth) / 2
-    const y = GAME_HEIGHT / 2
+    this._startTime     = Date.now()
+    this._stripeScrollY = 0   // offset en píxeles dentro del patrón
 
-    const borderBox = this.add.graphics()
-    borderBox.lineStyle(2, COLORS.WHITE, 1)
-    borderBox.strokeRect(x - 2, y - 2, barWidth + 4, barHeight + 4)
+    this._buildScreen()
+    this._startStripeAnimation()
+    this._loadAssets()
+  }
 
-    const progressBar = this.add.graphics()
+  create() {
+    // La escena arranca solo después de que hayan pasado DISPLAY_MIN_MS
+    // desde el inicio, independientemente de cuánto tardó la carga real.
+    const elapsed   = Date.now() - this._startTime
+    const remaining = Math.max(0, DISPLAY_MIN_MS - elapsed)
 
-    this.load.on('progress', (value) => {
-      progressBar.clear()
-      progressBar.fillStyle(COLORS.GOLD, 1)
-      progressBar.fillRect(x, y, barWidth * value, barHeight)
+    this.time.delayedCall(remaining, () => {
+      this._stripeTimer?.remove()
+      this.scene.start(SCENES.MENU)
     })
+  }
 
-    const loadingText = this.add.text(GAME_WIDTH / 2, y - 30, 'CARGANDO...', {
-      fontFamily: 'monospace',
-      fontSize: '16px',
-      color: '#ffffff',
+  // ── Construcción visual ────────────────────────────────────────
+
+  _buildScreen() {
+    const cx = GAME_WIDTH  / 2
+    const cy = GAME_HEIGHT / 2
+
+    // 1 — Franjas Spectrum (capa más baja)
+    this._stripesGfx = this.add.graphics()
+    this._drawStripes()
+
+    // 2 — Imagen del narrador tutorial (precargada en BootScene)
+    // Se aplica NEAREST explícitamente porque la textura se cargó en BootScene
+    // y no pasó por el handler filecomplete de esta escena
+    this.textures.get('tutor-narrator').setFilter(Phaser.Textures.FilterMode.NEAREST)
+    this.add.image(cx, cy - 70, 'tutor-narrator')
+      .setScale(6)
+      .setOrigin(0.5)
+
+    // 3 — Marca LuisaoDev_
+    this.add.text(cx, cy + 110, 'LuisaoDev_', {
+      ...PIXEL_FONT_TITLE,
+      fontSize: '38px',
+      strokeThickness: 6,
     }).setOrigin(0.5)
 
-    this.load.on('complete', () => {
-      progressBar.destroy()
-      borderBox.destroy()
-      loadingText.destroy()
-    })
+    // 4 — Indicador de carga pequeño en la parte inferior
+    this._loadingText = this.add.text(cx, cy + 165, 'CARGANDO...', {
+      ...PIXEL_FONT,
+      fontSize: '10px',
+      color: '#aaaaaa',
+      strokeThickness: 2,
+    }).setOrigin(0.5)
 
-    // Carga de assets (NEAREST para mantener pixel art nítido en sprites)
+  }
+
+  // ── Animación de franjas ───────────────────────────────────────
+
+  _startStripeAnimation() {
+    this._stripeTimer = this.time.addEvent({
+      delay:    STRIPE_DELAY_MS,
+      loop:     true,
+      callback: () => {
+        this._stripeScrollY = (this._stripeScrollY + STRIPE_SCROLL_PX) % PATTERN_TOTAL
+        this._drawStripes()
+      },
+    })
+  }
+
+  // Agrupa filas consecutivas del mismo color en un único fillRect
+  // para minimizar llamadas a la GPU (≈ 12 rects en lugar de 768).
+  _drawStripes() {
+    const g = this._stripesGfx
+    g.clear()
+
+    let y = 0
+    while (y < GAME_HEIGHT) {
+      const color = PATTERN_COLORS[(y + this._stripeScrollY) % PATTERN_TOTAL]
+      let h = 1
+      while (
+        y + h < GAME_HEIGHT &&
+        PATTERN_COLORS[(y + h + this._stripeScrollY) % PATTERN_TOTAL] === color
+      ) { h++ }
+      g.fillStyle(color, 1)
+      g.fillRect(0, y, GAME_WIDTH, h)
+      y += h
+    }
+  }
+
+  // ── Carga de assets ───────────────────────────────────────────
+
+  _loadAssets() {
     this.load.setPath('assets')
+
     this.load.image('btn-balance-left',       'ui/buttons/buttonRed.png')
     this.load.image('btn-balance-left-press', 'ui/buttons/buttonRedPress.png')
     this.load.image('btn-balance-right',       'ui/buttons/buttonBlue.png')
     this.load.image('btn-balance-right-press', 'ui/buttons/buttonBluePress.png')
 
-    this.load.image('bg-menu', 'backgrounds/fondoIntro.png')
+    this.load.image('bg-menu',       'backgrounds/fondoIntro.png')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
-    this.load.image('bg-game', 'backgrounds/fondo_a.png')
-    this.load.image('bg-history', 'backgrounds/fondoHistory.png')
+    this.load.image('bg-game',       'backgrounds/fondo_a.png')
+    this.load.image('bg-history',    'backgrounds/fondoHistory.png')
 
-    // Narrador — Historia (sprites en raíz de sprites/)
+    // Narrador — Historia
     this.load.image('narrator',        'sprites/narrator.png')
     this.load.image('narrator-m-open', 'sprites/narrator_m_open.png')
     this.load.image('narrator-open',   'sprites/narrator_open.png')
     this.load.image('narrator-eyes',   'sprites/narrator_eyes.png')
 
-    // Narrador — Tutorial (sprites en sprites/narrator/)
-    this.load.image('tutor-narrator',        'sprites/narrator/narrator.png')
+    // Narrador — Tutorial (tutor-narrator ya cargado en BootScene)
     this.load.image('tutor-narrator-m-open', 'sprites/narrator/narrator_m_open.png')
     this.load.image('tutor-narrator-open',   'sprites/narrator/narrator_open.png')
     this.load.image('tutor-narrator-eyes',   'sprites/narrator/narrator_eyes.png')
 
-    // Imágenes del tutorial — una por bloque
+    // Imágenes del tutorial
     this.load.image('tut-01', 'tutorial/01-bienvenido.png')
     this.load.image('tut-02', 'tutorial/02-impulso.png')
     this.load.image('tut-03', 'tutorial/03-zonas.png')
@@ -73,7 +171,7 @@ export class PreloadScene extends Scene {
     this.load.image('tut-05', 'tutorial/05-salto.png')
     this.load.image('tut-06', 'tutorial/06-listo.png')
 
-    // Imágenes históricas — una por bloque de texto
+    // Imágenes históricas
     this.load.image('hist-intro',     'backgrounds/hist-intro.png')
     this.load.image('hist-sabio',     'backgrounds/hist-sabio.png')
     this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.png')
@@ -87,8 +185,7 @@ export class PreloadScene extends Scene {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
-    // Spritesheet por defecto — se usa cuando el personaje seleccionado
-    // no tiene aún su propio spritesheet creado.
+    // Spritesheet por defecto
     this.load.spritesheet('sprite-default', 'sprites/characters/spritesheet/default.png', {
       frameWidth:  SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
@@ -119,9 +216,5 @@ export class PreloadScene extends Scene {
         texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
       }
     })
-  }
-
-  create() {
-    this.scene.start(SCENES.MENU)
   }
 }

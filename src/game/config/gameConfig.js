@@ -28,6 +28,7 @@ export const COLORS = {
 export const SCENES = {
   BOOT: 'BootScene',
   PRELOAD: 'PreloadScene',
+  CRT: 'CRTScene',
   MENU: 'MenuScene',
   HISTORY: 'HistoryScene',
   TUTORIAL: 'TutorialScene',

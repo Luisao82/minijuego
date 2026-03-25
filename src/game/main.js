@@ -1,4 +1,5 @@
 import { BootScene } from './scenes/BootScene'
+import { CRTScene } from './scenes/CRTScene'
 import { PreloadScene } from './scenes/PreloadScene'
 import { MenuScene } from './scenes/MenuScene'
 import { HistoryScene } from './scenes/HistoryScene'
@@ -25,6 +26,7 @@ const config = {
   scene: [
     BootScene,
     PreloadScene,
+    CRTScene,
     MenuScene,
     HistoryScene,
     TutorialScene,
