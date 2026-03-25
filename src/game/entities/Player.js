@@ -14,7 +14,8 @@ export const PLAYER_STATE = {
   JUMPING:       'jumping',        // Saltando sin bandera
   JUMPING_FLAG:  'jumping-flag',   // Saltando con bandera
   FLAG:          'flag',           // En el palo con bandera
-  FALLING:       'falling',        // Cayendo sin haber saltado
+  FALLING:       'falling',        // Cayendo sin bandera
+  FALLING_FLAG:  'falling-flag',   // Cayendo con bandera
 }
 
 export class Player {
@@ -86,7 +87,8 @@ export class Player {
   }
 
   setFalling() {
-    this._state = PLAYER_STATE.FALLING
+    const hadFlag = this._state === PLAYER_STATE.FLAG || this._state === PLAYER_STATE.JUMPING_FLAG
+    this._state = hadFlag ? PLAYER_STATE.FALLING_FLAG : PLAYER_STATE.FALLING
     this._syncFrame()
   }
 
@@ -97,6 +99,7 @@ export class Player {
       case PLAYER_STATE.JUMPING_FLAG: this._sprite.setFrame(SPRITE_FRAMES.JUMP_FLAG);  break
       case PLAYER_STATE.FLAG:         this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG); break
       case PLAYER_STATE.FALLING:      this._sprite.setFrame(SPRITE_FRAMES.FALL);       break
+      case PLAYER_STATE.FALLING_FLAG: this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG); break
       default:                        this._sprite.setFrame(SPRITE_FRAMES.STAND);      break
     }
   }
@@ -128,8 +131,8 @@ export class Player {
   // Anima entre STAND y WALK según la velocidad de movimiento.
   updateAnimation(dt, speed) {
     if (!this._sprite) return
-    if (this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG) return
-    if (this._state === PLAYER_STATE.FALLING) return
+    if (this._state === PLAYER_STATE.JUMPING      || this._state === PLAYER_STATE.JUMPING_FLAG) return
+    if (this._state === PLAYER_STATE.FALLING      || this._state === PLAYER_STATE.FALLING_FLAG) return
 
     const SPEED_THRESHOLD = 15
     const INTERVAL_FACTOR = 18
@@ -266,6 +269,7 @@ export class Player {
   _drawArms(g, px, py) {
     switch (this._state) {
       case PLAYER_STATE.JUMPING_FLAG:
+      case PLAYER_STATE.FALLING_FLAG:
         g.fillStyle(0xf0bb78, 1)
         g.fillRect(px - 12, py - 42, 5, 22)
         g.fillStyle(COLORS.WOOD_DARK, 1)

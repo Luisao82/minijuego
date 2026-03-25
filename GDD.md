@@ -413,5 +413,175 @@ Inicio → Selección de personaje → Juego (Fases 1-2-3)
 Pantalla victoria               Pantalla derrota
 (premio + lista)                (lista premios)
     ↓                                      ↓
-         ← ← Volver a jugar → → 
+         ← ← Volver a jugar → →
 ```
+
+---
+
+## 👤 Personajes
+
+Definidos en `src/game/config/characters.js`. Todos aparecen en el carrusel de selección. El estado de desbloqueo lo gestiona `UnlockService` vía `localStorage`.
+
+**Trianero y Flamenca están siempre desbloqueados** por defecto, incluso en navegadores nuevos sin historial previo.
+
+### Tabla de personajes
+
+| # | ID         | Nombre            | Peso | Equilibrio | Altura | Edad | Estado inicial   |
+|---|------------|-------------------|------|------------|--------|------|------------------|
+| 1 | `trianero` | EL TRIANERO       | 5    | 4          | 5      | 5    | Siempre activo   |
+| 2 | `flamenca` | LA FLAMENCA       | 4    | 6          | 5      | 5    | Siempre activo   |
+| 3 | `abuela`   | LA AGÜELA         | 10   | 8          | 4      | 9    | Bloqueado        |
+| 4 | `chaval`   | ER CHAVAL         | 3    | 4          | 3      | 2    | Bloqueado        |
+| 5 | `guiri`    | EL GUIRI          | 4    | 1          | 5      | 5    | Bloqueado        |
+| 6 | `retro01`  | Retro 01          | 2    | 9          | 3      | 9    | Bloqueado        |
+| 7 | `retro02`  | Retro 02          | 2    | 9          | 3      | 9    | Bloqueado        |
+| 8 | `retro03`  | Retro 03          | 2    | 9          | 3      | 9    | Bloqueado        |
+
+### Comportamiento en carrusel
+
+- Los personajes bloqueados se muestran **solo con candado y pista**. No se muestra su imagen ni nombre hasta que se desbloquean.
+- Al desbloquearse, se muestra la ficha del personaje (`CharacterUnlockScene`) antes de volver al juego.
+
+---
+
+## 🔓 Sistema de desbloqueo de personajes
+
+Configurado en `public/assets/characters-unlock.json`.
+
+### Tipos de condición
+
+| Tipo              | Descripción                                                          |
+|-------------------|----------------------------------------------------------------------|
+| `specific_reward` | Se desbloquea al conseguir un premio concreto (`rewardId`)           |
+| `total_rewards`   | Se desbloquea al acumular N premios en total, de cualquier tipo      |
+
+### Condiciones actuales
+
+| Personaje  | Tipo              | Condición                                           | Pista mostrada                      |
+|------------|-------------------|-----------------------------------------------------|-------------------------------------|
+| `abuela`   | `specific_reward` | Conseguir `reward_vajilla`                          | "Consigue la Vajilla de La Cartuja" |
+| `guiri`    | `total_rewards`   | Acumular 20 premios en total                        | "Consigue 20 premios en total"      |
+| `chaval`   | *(pendiente)*     | Condición pendiente de definir                      | "Consigue 10 premios en total"      |
+| `retro01`  | `specific_reward` | Premio pendiente (`reward_pending`)                 | "???"                               |
+| `retro02`  | `specific_reward` | Premio pendiente (`reward_pending`)                 | "???"                               |
+| `retro03`  | —                 | Sin condición definida todavía                      | —                                   |
+
+### Flujo de desbloqueo
+
+1. El jugador termina una partida victoriosamente y obtiene un premio.
+2. Se muestra la tarjeta del premio (`RewardCard`).
+3. `UnlockService.checkNewUnlocks()` evalúa si alguna condición se cumple.
+4. Si hay personajes nuevos desbloqueados, se muestra su ficha en `CharacterUnlockScene`.
+5. Los botones finales son **"ELEGIR PERSONAJE"** (→ `CharacterSelectScene`) y **"VOLVER A JUGAR"** (→ `GameScene`).
+
+### Migración por versión
+
+`UnlockService` almacena en `localStorage` la versión con la que se jugó. Si es inferior a la constante `RESET_BELOW_VERSION` del código, se borran los premios acumulados y los desbloqueos (los personajes por defecto se restauran automáticamente). Permite forzar un reset limpio al publicar versiones con cambios de sistema, simplemente actualizando la constante.
+
+---
+
+## 🏆 Premios (datos actuales)
+
+Definidos en `public/assets/rewards.json`. Se otorgan al completar una partida ganando la bandera. Los assets están en `public/assets/premios/`.
+
+### Tabla de premios
+
+| ID                  | Nombre                                          | Probabilidad (peso) |
+|---------------------|-------------------------------------------------|---------------------|
+| `reward_giraldillo` | Pisacorbatas del Giraldillo                     | 0.30                |
+| `reward_pali`       | Llavero del Pali                                | 0.25                |
+| `reward_curro`      | Pin del Curro                                   | 0.25                |
+| `reward_wendolin`   | La Wendolin                                     | 0.10                |
+| `reward_sombrero`   | El Sombrero de Finidi                           | 0.10                |
+| `reward_gambrinus`  | Peluche de Gambrinus                            | 0.10                |
+| `reward_maradona`   | La camiseta del 10                              | 0.10                |
+| `reward_pacogandia` | La cinta de los mejores chistes de Paco Gandía  | 0.10                |
+| `reward_vajilla`    | Vajilla completa de La Cartuja                  | 0.10                |
+
+> Los pesos son relativos, no porcentajes estrictos. Se pueden repetir premios entre partidas. Los premios acumulados se muestran en `CollectionScene`.
+
+---
+
+## 🎮 Spritesheet — Especificación técnica
+
+Cada personaje tiene un único PNG en `public/assets/sprites/characters/{id}.png`.
+Fallback: `sprite-default`. Si tampoco existe, renderizado pixel art procedural con Graphics.
+
+### Dimensiones
+
+| Parámetro       | Valor                          |
+|-----------------|-------------------------------|
+| Frame           | 16 × 24 px                    |
+| Total frames    | 9 (tira horizontal)           |
+| Ancho total PNG | 144 px                        |
+| Escala en juego | ×3 → 48 × 72 px renderizados  |
+| Escalado Phaser | `pixelArt: true` (NEAREST)    |
+
+### Mapa de frames
+
+```
+┌──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐
+│  0   │  1   │  2   │  3   │  4   │  5   │  6   │  7   │  8   │
+│STAND │ WALK │ JUMP │STAND │ JUMP │CELEB │CELEB │ FALL │WATER │
+│      │      │      │_FLAG │_FLAG │  _A  │  _B  │      │      │
+│16×24 │16×24 │16×24 │16×24 │16×24 │16×24 │16×24 │16×24 │16×24 │
+└──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+←────────────────── 144 px total ─────────────────────────────→
+```
+
+| Frame | Constante    | Descripción                                           |
+|-------|--------------|-------------------------------------------------------|
+| 0     | `STAND`      | De pie, estático o corriendo lento                    |
+| 1     | `WALK`       | Paso de carrera (alterna con STAND en animación)      |
+| 2     | `JUMP`       | En el aire sin bandera                                |
+| 3     | `STAND_FLAG` | De pie sujetando la bandera                           |
+| 4     | `JUMP_FLAG`  | En el aire sujetando la bandera (al saltar con ella)  |
+| 5     | `CELEB_A`    | Celebración A — cabeza fuera del agua, brazo abajo    |
+| 6     | `CELEB_B`    | Celebración B — cabeza fuera del agua, brazo arriba   |
+| 7     | `FALL`       | Cayendo sin bandera (gesto de susto)                  |
+| 8     | `WATER`      | Cabeza asomando del agua sin bandera (game over)      |
+
+### Reutilización de frames
+
+No existe frame dedicado para "caída con bandera". El estado `FALLING_FLAG` usa el frame `STAND_FLAG` (3), por ser la pose más representativa cuando el personaje cae habiendo cogido la bandera sin saltar.
+
+---
+
+## 🕺 Estados del jugador
+
+Definidos en `src/game/entities/Player.js` como `PLAYER_STATE`.
+
+| Estado          | Constante       | Frame usado  | Cuándo ocurre                                              |
+|-----------------|-----------------|--------------|------------------------------------------------------------|
+| `normal`        | `NORMAL`        | STAND / WALK | Corriendo sobre el palo sin bandera                        |
+| `jumping`       | `JUMPING`       | JUMP         | Saltando sin bandera                                       |
+| `jumping-flag`  | `JUMPING_FLAG`  | JUMP_FLAG    | Saltando con bandera                                       |
+| `flag`          | `FLAG`          | STAND_FLAG   | En el palo tras coger la bandera sin saltar                |
+| `falling`       | `FALLING`       | FALL         | Cayendo al agua sin bandera                                |
+| `falling-flag`  | `FALLING_FLAG`  | STAND_FLAG   | Cayendo al agua habiendo cogido la bandera sin saltar      |
+
+### Diagrama de transiciones
+
+```
+NORMAL ──salto──────────────► JUMPING
+NORMAL ──coge bandera───────► FLAG
+JUMPING ──coge bandera──────► JUMPING_FLAG
+JUMPING ──aterriza──────────► NORMAL
+JUMPING_FLAG ──aterriza─────► FLAG
+FLAG ──cae──────────────────► FALLING_FLAG   ← frame: STAND_FLAG (3)
+JUMPING ──cae───────────────► FALLING
+JUMPING_FLAG ──cae──────────► FALLING_FLAG
+NORMAL ──cae────────────────► FALLING
+```
+
+### API pública de Player
+
+| Método                           | Efecto                                                            |
+|----------------------------------|-------------------------------------------------------------------|
+| `setJumping(isJumping, hasFlag)` | Cambia entre JUMPING / JUMPING_FLAG / NORMAL / FLAG              |
+| `setFlag(hasFlag)`               | Activa/desactiva bandera conservando si está saltando             |
+| `setFalling()`                   | Detecta internamente si tenía bandera → FALLING o FALLING_FLAG    |
+| `redraw()`                       | Repositiona el sprite o redibuja el fallback pixel art            |
+| `showHead(waterY)`               | Muestra la cabeza asomando del agua (game over sin bandera)       |
+| `startCelebration(waterY, cb)`   | Animación de celebración en el agua (ganó con bandera)            |
+| `destroy()`                      | Limpia sprite, timers y graphics                                  |
