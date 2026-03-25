@@ -35,6 +35,7 @@ export const SCENES = {
   GAME: 'GameScene',
   GAME_OVER: 'GameOverScene',
   REWARD: 'RewardScene',
+  CHARACTER_UNLOCK: 'CharacterUnlockScene',
   COLLECTION: 'CollectionScene',
 }
 

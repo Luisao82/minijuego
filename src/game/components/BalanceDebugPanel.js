@@ -5,7 +5,7 @@
 import { BALANCE, GAME_WIDTH } from '../config/gameConfig'
 
 const W     = 240
-const H     = 290
+const H     = 320
 const PAD   = 8
 const X     = GAME_WIDTH - W - 8
 const Y     = 44

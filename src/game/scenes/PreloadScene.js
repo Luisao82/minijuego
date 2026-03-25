@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
+import { unlockService } from '../services/UnlockService'
 
 export class PreloadScene extends Scene {
 
@@ -91,6 +92,13 @@ export class PreloadScene extends Scene {
     this.load.spritesheet('sprite-default', 'sprites/characters/spritesheet/default.png', {
       frameWidth:  SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
+    })
+
+    // Condiciones de desbloqueo de personajes
+    this.load.json('characters-unlock', 'characters-unlock.json')
+    this.load.on('filecomplete-json-characters-unlock', () => {
+      const unlockData = this.cache.json.get('characters-unlock')
+      unlockService.setConditions(unlockData)
     })
 
     // Premios: carga el JSON y luego las imágenes de cada premio

@@ -3,6 +3,7 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
+import { unlockService } from '../services/UnlockService'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_WIDTH   = 240
@@ -80,7 +81,9 @@ export class CharacterSelectScene extends Scene {
 
     CHARACTERS.forEach((char, i) => {
       const isSelected = i === this.selectedIndex
-      const container  = createCharacterCard(this, char, isSelected, CARD_LAYOUT)
+      const isLocked   = !unlockService.isUnlocked(char.id)
+      const hint       = isLocked ? unlockService.getHint(char.id) : null
+      const container  = createCharacterCard(this, char, isSelected, CARD_LAYOUT, isLocked, hint)
       container.y = CARDS_Y
       this.carouselContainer.add(container)
       this.cardContainers.push(container)
@@ -139,7 +142,13 @@ export class CharacterSelectScene extends Scene {
     if (this.detailContainer) this.detailContainer.destroy()
 
     const char = CHARACTERS[this.selectedIndex]
-    if (!char.available) return
+    if (!char) return
+
+    const isLocked = !unlockService.isUnlocked(char.id)
+    const text     = isLocked
+      ? (unlockService.getHint(char.id) ?? 'Personaje bloqueado')
+      : char.description
+    const color    = isLocked ? '#888888' : '#bbbbbb'
 
     this.detailContainer = this.add.container(0, 0)
 
@@ -156,10 +165,10 @@ export class CharacterSelectScene extends Scene {
     this.detailContainer.add(g)
 
     this.detailContainer.add(
-      this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, char.description, {
+      this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, text, {
         fontFamily: 'monospace',
         fontSize:   '12px',
-        color:      '#bbbbbb',
+        color,
         align:      'center',
         lineSpacing: 6,
       }).setOrigin(0.5),
@@ -307,7 +316,7 @@ export class CharacterSelectScene extends Scene {
 
   startGame() {
     const char = CHARACTERS[this.selectedIndex]
-    if (!char.available) return
+    if (!unlockService.isUnlocked(char.id)) return
     this.scene.start(SCENES.GAME, { character: char })
   }
 }

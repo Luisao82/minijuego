@@ -6,6 +6,7 @@ import { TutorialScene } from './scenes/TutorialScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
 import { GameScene } from './scenes/GameScene'
 import { RewardScene } from './scenes/RewardScene'
+import { CharacterUnlockScene } from './scenes/CharacterUnlockScene'
 import { CollectionScene } from './scenes/CollectionScene'
 import { AUTO, Scale, Game } from 'phaser'
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig'
@@ -30,6 +31,7 @@ const config = {
     CharacterSelectScene,
     GameScene,
     RewardScene,
+    CharacterUnlockScene,
     CollectionScene,
   ],
 }

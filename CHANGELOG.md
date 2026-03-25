@@ -7,6 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- `public/assets/characters-unlock.json`: fichero de configuración de condiciones de desbloqueo de personajes. Soporta dos tipos: `specific_reward` (se desbloquea al obtener un premio concreto) y `total_rewards` (se desbloquea al acumular N premios en total). Pensado para ser editado sin tocar código: añadir una entrada por personaje con su `characterId`, `type`, `rewardId`/`count` y `hint` visible al jugador.
+- `src/game/services/UnlockService.js`: servicio singleton de gestión de desbloqueos. Persiste el estado en `localStorage` (`cucana_unlocked_characters`). Métodos: `setConditions()`, `isUnlocked()`, `checkNewUnlocks()`, `saveUnlocks()`, `getHint()`, `getTotalRewards()`, `clear()`. Los personajes `trianero` y `flamenca` están siempre desbloqueados por defecto.
+- `src/game/scenes/CharacterUnlockScene.js`: nueva escena de revelación de personaje desbloqueado. Muestra panel completo con sprite (animación Back.easeOut desde escala 0), nombre, descripción y barras de stats. Soporta múltiples desbloqueos consecutivos con botón "SIGUIENTE ▶". Al finalizar presenta las opciones habituales "VOLVER A JUGAR" / "VER PREMIOS".
+
+### Changed
+
+- `src/game/config/gameConfig.js`: añadida clave `CHARACTER_UNLOCK: 'CharacterUnlockScene'` al objeto `SCENES`.
+- `src/game/scenes/PreloadScene.js`: carga `characters-unlock.json` e inicializa `unlockService` con las condiciones en cuanto el fichero está disponible.
+- `src/game/scenes/RewardScene.js`: tras guardar el premio obtenido, comprueba si hay nuevos desbloqueos. Si los hay, los guarda y redirige los botones "VOLVER A JUGAR" / "VER PREMIOS" a través de `CharacterUnlockScene` antes del destino final.
+- `src/game/scenes/CharacterSelectScene.js`: los personajes `available: true` pero no desbloqueados se muestran en gris con candado y texto de pista de desbloqueo. El botón JUGAR queda bloqueado para estos personajes.
+- `src/game/components/CharacterCard.js`: nuevo parámetro `isLocked` y `hint`. Cuando `isLocked: true` el sprite recibe tint gris, se dibuja un icono de candado pixel art y se muestra el texto de pista en lugar de las stats.
+- `src/game/main.js`: registrada `CharacterUnlockScene` en la lista de escenas de Phaser.
+- `src/game/services/UnlockService.js`: migración automática por versión. Al arrancar, si `cucana_version` en localStorage es inferior a `0.3.0`, se borran los premios y desbloqueos acumulados para garantizar un estado limpio con el nuevo sistema. Trianero y flamenca siempre se restauran como defaults. Esto ocurre una sola vez por navegador al actualizar a v0.3.0.
+- `package.json`: versión actualizada a `0.3.0`.
+
 ---
 
 ## [0.2.0] - 2026-03-23
