@@ -11,7 +11,8 @@ export class BootScene extends Scene {
     // Precarga solo la imagen del narrador tutorial para que PreloadScene
     // pueda mostrarla desde el primer frame de la pantalla de carga.
     this.load.setPath('assets')
-    this.load.image('tutor-narrator', 'sprites/narrator/narrator.png')
+    this.load.image('tutor-narrator',  'sprites/narrator/narrator.png')
+    this.load.image('luisaoDev-logo', 'ui/luisaoDev-logo.png')
   }
 
   create() {

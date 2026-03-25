@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT, PIXEL_FONT_TITLE } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
@@ -36,10 +36,10 @@ for (const stripe of SPECTRUM_PATTERN) {
 }
 const PATTERN_TOTAL = PATTERN_COLORS.length   // 120
 
-// El scroll avanza exactamente 1 "píxel retro" por tick → salto discreto,
-// sin suavizado. A 80ms entre ticks el ojo percibe el movimiento chunky retro.
-const STRIPE_SCROLL_PX = RETRO_PX   // 4px reales = 1 píxel de época
-const STRIPE_DELAY_MS  = 45         // ms entre saltos (~22 pasos/s)
+// Scroll estroboscópico: avanza 3 píxeles retro por tick a máxima frecuencia
+// (~60 ticks/s) → la vibración rápida simula el borde del Spectrum cargando datos.
+const STRIPE_SCROLL_PX = RETRO_PX * 3   // 18px por tick (salto visible y chunky)
+const STRIPE_DELAY_MS  = 16             // 1 frame (~60 ticks/s)
 const DISPLAY_MIN_MS   = 5000       // tiempo mínimo de pantalla
 
 export class PreloadScene extends Scene {
@@ -87,12 +87,21 @@ export class PreloadScene extends Scene {
       .setScale(6)
       .setOrigin(0.5)
 
-    // 3 — Marca LuisaoDev_
-    this.add.text(cx, cy + 110, 'LuisaoDev_', {
-      ...PIXEL_FONT_TITLE,
-      fontSize: '38px',
-      strokeThickness: 6,
-    }).setOrigin(0.5)
+    // 3 — Marca LuisaoDev_ (imagen pixel art con outline blanco)
+    // Técnica clásica: 4 copias desplazadas 1 retro-píxel en blanco + original encima
+    this.textures.get('luisaoDev-logo').setFilter(Phaser.Textures.FilterMode.NEAREST)
+    const logoY  = cy + 110
+    const SCALE  = 4
+    const OFFSET = SCALE   // 1 píxel retro = 4px reales
+    ;[[-OFFSET, 0], [OFFSET, 0], [0, -OFFSET], [0, OFFSET]].forEach(([dx, dy]) => {
+      this.add.image(cx + dx, logoY + dy, 'luisaoDev-logo')
+        .setScale(SCALE)
+        .setOrigin(0.5)
+        .setTintFill(0x000000)
+    })
+    this.add.image(cx, logoY, 'luisaoDev-logo')
+      .setScale(SCALE)
+      .setOrigin(0.5)
 
     // 4 — Indicador de carga pequeño en la parte inferior
     this._loadingText = this.add.text(cx, cy + 165, 'CARGANDO...', {
