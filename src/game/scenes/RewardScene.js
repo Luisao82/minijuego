@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
+import { unlockService } from '../services/UnlockService'
 import { makeNavButton } from '../components/NavButton'
 
 // Panel casi a pantalla completa en altura
@@ -35,6 +36,13 @@ export class RewardScene extends Scene {
     if (this.reward?.id) {
       rewardStorage.addReward(this.reward.id)
     }
+
+    // Comprobar si algún personaje se desbloquea con este premio
+    const newUnlocks = unlockService.checkNewUnlocks(rewardStorage)
+    if (newUnlocks.length > 0) {
+      unlockService.saveUnlocks(newUnlocks)
+    }
+    this.newUnlocks = newUnlocks
   }
 
   create() {
@@ -278,10 +286,26 @@ export class RewardScene extends Scene {
   }
 
   playAgain() {
-    this.scene.start(SCENES.GAME, { character: this.characterData })
+    if (this.newUnlocks?.length > 0) {
+      this.scene.start(SCENES.CHARACTER_UNLOCK, {
+        unlockedCharacters: this.newUnlocks,
+        character:          this.characterData,
+        nextScene:          SCENES.GAME,
+      })
+    } else {
+      this.scene.start(SCENES.GAME, { character: this.characterData })
+    }
   }
 
   viewCollection() {
-    this.scene.start(SCENES.COLLECTION, { character: this.characterData })
+    if (this.newUnlocks?.length > 0) {
+      this.scene.start(SCENES.CHARACTER_UNLOCK, {
+        unlockedCharacters: this.newUnlocks,
+        character:          this.characterData,
+        nextScene:          SCENES.COLLECTION,
+      })
+    } else {
+      this.scene.start(SCENES.COLLECTION, { character: this.characterData })
+    }
   }
 }

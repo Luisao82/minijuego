@@ -31,9 +31,11 @@ const STAT_MAX   = 10
  *   barHeight:  number,
  *   statRowH:   number,
  * }} layout
+ * @param {boolean} [isLocked=false] - Personaje visible pero bloqueado (muestra candado + hint)
+ * @param {string|null} [hint=null]  - Texto de pista para desbloquear
  * @returns {Phaser.GameObjects.Container}
  */
-export function createCharacterCard(scene, char, isSelected, layout) {
+export function createCharacterCard(scene, char, isSelected, layout, isLocked = false, hint = null) {
   const {
     width:      CARD_WIDTH,
     height:     CARD_HEIGHT,
@@ -53,18 +55,21 @@ export function createCharacterCard(scene, char, isSelected, layout) {
   const container = scene.add.container(0, 0)
   const g = scene.add.graphics()
 
-  // Sombra de la card (solo la seleccionada disponible)
-  if (isSelected && char.available) {
+  // Personaje efectivamente jugable (no bloqueado)
+  const isPlayable = !isLocked
+
+  // Sombra de la card (solo la seleccionada jugable)
+  if (isSelected && isPlayable) {
     g.fillStyle(COLORS.GOLD, 0.12)
     g.fillRect(-4, -4, CARD_WIDTH + 8, CARD_HEIGHT + 8)
   }
 
   // Fondo
-  g.fillStyle(COLORS.UI_BG, char.available ? 1 : 0.5)
+  g.fillStyle(COLORS.UI_BG, isPlayable ? 1 : 0.5)
   g.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
 
   // Borde exterior
-  if (isSelected && char.available) {
+  if (isSelected && isPlayable) {
     g.lineStyle(3, COLORS.GOLD, 1)
   } else {
     g.lineStyle(2, COLORS.UI_BORDER, 0.8)
@@ -72,7 +77,7 @@ export function createCharacterCard(scene, char, isSelected, layout) {
   g.strokeRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
 
   // Borde interior (doble marco)
-  if (isSelected && char.available) {
+  if (isSelected && isPlayable) {
     g.lineStyle(1, COLORS.GOLD, 0.4)
     g.strokeRect(3, 3, CARD_WIDTH - 6, CARD_HEIGHT - 6)
   }
@@ -83,7 +88,17 @@ export function createCharacterCard(scene, char, isSelected, layout) {
   const hasSprite = scene.textures.exists(char.sprite) &&
     scene.textures.get(char.sprite).key !== '__MISSING'
 
-  if (hasSprite) {
+  if (isLocked) {
+    // Personaje bloqueado: fondo oscuro con candado centrado, sin revelar el sprite
+    const lockedG = scene.add.graphics()
+    lockedG.fillStyle(0x0d0d1e, 1)
+    lockedG.fillRect(IMG_X, IMG_Y, IMG_W, IMG_H)
+    lockedG.lineStyle(2, COLORS.UI_BORDER, 1)
+    lockedG.strokeRect(IMG_X, IMG_Y, IMG_W, IMG_H)
+    container.add(lockedG)
+
+    _drawLockIcon(scene, container, IMG_X + IMG_W / 2, IMG_Y + IMG_H / 2 - 8)
+  } else if (hasSprite) {
     const sprite = scene.add.image(IMG_X + IMG_W / 2, IMG_Y + IMG_H / 2, char.sprite)
     const scale  = Math.max(IMG_W / sprite.width, IMG_H / sprite.height)
     sprite.setScale(scale)
@@ -91,6 +106,7 @@ export function createCharacterCard(scene, char, isSelected, layout) {
     const cropX = (sprite.displayWidth  - IMG_W) / 2
     const cropY = (sprite.displayHeight - IMG_H) / 2
     sprite.setCrop(cropX / scale, cropY / scale, IMG_W / scale, IMG_H / scale)
+
     container.add(sprite)
 
     // Degradado oscuro en la parte inferior de la imagen
@@ -117,9 +133,10 @@ export function createCharacterCard(scene, char, isSelected, layout) {
   }
 
   // ── Nombre (superpuesto sobre la imagen) ──────────────────────
-  const nameColor = char.available ? '#ffd700' : '#555555'
+  const nameColor  = isPlayable ? '#ffd700' : '#555555'
+  const nameLabel  = isLocked ? '???' : char.name
   container.add(
-    scene.add.text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, char.name, {
+    scene.add.text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, nameLabel, {
       fontFamily: 'monospace',
       fontSize:   '16px',
       color:      nameColor,
@@ -130,23 +147,28 @@ export function createCharacterCard(scene, char, isSelected, layout) {
   )
 
   // ── Stats / bloqueado ─────────────────────────────────────────
-  if (char.available) {
+  if (isPlayable) {
     _drawStats(scene, container, char.stats, { statsY: STATS_Y, statsX: STATS_X, barWidth: BAR_WIDTH, barHeight: BAR_HEIGHT, statRowH: STAT_ROW_H })
   } else {
+    // Personaje bloqueado: hint de desbloqueo
     container.add(
-      scene.add.text(CARD_WIDTH / 2, STATS_Y + 30, '???', {
-        fontFamily: 'monospace',
-        fontSize:   '24px',
-        color:      '#444444',
-      }).setOrigin(0.5),
-    )
-    container.add(
-      scene.add.text(CARD_WIDTH / 2, STATS_Y + 60, 'BLOQUEADO', {
+      scene.add.text(CARD_WIDTH / 2, STATS_Y + 16, 'BLOQUEADO', {
         fontFamily: 'monospace',
         fontSize:   '10px',
-        color:      '#444444',
+        color:      '#666666',
       }).setOrigin(0.5),
     )
+    if (hint) {
+      container.add(
+        scene.add.text(CARD_WIDTH / 2, STATS_Y + 36, hint, {
+          fontFamily: 'monospace',
+          fontSize:   '8px',
+          color:      '#888888',
+          align:      'center',
+          wordWrap:   { width: CARD_WIDTH - 16 },
+        }).setOrigin(0.5),
+      )
+    }
   }
 
   return container
@@ -181,6 +203,33 @@ function _drawStats(scene, container, stats, { statsY, statsX, barWidth, barHeig
 
     container.add(barG)
   })
+}
+
+function _drawLockIcon(scene, container, cx, cy) {
+  // Candado pixel art 16×20 px (escala ×2 = 32×40 px)
+  const g = scene.add.graphics()
+  const s = 2 // escala
+  const ox = cx - 8 * s
+  const oy = cy - 10 * s
+
+  // Arco superior del candado (parte redonda)
+  g.lineStyle(2 * s, 0x888888, 1)
+  g.strokeRect(ox + 3 * s, oy,          10 * s, 8 * s)  // arco (simplificado pixel art)
+  g.fillStyle(0x1a1a2e, 1)
+  g.fillRect(ox + 4 * s,  oy + s,        8 * s, 6 * s)  // hueco interior del arco
+
+  // Cuerpo del candado
+  g.fillStyle(0x888888, 1)
+  g.fillRect(ox,           oy + 8 * s,  16 * s, 12 * s)
+  g.lineStyle(s, 0x555555, 1)
+  g.strokeRect(ox,         oy + 8 * s,  16 * s, 12 * s)
+
+  // Ojo de la cerradura
+  g.fillStyle(0x1a1a2e, 1)
+  g.fillRect(ox + 6 * s,  oy + 11 * s,  4 * s,  3 * s)
+  g.fillRect(ox + 7 * s,  oy + 14 * s,  2 * s,  3 * s)
+
+  container.add(g)
 }
 
 function _drawSilhouette(graphics, cx, cy, available) {

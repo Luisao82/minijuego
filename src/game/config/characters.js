@@ -1,5 +1,9 @@
 // Configuración de personajes
 // Cada personaje tiene un sprite en: public/assets/sprites/characters/{id}.png
+//
+// Todos los personajes aparecen en el carrusel. El estado de desbloqueo
+// lo gestiona UnlockService (localStorage). Trianero y flamenca están
+// siempre desbloqueados por defecto aunque se empiece en un navegador nuevo.
 
 export const CHARACTERS = [
   {
@@ -8,6 +12,14 @@ export const CHARACTERS = [
     description: 'Nacido y criado en Triana.\nEquilibrado en todo.',
     sprite: 'char-trianero',
     stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
+    available: true,
+  },
+  {
+    id: 'flamenca',
+    name: 'LA FLAMENCA',
+    description: 'Joven, guapa y alegre.\nCasi nunca pierde el equilibrio.',
+    sprite: 'char-flamenca',
+    stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
     available: true,
   },
   {
@@ -27,14 +39,6 @@ export const CHARACTERS = [
     available: true,
   },
   {
-    id: 'flamenca',
-    name: 'LA FLAMENCA',
-    description: 'Joven, guapa y alegre.\nCasi nunca pierde el equilibrio.',
-    sprite: 'char-flamenca',
-    stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
-    available: true,
-  },
-  {
     id: 'guiri',
     name: 'El guiri',
     description: 'Turista despistado, que le gusta las tradiciones "baratas" de Sevillanas\nLe cuesta mantener el equilibrio.',
@@ -48,7 +52,7 @@ export const CHARACTERS = [
     description: 'Personaje de juego retro',
     sprite: 'char-retro01',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: false,
+    available: true,
   },
   {
     id: 'retro02',
@@ -56,7 +60,14 @@ export const CHARACTERS = [
     description: 'Personaje de juego retro',
     sprite: 'char-retro02',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: false,
+    available: true,
   },
-  
+  {
+    id: 'retro03',
+    name: 'Retro 03',
+    description: 'Personaje de juego retro',
+    sprite: 'char-retro03',
+    stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
+    available: true,
+  },
 ]

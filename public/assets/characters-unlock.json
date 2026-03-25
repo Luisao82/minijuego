@@ -1,0 +1,42 @@
+[
+  {
+    "characterId": "abuela",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_vajilla",
+      "hint": "Consigue la Vajilla de La Cartuja"
+    }
+  },
+  {
+    "characterId": "guiri",
+    "condition": {
+      "type": "total_rewards",
+      "count": 20,
+      "hint": "Consigue 20 premios en total"
+    }
+  },
+  {
+    "characterId": "chaval",
+    "condition": {
+      "type": "specific_reward",
+      "count": 10,
+      "hint": "Consigue 10 premios en total"
+    }
+  },
+  {
+    "characterId": "retro01",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_pending",
+      "hint": "???"
+    }
+  },
+  {
+    "characterId": "retro02",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_pending",
+      "hint": "???"
+    }
+  }
+]
