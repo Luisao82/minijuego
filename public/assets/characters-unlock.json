@@ -8,17 +8,17 @@
     }
   },
   {
-    "characterId": "guiri",
+    "characterId": "chaval",
     "condition": {
       "type": "total_rewards",
-      "count": 20,
-      "hint": "Consigue 20 premios en total"
+      "count": 5,
+      "hint": "Consigue 5 premios en total"
     }
   },
   {
-    "characterId": "chaval",
+    "characterId": "guiri",
     "condition": {
-      "type": "specific_reward",
+      "type": "total_rewards",
       "count": 10,
       "hint": "Consigue 10 premios en total"
     }
