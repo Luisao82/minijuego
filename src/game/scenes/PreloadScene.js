@@ -54,6 +54,7 @@ export class PreloadScene extends Scene {
 
     this._buildScreen()
     this._startStripeAnimation()
+    this._startReveal()
     this._loadAssets()
   }
 
@@ -65,6 +66,7 @@ export class PreloadScene extends Scene {
 
     this.time.delayedCall(remaining, () => {
       this._stripeTimer?.remove()
+      this._revealTimer?.remove()
       this.scene.start(SCENES.MENU)
     })
   }
@@ -79,32 +81,28 @@ export class PreloadScene extends Scene {
     this._stripesGfx = this.add.graphics()
     this._drawStripes()
 
-    // 2 — Imagen del narrador tutorial (precargada en BootScene)
-    // Se aplica NEAREST explícitamente porque la textura se cargó en BootScene
-    // y no pasó por el handler filecomplete de esta escena
-    this.textures.get('tutor-narrator').setFilter(Phaser.Textures.FilterMode.NEAREST)
-    this.add.image(cx, cy - 70, 'tutor-narrator')
-      .setScale(6)
-      .setOrigin(0.5)
+    // 2 — Recuadro negro + imagen de portada
+    // El recuadro negro tiene exactamente el tamaño de la imagen escalada
+    // y actúa como "pantalla" donde la imagen se va revelando.
+    const scl     = Math.min(GAME_WIDTH / 1025, GAME_HEIGHT / 836) * 0.80
+    const imgW    = 1025 * scl
+    const imgH    = 836  * scl
+    const imgTopY = (cy - 18) - imgH / 2
 
-    // 3 — Marca LuisaoDev_ (imagen pixel art con outline blanco)
-    // Técnica clásica: 4 copias desplazadas 1 retro-píxel en blanco + original encima
-    this.textures.get('luisaoDev-logo').setFilter(Phaser.Textures.FilterMode.NEAREST)
-    const logoY  = cy + 110
-    const SCALE  = 4
-    const OFFSET = SCALE   // 1 píxel retro = 4px reales
-    ;[[-OFFSET, 0], [OFFSET, 0], [0, -OFFSET], [0, OFFSET]].forEach(([dx, dy]) => {
-      this.add.image(cx + dx, logoY + dy, 'luisaoDev-logo')
-        .setScale(SCALE)
-        .setOrigin(0.5)
-        .setTintFill(0x000000)
-    })
-    this.add.image(cx, logoY, 'luisaoDev-logo')
-      .setScale(SCALE)
-      .setOrigin(0.5)
+    const bg = this.add.graphics()
+    bg.fillStyle(0x000000, 1)
+    bg.fillRect(cx - imgW / 2, imgTopY, imgW, imgH)
+    const brd = 3 * RETRO_PX   // grosor del borde en píxeles retro
+    bg.lineStyle(brd, 0x00FFFF, 1)
+    bg.strokeRect(cx - imgW / 2 - brd / 2, imgTopY - brd / 2, imgW + brd, imgH + brd)
 
-    // 4 — Indicador de carga pequeño en la parte inferior
-    this._loadingText = this.add.text(cx, cy + 165, 'CARGANDO...', {
+    this._revealImg = this.add.image(cx, imgTopY, 'img-preload')
+      .setScale(scl)
+      .setOrigin(0.5, 0)
+      .setCrop(0, 0, 1025, 0)   // empieza completamente oculta
+
+    // 3 — Indicador de carga pequeño en la parte inferior
+    this._loadingText = this.add.text(cx, GAME_HEIGHT - 18, 'CARGANDO...', {
       ...PIXEL_FONT,
       fontSize: '10px',
       color: '#aaaaaa',
@@ -150,6 +148,23 @@ export class PreloadScene extends Scene {
         this._stripePaused = false
         this._scheduleNextPause()
       })
+    })
+  }
+
+  // ── Revelado línea a línea ─────────────────────────────────────
+  // Simula la carga del Spectrum: la imagen aparece de arriba abajo
+  // a velocidad ligeramente aleatoria (2-5 filas por tick).
+  // Con 836 filas y ~16ms/tick se completa en ≈ 4-5 segundos.
+  _startReveal() {
+    this._revealRows = 0
+    this._revealTimer = this.time.addEvent({
+      delay:    16,
+      loop:     true,
+      callback: () => {
+        if (this._revealRows >= 836) { this._revealTimer.remove(); return }
+        this._revealRows = Math.min(this._revealRows + Phaser.Math.Between(2, 5), 836)
+        this._revealImg.setCrop(0, 0, 1025, this._revealRows)
+      },
     })
   }
 

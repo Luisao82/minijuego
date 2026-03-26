@@ -134,9 +134,9 @@ export const BALANCE = {
   // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 1.5 = 1.8
   // Margen de control: 2.5 - 1.8 = 0.7
   // Acel máx combinada: 2.5 + 1.8 = 4.3 u/s² → tarda ~1.2s en llegar al cap (antes 0.5s)
-  INPUT_FORCE: 2.5,
+  INPUT_FORCE: 4.5,
 
-  DAMPING: 0.35,                 // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
+  DAMPING: 0.10,                 // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
   VELOCITY_CAP: 5,               // Velocidad máxima absoluta del cursor (u/s) — evita acumulación descontrolada
 
   // Límites según stat de equilibrio del personaje
@@ -164,7 +164,7 @@ export const OIL = {
 // ─── DEBUG ────────────────────────────────────────────────────────────────────
 // Cambiar a true para mostrar el panel de debug correspondiente en pantalla.
 export const DEBUG = {
-  BALANCE_PANEL: false,   // Panel de parámetros de equilibrio en tiempo real
+  BALANCE_PANEL: false,    // Panel de parámetros de equilibrio en tiempo real
 }
 
 // Configuración del movimiento del personaje
