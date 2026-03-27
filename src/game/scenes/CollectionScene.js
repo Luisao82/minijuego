@@ -286,6 +286,19 @@ export class CollectionScene extends Scene {
       }).setOrigin(0.5).setDepth(12),
     )
 
+    // Descripción del premio (opcional)
+    if (reward.descripcion) {
+      toDestroy.push(
+        this.add.text(CX, imgCY + IMG_BIG / 2 + 56, reward.descripcion, {
+          fontFamily: 'monospace',
+          fontSize:   '10px',
+          color:      '#cccccc',
+          align:      'center',
+          wordWrap:   { width: PW - 80 },
+        }).setOrigin(0.5).setDepth(12),
+      )
+    }
+
     const starPositions = [
       { x: CX - IMG_BIG / 2 - 22, y: imgCY - IMG_BIG / 2 - 12 },
       { x: CX + IMG_BIG / 2 + 22, y: imgCY - IMG_BIG / 2 - 12 },

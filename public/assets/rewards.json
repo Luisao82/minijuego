@@ -52,5 +52,12 @@
     "nombre": "Vajilla completa de La Cartuja",
     "imagen": "premios/vajilla.png",
     "probabilidad": 0.1
+  },
+  {
+    "id": "reward_llamador",
+    "nombre": "El Llamador",
+    "descripcion": "El \"pograma\" para seguir los pasos",
+    "imagen": "premios/llamador.png",
+    "probabilidad": 0.15
   }
 ]

@@ -9,6 +9,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- Nuevo premio "El Llamador" (`reward_llamador`, probabilidad 0.15) con imagen `premios/llamador.png`.
+- Soporte del campo opcional `descripcion` en `rewards.json`: si un premio lo incluye, se muestra debajo del nombre en `RewardScene` y en el detalle de `CollectionScene`.
+
 - `public/assets/characters-unlock.json`: fichero de configuración de condiciones de desbloqueo de personajes. Soporta dos tipos: `specific_reward` (se desbloquea al obtener un premio concreto) y `total_rewards` (se desbloquea al acumular N premios en total). Pensado para ser editado sin tocar código: añadir una entrada por personaje con su `characterId`, `type`, `rewardId`/`count` y `hint` visible al jugador.
 - `src/game/services/UnlockService.js`: servicio singleton de gestión de desbloqueos. Persiste el estado en `localStorage` (`cucana_unlocked_characters`). Métodos: `setConditions()`, `isUnlocked()`, `checkNewUnlocks()`, `saveUnlocks()`, `getHint()`, `getTotalRewards()`, `clear()`. Los personajes `trianero` y `flamenca` están siempre desbloqueados por defecto.
 - `src/game/scenes/CharacterUnlockScene.js`: nueva escena de revelación de personaje desbloqueado. Muestra panel completo con sprite (animación Back.easeOut desde escala 0), nombre, descripción y barras de stats. Soporta múltiples desbloqueos consecutivos con botón "SIGUIENTE ▶". Al finalizar presenta las opciones habituales "VOLVER A JUGAR" / "VER PREMIOS".

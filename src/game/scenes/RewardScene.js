@@ -130,6 +130,17 @@ export class RewardScene extends Scene {
       align: 'center',
       wordWrap: { width: PANEL_W - 60 },
     }).setOrigin(0.5)
+
+    // Descripción del premio (opcional)
+    if (this.reward?.descripcion) {
+      this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 48, this.reward.descripcion, {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#cccccc',
+        align: 'center',
+        wordWrap: { width: PANEL_W - 80 },
+      }).setOrigin(0.5)
+    }
   }
 
   drawRewardImage(cx, cy) {
