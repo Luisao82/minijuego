@@ -82,20 +82,15 @@ const CHAR_DELAY = 28
 
 // Configuración del narrador (extraída para fácil sustitución por otro narrador)
 const NARRATOR_CONFIG = {
-  cx:   DLG_X + Math.round(FACE_W / 2),
-  cy:   DLG_Y + Math.round(DLG_H / 2),
-  size: NARR_SIZE,
-  textures: {
-    base:         'narrator',
-    eyes:         'narrator-eyes',
-    mouthHalfOpen: 'narrator-m-open',
-    mouthOpen:    'narrator-open',
-  },
+  cx:          DLG_X + Math.round(FACE_W / 2),
+  cy:          DLG_Y + Math.round(DLG_H / 2),
+  size:        NARR_SIZE,
+  spritesheet: 'narrator-history',
   mouthCycle: [
-    { key: 'narrator',        duration: 180 },
-    { key: 'narrator-m-open', duration: 120 },
-    { key: 'narrator-open',   duration:  80 },
-    { key: 'narrator-m-open', duration: 120 },
+    { frame: 0, duration: 180 },
+    { frame: 1, duration: 120 },
+    { frame: 2, duration:  80 },
+    { frame: 1, duration: 120 },
   ],
   blinkMin: 3200,
   blinkMax: 7000,

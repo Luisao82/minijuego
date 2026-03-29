@@ -1,12 +1,14 @@
 // Narrator — retrato animado del narrador (boca + parpadeo)
 //
+// Usa un spritesheet de 4 frames (35×35 px cada uno):
+//   0 → base (reposo)
+//   1 → boca medio abierta
+//   2 → boca abierta
+//   3 → ojos cerrados (parpadeo)
+//
 // Extensibilidad:
-//   Para crear un narrador diferente (otra cara, otra voz visual),
-//   basta con pasar una config distinta al constructor:
-//   - textures: { base, eyes, mouthHalfOpen, mouthOpen }
-//   - mouthCycle: [{ key, duration }, ...]
-//   - blinkMin, blinkMax, blinkDur
-//   La lógica de animación es idéntica para todos los narradores.
+//   Para crear un narrador diferente, basta con pasar una config con
+//   otra clave de spritesheet. La lógica de animación es idéntica.
 
 export class Narrator {
 
@@ -16,8 +18,10 @@ export class Narrator {
    *   cx: number,
    *   cy: number,
    *   size: number,
-   *   textures: { base: string, eyes: string, mouthHalfOpen: string, mouthOpen: string },
-   *   mouthCycle: Array<{ key: string, duration: number }>,
+   *   spritesheet: string,
+   *   baseFrame?: number,
+   *   blinkFrame?: number,
+   *   mouthCycle: Array<{ frame: number, duration: number }>,
    *   blinkMin?: number,
    *   blinkMax?: number,
    *   blinkDur?: number,
@@ -40,11 +44,11 @@ export class Narrator {
   // ── Creación del retrato ──────────────────────────────────────
 
   _createPortrait() {
-    const { cx, cy, size, textures, depth = 3 } = this._config
+    const { cx, cy, size, spritesheet, baseFrame = 0, depth = 3 } = this._config
 
-    if (this._scene.textures.exists(textures.base) &&
-        this._scene.textures.get(textures.base).key !== '__MISSING') {
-      this._img = this._scene.add.image(cx, cy, textures.base)
+    if (this._scene.textures.exists(spritesheet) &&
+        this._scene.textures.get(spritesheet).key !== '__MISSING') {
+      this._img = this._scene.add.image(cx, cy, spritesheet, baseFrame)
         .setDisplaySize(size, size)
         .setOrigin(0.5)
         .setDepth(depth)
@@ -72,7 +76,6 @@ export class Narrator {
     // Boca
     g.fillRect(x + s * 0.35, y + s * 0.62, s * 0.3, s * 0.06)
 
-    // Graphics no tiene setTexture → _applyFrame lo detecta y no actúa
     return g
   }
 
@@ -87,15 +90,15 @@ export class Narrator {
   stopTalking() {
     this._isTalking = false
     if (this._mouthTimer) { this._mouthTimer.remove(); this._mouthTimer = null }
-    this._applyFrame(this._config.textures.base)
+    this._applyFrame(this._config.baseFrame ?? 0)
   }
 
   _scheduleMouthFrame() {
     if (!this._isTalking) return
     const cycle = this._config.mouthCycle
-    const frame = cycle[this._mouthFrame % cycle.length]
-    this._applyFrame(frame.key)
-    this._mouthTimer = this._scene.time.delayedCall(frame.duration, () => {
+    const step  = cycle[this._mouthFrame % cycle.length]
+    this._applyFrame(step.frame)
+    this._mouthTimer = this._scene.time.delayedCall(step.duration, () => {
       this._mouthFrame++
       this._scheduleMouthFrame()
     })
@@ -104,27 +107,23 @@ export class Narrator {
   // ── Parpadeo ─────────────────────────────────────────────────
 
   _scheduleNextBlink() {
-    const { blinkMin = 3200, blinkMax = 7000, blinkDur = 130, textures } = this._config
+    const { blinkMin = 3200, blinkMax = 7000, blinkDur = 130, blinkFrame = 3, baseFrame = 0 } = this._config
     const delay = Phaser.Math.Between(blinkMin, blinkMax)
 
     this._blinkTimer = this._scene.time.delayedCall(delay, () => {
-      this._applyFrame(textures.eyes)
+      this._applyFrame(blinkFrame)
       this._scene.time.delayedCall(blinkDur, () => {
-        if (!this._isTalking) this._applyFrame(textures.base)
+        if (!this._isTalking) this._applyFrame(baseFrame)
         this._scheduleNextBlink()
       })
     })
   }
 
-  // ── Aplicar frame (seguro para Graphics y texturas no cargadas) ─
+  // ── Aplicar frame (seguro para Graphics) ─────────────────────
 
-  _applyFrame(key) {
-    if (!this._img || typeof this._img.setTexture !== 'function') return
-    const scene = this._scene
-    const tex = (scene.textures.exists(key) && scene.textures.get(key).key !== '__MISSING')
-      ? key
-      : (scene.textures.exists(this._config.textures.base) ? this._config.textures.base : null)
-    if (tex) this._img.setTexture(tex)
+  _applyFrame(frameIndex) {
+    if (!this._img || typeof this._img.setFrame !== 'function') return
+    this._img.setFrame(frameIndex)
   }
 
   // ── Limpieza ─────────────────────────────────────────────────
