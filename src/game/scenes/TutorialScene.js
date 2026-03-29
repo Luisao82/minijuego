@@ -74,20 +74,15 @@ const DLG_DARK = 0x0a1628
 const DLG_FACE = 0x0d2040
 
 const NARRATOR_CONFIG = {
-  cx:   DLG_X + Math.round(FACE_W / 2),
-  cy:   DLG_Y + Math.round(DLG_H / 2),
-  size: NARR_SIZE,
-  textures: {
-    base:          'tutor-narrator',
-    eyes:          'tutor-narrator-eyes',
-    mouthHalfOpen: 'tutor-narrator-m-open',
-    mouthOpen:     'tutor-narrator-open',
-  },
+  cx:          DLG_X + Math.round(FACE_W / 2),
+  cy:          DLG_Y + Math.round(DLG_H / 2),
+  size:        NARR_SIZE,
+  spritesheet: 'narrator-tutorial',
   mouthCycle: [
-    { key: 'tutor-narrator',        duration: 180 },
-    { key: 'tutor-narrator-m-open', duration: 120 },
-    { key: 'tutor-narrator-open',   duration:  80 },
-    { key: 'tutor-narrator-m-open', duration: 120 },
+    { frame: 0, duration: 180 },
+    { frame: 1, duration: 120 },
+    { frame: 2, duration:  80 },
+    { frame: 1, duration: 120 },
   ],
   blinkMin: 3200,
   blinkMax: 7000,

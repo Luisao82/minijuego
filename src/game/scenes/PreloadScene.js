@@ -203,16 +203,9 @@ export class PreloadScene extends Scene {
     this.load.image('bg-game',       'backgrounds/fondo_a.png')
     this.load.image('bg-history',    'backgrounds/fondoHistory.png')
 
-    // Narrador — Historia
-    this.load.image('narrator',        'sprites/narrator.png')
-    this.load.image('narrator-m-open', 'sprites/narrator_m_open.png')
-    this.load.image('narrator-open',   'sprites/narrator_open.png')
-    this.load.image('narrator-eyes',   'sprites/narrator_eyes.png')
-
-    // Narrador — Tutorial (tutor-narrator ya cargado en BootScene)
-    this.load.image('tutor-narrator-m-open', 'sprites/narrator/narrator_m_open.png')
-    this.load.image('tutor-narrator-open',   'sprites/narrator/narrator_open.png')
-    this.load.image('tutor-narrator-eyes',   'sprites/narrator/narrator_eyes.png')
+    // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
+    this.load.spritesheet('narrator-history',  'sprites/narrators/narrator_history.png',  { frameWidth: 35, frameHeight: 35 })
+    this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', { frameWidth: 35, frameHeight: 35 })
 
     // Imágenes del tutorial
     this.load.image('tut-01', 'tutorial/01-bienvenido.png')

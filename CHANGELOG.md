@@ -18,6 +18,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- `src/game/components/Narrator.js`: migrado a spritesheet único por personaje. La API ahora recibe `spritesheet` (clave Phaser) e índices de frame numéricos en `mouthCycle`, `baseFrame` y `blinkFrame` en lugar de claves de textura separadas.
+- `src/game/scenes/PreloadScene.js`: los assets de narradores pasan de 7 imágenes individuales a 2 spritesheets (`narrator-history`, `narrator-tutorial`).
+- `src/game/scenes/HistoryScene.js` y `TutorialScene.js`: `NARRATOR_CONFIG` actualizado para usar la nueva API de spritesheet.
+
+### Removed
+
+- Assets individuales de narradores eliminados de la carga: `narrator.png`, `narrator_m_open.png`, `narrator_open.png`, `narrator_eyes.png` y sus equivalentes de tutorial.
+
 - `src/game/config/gameConfig.js`: añadida clave `CHARACTER_UNLOCK: 'CharacterUnlockScene'` al objeto `SCENES`.
 - `src/game/scenes/PreloadScene.js`: carga `characters-unlock.json` e inicializa `unlockService` con las condiciones en cuanto el fichero está disponible.
 - `src/game/scenes/RewardScene.js`: tras guardar el premio obtenido, comprueba si hay nuevos desbloqueos. Si los hay, los guarda y redirige los botones "VOLVER A JUGAR" / "VER PREMIOS" a través de `CharacterUnlockScene` antes del destino final.
