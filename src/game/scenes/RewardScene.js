@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
+import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
 
 // Panel casi a pantalla completa en altura
@@ -43,6 +44,13 @@ export class RewardScene extends Scene {
       unlockService.saveUnlocks(newUnlocks)
     }
     this.newUnlocks = newUnlocks
+
+    // Comprobar si alguna perspectiva se desbloquea con este premio
+    const newPerspUnlocks = perspectiveUnlockService.checkNewUnlocks(rewardStorage)
+    if (newPerspUnlocks.length > 0) {
+      perspectiveUnlockService.saveUnlocks(newPerspUnlocks)
+    }
+    this.newPerspUnlocks = newPerspUnlocks
   }
 
   create() {
@@ -297,26 +305,32 @@ export class RewardScene extends Scene {
   }
 
   playAgain() {
-    if (this.newUnlocks?.length > 0) {
-      this.scene.start(SCENES.CHARACTER_UNLOCK, {
-        unlockedCharacters: this.newUnlocks,
-        character:          this.characterData,
-        nextScene:          SCENES.GAME,
-      })
-    } else {
-      this.scene.start(SCENES.GAME, { character: this.characterData })
-    }
+    this._navigateWithUnlocks(SCENES.GAME)
   }
 
   viewCollection() {
-    if (this.newUnlocks?.length > 0) {
+    this._navigateWithUnlocks(SCENES.COLLECTION)
+  }
+
+  // Redirige al destino final pasando primero por las escenas de desbloqueo
+  // que correspondan. Orden: vistas → personajes → destino.
+  _navigateWithUnlocks(finalScene) {
+    if (this.newPerspUnlocks?.length > 0) {
+      this.scene.start(SCENES.PERSPECTIVE_UNLOCK, {
+        unlockedPerspectives: this.newPerspUnlocks,
+        character:            this.characterData,
+        nextUnlocks:          this.newUnlocks,
+        nextScene:            finalScene,
+      })
+    } else if (this.newUnlocks?.length > 0) {
       this.scene.start(SCENES.CHARACTER_UNLOCK, {
         unlockedCharacters: this.newUnlocks,
         character:          this.characterData,
-        nextScene:          SCENES.COLLECTION,
       })
+    } else if (finalScene === SCENES.GAME) {
+      this.scene.start(SCENES.GAME, { character: this.characterData })
     } else {
-      this.scene.start(SCENES.COLLECTION, { character: this.characterData })
+      this.scene.start(finalScene, { character: this.characterData })
     }
   }
 }

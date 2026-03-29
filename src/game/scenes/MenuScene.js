@@ -199,7 +199,7 @@ export class MenuScene extends Scene {
       const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
       if (!inHistoria && !inTutorial) {
-        this.scene.start(SCENES.CHARACTER_SELECT)
+        this.scene.start(SCENES.VIEW_SELECT)
       }
     })
 

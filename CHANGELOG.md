@@ -7,33 +7,41 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+---
+
+## [0.4.0] - 2026-03-29
+
 ### Added
 
+- **Sistema de vistas desbloqueable**: las perspectivas de juego pasan a gestionarse como contenido desbloqueable. La vista Sevilla requiere conseguir 3 premios en total; futuras vistas se añaden únicamente editando `perspectives.json`.
+- `public/assets/perspectives.json`: fuente de verdad de todas las perspectivas. Cada entrada define `id`, `label`, `backgroundKey`, `direction` (`ltr`/`rtl`), `scale`, `yOffset` y, opcionalmente, `condition` de desbloqueo. Añadir una nueva perspectiva no requiere tocar código.
+- `src/game/services/PerspectiveUnlockService.js`: singleton análogo a `UnlockService` para perspectivas. Persiste desbloqueos en `localStorage` (`cucana_unlocked_perspectives`). La vista Triana siempre está disponible. Métodos: `setData()`, `getById()`, `getAll()`, `isUnlocked()`, `checkNewUnlocks()`, `saveUnlocks()`, `getHint()`.
+- `src/game/scenes/PerspectiveUnlockScene.js`: escena de revelación de vista desbloqueada. Muestra un panel con thumbnail animado (Back.easeOut desde escala 0), estrellas y el nombre de la vista. Soporta múltiples desbloqueos consecutivos con botón "SIGUIENTE ▶" y encadena con `CharacterUnlockScene` si también hay personajes nuevos.
+- `ViewSelectScene`: las vistas bloqueadas se muestran con thumbnail grisado, icono de candado y texto de pista. Solo las desbloqueadas son seleccionables. Layout dinámico: el número de fichas se genera desde el JSON.
+- Selector de perspectiva **Triana / Sevilla**: nueva pantalla `ViewSelectScene` que aparece al pulsar JUGAR, con fichas que muestran una miniatura del fondo correspondiente.
+- Vista **Sevilla**: fondo `fondo_b.png`, barco a la izquierda, palo de izquierda a derecha. La escena entera (palo, barco, personaje, aceite, salpicadura) se agrupa en un `Phaser.Container` y se transforma proporcionalmente — escala, espejo y offset — sin necesidad de ajustes manuales por elemento.
 - Nuevo premio "El Llamador" (`reward_llamador`, probabilidad 0.15) con imagen `premios/llamador.png`.
 - Soporte del campo opcional `descripcion` en `rewards.json`: si un premio lo incluye, se muestra debajo del nombre en `RewardScene` y en el detalle de `CollectionScene`.
-
-- `public/assets/characters-unlock.json`: fichero de configuración de condiciones de desbloqueo de personajes. Soporta dos tipos: `specific_reward` (se desbloquea al obtener un premio concreto) y `total_rewards` (se desbloquea al acumular N premios en total). Pensado para ser editado sin tocar código: añadir una entrada por personaje con su `characterId`, `type`, `rewardId`/`count` y `hint` visible al jugador.
-- `src/game/services/UnlockService.js`: servicio singleton de gestión de desbloqueos. Persiste el estado en `localStorage` (`cucana_unlocked_characters`). Métodos: `setConditions()`, `isUnlocked()`, `checkNewUnlocks()`, `saveUnlocks()`, `getHint()`, `getTotalRewards()`, `clear()`. Los personajes `trianero` y `flamenca` están siempre desbloqueados por defecto.
-- `src/game/scenes/CharacterUnlockScene.js`: nueva escena de revelación de personaje desbloqueado. Muestra panel completo con sprite (animación Back.easeOut desde escala 0), nombre, descripción y barras de stats. Soporta múltiples desbloqueos consecutivos con botón "SIGUIENTE ▶". Al finalizar presenta las opciones habituales "VOLVER A JUGAR" / "VER PREMIOS".
+- `public/assets/characters-unlock.json`: condiciones de desbloqueo de personajes (`specific_reward` / `total_rewards`). Editable sin tocar código.
+- `src/game/services/UnlockService.js`: singleton de desbloqueo de personajes. Persiste en `localStorage` (`cucana_unlocked_characters`). Trianero y flamenca siempre desbloqueados.
+- `src/game/scenes/CharacterUnlockScene.js`: escena de revelación de personaje desbloqueado con sprite animado, stats y soporte de múltiples desbloqueos consecutivos.
 
 ### Changed
 
-- `src/game/components/Narrator.js`: migrado a spritesheet único por personaje. La API ahora recibe `spritesheet` (clave Phaser) e índices de frame numéricos en `mouthCycle`, `baseFrame` y `blinkFrame` en lugar de claves de textura separadas.
-- `src/game/scenes/PreloadScene.js`: los assets de narradores pasan de 7 imágenes individuales a 2 spritesheets (`narrator-history`, `narrator-tutorial`).
-- `src/game/scenes/HistoryScene.js` y `TutorialScene.js`: `NARRATOR_CONFIG` actualizado para usar la nueva API de spritesheet.
+- `GameScene`: toda la escena de juego (palo, barco, bandera, personaje, overlay de aceite, salpicadura) se agrupa en un `Phaser.Container` (`gameWorld`). La perspectiva activa transforma el container completo, garantizando que todas las proporciones (incluida la distancia de caída al agua) sean automáticamente correctas.
+- `src/game/config/perspectiveConfig.js`: simplificado a helpers de `localStorage` (`getStoredPerspective`, `storePerspective`). La config visual de cada perspectiva vive ahora en `perspectives.json`.
+- `RewardScene`: tras guardar el premio, encadena las escenas de desbloqueo en orden: vistas → personajes → destino final. Si no hay desbloqueos, navega directamente.
+- `src/game/components/Narrator.js`: migrado a spritesheet único por personaje.
+- `src/game/scenes/PreloadScene.js`: carga `perspectives.json` e inicializa `perspectiveUnlockService`; carga `characters-unlock.json` e inicializa `unlockService`.
+- `src/game/scenes/CharacterSelectScene.js`: personajes bloqueados muestran candado y pista de desbloqueo.
+- `src/game/components/CharacterCard.js`: nuevo parámetro `isLocked` / `hint`.
+- `src/game/services/UnlockService.js`: migración automática a `0.4.0` — borra premios, desbloqueos de personajes y desbloqueos de vistas acumulados en versiones anteriores para garantizar un estado limpio.
+- `package.json`: versión actualizada a `0.4.0`.
 
 ### Removed
 
-- Assets individuales de narradores eliminados de la carga: `narrator.png`, `narrator_m_open.png`, `narrator_open.png`, `narrator_eyes.png` y sus equivalentes de tutorial.
-
-- `src/game/config/gameConfig.js`: añadida clave `CHARACTER_UNLOCK: 'CharacterUnlockScene'` al objeto `SCENES`.
-- `src/game/scenes/PreloadScene.js`: carga `characters-unlock.json` e inicializa `unlockService` con las condiciones en cuanto el fichero está disponible.
-- `src/game/scenes/RewardScene.js`: tras guardar el premio obtenido, comprueba si hay nuevos desbloqueos. Si los hay, los guarda y redirige los botones "VOLVER A JUGAR" / "VER PREMIOS" a través de `CharacterUnlockScene` antes del destino final.
-- `src/game/scenes/CharacterSelectScene.js`: los personajes `available: true` pero no desbloqueados se muestran en gris con candado y texto de pista de desbloqueo. El botón JUGAR queda bloqueado para estos personajes.
-- `src/game/components/CharacterCard.js`: nuevo parámetro `isLocked` y `hint`. Cuando `isLocked: true` el sprite recibe tint gris, se dibuja un icono de candado pixel art y se muestra el texto de pista en lugar de las stats.
-- `src/game/main.js`: registrada `CharacterUnlockScene` en la lista de escenas de Phaser.
-- `src/game/services/UnlockService.js`: migración automática por versión. Al arrancar, si `cucana_version` en localStorage es inferior a `0.3.0`, se borran los premios y desbloqueos acumulados para garantizar un estado limpio con el nuevo sistema. Trianero y flamenca siempre se restauran como defaults. Esto ocurre una sola vez por navegador al actualizar a v0.3.0.
-- `package.json`: versión actualizada a `0.3.0`.
+- Assets individuales de narradores: `narrator.png`, `narrator_m_open.png`, `narrator_open.png`, `narrator_eyes.png` y sus equivalentes de tutorial.
+- Constantes `SEVILLA_SCALE` y `SEVILLA_Y_OFFSET` del código JS — sus valores viven ahora en `perspectives.json` como `scale` y `yOffset`.
 
 ---
 

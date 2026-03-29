@@ -48,6 +48,10 @@ export class CharacterSelectScene extends Scene {
     super(SCENES.CHARACTER_SELECT)
   }
 
+  init(data) {
+    this.perspective = data?.perspective ?? null
+  }
+
   create() {
     this.selectedIndex = 0
     this.isScrolling   = false
@@ -317,6 +321,6 @@ export class CharacterSelectScene extends Scene {
   startGame() {
     const char = CHARACTERS[this.selectedIndex]
     if (!unlockService.isUnlocked(char.id)) return
-    this.scene.start(SCENES.GAME, { character: char })
+    this.scene.start(SCENES.GAME, { character: char, perspective: this.perspective })
   }
 }

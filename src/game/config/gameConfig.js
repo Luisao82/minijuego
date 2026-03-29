@@ -32,11 +32,13 @@ export const SCENES = {
   MENU: 'MenuScene',
   HISTORY: 'HistoryScene',
   TUTORIAL: 'TutorialScene',
+  VIEW_SELECT: 'ViewSelectScene',
   CHARACTER_SELECT: 'CharacterSelectScene',
   GAME: 'GameScene',
   GAME_OVER: 'GameOverScene',
   REWARD: 'RewardScene',
-  CHARACTER_UNLOCK: 'CharacterUnlockScene',
+  CHARACTER_UNLOCK:    'CharacterUnlockScene',
+  PERSPECTIVE_UNLOCK:  'PerspectiveUnlockScene',
   COLLECTION: 'CollectionScene',
 }
 
