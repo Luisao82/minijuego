@@ -22,11 +22,12 @@
 
 import { version } from '../../../package.json'
 
-const STORAGE_KEY         = 'cucana_unlocked_characters'
-const REWARDS_KEY         = 'cucana_rewards'
-const VERSION_KEY         = 'cucana_version'
-const DEFAULT_UNLOCKED    = ['trianero', 'flamenca']
-const RESET_BELOW_VERSION = '0.3.0'
+const STORAGE_KEY              = 'cucana_unlocked_characters'
+const REWARDS_KEY              = 'cucana_rewards'
+const VERSION_KEY              = 'cucana_version'
+const PERSPECTIVES_STORAGE_KEY = 'cucana_unlocked_perspectives'
+const DEFAULT_UNLOCKED         = ['trianero', 'flamenca']
+const RESET_BELOW_VERSION      = '0.4.0'
 
 // Devuelve true si la versión a es estrictamente menor que b (semver)
 const semverLt = (a, b) => {
@@ -46,6 +47,7 @@ const _migrate = () => {
     if (semverLt(storedVersion, RESET_BELOW_VERSION)) {
       localStorage.removeItem(REWARDS_KEY)
       localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(PERSPECTIVES_STORAGE_KEY)
     }
     localStorage.setItem(VERSION_KEY, version)
   } catch {

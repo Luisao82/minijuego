@@ -216,14 +216,56 @@ const JUMP_SUCCESS_WINDOW_MS = 300; // valor inicial: 300ms
 
 ---
 
+## 👁️ Selector de perspectiva (Triana / Sevilla)
+
+Antes de elegir personaje, el jugador puede escoger desde qué orilla ver la cucaña.
+
+### Flujo de pantallas actualizado
+
+```
+MenuScene → [JUGAR] → ViewSelectScene → CharacterSelectScene → GameScene
+```
+
+Si la partida se reinicia sin pasar por `ViewSelectScene` (p.ej. desde Game Over directo), se usa la última perspectiva guardada en `localStorage` (clave: `cucana_perspective`).
+
+### Las dos perspectivas
+
+| Parámetro             | Triana                          | Sevilla                          |
+|-----------------------|---------------------------------|----------------------------------|
+| Fondo                 | `fondo_a.png`                   | `fondo_b.png`                    |
+| Barco                 | Orilla derecha                  | Orilla izquierda                 |
+| Dirección del palo    | Derecha → izquierda             | Izquierda → derecha              |
+| Escala elementos      | 100%                            | 80% (sensación de distancia)     |
+| Posición vertical     | Normal                          | Ligeramente más arriba           |
+| Sprites (flipX)       | Normal                          | Espejados horizontalmente        |
+| Controles             | Sin cambios                     | Sin cambios (lógica idéntica)    |
+
+### Parámetros ajustables (`perspectiveConfig.js`)
+
+```js
+const SEVILLA_SCALE    = 0.80   // tamaño de elementos respecto a Triana
+const SEVILLA_Y_OFFSET = -30    // px hacia arriba (negativo = sube)
+```
+
+### ViewSelectScene — Pantalla de selección
+
+- Título: "ELIGE TU VISTA"
+- Dos fichas estilo CharacterCard:
+  - **Triana** → thumbnail de `fondo_a.png`
+  - **Sevilla** → thumbnail de `fondo_b.png`
+- La ficha de la perspectiva guardada aparece pre-seleccionada
+- Al elegir → guarda en `localStorage` → pasa a `CharacterSelectScene`
+
+---
+
 ## 🎨 Diseño Visual de la Pantalla de Juego
 
 ### Escena general
 
 | Parámetro | Detalle |
 |---|---|
-| Perspectiva | Horizontal — vista lateral desde la Calle Betis (Triana) |
-| Dirección del personaje | De derecha a izquierda |
+| Perspectiva | Horizontal — vista lateral desde la Calle Betis (Triana) o desde Sevilla |
+| Dirección del personaje | Derecha → izquierda (Triana) / Izquierda → derecha (Sevilla) |
 | Momento del día | Día soleado, cielo azul mediterráneo |
 | Cámara | Fija — toda la escena visible desde el inicio |
 | Estética | Pixel art con paleta de colores limitada (estilo libre) |

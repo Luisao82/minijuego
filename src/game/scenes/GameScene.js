@@ -1,5 +1,7 @@
 import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL, DEBUG } from '../config/gameConfig'
+import { getStoredPerspective } from '../config/perspectiveConfig'
+import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { BalanceDebugPanel } from '../components/BalanceDebugPanel'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { Player } from '../entities/Player'
@@ -22,7 +24,12 @@ export class GameScene extends Scene {
     this.phase = null
     this.impulseResult = null
 
-    // Posición del palo y el agua
+    // Perspectiva de vista (Triana / Sevilla / …)
+    const perspId = data.perspective?.id ?? getStoredPerspective()
+    this.perspective = perspectiveUnlockService.getById(perspId)
+      ?? perspectiveUnlockService.getById('triana')
+
+    // Posición del palo y el agua — coordenadas lógicas, el container aplica la perspectiva
     this.poleY  = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60
 
@@ -87,18 +94,31 @@ export class GameScene extends Scene {
 
   create() {
     this.drawSimpleBackground()
+    this._setupGameWorld()
     this.drawPole()
 
     // Overlay de grasa — encima del palo, debajo del personaje
     this.oilSystem  = new OilSystem()
     this.oilOverlay = this.add.graphics()
+    this.gameWorld.add(this.oilOverlay)
     this._drawOilOverlay()
 
-    this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData)
+    this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld)
     this.createControlPanel()
     this.createHUD()
     this.startPhase1()
     this.setupInput()
+  }
+
+  _setupGameWorld() {
+    const S = this.perspective.scale
+    this.gameWorld = this.add.container(0, 0)
+    if (this.perspective.flipX) {
+      this.gameWorld.x      = GAME_WIDTH / 2 * (1 + S)
+      this.gameWorld.y      = this.poleY * (1 - S) + this.perspective.yOffset
+      this.gameWorld.scaleX = -S
+      this.gameWorld.scaleY = S
+    }
   }
 
   // ========================================
@@ -279,11 +299,11 @@ export class GameScene extends Scene {
     this.runElapsed += dt
 
     if (this.runElapsed >= this.runDuration) {
-      this.player.x        = POLE.START_X - this.maxDistance
+      this.player.x = POLE.START_X - this.maxDistance
       this.distanceTraveled = this.maxDistance
 
       if (this.player.x < POLE.END_X) {
-        this.player.x        = POLE.END_X
+        this.player.x = POLE.END_X
         this.distanceTraveled = POLE.START_X - POLE.END_X
       }
 
@@ -309,7 +329,7 @@ export class GameScene extends Scene {
     this.player.updateAnimation(dt, currentSpeed)
 
     if (!this.hasFlag && this.checkFlagCollision()) {
-      this.player.x        = POLE.END_X
+      this.player.x         = POLE.END_X
       this.distanceTraveled = POLE.START_X - POLE.END_X
       this.player.redraw()
       this.grabFlag()
@@ -328,9 +348,9 @@ export class GameScene extends Scene {
     this.balanceBar    = null
     this.balanceSystem = null
 
-    this.hasJumped  = true
-    this.isJumping  = true
-    this.phase      = 'jumping'
+    this.hasJumped   = true
+    this.isJumping   = true
+    this.phase       = 'jumping'
     this.jumpElapsed = 0
     this.jumpStartX  = this.player.x
     this.jumpStartY  = this.player.y
@@ -358,8 +378,8 @@ export class GameScene extends Scene {
     const dt = delta / 1000
     this.jumpElapsed += dt
 
-    this.player.x = this.jumpStartX - this.jumpVx * this.jumpElapsed
-    this.player.y = this.jumpStartY
+    this.player.x  = this.jumpStartX - this.jumpVx * this.jumpElapsed
+    this.player.y  = this.jumpStartY
       + this.jumpVy0 * this.jumpElapsed
       + 0.5 * JUMP.GRAVITY * this.jumpElapsed * this.jumpElapsed
 
@@ -588,6 +608,7 @@ export class GameScene extends Scene {
 
     for (let i = 0; i < 10; i++) {
       const dropG   = this.add.graphics()
+      this.gameWorld.add(dropG)
       const offsetX = Phaser.Math.Between(-15, 15)
       const size    = Phaser.Math.Between(2, 5)
 
@@ -720,7 +741,7 @@ export class GameScene extends Scene {
     } else if (this.phase === 'done' && this.canRestart) {
       if (pointer && this.collectionBtnBounds &&
           Phaser.Geom.Rectangle.Contains(this.collectionBtnBounds, pointer.x, pointer.y)) return
-      this.scene.restart({ character: this.characterData })
+      this.scene.restart({ character: this.characterData, perspective: this.perspective })
     }
   }
 
@@ -732,24 +753,21 @@ export class GameScene extends Scene {
     if (!this.oilOverlay || !this.oilSystem) return
     this.oilOverlay.clear()
 
-    const zones  = this.oilSystem.getZones()
-    const zoneW  = POLE.LENGTH / OIL.NUM_ZONES
-    // Solo la mitad superior del palo (por donde pasa el personaje)
-    const oilTop = this.poleY - 3   // borde superior del palo
-    const oilH   = 5                // top ~5px de los 9px del palo
+    const zones = this.oilSystem.getZones()
+    const zoneW = POLE.LENGTH / OIL.NUM_ZONES
 
     zones.forEach((grease, i) => {
       const alpha = (grease / 100) * OIL.OVERLAY_ALPHA
       if (alpha < 0.01) return
-      // Zona 0 = inicio del personaje (derecha), zona N-1 = bandera (izquierda)
-      const zoneX = POLE.START_X - (i + 1) * zoneW
+
+      const zoneLeft = POLE.START_X - (i + 1) * zoneW
       this.oilOverlay.fillStyle(0x000000, alpha)
-      this.oilOverlay.fillRect(zoneX, oilTop, zoneW, oilH)
+      this.oilOverlay.fillRect(zoneLeft, this.poleY - 3, zoneW, 5)
     })
   }
 
   drawSimpleBackground() {
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-game')
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, this.perspective.backgroundKey)
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
   }
 
@@ -760,24 +778,27 @@ export class GameScene extends Scene {
   }
 
   drawPole() {
-    const g          = this.add.graphics()
+    const g           = this.add.graphics()
+    this.gameWorld.add(g)
     const poleOverlap = 30
 
     g.fillStyle(COLORS.WOOD_LIGHT, 1)
-    g.fillRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 9)
+    g.fillRect(POLE.END_X, this.poleY - 4, POLE.LENGTH + poleOverlap, 9)
     g.lineStyle(1, COLORS.WOOD_DARK, 0.6)
-    g.strokeRect(POLE.END_X, this.poleY - 3, POLE.LENGTH + poleOverlap, 9)
+    g.strokeRect(POLE.END_X, this.poleY - 4, POLE.LENGTH + poleOverlap, 9)
 
     this.flagGraphics = this.add.graphics()
+    this.gameWorld.add(this.flagGraphics)
     this.flagGraphics.fillStyle(COLORS.WOOD_DARK, 1)
-    this.flagGraphics.fillRect(POLE.END_X - 2, this.poleY - 28, 3, 30)
+    this.flagGraphics.fillRect(POLE.END_X - 1, this.poleY - 28, 3, 30)
     this.flagGraphics.fillStyle(COLORS.WHITE, 1)
     this.flagGraphics.fillRect(POLE.END_X - 18, this.poleY - 28, 16, 10)
 
     const boatCenterX = BOAT.RIGHT_X - BOAT.DISPLAY_WIDTH / 2
     const boatCenterY = this.poleY + BOAT.DISPLAY_HEIGHT * (0.15 - BOAT.DECK_Y_RATIO)
-    this.add.image(boatCenterX, boatCenterY, 'boat')
+    const boat = this.add.image(boatCenterX, boatCenterY, 'boat')
       .setDisplaySize(BOAT.DISPLAY_WIDTH, BOAT.DISPLAY_HEIGHT)
+    this.gameWorld.add(boat)
   }
 
   // ========================================

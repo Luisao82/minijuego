@@ -1,0 +1,23 @@
+[
+  {
+    "id": "triana",
+    "label": "TRIANA",
+    "backgroundKey": "bg-game",
+    "direction": "rtl",
+    "scale": 1.0,
+    "yOffset": 0
+  },
+  {
+    "id": "sevilla",
+    "label": "SEVILLA",
+    "backgroundKey": "bg-game-sevilla",
+    "direction": "ltr",
+    "scale": 0.20,
+    "yOffset": -120,
+    "condition": {
+      "type": "total_rewards",
+      "count": 3,
+      "hint": "Consigue 3 premios en total"
+    }
+  }
+]

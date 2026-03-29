@@ -20,7 +20,7 @@ export const PLAYER_STATE = {
 
 export class Player {
 
-  constructor(scene, x, y, characterData = null) {
+  constructor(scene, x, y, characterData = null, scale = SPRITE_CONFIG.scale, parent = null) {
     this._scene         = scene
     this._x             = x
     this._y             = y
@@ -37,12 +37,14 @@ export class Player {
     if (key) {
       this._sprite   = scene.add.sprite(x, y + 4, key, SPRITE_FRAMES.STAND)
         .setOrigin(0.5, 1)
-        .setScale(SPRITE_CONFIG.scale)
+        .setScale(scale)
+      if (parent) parent.add(this._sprite)
       this._graphics = null
     } else {
       // Sin ningún spritesheet disponible — fallback pixel art
       this._sprite   = null
       this._graphics = scene.add.graphics()
+      if (parent) parent.add(this._graphics)
     }
 
     // Estado de animación walk
@@ -156,6 +158,10 @@ export class Player {
       this._animToggle = !this._animToggle
       this._sprite.setFrame(this._animToggle ? walkFrame : baseFrame)
     }
+  }
+
+  setFlipX(flip) {
+    this._sprite?.setFlipX(flip)
   }
 
   // ── Visibilidad ──────────────────────────────────────────────

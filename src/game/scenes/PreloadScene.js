@@ -3,6 +3,7 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT } from '../config/gameConfi
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
+import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -200,7 +201,8 @@ export class PreloadScene extends Scene {
 
     this.load.image('bg-menu',       'backgrounds/fondoIntro.png')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
-    this.load.image('bg-game',       'backgrounds/fondo_a.png')
+    this.load.image('bg-game',         'backgrounds/fondo_a.png')
+    this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.png')
     this.load.image('bg-history',    'backgrounds/fondoHistory.png')
 
     // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
@@ -240,6 +242,13 @@ export class PreloadScene extends Scene {
     this.load.on('filecomplete-json-characters-unlock', () => {
       const unlockData = this.cache.json.get('characters-unlock')
       unlockService.setConditions(unlockData)
+    })
+
+    // Perspectivas de vista (config + condiciones de desbloqueo)
+    this.load.json('perspectives', 'perspectives.json')
+    this.load.on('filecomplete-json-perspectives', () => {
+      const data = this.cache.json.get('perspectives')
+      perspectiveUnlockService.setData(data)
     })
 
     // Premios: carga el JSON y luego las imágenes de cada premio
