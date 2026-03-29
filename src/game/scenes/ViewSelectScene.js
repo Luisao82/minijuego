@@ -90,18 +90,20 @@ export class ViewSelectScene extends Scene {
       lockBg.fillRect(x0, y0, CARD_W, IMG_H)
       container.add(lockBg)
 
-      const lockIcon = this.add.text(0, y0 + IMG_H / 2 - 16, '🔒', {
-        fontSize: '36px',
+      const lockIcon = this.add.text(0, y0 + IMG_H / 2 - 32, '🔒', {
+        fontSize: '48px',
       }).setOrigin(0.5)
       container.add(lockIcon)
 
       const hint = perspectiveUnlockService.getHint(cfg.id) ?? 'Bloqueado'
-      const hintText = this.add.text(0, y0 + IMG_H / 2 + 24, hint, {
-        fontFamily: 'monospace',
-        fontSize:   '11px',
-        color:      '#aaaaaa',
+      const hintText = this.add.text(0, y0 + IMG_H / 2 + 30, hint, {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize:   '22px',
+        color:      '#ccccee',
+        stroke:     '#000000',
+        strokeThickness: 3,
         align:      'center',
-        wordWrap:   { width: CARD_W - 20 },
+        wordWrap:   { width: CARD_W - 24 },
       }).setOrigin(0.5)
       container.add(hintText)
     }

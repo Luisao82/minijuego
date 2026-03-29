@@ -152,20 +152,24 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
   } else {
     // Personaje bloqueado: hint de desbloqueo
     container.add(
-      scene.add.text(CARD_WIDTH / 2, STATS_Y + 16, 'BLOQUEADO', {
-        fontFamily: 'monospace',
-        fontSize:   '10px',
-        color:      '#666666',
+      scene.add.text(CARD_WIDTH / 2, STATS_Y + 14, 'BLOQUEADO', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize:   '22px',
+        color:      '#555577',
+        stroke:     '#000000',
+        strokeThickness: 3,
       }).setOrigin(0.5),
     )
     if (hint) {
       container.add(
-        scene.add.text(CARD_WIDTH / 2, STATS_Y + 36, hint, {
-          fontFamily: 'monospace',
-          fontSize:   '8px',
-          color:      '#888888',
+        scene.add.text(CARD_WIDTH / 2, STATS_Y + 48, hint, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize:   '18px',
+          color:      '#aaaacc',
+          stroke:     '#000000',
+          strokeThickness: 2,
           align:      'center',
-          wordWrap:   { width: CARD_WIDTH - 16 },
+          wordWrap:   { width: CARD_WIDTH - 20 },
         }).setOrigin(0.5),
       )
     }
