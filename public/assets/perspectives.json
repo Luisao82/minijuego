@@ -12,8 +12,8 @@
     "label": "SEVILLA",
     "backgroundKey": "bg-game-sevilla",
     "direction": "ltr",
-    "scale": 0.20,
-    "yOffset": -120,
+    "scale": 1.0,
+    "yOffset": -20,
     "condition": {
       "type": "total_rewards",
       "count": 3,
