@@ -20,18 +20,20 @@ export const PLAYER_STATE = {
 
 export class Player {
 
-  constructor(scene, x, y, characterData = null, scale = SPRITE_CONFIG.scale, parent = null) {
+  constructor(scene, x, y, characterData = null, scale = SPRITE_CONFIG.scale, parent = null, spriteKey = null) {
     this._scene         = scene
     this._x             = x
     this._y             = y
     this._characterData = characterData
     this._state         = PLAYER_STATE.NORMAL
 
-    // Determinar qué spritesheet usar
+    // Determinar qué spritesheet usar.
+    // spriteKey tiene prioridad (skin seleccionado), luego el del personaje, luego default.
     const id          = characterData?.id
     const charKey     = id ? `sprite-${id}` : null
-    const key         = (charKey && scene.textures.exists(charKey))
-      ? charKey
+    const resolvedKey = spriteKey && scene.textures.exists(spriteKey) ? spriteKey : charKey
+    const key         = (resolvedKey && scene.textures.exists(resolvedKey))
+      ? resolvedKey
       : scene.textures.exists('sprite-default') ? 'sprite-default' : null
 
     if (key) {

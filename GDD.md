@@ -627,3 +627,110 @@ NORMAL ──cae────────────────► FALLING
 | `showHead(waterY)`               | Muestra la cabeza asomando del agua (game over sin bandera)       |
 | `startCelebration(waterY, cb)`   | Animación de celebración en el agua (ganó con bandera)            |
 | `destroy()`                      | Limpia sprite, timers y graphics                                  |
+
+---
+
+## 🎨 Sistema de Skins
+
+Cada personaje puede tener múltiples apariencias visuales (skins). Un skin es un spritesheet alternativo para el personaje. El portrait/ficha en `CharacterSelectScene` **no cambia** con el skin — solo cambia el sprite en juego.
+
+### Definición de skins
+
+Los skins se definen dentro de cada personaje en `src/game/config/characters.js`, en el campo `skins[]`:
+
+```javascript
+skins: [
+  {
+    spritesheet: 'trianero',        // nombre del fichero (sin .png) en .../spritesheet/
+    nombre:      'Clásico',         // nombre mostrado en SkinSelectScene
+    como:        null,              // null = siempre desbloqueado (skin por defecto)
+  },
+  {
+    spritesheet: 'trianero_02',
+    nombre:      'Trianero Festivo',
+    como:        '10 premios con El Trianero',          // texto para el jugador
+    condicion:   { tipo: 'premios_personaje', cantidad: 10 },  // lógica de desbloqueo
+  },
+]
+```
+
+El **primer skin del array** es siempre el skin por defecto (nunca bloqueado).
+
+### Flujo de navegación
+
+```
+CharacterSelectScene  →  [SELECCIONAR]  →  SkinSelectScene  →  [JUGAR]  →  GameScene
+                                                             →  [VOLVER] →  CharacterSelectScene
+```
+
+### SkinSelectScene
+
+- Muestra **un skin a la vez**, a gran escala (`SPRITE_CONFIG.scalePreview`).
+- Anima alternando los frames `STAND` (0) y `WALK` (1) cada `400ms` — sensación de fase de equilibrio sin palo.
+- Botones de navegación `◀` / `▶` si hay más de un skin.
+- **Skin desbloqueado:** muestra nombre + sprite animado.
+- **Skin bloqueado:** muestra candado + texto de `como` (sin mostrar el nombre).
+- Botones: `JUGAR` (va a `GameScene` con el skin seleccionado) y `VOLVER` (regresa al carrusel de personajes).
+
+### Escala configurable
+
+| Constante              | Valor | Uso                                   |
+|------------------------|-------|---------------------------------------|
+| `SPRITE_CONFIG.scale`  | 3     | Tamaño del sprite en `GameScene`      |
+| `SPRITE_CONFIG.scalePreview` | 8 | Tamaño del sprite en `SkinSelectScene` |
+
+Ambas constantes están en `src/game/config/spriteConfig.js` y son independientes entre sí.
+
+### Desbloqueo de skins
+
+- **Condición:** acumular N premios **con ese personaje específico** (no premios globales).
+- **Tipo de condición:** `{ tipo: 'premios_personaje', cantidad: N }`
+- La comprobación ocurre en `RewardScene` al finalizar cada partida.
+- Los nuevos skins se desbloquean silenciosamente y están disponibles en la siguiente visita a `SkinSelectScene`.
+
+### Persistencia — localStorage
+
+**Clave:** `cucana_skins`
+
+**Estructura:**
+```json
+{
+  "trianero": {
+    "unlocked": ["trianero", "trianero_02"],
+    "active":   "trianero_02"
+  },
+  "flamenca": {
+    "unlocked": ["flamenca"],
+    "active":   "flamenca"
+  }
+}
+```
+
+- Si un personaje no tiene entrada, se usa el primer skin de su `skins[]` como fallback.
+- El skin activo se persiste al pulsar `JUGAR` en `SkinSelectScene`.
+- Gestionado por `SkinService` (`src/game/services/SkinService.js`).
+
+### Premios por personaje — localStorage
+
+**Clave:** `cucana_character_rewards`
+
+**Estructura:**
+```json
+{ "trianero": 5, "flamenca": 12 }
+```
+
+Gestionado por `CharacterRewardService` (`src/game/services/CharacterRewardService.js`), independiente de `RewardStorageService` (que trackea premios globales).
+
+### Ficheros implicados
+
+| Fichero | Rol |
+|---------|-----|
+| `src/game/config/characters.js` | Define los skins de cada personaje |
+| `src/game/config/spriteConfig.js` | Constantes `scale` y `scalePreview` |
+| `src/game/scenes/SkinSelectScene.js` | Pantalla de selección de skin |
+| `src/game/services/SkinService.js` | Desbloqueos y skin activo en localStorage |
+| `src/game/services/CharacterRewardService.js` | Premios acumulados por personaje |
+| `src/game/scenes/RewardScene.js` | Detecta y persiste nuevos desbloqueos |
+| `src/game/scenes/GameScene.js` | Carga el spritesheet del skin activo |
+| `src/game/entities/Player.js` | Acepta `spriteKey` para usar el skin correcto |
+| `public/assets/sprites/characters/spritesheet/` | Ficheros PNG de los spritesheets |

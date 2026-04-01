@@ -4,9 +4,10 @@
 // Si el fichero no existe, se usa 'sprite-default' como fallback.
 
 export const SPRITE_CONFIG = {
-  frameWidth:  16,
-  frameHeight: 24,
-  scale:       3,    // renderizado a 32×48 px en juego
+  frameWidth:   16,
+  frameHeight:  24,
+  scale:        3,    // renderizado a 48×72 px en juego
+  scalePreview: 8,    // renderizado a 128×192 px en SkinSelectScene
 }
 
 // Índices de frame dentro del spritesheet (tira horizontal).

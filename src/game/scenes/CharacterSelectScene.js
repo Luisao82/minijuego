@@ -203,7 +203,7 @@ export class CharacterSelectScene extends Scene {
     this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_HEIGHT + 66)
     this.updateDots()
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 15, '◀ ▶  ELEGIR     ESPACIO  JUGAR', {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 15, '◀ ▶  ELEGIR     ESPACIO  SELECCIONAR', {
       fontFamily: 'monospace',
       fontSize:   '10px',
       color:      '#555577',
@@ -250,7 +250,7 @@ export class CharacterSelectScene extends Scene {
     flagsG.lineStyle(1, 0xcccccc, 0.8)
     flagsG.strokeRect(rfx - 17, btnY - flagSize + 2, 14, 10)
 
-    this.playText = this.add.text(GAME_WIDTH / 2, btnY, 'JUGAR', {
+    this.playText = this.add.text(GAME_WIDTH / 2, btnY, 'SELECCIONAR', {
       fontFamily: '"Jersey 10", cursive',
       fontSize:   '52px',
       color:      '#ffd700',
@@ -272,7 +272,7 @@ export class CharacterSelectScene extends Scene {
       ease:     'Sine.easeInOut',
     })
 
-    const hintText = this.add.text(GAME_WIDTH / 2, btnY + 38, 'PULSA PARA COMENZAR', {
+    const hintText = this.add.text(GAME_WIDTH / 2, btnY + 38, 'ELIGE TU LOOK', {
       fontFamily: 'monospace',
       fontSize:   '11px',
       color:      '#ffd700',
@@ -321,6 +321,6 @@ export class CharacterSelectScene extends Scene {
   startGame() {
     const char = CHARACTERS[this.selectedIndex]
     if (!unlockService.isUnlocked(char.id)) return
-    this.scene.start(SCENES.GAME, { character: char, perspective: this.perspective })
+    this.scene.start(SCENES.SKIN_SELECT, { character: char, perspective: this.perspective })
   }
 }

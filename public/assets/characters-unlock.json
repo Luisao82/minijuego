@@ -26,17 +26,9 @@
   {
     "characterId": "retro01",
     "condition": {
-      "type": "specific_reward",
-      "rewardId": "reward_pending",
-      "hint": "???"
-    }
-  },
-  {
-    "characterId": "retro02",
-    "condition": {
-      "type": "specific_reward",
-      "rewardId": "reward_pending",
-      "hint": "???"
+      "type": "total_rewards",
+      "count": 11,
+      "hint": "Consigue 11 premios en total"
     }
   }
 ]
