@@ -3,6 +3,8 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
+import { characterRewardService } from '../services/CharacterRewardService'
+import { skinService } from '../services/SkinService'
 import { makeNavButton } from '../components/NavButton'
 
 // Panel casi a pantalla completa en altura
@@ -38,6 +40,14 @@ export class RewardScene extends Scene {
       rewardStorage.addReward(this.reward.id)
     }
 
+    // Trackear el premio con el personaje que lo ha conseguido y detectar skins nuevos
+    if (this.characterData?.id) {
+      characterRewardService.addReward(this.characterData.id)
+      this.newSkinUnlocks = this._checkSkinUnlocks()
+    } else {
+      this.newSkinUnlocks = []
+    }
+
     // Comprobar si algún personaje se desbloquea con este premio
     const newUnlocks = unlockService.checkNewUnlocks(rewardStorage)
     if (newUnlocks.length > 0) {
@@ -51,6 +61,23 @@ export class RewardScene extends Scene {
       perspectiveUnlockService.saveUnlocks(newPerspUnlocks)
     }
     this.newPerspUnlocks = newPerspUnlocks
+  }
+
+  // Desbloquea los skins del personaje cuya condición se cumple ahora.
+  // Devuelve el array de objetos skin recién desbloqueados (puede ser vacío).
+  _checkSkinUnlocks() {
+    const char     = this.characterData
+    const skins    = char.skins ?? []
+    const newSkins = []
+    for (const skin of skins) {
+      if (!skin.condicion) continue
+      if (skinService.isSkinUnlocked(char, skin.spritesheet)) continue
+      if (characterRewardService.meetsCondition(char.id, skin.condicion)) {
+        skinService.unlockSkin(char.id, skin.spritesheet)
+        newSkins.push(skin)
+      }
+    }
+    return newSkins
   }
 
   create() {
@@ -313,7 +340,7 @@ export class RewardScene extends Scene {
   }
 
   // Redirige al destino final pasando primero por las escenas de desbloqueo
-  // que correspondan. Orden: vistas → personajes → destino.
+  // que correspondan. Orden: vistas → personajes → skins → destino.
   _navigateWithUnlocks(finalScene) {
     if (this.newPerspUnlocks?.length > 0) {
       this.scene.start(SCENES.PERSPECTIVE_UNLOCK, {
@@ -326,6 +353,11 @@ export class RewardScene extends Scene {
       this.scene.start(SCENES.CHARACTER_UNLOCK, {
         unlockedCharacters: this.newUnlocks,
         character:          this.characterData,
+      })
+    } else if (this.newSkinUnlocks?.length > 0) {
+      this.scene.start(SCENES.SKIN_UNLOCK, {
+        newSkins:  this.newSkinUnlocks,
+        character: this.characterData,
       })
     } else if (finalScene === SCENES.GAME) {
       this.scene.start(SCENES.GAME, { character: this.characterData })

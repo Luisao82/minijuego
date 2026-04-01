@@ -13,6 +13,12 @@ export const CHARACTERS = [
     sprite: 'char-trianero',
     stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
     available: true,
+    skins: [
+      { spritesheet: 'trianero', nombre: 'Clásico', como: null },
+      { spritesheet: 'nazareno', nombre: 'Nazareno', como: null },
+      { spritesheet: 'feriante', nombre: 'Feriante', como: null },
+      { spritesheet: 'costalero', nombre: 'Costalero', como: null },
+    ],
   },
   {
     id: 'flamenca',
@@ -21,6 +27,9 @@ export const CHARACTERS = [
     sprite: 'char-flamenca',
     stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
     available: true,
+    skins: [
+      { spritesheet: 'flamenca', nombre: 'Clásico', como: null },
+    ],
   },
   {
     id: 'abuela',
@@ -29,6 +38,10 @@ export const CHARACTERS = [
     sprite: 'char-abuela',
     stats: { peso: 10, equilibrio: 8, altura: 4, edad: 9 },
     available: true,
+    skins: [
+      { spritesheet: 'abuela', nombre: 'Clásico', como: null },
+      { spritesheet: 'antonia', nombre: 'Antonia', como: null },
+    ],
   },
   {
     id: 'chaval',
@@ -37,6 +50,9 @@ export const CHARACTERS = [
     sprite: 'char-chaval',
     stats: { peso: 3, equilibrio: 4, altura: 3, edad: 2 },
     available: true,
+    skins: [
+      { spritesheet: 'chaval', nombre: 'Clásico', como: null },
+    ],
   },
   {
     id: 'guiri',
@@ -45,29 +61,20 @@ export const CHARACTERS = [
     sprite: 'char-guiri',
     stats: { peso: 4, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
+    skins: [
+      { spritesheet: 'guiri', nombre: 'Clásico', como: null },
+    ],
   },
   {
     id: 'retro01',
-    name: 'Retro 01',
-    description: 'Personaje de juego retro',
+    name: 'Personajes Retro',
+    description: 'Personajes de juegos retro',
     sprite: 'char-retro01',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
     available: true,
-  },
-  {
-    id: 'retro02',
-    name: 'Retro 02',
-    description: 'Personaje de juego retro',
-    sprite: 'char-retro02',
-    stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: true,
-  },
-  {
-    id: 'retro03',
-    name: 'Retro 03',
-    description: 'Personaje de juego retro',
-    sprite: 'char-retro03',
-    stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
-    available: true,
+    skins: [
+      { spritesheet: 'retro02', nombre: 'Mario', como: null },
+      { spritesheet: 'retro01', nombre: 'Abu Simbel', como: null },
+    ],
   },
 ]

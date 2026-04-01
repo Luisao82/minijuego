@@ -6,10 +6,12 @@ import { HistoryScene } from './scenes/HistoryScene'
 import { TutorialScene } from './scenes/TutorialScene'
 import { ViewSelectScene } from './scenes/ViewSelectScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
+import { SkinSelectScene } from './scenes/SkinSelectScene'
 import { GameScene } from './scenes/GameScene'
 import { RewardScene } from './scenes/RewardScene'
 import { CharacterUnlockScene } from './scenes/CharacterUnlockScene'
 import { PerspectiveUnlockScene } from './scenes/PerspectiveUnlockScene'
+import { SkinUnlockScene } from './scenes/SkinUnlockScene'
 import { CollectionScene } from './scenes/CollectionScene'
 import { AUTO, Scale, Game } from 'phaser'
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig'
@@ -34,10 +36,12 @@ const config = {
     TutorialScene,
     ViewSelectScene,
     CharacterSelectScene,
+    SkinSelectScene,
     GameScene,
     RewardScene,
     CharacterUnlockScene,
     PerspectiveUnlockScene,
+    SkinUnlockScene,
     CollectionScene,
   ],
 }

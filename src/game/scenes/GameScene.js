@@ -4,6 +4,7 @@ import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { BalanceDebugPanel } from '../components/BalanceDebugPanel'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
+import { skinService } from '../services/SkinService'
 import { Player } from '../entities/Player'
 import { PowerBar } from '../entities/PowerBar'
 import { makeNavButton } from '../components/NavButton'
@@ -21,6 +22,12 @@ export class GameScene extends Scene {
 
   init(data) {
     this.characterData = data.character || null
+
+    // Skin activo: el pasado explícitamente o el guardado en SkinService como fallback
+    const skinSpritesheet = data.skin
+      ?? (this.characterData ? skinService.getActiveSkin(this.characterData) : null)
+    this.skinKey = skinSpritesheet ? `sprite-${skinSpritesheet}` : null
+
     this.phase = null
     this.impulseResult = null
 
@@ -73,19 +80,19 @@ export class GameScene extends Scene {
   }
 
   preload() {
-    const id = this.characterData?.id
-    if (!id) return
-    const key = `sprite-${id}`
-    if (this.textures.exists(key)) return
+    if (!this.skinKey) return
+    if (this.textures.exists(this.skinKey)) return
 
+    // Extraer el nombre del fichero del spritesheet desde la key (sprite-{name})
+    const spritesheetName = this.skinKey.replace('sprite-', '')
     this.load.setPath('assets')
-    this.load.spritesheet(key, `sprites/characters/spritesheet/${id}.png`, {
+    this.load.spritesheet(this.skinKey, `sprites/characters/spritesheet/${spritesheetName}.png`, {
       frameWidth:  SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
     })
     // Aplicar filtro NEAREST al spritesheet cargado dinámicamente
-    this.load.once(`filecomplete-spritesheet-${key}`, () => {
-      const texture = this.textures.get(key)
+    this.load.once(`filecomplete-spritesheet-${this.skinKey}`, () => {
+      const texture = this.textures.get(this.skinKey)
       if (texture?.source.length > 0) {
         texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
       }
@@ -103,7 +110,7 @@ export class GameScene extends Scene {
     this.gameWorld.add(this.oilOverlay)
     this._drawOilOverlay()
 
-    this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld)
+    this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld, this.skinKey)
     this.createControlPanel()
     this.createHUD()
     this.startPhase1()
