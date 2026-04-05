@@ -18,6 +18,7 @@ export const CHARACTERS = [
       { spritesheet: 'nazareno', nombre: 'Nazareno', como: null },
       { spritesheet: 'feriante', nombre: 'Feriante', como: null },
       { spritesheet: 'costalero', nombre: 'Costalero', como: null },
+      { spritesheet: 'armao', nombre: 'Armao', como: null },
     ],
   },
   {
@@ -29,6 +30,8 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'flamenca', nombre: 'Clásico', como: null },
+      { spritesheet: 'nazarena', nombre: 'Nazarena', como: null },
+      { spritesheet: 'mantilla', nombre: 'Mantilla', como: null },
     ],
   },
   {
@@ -39,8 +42,9 @@ export const CHARACTERS = [
     stats: { peso: 10, equilibrio: 8, altura: 4, edad: 9 },
     available: true,
     skins: [
-      { spritesheet: 'abuela', nombre: 'Clásico', como: null },
+      { spritesheet: 'abuela', nombre: 'Omaita', como: null },
       { spritesheet: 'antonia', nombre: 'Antonia', como: null },
+      { spritesheet: 'paco', nombre: 'Paco', como: null },
     ],
   },
   {
