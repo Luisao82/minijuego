@@ -24,11 +24,19 @@
     }
   },
   {
+    "characterId": "cunaos",
+    "condition": {
+      "type": "total_rewards",
+      "count": 15,
+      "hint": "Consigue 15 premios en total"
+    }
+  },
+  {
     "characterId": "retro01",
     "condition": {
       "type": "total_rewards",
-      "count": 11,
-      "hint": "Consigue 11 premios en total"
+      "count": 20,
+      "hint": "Consigue 20 premios en total"
     }
   }
 ]

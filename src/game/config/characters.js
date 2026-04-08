@@ -70,6 +70,22 @@ export const CHARACTERS = [
     ],
   },
   {
+    id: 'cunaos',
+    name: 'Los cuñaos',
+    description: '¿Los tipicos que saben de todo? Pues esos.\nEllos lo hacen mejor y más barato',
+    sprite: 'char-cunaos',
+    stats: { peso: 4, equilibrio: 2, altura: 4, edad: 6 },
+    available: true,
+    skins: [
+      { spritesheet: 'rafi', nombre: 'Rafi', como: null },
+      { spritesheet: 'fali', nombre: 'Fali', como: null },
+      { spritesheet: 'rafi-pelicula', nombre: 'El mundo es suyo ...', como: null },
+      { spritesheet: 'fali-pelicula', nombre: '...y es suyo', como: null },
+      { spritesheet: 'rafi-equipo', nombre: 'Manquepierda', como: null },
+      { spritesheet: 'fali-equipo', nombre: 'Hasta la muerte', como: null },
+    ],
+  },
+  {
     id: 'retro01',
     name: 'Personajes Retro',
     description: 'Personajes de juegos retro',
