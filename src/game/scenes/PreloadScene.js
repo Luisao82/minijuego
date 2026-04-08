@@ -199,6 +199,11 @@ export class PreloadScene extends Scene {
     this.load.image('btn-balance-right',       'ui/buttons/buttonBlue.png')
     this.load.image('btn-balance-right-press', 'ui/buttons/buttonBluePress.png')
 
+    this.load.image('btn-nav-left',        'ui/buttons/left-stand.png')
+    this.load.image('btn-nav-left-press',  'ui/buttons/left-press.png')
+    this.load.image('btn-nav-right',       'ui/buttons/right-stand.png')
+    this.load.image('btn-nav-right-press', 'ui/buttons/right-press.png')
+
     this.load.image('bg-menu',       'backgrounds/fondoIntro.png')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
     this.load.image('bg-game',         'backgrounds/fondo_a.png')

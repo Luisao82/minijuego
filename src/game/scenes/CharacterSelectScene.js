@@ -184,21 +184,11 @@ export class CharacterSelectScene extends Scene {
   drawNavigation() {
     const arrowY = CARDS_Y + CARD_HEIGHT / 2
 
-    this.leftArrow = this.add.text(30, arrowY, '◀', {
-      fontFamily: 'monospace',
-      fontSize:   '36px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    this.leftArrow = this.add.image(40, arrowY, 'btn-nav-left')
+      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.text(GAME_WIDTH - 30, arrowY, '▶', {
-      fontFamily: 'monospace',
-      fontSize:   '36px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    this.rightArrow = this.add.image(GAME_WIDTH - 40, arrowY, 'btn-nav-right')
+      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
     this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_HEIGHT + 66)
     this.updateDots()
@@ -293,8 +283,12 @@ export class CharacterSelectScene extends Scene {
   // ── Input ────────────────────────────────────────────────────
 
   setupInput() {
-    this.leftArrow.on('pointerdown',  () => this.navigate(-1))
-    this.rightArrow.on('pointerdown', () => this.navigate(1))
+    this.leftArrow.on('pointerdown',  () => { this.leftArrow.setTexture('btn-nav-left-press'); this.navigate(-1) })
+    this.leftArrow.on('pointerup',    () => this.leftArrow.setTexture('btn-nav-left'))
+    this.leftArrow.on('pointerout',   () => this.leftArrow.setTexture('btn-nav-left'))
+    this.rightArrow.on('pointerdown', () => { this.rightArrow.setTexture('btn-nav-right-press'); this.navigate(1) })
+    this.rightArrow.on('pointerup',   () => this.rightArrow.setTexture('btn-nav-right'))
+    this.rightArrow.on('pointerout',  () => this.rightArrow.setTexture('btn-nav-right'))
 
     this.input.keyboard.on('keydown-LEFT',  () => this.navigate(-1))
     this.input.keyboard.on('keydown-RIGHT', () => this.navigate(1))

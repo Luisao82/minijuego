@@ -122,24 +122,18 @@ export class CollectionScene extends Scene {
   drawNavigation() {
     const arrowY = CARDS_Y + CARD_H / 2
 
-    this.leftArrow = this.add.text(28, arrowY, '◀', {
-      fontFamily: 'monospace',
-      fontSize:   '36px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    this.leftArrow = this.add.image(28, arrowY, 'btn-nav-left')
+      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.text(GAME_WIDTH - 28, arrowY, '▶', {
-      fontFamily: 'monospace',
-      fontSize:   '36px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    this.rightArrow = this.add.image(GAME_WIDTH - 28, arrowY, 'btn-nav-right')
+      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
-    this.leftArrow.on('pointerdown',  () => this.scroll(-1))
-    this.rightArrow.on('pointerdown', () => this.scroll(1))
+    this.leftArrow.on('pointerdown',  () => { this.leftArrow.setTexture('btn-nav-left-press'); this.scroll(-1) })
+    this.leftArrow.on('pointerup',    () => this.leftArrow.setTexture('btn-nav-left'))
+    this.leftArrow.on('pointerout',   () => this.leftArrow.setTexture('btn-nav-left'))
+    this.rightArrow.on('pointerdown', () => { this.rightArrow.setTexture('btn-nav-right-press'); this.scroll(1) })
+    this.rightArrow.on('pointerup',   () => this.rightArrow.setTexture('btn-nav-right'))
+    this.rightArrow.on('pointerout',  () => this.rightArrow.setTexture('btn-nav-right'))
 
     this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_H + 22)
     this.updateDots()

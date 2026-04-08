@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- Botones de navegación ◀▶ (selección de personaje, skin y premios) reemplazados por sprites PNG pixel art con estado stand/press (`left-stand.png`, `left-press.png`, `right-stand.png`, `right-press.png`).
+
 ---
 
 ## [0.4.0] - 2026-03-29
