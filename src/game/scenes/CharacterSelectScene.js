@@ -141,6 +141,7 @@ export class CharacterSelectScene extends Scene {
   }
 
   // ── Detalle del personaje seleccionado ───────────────────────
+  // Panel ancho debajo del botón SELECCIONAR
 
   drawSelectedDetail() {
     if (this.detailContainer) this.detailContainer.destroy()
@@ -152,29 +153,31 @@ export class CharacterSelectScene extends Scene {
     const text     = isLocked
       ? (unlockService.getHint(char.id) ?? 'Personaje bloqueado')
       : char.description
-    const color    = isLocked ? '#888888' : '#bbbbbb'
+    const color    = isLocked ? '#555577' : '#ffd700'
 
     this.detailContainer = this.add.container(0, 0)
 
-    const panelY = CARDS_Y + CARD_HEIGHT + 10
-    const panelH = 46
-    const panelW = 460
-    const px     = GAME_WIDTH / 2 - panelW / 2
+    const panelW = Math.round(GAME_WIDTH * 0.9)
+    const panelH = 76
+    const panelX = Math.round((GAME_WIDTH - panelW) / 2)
+    const panelY = 640   // justo debajo del botón SELECCIONAR (centro Y=600)
 
     const g = this.add.graphics()
-    g.fillStyle(0x0d0d24, 0.9)
-    g.fillRect(px, panelY, panelW, panelH)
-    g.lineStyle(1, COLORS.UI_BORDER, 0.6)
-    g.strokeRect(px, panelY, panelW, panelH)
+    g.fillStyle(0x0d0d24, 0.82)
+    g.fillRect(panelX, panelY, panelW, panelH)
+    g.lineStyle(1, COLORS.GOLD, 0.4)
+    g.strokeRect(panelX, panelY, panelW, panelH)
     this.detailContainer.add(g)
 
     this.detailContainer.add(
       this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, text, {
-        fontFamily: 'monospace',
-        fontSize:   '12px',
+        fontFamily:      'monospace',
+        fontSize:        '16px',
         color,
-        align:      'center',
-        lineSpacing: 6,
+        stroke:          '#000000',
+        strokeThickness: 5,
+        align:           'center',
+        wordWrap:        { width: panelW - 48 },
       }).setOrigin(0.5),
     )
   }
@@ -262,22 +265,6 @@ export class CharacterSelectScene extends Scene {
       ease:     'Sine.easeInOut',
     })
 
-    const hintText = this.add.text(GAME_WIDTH / 2, btnY + 38, 'ELIGE TU LOOK', {
-      fontFamily: 'monospace',
-      fontSize:   '11px',
-      color:      '#ffd700',
-      stroke:     '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-
-    this.tweens.add({
-      targets:  hintText,
-      alpha:    0.3,
-      duration: 600,
-      yoyo:     true,
-      repeat:   -1,
-      ease:     'Sine.easeInOut',
-    })
   }
 
   // ── Input ────────────────────────────────────────────────────

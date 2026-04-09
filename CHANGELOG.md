@@ -10,6 +10,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Changed
 
 - Botones de navegación ◀▶ (selección de personaje, skin y premios) reemplazados por sprites PNG pixel art con estado stand/press (`left-stand.png`, `left-press.png`, `right-stand.png`, `right-press.png`).
+- CollectionScene: layout unificado con CharacterSelectScene — BAND_Y=120, BAND_H=440, CARDS_Y=200, header en Y=55, botones de acción centrados en Y=600; cards visibles reducidas de 4 a 3; botones de nav movidos a x=40 para evitar desbordamiento de pantalla.
+- ViewSelectScene: rediseñada con el mismo patrón de carrusel que CharacterSelectScene — banda BAND_Y=120/BAND_H=440, header Y=55, flechas ◀▶ PNG en x=40 con estado stand/press, puntos indicadores, botón "SELECCIONAR VISTA" pulsante centrado en Y=600.
+- SkinSelectScene: layout unificado con CharacterSelectScene — BAND_Y=120, BAND_H=440, header en Y=55 (halfWidth=280), botones centrados en Y=600.
 
 ---
 

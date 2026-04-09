@@ -6,16 +6,19 @@ import { makeNavButton } from '../components/NavButton'
 import { skinService } from '../services/SkinService'
 
 // ── Constantes de layout ────────────────────────────────────────
-const BAND_Y          = 80
-const BAND_H          = 560
-const SKIN_NAME_Y     = 220
-const SPRITE_CENTER_Y = 370
-const LOCK_ICON_Y     = 330
-const COMO_TEXT_Y     = 510
-const NAV_ARROW_X_PAD = 140   // distancia horizontal desde el centro al botón nav
+// Mismos valores que CharacterSelectScene para coherencia visual
+const BAND_Y          = 120   // igual que CharacterSelectScene
+const BAND_H          = 440   // igual que CharacterSelectScene
+const SKIN_NAME_Y     = 185
+const SPRITE_CENTER_Y = 330
+const LOCK_ICON_Y     = 290
+const COMO_TEXT_Y     = 445
 const BTN_W           = 200
 const BTN_H           = 56
-const BTN_Y           = GAME_HEIGHT - 72
+// CharacterSelectScene coloca 'SELECCIONAR' centrado en Y=600 (BAND_Y+BAND_H+40).
+// makeNavButton recibe la esquina superior izquierda, así que el centro queda en BTN_TOP + BTN_H/2.
+// Para que el centro coincida con Y=600: BTN_TOP = 600 - 56/2 = 572.
+const BTN_TOP         = 572
 const FRAME_INTERVAL  = 400   // ms entre frame STAND y WALK
 
 const SPRITE_PATH = 'sprites/characters/spritesheet/'
@@ -49,13 +52,7 @@ export class SkinSelectScene extends Scene {
 
   create() {
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
-    drawSceneHeader(this, GAME_WIDTH / 2, 40, `${this.character.name}`, 320)
-
-    this.add.text(GAME_WIDTH / 2, 70, 'ELIGE TU SKIN', {
-      fontFamily: 'monospace',
-      fontSize:   '13px',
-      color:      '#aaaacc',
-    }).setOrigin(0.5)
+    drawSceneHeader(this, GAME_WIDTH / 2, 55, `${this.character.name}`, 280)
 
     this.skinDisplay = this.add.container(0, 0)
     this.drawCurrentSkin()
@@ -217,7 +214,7 @@ export class SkinSelectScene extends Scene {
 
     makeNavButton(
       this,
-      leftBtnX, BTN_Y - BTN_H / 2,
+      leftBtnX, BTN_TOP,
       BTN_W, BTN_H,
       'VOLVER',
       () => this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective }),
@@ -225,7 +222,7 @@ export class SkinSelectScene extends Scene {
 
     makeNavButton(
       this,
-      rightBtnX, BTN_Y - BTN_H / 2,
+      rightBtnX, BTN_TOP,
       BTN_W, BTN_H,
       'JUGAR',
       () => this.startGame(),

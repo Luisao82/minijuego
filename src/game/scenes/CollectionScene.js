@@ -11,10 +11,11 @@ const CARD_H   = 260
 const CARD_GAP = 24
 const CARD_STEP = CARD_W + CARD_GAP
 
-const VISIBLE_COUNT = 4
+const VISIBLE_COUNT = 3
 const AREA_LEFT     = Math.round((GAME_WIDTH - (VISIBLE_COUNT * CARD_W + (VISIBLE_COUNT - 1) * CARD_GAP)) / 2)
 const AREA_RIGHT    = AREA_LEFT + VISIBLE_COUNT * CARD_W + (VISIBLE_COUNT - 1) * CARD_GAP
-const CARDS_Y       = Math.round(GAME_HEIGHT / 2 - CARD_H / 2)
+// CARDS_Y = 200 → centro de cards en Y=330, igual que las flechas de CharacterSelectScene
+const CARDS_Y       = 200
 
 const IMG_SIZE    = 120
 const IMG_Y_LOCAL = Math.round((CARD_H - IMG_SIZE) / 2)
@@ -22,8 +23,9 @@ const IMG_Y_LOCAL = Math.round((CARD_H - IMG_SIZE) / 2)
 // Layout enviado a RewardCard
 const CARD_LAYOUT = { width: CARD_W, height: CARD_H, imgSize: IMG_SIZE, imgYLocal: IMG_Y_LOCAL }
 
-const BAND_Y = 110
-const BAND_H = 480
+// Mismos valores que CharacterSelectScene y SkinSelectScene
+const BAND_Y = 120
+const BAND_H = 440
 
 const CONFETTI_COLORS = [0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b]
 
@@ -122,10 +124,10 @@ export class CollectionScene extends Scene {
   drawNavigation() {
     const arrowY = CARDS_Y + CARD_H / 2
 
-    this.leftArrow = this.add.image(28, arrowY, 'btn-nav-left')
+    this.leftArrow = this.add.image(40, arrowY, 'btn-nav-left')
       .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.image(GAME_WIDTH - 28, arrowY, 'btn-nav-right')
+    this.rightArrow = this.add.image(GAME_WIDTH - 40, arrowY, 'btn-nav-right')
       .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
 
     this.leftArrow.on('pointerdown',  () => { this.leftArrow.setTexture('btn-nav-left-press'); this.scroll(-1) })
@@ -179,7 +181,8 @@ export class CollectionScene extends Scene {
     const btnH   = 58
     const btnW   = 240
     const gap    = 20
-    const btnY   = BAND_Y + BAND_H + 22
+    // top del botón para que su centro quede en Y=600, igual que CharacterSelectScene
+    const btnY   = BAND_Y + BAND_H + 40 - btnH / 2
     const totalW = btnW * 2 + gap
     const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
 
