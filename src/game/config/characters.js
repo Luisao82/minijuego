@@ -95,6 +95,7 @@ export const CHARACTERS = [
     skins: [
       { spritesheet: 'retro02', nombre: 'Mario', como: null },
       { spritesheet: 'retro01', nombre: 'Abu Simbel', como: null },
+      { spritesheet: 'retro03', nombre: 'Dan', como: null },
     ],
   },
 ]
