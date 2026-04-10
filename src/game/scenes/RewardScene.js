@@ -70,9 +70,9 @@ export class RewardScene extends Scene {
     const skins    = char.skins ?? []
     const newSkins = []
     for (const skin of skins) {
-      if (!skin.condicion) continue
+      if (skin.flags === null || skin.flags === undefined) continue
       if (skinService.isSkinUnlocked(char, skin.spritesheet)) continue
-      if (characterRewardService.meetsCondition(char.id, skin.condicion)) {
+      if (characterRewardService.getCount(char.id) >= skin.flags) {
         skinService.unlockSkin(char.id, skin.spritesheet)
         newSkins.push(skin)
       }

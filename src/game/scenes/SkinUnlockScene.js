@@ -296,7 +296,10 @@ export class SkinUnlockScene extends Scene {
   }
 
   goToSkinSelect() {
-    this.scene.start(SCENES.SKIN_SELECT, { character: this.character })
+    this.scene.start(SCENES.SKIN_SELECT, {
+      character:    this.character,
+      justUnlocked: this.newSkins.map(s => s.spritesheet),
+    })
   }
 
   playAgain() {

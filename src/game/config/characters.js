@@ -14,11 +14,11 @@ export const CHARACTERS = [
     stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
     available: true,
     skins: [
-      { spritesheet: 'trianero', nombre: 'Clásico', como: null },
-      { spritesheet: 'nazareno', nombre: 'Nazareno', como: null },
-      { spritesheet: 'feriante', nombre: 'Feriante', como: null },
-      { spritesheet: 'costalero', nombre: 'Costalero', como: null },
-      { spritesheet: 'armao', nombre: 'Armao', como: null },
+      { spritesheet: 'trianero', nombre: 'Clásico', flags: null },
+      { spritesheet: 'nazareno', nombre: 'Nazareno', flags: 5 },
+      { spritesheet: 'feriante', nombre: 'Feriante', flags: 10 },
+      { spritesheet: 'costalero', nombre: 'Costalero', flags: 15 },
+      { spritesheet: 'armao', nombre: 'Armao', flags: 20 },
     ],
   },
   {
@@ -29,9 +29,9 @@ export const CHARACTERS = [
     stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
     available: true,
     skins: [
-      { spritesheet: 'flamenca', nombre: 'Clásico', como: null },
-      { spritesheet: 'nazarena', nombre: 'Nazarena', como: null },
-      { spritesheet: 'mantilla', nombre: 'Mantilla', como: null },
+      { spritesheet: 'flamenca', nombre: 'Clásico', flags: null },
+      { spritesheet: 'nazarena', nombre: 'Nazarena', flags: 5 },
+      { spritesheet: 'mantilla', nombre: 'Mantilla', flags: 10 },
     ],
   },
   {
@@ -42,9 +42,9 @@ export const CHARACTERS = [
     stats: { peso: 10, equilibrio: 8, altura: 4, edad: 9 },
     available: true,
     skins: [
-      { spritesheet: 'abuela', nombre: 'Omaita', como: null },
-      { spritesheet: 'antonia', nombre: 'Antonia', como: null },
-      { spritesheet: 'paco', nombre: 'Paco', como: null },
+      { spritesheet: 'abuela', nombre: 'Omaita', flags: null },
+      { spritesheet: 'antonia', nombre: 'Antonia', flags: 5 },
+      { spritesheet: 'paco', nombre: 'Paco', flags: 10 },
     ],
   },
   {
@@ -55,7 +55,7 @@ export const CHARACTERS = [
     stats: { peso: 3, equilibrio: 4, altura: 3, edad: 2 },
     available: true,
     skins: [
-      { spritesheet: 'chaval', nombre: 'Clásico', como: null },
+      { spritesheet: 'chaval', nombre: 'Clásico', flags: null },
     ],
   },
   {
@@ -66,7 +66,7 @@ export const CHARACTERS = [
     stats: { peso: 4, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
     skins: [
-      { spritesheet: 'guiri', nombre: 'Clásico', como: null },
+      { spritesheet: 'guiri', nombre: 'Clásico', flags: null },
     ],
   },
   {
@@ -77,12 +77,12 @@ export const CHARACTERS = [
     stats: { peso: 4, equilibrio: 2, altura: 4, edad: 6 },
     available: true,
     skins: [
-      { spritesheet: 'rafi', nombre: 'Rafi', como: null },
-      { spritesheet: 'fali', nombre: 'Fali', como: null },
-      { spritesheet: 'rafi-pelicula', nombre: 'El mundo es suyo ...', como: null },
-      { spritesheet: 'fali-pelicula', nombre: '...y es suyo', como: null },
-      { spritesheet: 'rafi-equipo', nombre: 'Manquepierda', como: null },
-      { spritesheet: 'fali-equipo', nombre: 'Hasta la muerte', como: null },
+      { spritesheet: 'rafi', nombre: 'Rafi', flags: null },
+      { spritesheet: 'fali', nombre: 'Fali', flags: null },
+      { spritesheet: 'rafi-pelicula', nombre: 'El mundo es suyo ...', flags: 5 },
+      { spritesheet: 'fali-pelicula', nombre: '...y es suyo', flags: 5 },
+      { spritesheet: 'rafi-equipo', nombre: 'Manquepierda', flags: 10 },
+      { spritesheet: 'fali-equipo', nombre: 'Hasta la muerte', flags: 10 },
     ],
   },
   {
@@ -93,9 +93,9 @@ export const CHARACTERS = [
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
     available: true,
     skins: [
-      { spritesheet: 'retro02', nombre: 'Mario', como: null },
-      { spritesheet: 'retro01', nombre: 'Abu Simbel', como: null },
-      { spritesheet: 'retro03', nombre: 'Dan', como: null },
+      { spritesheet: 'retro02', nombre: 'Mario', flags: null },
+      { spritesheet: 'retro01', nombre: 'Abu Simbel', flags: 5 },
+      { spritesheet: 'retro03', nombre: 'Dan', flags: 10 },
     ],
   },
 ]

@@ -7,8 +7,25 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+---
+
+## [0.5.0] - 2026-04-09
+
+### Added
+
+- Desbloqueo automático de skins por banderas: al conseguir N banderas con un personaje se muestra la pantalla `SkinUnlockScene` con el skin recién desbloqueado.
+- Progreso de banderas pixel art en skins bloqueados: iconos de bandera (blancas las conseguidas, oscuras las restantes) mostrando solo el tramo del paso actual (diferencia entre el umbral anterior y el requerido); contador "X / Y banderas" dinámico.
+- Badge "¡NUEVO!" pulsante sobre el skin recién desbloqueado al volver a la pantalla de selección de skin.
+- Skins bloqueados muestran "???" como nombre en lugar del nombre real.
+- Migración automática de datos a v0.5.0: al detectar una versión anterior en localStorage se limpian también `cucana_character_rewards` y `cucana_skins`, garantizando un estado limpio compatible con el nuevo sistema de skins.
+
+### Fixed
+
+- Skins que nunca se desbloqueaban: `RewardScene._checkSkinUnlocks()` buscaba `skin.condicion` pero el campo en `characters.js` es `skin.flags`. Corregido.
+
 ### Changed
 
+- Campo `como` en skins de `characters.js` renombrado a `flags` (indica el número de banderas necesarias para desbloquear el skin).
 - Botones de navegación ◀▶ (selección de personaje, skin y premios) reemplazados por sprites PNG pixel art con estado stand/press (`left-stand.png`, `left-press.png`, `right-stand.png`, `right-press.png`).
 - CollectionScene: layout unificado con CharacterSelectScene — BAND_Y=120, BAND_H=440, CARDS_Y=200, header en Y=55, botones de acción centrados en Y=600; cards visibles reducidas de 4 a 3; botones de nav movidos a x=40 para evitar desbordamiento de pantalla.
 - ViewSelectScene: rediseñada con el mismo patrón de carrusel que CharacterSelectScene — banda BAND_Y=120/BAND_H=440, header Y=55, flechas ◀▶ PNG en x=40 con estado stand/press, puntos indicadores, botón "SELECCIONAR VISTA" pulsante centrado en Y=600.
