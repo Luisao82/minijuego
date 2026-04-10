@@ -4,6 +4,7 @@ import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { makeNavButton } from '../components/NavButton'
 import { skinService } from '../services/SkinService'
+import { characterRewardService } from '../services/CharacterRewardService'
 
 // ── Constantes de layout ────────────────────────────────────────
 // Mismos valores que CharacterSelectScene para coherencia visual
@@ -30,10 +31,11 @@ export class SkinSelectScene extends Scene {
   }
 
   init(data) {
-    this.character   = data.character
-    this.perspective = data.perspective ?? null
-    this.skinIndex   = 0
-    this._frameTimer = null
+    this.character    = data.character
+    this.perspective  = data.perspective ?? null
+    this.skinIndex    = 0
+    this._frameTimer  = null
+    this.justUnlocked = data.justUnlocked ?? []   // spritesheets recién desbloqueados
   }
 
   preload() {
@@ -71,7 +73,7 @@ export class SkinSelectScene extends Scene {
 
     const skin       = this.character.skins[this.skinIndex]
     const isUnlocked = skinService.isSkinUnlocked(this.character, skin.spritesheet)
-      || skin.como === null  // el skin por defecto siempre desbloqueado
+      || skin.flags === null  // el skin por defecto siempre desbloqueado
 
     if (isUnlocked) {
       this._drawUnlockedSkin(skin)
@@ -115,42 +117,134 @@ export class SkinSelectScene extends Scene {
       },
     })
 
+    // Badge ¡NUEVO! si este skin se acaba de desbloquear
+    if (this.justUnlocked.includes(skin.spritesheet)) {
+      const spriteW   = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
+      const badgeText = this.add.text(
+        GAME_WIDTH / 2 + spriteW / 2 + 8,
+        SPRITE_CENTER_Y - SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview / 2,
+        '¡NUEVO!',
+        {
+          fontFamily:      '"Jersey 10", cursive',
+          fontSize:        '26px',
+          color:           '#00ff88',
+          stroke:          '#003322',
+          strokeThickness: 5,
+        },
+      ).setOrigin(0, 0)
+      this.skinDisplay.add(badgeText)
+      this.tweens.add({
+        targets:  badgeText,
+        alpha:    0.2,
+        duration: 500,
+        yoyo:     true,
+        repeat:   -1,
+        ease:     'Sine.easeInOut',
+      })
+    }
+
     // Indicador de posición (puntos)
     this._drawDots()
   }
 
-  _drawLockedSkin(_skin) {
+  _drawLockedSkin(skin) {
     // Fondo oscuro donde iría el sprite
+    const spriteW = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
+    const spriteH = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview
     const bg = this.add.graphics()
-    const w  = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
-    const h  = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview
     bg.fillStyle(0x000000, 0.55)
-    bg.fillRect(GAME_WIDTH / 2 - w / 2, SPRITE_CENTER_Y - h / 2, w, h)
+    bg.fillRect(GAME_WIDTH / 2 - spriteW / 2, SPRITE_CENTER_Y - spriteH / 2, spriteW, spriteH)
     bg.lineStyle(2, COLORS.UI_BORDER, 0.6)
-    bg.strokeRect(GAME_WIDTH / 2 - w / 2, SPRITE_CENTER_Y - h / 2, w, h)
+    bg.strokeRect(GAME_WIDTH / 2 - spriteW / 2, SPRITE_CENTER_Y - spriteH / 2, spriteW, spriteH)
     this.skinDisplay.add(bg)
 
-    // Icono candado (ASCII pixel art)
+    // Nombre del skin — oculto hasta que se desbloquee
+    this.skinDisplay.add(
+      this.add.text(GAME_WIDTH / 2, SKIN_NAME_Y, '???', {
+        fontFamily:      '"Jersey 10", cursive',
+        fontSize:        '36px',
+        color:           '#444466',
+        stroke:          '#1a0800',
+        strokeThickness: 6,
+      }).setOrigin(0.5),
+    )
+
+    // Icono candado
     this.skinDisplay.add(
       this.add.text(GAME_WIDTH / 2, LOCK_ICON_Y, '🔒', {
         fontSize: '48px',
       }).setOrigin(0.5),
     )
 
-    // Texto "cómo conseguirlo"
-    const como = _skin.como ?? 'Bloqueado'
-    this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, COMO_TEXT_Y, como, {
-        fontFamily:  'monospace',
-        fontSize:    '13px',
-        color:       '#aaaacc',
-        align:       'center',
-        wordWrap:    { width: 400 },
-      }).setOrigin(0.5),
-    )
+    // Progreso de banderas
+    this._drawFlagProgress(skin)
 
     // Indicador de posición (puntos)
     this._drawDots()
+  }
+
+  // Dibuja los iconos de bandera del tramo entre el skin anterior y este.
+  // Solo muestra las banderas que hacen falta para pasar del umbral anterior al actual.
+  _drawFlagProgress(skin) {
+    const required = skin.flags ?? 0
+    if (required <= 0) return
+
+    // Umbral del skin anterior con flags (o 0 si es el primero bloqueado)
+    let prevThreshold = 0
+    for (let i = this.skinIndex - 1; i >= 0; i--) {
+      const s = this.character.skins[i]
+      if (s.flags !== null && s.flags !== undefined) {
+        prevThreshold = s.flags
+        break
+      }
+    }
+
+    const stepRequired = required - prevThreshold
+    const currentTotal = characterRewardService.getCount(this.character.id)
+    const currentStep  = Math.max(0, Math.min(currentTotal - prevThreshold, stepRequired))
+
+    const POLE_W = 3
+    const POLE_H = 26
+    const FLAG_W = 16
+    const FLAG_H = 11
+    const GAP    = 14
+    const UNIT   = POLE_W + FLAG_W + GAP
+    const totalW = stepRequired * UNIT - GAP
+    const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
+    const baseY  = COMO_TEXT_Y + 18   // ligeramente más abajo
+
+    const g = this.add.graphics()
+
+    for (let i = 0; i < stepRequired; i++) {
+      const x      = startX + i * UNIT
+      const filled = i < currentStep
+
+      // Palo
+      g.fillStyle(filled ? 0xdddddd : 0x2a2a44, 1)
+      g.fillRect(x, baseY, POLE_W, POLE_H)
+
+      // Tela — blanca si conseguida
+      g.fillStyle(filled ? 0xffffff : 0x1e1e38, 1)
+      g.fillRect(x + POLE_W, baseY + 1, FLAG_W, FLAG_H)
+
+      // Borde sutil en las rellenas
+      if (filled) {
+        g.lineStyle(1, 0xaaaaaa, 0.5)
+        g.strokeRect(x + POLE_W, baseY + 1, FLAG_W, FLAG_H)
+      }
+    }
+
+    this.skinDisplay.add(g)
+
+    // Contador "X / Y" debajo
+    const counterColor = currentStep >= stepRequired ? '#ffd700' : '#aaaacc'
+    this.skinDisplay.add(
+      this.add.text(GAME_WIDTH / 2, baseY + POLE_H + 10, `${currentStep} / ${stepRequired} banderas`, {
+        fontFamily: 'monospace',
+        fontSize:   '12px',
+        color:      counterColor,
+      }).setOrigin(0.5),
+    )
   }
 
   _drawDots() {
@@ -241,7 +335,7 @@ export class SkinSelectScene extends Scene {
     const skin = this.character.skins[this.skinIndex]
 
     // Solo se puede jugar con un skin desbloqueado
-    if (skin.como !== null && !skinService.isSkinUnlocked(this.character, skin.spritesheet)) return
+    if (skin.flags !== null && !skinService.isSkinUnlocked(this.character, skin.spritesheet)) return
 
     // Guardar el skin activo seleccionado
     skinService.setActiveSkin(this.character.id, skin.spritesheet)
