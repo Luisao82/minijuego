@@ -29,7 +29,8 @@ const PERSPECTIVES_STORAGE_KEY = 'cucana_unlocked_perspectives'
 const CHARACTER_REWARDS_KEY    = 'cucana_character_rewards'
 const SKINS_KEY                = 'cucana_skins'
 const DEFAULT_UNLOCKED         = ['trianero', 'flamenca']
-const RESET_BELOW_VERSION      = '0.5.0'
+const GAME_STATS_KEY           = 'cucana_game_stats'
+const RESET_BELOW_VERSION      = '0.6.0'
 
 // Devuelve true si la versión a es estrictamente menor que b (semver)
 const semverLt = (a, b) => {
@@ -52,6 +53,7 @@ const _migrate = () => {
       localStorage.removeItem(PERSPECTIVES_STORAGE_KEY)
       localStorage.removeItem(CHARACTER_REWARDS_KEY)
       localStorage.removeItem(SKINS_KEY)
+      localStorage.removeItem(GAME_STATS_KEY)
     }
     localStorage.setItem(VERSION_KEY, version)
   } catch {

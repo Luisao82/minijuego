@@ -9,6 +9,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [0.6.0] - 2026-04-11
+
+### Added
+
+- `GameStatsService` — servicio de persistencia de partidas en localStorage (`cucana_game_stats`). Cada partida registra: timestamp, characterId, skinKey, perspectiveId, success, rewardId, greasePercent, polePercent, impulseValue, durationSecs, hasJumped. Adaptador intercambiable para migración futura a BD.
+- `StatsCalculator` — sistema de cálculo puro (sin Phaser) sobre los registros de partidas. Métodos: `totalGames`, `totalWins`, `winRate`, `totalRewards`, `avgPolePercent`, `consecutiveWins`, `topSkinsByWins`, `topRewards`, `bestCharacter`. Ampliable añadiendo un método y una línea en `getSummary()`.
+- `StatsScene` — pantalla de estadísticas pixel art con dos columnas: estadísticas generales + mejor personaje (izq.) y pódium top 3 skins con sprite real del skin / top 4 premios con imágenes (der.). Accesible desde el menú con el botón "RÉCORDS".
+- Botón "RÉCORDS" en `MenuScene`, centrado entre HISTORIA y TUTORIAL.
+- Captura de `greasePercent` en `grabFlag()` antes del reset del aceite, garantizando el valor real en el momento de coger la bandera.
+- Estadística de racha máxima de victorias consecutivas (`consecutiveWins`).
+
+### Changed
+
+- `RESET_BELOW_VERSION` actualizado a `0.6.0`: al arrancar con datos de versiones anteriores se limpian todos los localStorage del juego, incluyendo el nuevo `cucana_game_stats`, para empezar con estadísticas limpias.
+
+---
+
 ## [0.5.0] - 2026-04-09
 
 ### Added

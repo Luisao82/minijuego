@@ -152,8 +152,9 @@ export class MenuScene extends Scene {
       },
     })
 
-    // Botones HISTORIA (izquierda) y TUTORIAL (derecha)
+    // Botones HISTORIA (izquierda), ESTADÍSTICAS (centro) y TUTORIAL (derecha)
     this.drawHistoriaButton()
+    this.drawStatsButton()
     this.drawTutorialButton()
 
     // Versión — se actualiza automáticamente desde package.json
@@ -180,6 +181,20 @@ export class MenuScene extends Scene {
     )
   }
 
+  drawStatsButton() {
+    const btnW = 210
+    const btnH = 58
+    const btnX = GAME_WIDTH / 2 - btnW / 2
+    const btnY = GAME_HEIGHT - 86
+
+    this.statsBounds = makeNavButton(
+      this, btnX, btnY, btnW, btnH,
+      'RÉCORDS',
+      () => this.scene.start(SCENES.STATS),
+      { depth: 2, fontSize: '28px' },
+    )
+  }
+
   drawTutorialButton() {
     const btnW = 210
     const btnH = 58
@@ -197,8 +212,9 @@ export class MenuScene extends Scene {
   setupInput() {
     this.input.on('pointerdown', (pointer) => {
       const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
+      const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
-      if (!inHistoria && !inTutorial) {
+      if (!inHistoria && !inStats && !inTutorial) {
         this.scene.start(SCENES.VIEW_SELECT)
       }
     })

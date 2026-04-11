@@ -13,6 +13,7 @@ import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { BalanceSystem } from '../systems/BalanceSystem'
 import { OilSystem } from '../systems/OilSystem'
 import { createOilIndicator } from '../components/OilIndicator'
+import { gameStatsService } from '../services/GameStatsService'
 
 export class GameScene extends Scene {
 
@@ -442,6 +443,8 @@ export class GameScene extends Scene {
     this.cleanBalanceUI()
     this.balanceBar    = null
     this.balanceSystem = null
+    // Capturar grasa ANTES del reset — se usará en startRewardScreen()
+    this._capturedGreasePercent = this.oilSystem.getTotalGrease()
     this.oilSystem.reset()
     this.player.setFlag(true)
     this.player.redraw()
@@ -640,6 +643,20 @@ export class GameScene extends Scene {
   showGameOver() {
     this.phase = 'done'
 
+    gameStatsService.addRecord({
+      timestamp:     new Date().toISOString(),
+      characterId:   this.characterData?.id ?? 'unknown',
+      skinKey:       this.skinKey,
+      perspectiveId: this.perspective?.id ?? 'triana',
+      success:       false,
+      rewardId:      null,
+      greasePercent: this.oilSystem.getTotalGrease(),
+      polePercent:   Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
+      impulseValue:  this.impulseResult?.impulseValue ?? null,
+      durationSecs:  Math.round(this.runElapsed * 100) / 100,
+      hasJumped:     this.hasJumped,
+    })
+
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
     const panelW  = 400
@@ -707,6 +724,21 @@ export class GameScene extends Scene {
     const reward  = rewards.length > 0
       ? rewards[Phaser.Math.Between(0, rewards.length - 1)]
       : null
+
+    gameStatsService.addRecord({
+      timestamp:     new Date().toISOString(),
+      characterId:   this.characterData?.id ?? 'unknown',
+      skinKey:       this.skinKey,
+      perspectiveId: this.perspective?.id ?? 'triana',
+      success:       true,
+      rewardId:      reward?.id ?? null,
+      greasePercent: this._capturedGreasePercent ?? 0,
+      polePercent:   Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
+      impulseValue:  this.impulseResult?.impulseValue ?? null,
+      durationSecs:  Math.round(this.runElapsed * 100) / 100,
+      hasJumped:     this.hasJumped,
+    })
+
     this.scene.start(SCENES.REWARD, { reward, character: this.characterData })
   }
 
