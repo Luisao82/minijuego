@@ -42,6 +42,7 @@ export const SCENES = {
   PERSPECTIVE_UNLOCK:  'PerspectiveUnlockScene',
   SKIN_UNLOCK:         'SkinUnlockScene',
   COLLECTION: 'CollectionScene',
+  STATS:      'StatsScene',
 }
 
 // Configuración de texto pixel art (temporal hasta tener bitmap fonts)
