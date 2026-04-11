@@ -267,6 +267,12 @@ export class PreloadScene extends Scene {
       }
     })
 
+    // Efectos de sonido
+    this.load.audio('sfx-click',    'audio/click.wav')
+    this.load.audio('sfx-hit',      'audio/hitHurt.wav')
+    this.load.audio('sfx-chapuzon', 'audio/chapuzon.wav')
+    this.load.audio('sfx-victoria', 'audio/victoria.wav')
+
     // Aplicar filtro NEAREST a texturas pixel art tras la carga
     this.load.on('filecomplete', (key) => {
       const texture = this.textures.get(key)

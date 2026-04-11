@@ -14,6 +14,7 @@ import { BalanceSystem } from '../systems/BalanceSystem'
 import { OilSystem } from '../systems/OilSystem'
 import { createOilIndicator } from '../components/OilIndicator'
 import { gameStatsService } from '../services/GameStatsService'
+import { weightedRandom } from '../utils/math'
 
 export class GameScene extends Scene {
 
@@ -438,6 +439,7 @@ export class GameScene extends Scene {
   }
 
   grabFlag() {
+    this.sound.play('sfx-victoria', { volume: 1.0 })
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
     this.cleanBalanceUI()
@@ -561,6 +563,7 @@ export class GameScene extends Scene {
   }
 
   onBalanceLost() {
+    this.sound.play('sfx-hit', { volume: 0.8 })
     this.cleanBalanceUI()
     this.balanceBar    = null
     this.balanceSystem = null
@@ -613,6 +616,7 @@ export class GameScene extends Scene {
   }
 
   createSplash() {
+    this.sound.play('sfx-chapuzon', { volume: 0.9 })
     const splashX = this.player.x
     const splashY = this.waterY
 
@@ -721,9 +725,7 @@ export class GameScene extends Scene {
   startRewardScreen() {
     this.phase = 'done'
     const rewards = this.cache.json.get('rewards') || []
-    const reward  = rewards.length > 0
-      ? rewards[Phaser.Math.Between(0, rewards.length - 1)]
-      : null
+    const reward  = weightedRandom(rewards, 'probabilidad')
 
     gameStatsService.addRecord({
       timestamp:     new Date().toISOString(),
