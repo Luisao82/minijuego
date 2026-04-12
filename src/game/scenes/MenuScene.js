@@ -210,6 +210,15 @@ export class MenuScene extends Scene {
   }
 
   setupInput() {
+    // iOS y Android requieren desbloquear el AudioContext tras el primer toque.
+    // Phaser intenta hacerlo automáticamente, pero en móvil a veces hace falta forzarlo.
+    this.input.once('pointerdown', () => {
+      const ctx = this.sound.context
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume()
+      }
+    })
+
     this.input.on('pointerdown', (pointer) => {
       const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
       const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
