@@ -11,6 +11,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - Efectos de sonido: `sfx-victoria` al coger la bandera, `sfx-hit` al perder el equilibrio, `sfx-chapuzon` al caer al agua, `sfx-click` en todos los botones NavButton.
 - `weightedRandom()` en `utils/math.js` — selección ponderada por `probabilidad`. Los premios ahora siguen los pesos definidos en `rewards.json` (Giraldillo 30%, Pali/Curro 25%, Llamador 15%, raros 10%).
+- PWA: `manifest.json` con nombre, orientación landscape, pantalla completa y colores del juego. Service worker (`sw.js`) con estrategia network-first para HTML y cache-first para assets estáticos. Meta tags para iOS (`apple-mobile-web-app-capable`, `apple-touch-icon`). El juego puede instalarse como app nativa en Android y iOS.
+- SEO: meta tags `description`, `keywords`, Open Graph (`og:title`, `og:description`, `og:image`, `og:url`) y Twitter/X Card (`twitter:card`, `twitter:image`) para preview enriquecida al compartir el enlace. Desbloqueo del AudioContext en el primer toque del menú para compatibilidad con iOS/Android.
 
 ---
 
