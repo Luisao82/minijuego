@@ -14,7 +14,7 @@ export const CHARACTERS = [
     stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
     available: true,
     skins: [
-      { spritesheet: 'trianero', nombre: 'Clásico', flags: null },
+      { spritesheet: 'trianero', nombre: 'Trianero', flags: null },
       { spritesheet: 'nazareno', nombre: 'Nazareno', flags: 5 },
       { spritesheet: 'feriante', nombre: 'Feriante', flags: 10 },
       { spritesheet: 'costalero', nombre: 'Costalero', flags: 15 },
@@ -29,9 +29,10 @@ export const CHARACTERS = [
     stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
     available: true,
     skins: [
-      { spritesheet: 'flamenca', nombre: 'Clásico', flags: null },
+      { spritesheet: 'trianera', nombre: 'Trianera', flags: null },
       { spritesheet: 'nazarena', nombre: 'Nazarena', flags: 5 },
       { spritesheet: 'mantilla', nombre: 'Mantilla', flags: 10 },
+      { spritesheet: 'flamenca', nombre: 'Flamenca', flags: 15 },
     ],
   },
   {
