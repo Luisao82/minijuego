@@ -126,6 +126,12 @@ export class Narrator {
     this._img.setFrame(frameIndex)
   }
 
+  // ── Acceso público ───────────────────────────────────────────
+
+  getImage() {
+    return this._img
+  }
+
   // ── Limpieza ─────────────────────────────────────────────────
 
   stopAllTimers() {

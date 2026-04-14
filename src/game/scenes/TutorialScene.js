@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
+import { launchEasterEgg } from '../utils/easterEgg'
 
 // ============================================================
 // CONTENIDO DEL TUTORIAL — edita aquí títulos y textos
@@ -66,6 +67,10 @@ const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP
 // Máquina de escribir
 const CHAR_DELAY = 28
 
+// Easter egg
+const EE_TAP_THRESHOLD  = 12
+const EE_TAP_TIMEOUT_MS = 1500
+
 // ============================================================
 // PALETA — moderno, azul/cian
 // ============================================================
@@ -106,6 +111,11 @@ export class TutorialScene extends Scene {
     this.waitingForInput = false
     this.typingTimer     = null
     this.tutImg          = null
+
+    // Easter egg
+    this._eeTapCount    = 0
+    this._eeLastTapTime = 0
+    this._eeTriggered   = false
 
     this.drawBackground()
     this.drawDialogBox()
@@ -347,6 +357,7 @@ export class TutorialScene extends Scene {
   onTutorialEnd() {
     this.setContinueVisible(false)
     this.drawPlayButton()
+    this._activateEasterEgg()
   }
 
   drawPlayButton() {
@@ -390,12 +401,119 @@ export class TutorialScene extends Scene {
   }
 
   // =====================================================
+  // EASTER EGG
+  // =====================================================
+
+  _activateEasterEgg() {
+    const img = this.narrator.getImage()
+    if (!img || typeof img.setInteractive !== 'function') return
+
+    img.setInteractive({ useHandCursor: false })
+    img.on('pointerdown', () => this._onEasterEggTap())
+
+    this._eeBaseX = img.x
+    this._eeBaseY = img.y
+  }
+
+  _onEasterEggTap() {
+    if (this._eeTriggered) return
+
+    const now = Date.now()
+
+    if (this._eeTapCount > 0 && (now - this._eeLastTapTime) > EE_TAP_TIMEOUT_MS) {
+      this._eeTapCount = 0
+      this._resetNarratorVisuals()
+    }
+
+    this._eeTapCount++
+    this._eeLastTapTime = now
+
+    this._updateEasterEggHints()
+
+    if (this._eeTapCount >= EE_TAP_THRESHOLD) {
+      this._eeTriggered = true
+      this._triggerEasterEgg()
+    }
+  }
+
+  _updateEasterEggHints() {
+    const img = this.narrator.getImage()
+    if (!img) return
+
+    const count = this._eeTapCount
+
+    if (count === 4) {
+      this.tweens.add({
+        targets: img, x: this._eeBaseX + 3,
+        duration: 50, yoyo: true, repeat: 3,
+        onComplete: () => { img.x = this._eeBaseX },
+      })
+    }
+
+    if (count === 8) {
+      this.tweens.add({
+        targets: img, x: this._eeBaseX + 5,
+        duration: 40, yoyo: true, repeat: 5,
+        onComplete: () => { img.x = this._eeBaseX },
+      })
+      if (typeof img.setTint === 'function') img.setTint(0xffddaa)
+    }
+
+    if (count === 11) {
+      this.tweens.add({
+        targets: img,
+        x: this._eeBaseX + 7, y: this._eeBaseY - 2,
+        duration: 30, yoyo: true, repeat: 7,
+        onComplete: () => { img.x = this._eeBaseX; img.y = this._eeBaseY },
+      })
+      if (typeof img.setTint === 'function') img.setTint(0xff8866)
+      this.dialogText.setText('¡Eh, para, para! ¿Qué haces?')
+    }
+
+    if (count > 0 && count < EE_TAP_THRESHOLD) {
+      const origSX = img.scaleX
+      const origSY = img.scaleY
+      this.tweens.add({
+        targets: img,
+        scaleX: origSX * 1.05, scaleY: origSY * 1.05,
+        duration: 60, yoyo: true,
+      })
+    }
+  }
+
+  _resetNarratorVisuals() {
+    const img = this.narrator.getImage()
+    if (!img) return
+    if (typeof img.clearTint === 'function') img.clearTint()
+    img.x = this._eeBaseX
+    img.y = this._eeBaseY
+  }
+
+  _triggerEasterEgg() {
+    this.stopAllTimers()
+
+    const flash = this.add.graphics().setDepth(100)
+    flash.fillStyle(0xffffff, 0.9)
+    flash.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    this.tweens.add({
+      targets: flash, alpha: 0,
+      duration: 600,
+      onComplete: () => flash.destroy(),
+    })
+
+    this.time.delayedCall(700, () => {
+      launchEasterEgg(this, 'developer')
+    })
+  }
+
+  // =====================================================
   // LIMPIEZA
   // =====================================================
 
   stopAllTimers() {
     this.isTyping        = false
     this.waitingForInput = false
+    this._eeTriggered    = true
     if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
     this.narrator.stopAllTimers()
   }

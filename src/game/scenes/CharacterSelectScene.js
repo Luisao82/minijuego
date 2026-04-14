@@ -53,6 +53,7 @@ export class CharacterSelectScene extends Scene {
   }
 
   create() {
+    this.characters    = CHARACTERS.filter(c => !c.hidden)
     this.selectedIndex = 0
     this.isScrolling   = false
 
@@ -83,7 +84,7 @@ export class CharacterSelectScene extends Scene {
     this.cardContainers.forEach(c => c.destroy())
     this.cardContainers = []
 
-    CHARACTERS.forEach((char, i) => {
+    this.characters.forEach((char, i) => {
       const isSelected = i === this.selectedIndex
       const isLocked   = !unlockService.isUnlocked(char.id)
       const hint       = isLocked ? unlockService.getHint(char.id) : null
@@ -146,7 +147,7 @@ export class CharacterSelectScene extends Scene {
   drawSelectedDetail() {
     if (this.detailContainer) this.detailContainer.destroy()
 
-    const char = CHARACTERS[this.selectedIndex]
+    const char = this.characters[this.selectedIndex]
     if (!char) return
 
     const isLocked = !unlockService.isUnlocked(char.id)
@@ -206,10 +207,10 @@ export class CharacterSelectScene extends Scene {
   updateDots() {
     this.dotsContainer.removeAll(true)
     const dotSpacing = 16
-    const totalW     = (CHARACTERS.length - 1) * dotSpacing
+    const totalW     = (this.characters.length - 1) * dotSpacing
     const startX     = -totalW / 2
 
-    CHARACTERS.forEach((_, i) => {
+    this.characters.forEach((_, i) => {
       const isActive = i === this.selectedIndex
       const dot      = this.add.graphics()
       dot.fillStyle(isActive ? COLORS.GOLD : 0x444466, 1)
@@ -293,14 +294,14 @@ export class CharacterSelectScene extends Scene {
 
   navigate(direction) {
     if (this.isScrolling) return
-    this.selectedIndex = Phaser.Math.Wrap(this.selectedIndex + direction, 0, CHARACTERS.length)
+    this.selectedIndex = Phaser.Math.Wrap(this.selectedIndex + direction, 0, this.characters.length)
     this.buildCards()
     this.drawSelectedDetail()
     this.updateDots()
   }
 
   startGame() {
-    const char = CHARACTERS[this.selectedIndex]
+    const char = this.characters[this.selectedIndex]
     if (!unlockService.isUnlocked(char.id)) return
     this.scene.start(SCENES.SKIN_SELECT, { character: char, perspective: this.perspective })
   }

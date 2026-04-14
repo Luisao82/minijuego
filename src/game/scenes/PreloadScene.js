@@ -231,8 +231,8 @@ export class PreloadScene extends Scene {
 
     this.load.image('boat', 'sprites/barco.png')
 
-    // Sprites de personajes
-    CHARACTERS.forEach((char) => {
+    // Sprites de personajes (excluir hidden — no tienen portrait)
+    CHARACTERS.filter(c => !c.hidden).forEach((char) => {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
@@ -241,6 +241,18 @@ export class PreloadScene extends Scene {
       frameWidth:  SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
     })
+
+    // Spritesheets de Easter eggs (pre-cargados para evitar flash)
+    const eeChar = CHARACTERS.find(c => c.id === 'easter_egg')
+    if (eeChar) {
+      eeChar.skins.forEach(skin => {
+        this.load.spritesheet(
+          `sprite-${skin.spritesheet}`,
+          `sprites/characters/spritesheet/${skin.spritesheet}.png`,
+          { frameWidth: SPRITE_CONFIG.frameWidth, frameHeight: SPRITE_CONFIG.frameHeight },
+        )
+      })
+    }
 
     // Condiciones de desbloqueo de personajes
     this.load.json('characters-unlock', 'characters-unlock.json')

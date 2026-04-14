@@ -99,4 +99,16 @@ export const CHARACTERS = [
       { spritesheet: 'retro03', nombre: 'Dan', flags: 10 },
     ],
   },
+  {
+    id: 'easter_egg',
+    name: 'EASTER EGG',
+    description: 'Has descubierto un secreto...',
+    sprite: 'char-easter_egg',
+    stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
+    available: true,
+    hidden: true,
+    skins: [
+      { spritesheet: 'developer', nombre: 'Developer', flags: null },
+    ],
+  },
 ]
