@@ -1,3 +1,6 @@
+# Variables de entorno (secretos locales)
+.env
+
 # Logs
 logs
 *.log

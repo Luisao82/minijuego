@@ -20,6 +20,7 @@ export default defineConfig({
     base: './',
     logLevel: 'warn',
     build: {
+        sourcemap: 'hidden',
         rollupOptions: {
             output: {
                 manualChunks: {
