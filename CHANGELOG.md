@@ -9,7 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
-- Monitorización de errores en producción con Sentry (`@sentry/browser`). Se inicializa solo en entornos de producción usando la variable de entorno `VITE_SENTRY_DSN`. Handlers globales `window.onerror` y `window.onunhandledrejection` como red de seguridad para errores no capturados. Source maps hidden activados en el build de producción para stack traces legibles en Sentry.
+- Monitorización de errores en producción con Sentry (`@sentry/browser`). Se inicializa solo en producción vía `VITE_SENTRY_DSN` (configurada en Vercel Dashboard). Sentry gestiona `window.onerror` y `onunhandledrejection` automáticamente. Source maps hidden activados en el build de producción para stack traces legibles en Sentry.
 - `.env.example` como plantilla documentada para variables de entorno del proyecto.
 - Efectos de sonido: `sfx-victoria` al coger la bandera, `sfx-hit` al perder el equilibrio, `sfx-chapuzon` al caer al agua, `sfx-click` en todos los botones NavButton.
 - `weightedRandom()` en `utils/math.js` — selección ponderada por `probabilidad`. Los premios ahora siguen los pesos definidos en `rewards.json` (Giraldillo 30%, Pali/Curro 25%, Llamador 15%, raros 10%).
