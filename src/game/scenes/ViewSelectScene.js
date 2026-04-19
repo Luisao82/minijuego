@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -20,7 +20,7 @@ const BAND_H = 440
 const VISIBLE_AREA_LEFT  = 60
 const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
 
-export class ViewSelectScene extends Scene {
+export class ViewSelectScene extends BaseScene {
 
   constructor() {
     super(SCENES.VIEW_SELECT)

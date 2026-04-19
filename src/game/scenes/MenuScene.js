@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
 import { version } from '../../../package.json'
@@ -9,7 +9,7 @@ const CENTER_X = GAME_WIDTH / 2
 const TITLE_Y = GAME_HEIGHT / 2 - 40
 const SUB_Y = TITLE_Y + 80
 
-export class MenuScene extends Scene {
+export class MenuScene extends BaseScene {
 
   constructor() {
     super(SCENES.MENU)

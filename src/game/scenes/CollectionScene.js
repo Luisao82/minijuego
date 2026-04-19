@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
 import { makeNavButton } from '../components/NavButton'
@@ -29,13 +29,14 @@ const BAND_H = 440
 
 const CONFETTI_COLORS = [0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b]
 
-export class CollectionScene extends Scene {
+export class CollectionScene extends BaseScene {
 
   constructor() {
     super(SCENES.COLLECTION)
   }
 
   init(data) {
+    super.init(data)
     this.characterData = data?.character || null
     this.pageStart     = 0
     this.scrolling     = false

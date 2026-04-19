@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, OIL } from '../config/gameConfig'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -19,13 +19,14 @@ import { createOilIndicator } from '../components/OilIndicator'
 import { gameStatsService } from '../services/GameStatsService'
 import { weightedRandom } from '../utils/math'
 
-export class GameScene extends Scene {
+export class GameScene extends BaseScene {
 
   constructor() {
     super(SCENES.GAME)
   }
 
   init(data) {
+    super.init(data)
     this.characterData = data.character || null
 
     const skinSpritesheet = data.skin
@@ -594,5 +595,11 @@ export class GameScene extends Scene {
     if (this.phase === 'jumping') this.updateJumping(delta)
 
     this.oilIndicator?.update(this.oilSystem.getTotalGrease())
+  }
+
+  _onShutdown() {
+    this.powerBarUI?.destroy()
+    this.balanceUI?.destroy()
+    this.player?.destroy()
   }
 }

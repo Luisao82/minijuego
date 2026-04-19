@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { createCharacterCard } from '../components/CharacterCard'
@@ -42,13 +42,14 @@ const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
 const BAND_Y = 120
 const BAND_H = 440
 
-export class CharacterSelectScene extends Scene {
+export class CharacterSelectScene extends BaseScene {
 
   constructor() {
     super(SCENES.CHARACTER_SELECT)
   }
 
   init(data) {
+    super.init(data)
     this.perspective = data?.perspective ?? null
   }
 

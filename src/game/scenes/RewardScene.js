@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
@@ -19,13 +19,14 @@ const IMG_SIZE = 380
 // Colores del confeti
 const CONFETTI_COLORS = [0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b]
 
-export class RewardScene extends Scene {
+export class RewardScene extends BaseScene {
 
   constructor() {
     super(SCENES.REWARD)
   }
 
   init(data) {
+    super.init(data)
     this.reward = data.reward || null
     this.characterData = data.character || null
     this.canPlay = false

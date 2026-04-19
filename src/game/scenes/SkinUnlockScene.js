@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { makeNavButton } from '../components/NavButton'
@@ -14,13 +14,14 @@ const CENTER_X = GAME_WIDTH / 2
 const SPRITE_DISPLAY_W = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
 const SPRITE_DISPLAY_H = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview
 
-export class SkinUnlockScene extends Scene {
+export class SkinUnlockScene extends BaseScene {
 
   constructor() {
     super(SCENES.SKIN_UNLOCK)
   }
 
   init(data) {
+    super.init(data)
     // newSkins: array de objetos skin { spritesheet, nombre, como, condicion }
     this.newSkins      = data.newSkins     || []
     this.character     = data.character    || null

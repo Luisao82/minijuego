@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
@@ -24,13 +24,14 @@ const FRAME_INTERVAL  = 400   // ms entre frame STAND y WALK
 
 const SPRITE_PATH = 'sprites/characters/spritesheet/'
 
-export class SkinSelectScene extends Scene {
+export class SkinSelectScene extends BaseScene {
 
   constructor() {
     super(SCENES.SKIN_SELECT)
   }
 
   init(data) {
+    super.init(data)
     this.character    = data.character
     this.perspective  = data.perspective ?? null
     this.skinIndex    = 0

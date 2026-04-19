@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { makeNavButton } from '../components/NavButton'
@@ -15,13 +15,14 @@ const STAT_COLORS  = { peso: 0xe74c3c, equilibrio: 0x3498db, altura: 0x2ecc71, e
 const STAT_NAMES   = { peso: 'PESO', equilibrio: 'EQUIL', altura: 'ALT', edad: 'EDAD' }
 const STAT_MAX     = 10
 
-export class CharacterUnlockScene extends Scene {
+export class CharacterUnlockScene extends BaseScene {
 
   constructor() {
     super(SCENES.CHARACTER_UNLOCK)
   }
 
   init(data) {
+    super.init(data)
     this.unlockedCharacters = data.unlockedCharacters || []
     this.characterData      = data.character || null
     this.currentIndex       = 0
