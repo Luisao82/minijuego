@@ -24,6 +24,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Skin por defecto de Flamenca cambiada a `trianera`.
 - `GameScene` refactorizada: reducida de 895 a ~600 líneas. Lógica de física, animación y UI extraída a cuatro módulos nuevos: `systems/JumpSystem.js` (física balística del salto), `systems/FallSystem.js` (animación de caída y splash), `components/PowerBarUI.js` (UI Fase 1) y `components/BalanceUI.js` (UI Fase 2 + estado de input direccional). Sin cambios de jugabilidad.
 
+### Security
+
+- Dependencias de build actualizadas para eliminar 7 vulnerabilidades high-severity: vite 6.3.2 → 6.4.2, rollup 4.40.0 → 4.60.2, picomatch 4.0.2 → 4.0.4. `npm audit` reporta 0 vulnerabilidades.
+
 ---
 
 ## [0.6.0] - 2026-04-11
