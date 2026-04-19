@@ -1,11 +1,11 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 
 // Escena overlay CRT — se ejecuta en paralelo por encima de todas las demás.
 // Dibuja scanlines estáticas una sola vez simulando un monitor de tubo.
 // Se lanza desde BootScene y nunca se detiene.
 
-export class CRTScene extends Scene {
+export class CRTScene extends BaseScene {
 
   constructor() {
     super({ key: SCENES.CRT, active: false })

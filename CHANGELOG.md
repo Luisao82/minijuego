@@ -9,6 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- `BaseScene` — clase base para todas las escenas. Registra automáticamente el handler `shutdown` (elimina tweens, timers e input al cambiar de escena, evitando memory leaks). Expone el hook `_onShutdown()` para limpieza específica por escena y el helper `_label()` para texto pixel art consistente. Incluye breadcrumb de Sentry en cada navegación (solo producción). Las 16 escenas migradas.
 - Monitorización de errores en producción con Sentry (`@sentry/browser`). Se inicializa solo en producción vía `VITE_SENTRY_DSN` (configurada en Vercel Dashboard). Sentry gestiona `window.onerror` y `onunhandledrejection` automáticamente. Source maps hidden activados en el build de producción para stack traces legibles en Sentry.
 - `.env.example` como plantilla documentada para variables de entorno del proyecto.
 - Efectos de sonido: `sfx-victoria` al coger la bandera, `sfx-hit` al perder el equilibrio, `sfx-chapuzon` al caer al agua, `sfx-click` en todos los botones NavButton.

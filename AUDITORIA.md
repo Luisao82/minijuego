@@ -8,11 +8,9 @@
 
 ## HALLAZGOS CRÍTICOS (bloquean producción)
 
-### [ ] 1. Memory leaks — 13/14 escenas sin `shutdown`
-- **Problema:** Ninguna escena limpia tweens, timers ni listeners al cambiar de escena. Esto causa fugas de memoria progresivas.
-- **Escenas afectadas:** GameScene, TutorialScene, HistoryScene, CharacterSelectScene, MenuScene, SkinSelectScene, CollectionScene, RewardScene, CharacterUnlockScene, PerspectiveUnlockScene, SkinUnlockScene, ViewSelectScene, PreloadScene.
-- **Impacto:** El juego se ralentiza con el uso, posibles crashes en móvil.
-- **Fix:** Añadir `this.events.on('shutdown', () => { this.tweens.killAll(); /* limpiar listeners */ })` en cada escena.
+### [x] 1. Memory leaks — 13/14 escenas sin `shutdown` ✅ _completado 2026-04-19_
+- ~~Ninguna escena limpiaba tweens, timers ni listeners al cambiar de escena.~~
+- **Implementado:** `BaseScene` — clase base que todas las escenas heredan. Registra automáticamente en `shutdown`: `tweens.killAll()`, `time.removeAllEvents()`, `input.removeAllListeners()`. Hook `_onShutdown()` para limpieza específica por escena (Narrator en HistoryScene/TutorialScene, sistemas activos en GameScene). Helper `_label()` para texto pixel art consistente. Breadcrumb de Sentry en cada navegación (solo producción). Las 16 escenas actualizadas.
 
 ### [x] 2. Vulnerabilidades en dependencias (7 high-severity) ✅ _completado 2026-04-19_
 - ~~**Vite 6.3.2:** 6 vulnerabilidades (path traversal, arbitrary file read vía WebSocket, fs.deny bypass).~~

@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
@@ -102,7 +102,7 @@ const AMBER    = 0xd4a520
 const DLG_DARK = 0x0d0600
 const DLG_FACE = 0x5c3318
 
-export class HistoryScene extends Scene {
+export class HistoryScene extends BaseScene {
 
   constructor() {
     super(SCENES.HISTORY)
@@ -461,5 +461,9 @@ export class HistoryScene extends Scene {
       this.stopAllTimers()
       this.scene.start(SCENES.MENU)
     })
+  }
+
+  _onShutdown() {
+    this.narrator?.stopAllTimers()
   }
 }

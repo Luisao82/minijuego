@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
@@ -56,7 +56,7 @@ const F_VALUE = {
   strokeThickness: 4,
 }
 
-export class StatsScene extends Scene {
+export class StatsScene extends BaseScene {
 
   constructor() {
     super(SCENES.STATS)
@@ -64,6 +64,7 @@ export class StatsScene extends Scene {
 
   // Pre-calcular summary en init() para que preload() sepa qué spritesheets cargar
   init() {
+    super.init()
     const records  = gameStatsService.getAll()
     const calc     = new StatsCalculator(records)
     this._summary  = calc.getSummary()

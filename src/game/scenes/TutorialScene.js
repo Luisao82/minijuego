@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
@@ -98,7 +98,7 @@ const NARRATOR_CONFIG = {
 // ============================================================
 // ESCENA
 // ============================================================
-export class TutorialScene extends Scene {
+export class TutorialScene extends BaseScene {
 
   constructor() {
     super(SCENES.TUTORIAL)
@@ -532,5 +532,9 @@ export class TutorialScene extends Scene {
       this.stopAllTimers()
       this.scene.start(SCENES.MENU)
     })
+  }
+
+  _onShutdown() {
+    this.narrator?.stopAllTimers()
   }
 }

@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
@@ -12,13 +12,14 @@ const CENTER_X = GAME_WIDTH / 2
 const THUMB_W = PANEL_W - 48
 const THUMB_H = 290
 
-export class PerspectiveUnlockScene extends Scene {
+export class PerspectiveUnlockScene extends BaseScene {
 
   constructor() {
     super(SCENES.PERSPECTIVE_UNLOCK)
   }
 
   init(data) {
+    super.init(data)
     this.unlockedPerspectives = data.unlockedPerspectives || []
     this.characterData        = data.character || null
     this.nextUnlocks          = data.nextUnlocks || []    // personajes pendientes de mostrar

@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
@@ -43,7 +43,7 @@ const STRIPE_SCROLL_PX = RETRO_PX * 3   // 18px por tick (salto visible y chunky
 const STRIPE_DELAY_MS  = 16             // 1 frame (~60 ticks/s)
 const DISPLAY_MIN_MS   = 5000       // tiempo mínimo de pantalla
 
-export class PreloadScene extends Scene {
+export class PreloadScene extends BaseScene {
 
   constructor() {
     super(SCENES.PRELOAD)
