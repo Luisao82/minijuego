@@ -14,11 +14,11 @@
 - **Impacto:** El juego se ralentiza con el uso, posibles crashes en móvil.
 - **Fix:** Añadir `this.events.on('shutdown', () => { this.tweens.killAll(); /* limpiar listeners */ })` en cada escena.
 
-### [ ] 2. Vulnerabilidades en dependencias (7 high-severity)
-- **Vite 6.3.2:** 6 vulnerabilidades (path traversal, arbitrary file read vía WebSocket, fs.deny bypass).
-- **Rollup 4.40.0:** Arbitrary file write via path traversal.
-- **Picomatch 4.0.2:** ReDoS via method injection.
-- **Fix:** `npm audit fix` o actualizar versiones manualmente.
+### [x] 2. Vulnerabilidades en dependencias (7 high-severity) ✅ _completado 2026-04-19_
+- ~~**Vite 6.3.2:** 6 vulnerabilidades (path traversal, arbitrary file read vía WebSocket, fs.deny bypass).~~
+- ~~**Rollup 4.40.0:** Arbitrary file write via path traversal.~~
+- ~~**Picomatch 4.0.2:** ReDoS via method injection.~~
+- **Implementado:** `npm audit fix` — vite → 6.4.2, rollup → 4.60.2, picomatch → 4.0.4. `npm audit` reporta 0 vulnerabilidades. Son dependencias de build, sin impacto en el bundle de producción.
 
 ### [x] 3. Sin manejo global de errores ✅ _completado 2026-04-17_
 - ~~No hay `window.onerror` ni `window.onunhandledrejection`.~~
