@@ -63,9 +63,13 @@
 - Keyboard parcial (SPACE, flechas, ESC), pero sin ARIA labels, sin `prefers-reduced-motion`, sin soporte screen reader.
 - Recomendación: Añadir ARIA al canvas, respetar `prefers-reduced-motion`.
 
-### [ ] 11. GameScene es demasiado grande (895 líneas)
-- Actúa como "god object". Lógica de UI, input, salto, caída, todo mezclado.
-- Recomendación: Extraer más lógica a systems/components.
+### [x] 11. GameScene es demasiado grande (895 líneas) ✅ _completado 2026-04-18_
+- ~~Actúa como "god object". Lógica de UI, input, salto, caída, todo mezclado.~~
+- **Implementado** (branch `refactor/gamescene-clean-architecture`): GameScene reducida de 895 → ~600 líneas. Extraídos 4 archivos nuevos:
+  - `systems/JumpSystem.js` — física balística pura (sin Phaser)
+  - `systems/FallSystem.js` — animación de caída + partículas de splash
+  - `components/PowerBarUI.js` — UI Fase 1 completa con ciclo de vida propio
+  - `components/BalanceUI.js` — UI Fase 2 completa + estado de input direccional
 
 ### [x] 12. Sin source maps en producción ✅ _completado 2026-04-17_
 - ~~Errores en producción serán imposibles de depurar sin source maps.~~

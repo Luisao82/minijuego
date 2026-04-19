@@ -1,8 +1,7 @@
 import { Scene } from 'phaser'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, PHASE1, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, BALANCE, OIL, DEBUG } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, OIL } from '../config/gameConfig'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
-import { BalanceDebugPanel } from '../components/BalanceDebugPanel'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { skinService } from '../services/SkinService'
 import { Player } from '../entities/Player'
@@ -12,6 +11,10 @@ import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { BalanceSystem } from '../systems/BalanceSystem'
 import { OilSystem } from '../systems/OilSystem'
+import { JumpSystem } from '../systems/JumpSystem'
+import { FallSystem } from '../systems/FallSystem'
+import { PowerBarUI } from '../components/PowerBarUI'
+import { BalanceUI } from '../components/BalanceUI'
 import { createOilIndicator } from '../components/OilIndicator'
 import { gameStatsService } from '../services/GameStatsService'
 import { weightedRandom } from '../utils/math'
@@ -25,20 +28,17 @@ export class GameScene extends Scene {
   init(data) {
     this.characterData = data.character || null
 
-    // Skin activo: el pasado explícitamente o el guardado en SkinService como fallback
     const skinSpritesheet = data.skin
       ?? (this.characterData ? skinService.getActiveSkin(this.characterData) : null)
     this.skinKey = skinSpritesheet ? `sprite-${skinSpritesheet}` : null
 
-    this.phase = null
+    this.phase         = null
     this.impulseResult = null
 
-    // Perspectiva de vista (Triana / Sevilla / …)
     const perspId = data.perspective?.id ?? getStoredPerspective()
     this.perspective = perspectiveUnlockService.getById(perspId)
       ?? perspectiveUnlockService.getById('triana')
 
-    // Posición del palo y el agua — coordenadas lógicas, el container aplica la perspectiva
     this.poleY  = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60
 
@@ -49,50 +49,42 @@ export class GameScene extends Scene {
     this.runDuration      = 0
     this.runElapsed       = 0
 
-    // Salto
-    this.isJumping  = false
-    this.hasJumped  = false
-    this.jumpElapsed = 0
-    this.jumpStartX  = 0
-    this.jumpStartY  = 0
-    this.jumpVx      = 0
-    this.jumpVy0     = 0
-
-    // Bandera
-    this.hasFlag    = false
+    // Bandera y salto
+    this.hasFlag   = false
+    this.hasJumped = false
     this.flagGraphics = null
 
-    // Equilibrio
-    this.balanceBar      = null
-    this.balanceSystem   = null
-    this.balanceUI       = []
-    this.balanceInputDir = 0
-    this.balanceDebugPanel = null
-    this._lastOilMult      = 0
+    // Equilibrio — refs necesarias para updateRunning
+    this.balanceBar    = null
+    this.balanceSystem = null
 
     // Grasa
     this.oilSystem    = null
     this.oilOverlay   = null
     this.oilIndicator = null
 
-    // UI
-    this.phase1UI          = []
-    this.canRestart        = false
-    this.collectionBtnBounds = null
+    // Sistemas y componentes extraídos
+    this.jumpSystem  = null
+    this.fallSystem  = null
+    this.powerBarUI  = null
+    this.balanceUI   = null
+
+    // Estado de resultado y UI
+    this.canRestart             = false
+    this.collectionBtnBounds    = null
+    this._capturedGreasePercent = null
   }
 
   preload() {
     if (!this.skinKey) return
     if (this.textures.exists(this.skinKey)) return
 
-    // Extraer el nombre del fichero del spritesheet desde la key (sprite-{name})
     const spritesheetName = this.skinKey.replace('sprite-', '')
     this.load.setPath('assets')
     this.load.spritesheet(this.skinKey, `sprites/characters/spritesheet/${spritesheetName}.png`, {
       frameWidth:  SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
     })
-    // Aplicar filtro NEAREST al spritesheet cargado dinámicamente
     this.load.once(`filecomplete-spritesheet-${this.skinKey}`, () => {
       const texture = this.textures.get(this.skinKey)
       if (texture?.source.length > 0) {
@@ -106,13 +98,14 @@ export class GameScene extends Scene {
     this._setupGameWorld()
     this.drawPole()
 
-    // Overlay de grasa — encima del palo, debajo del personaje
     this.oilSystem  = new OilSystem()
     this.oilOverlay = this.add.graphics()
     this.gameWorld.add(this.oilOverlay)
     this._drawOilOverlay()
 
-    this.player = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld, this.skinKey)
+    this.player     = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld, this.skinKey)
+    this.fallSystem = new FallSystem(this, this.gameWorld)
+
     this.createControlPanel()
     this.createHUD()
     this.startPhase1()
@@ -135,105 +128,12 @@ export class GameScene extends Scene {
   // ========================================
 
   startPhase1() {
-    const weight = this.characterData?.stats?.peso || 5
-    this.powerBar     = new PowerBar(weight)
+    const weight       = this.characterData?.stats?.peso || 5
+    this.powerBar      = new PowerBar(weight)
     this.impulseSystem = new ImpulseSystem(this.powerBar)
-    this.phase = 'impulse'
-    this.createPowerBarUI()
-  }
-
-  createPowerBarUI() {
-    const { WIDTH, HEIGHT } = PHASE1.BAR
-    const centerX = GAME_WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const barX    = centerX - WIDTH / 2
-
-    const barBg = this.add.graphics()
-    this.drawBarZones(barBg, barX, barY, WIDTH, HEIGHT)
-    this.phase1UI.push(barBg)
-
-    this.barCursor = this.add.graphics()
-    this.phase1UI.push(this.barCursor)
-
-    this.passText = this.add.text(centerX, barY - 16, '', {
-      fontFamily: 'monospace',
-      fontSize:   '12px',
-      color:      '#ffffff',
-    }).setOrigin(0.5)
-    this.phase1UI.push(this.passText)
-
-    this.instructionText = this.add.text(centerX, barY + HEIGHT + 20, '¡PULSA PARA DETENER!', {
-      fontFamily: 'monospace',
-      fontSize:   '14px',
-      color:      '#ffffff',
-    }).setOrigin(0.5)
-    this.phase1UI.push(this.instructionText)
-
-    this.instructionTween = this.tweens.add({
-      targets:  this.instructionText,
-      alpha:    0.3,
-      duration: 500,
-      yoyo:     true,
-      repeat:   -1,
-    })
-
-    const weightLabel = this.characterData?.stats?.peso || 5
-    this.phase1UI.push(
-      this.add.text(barX + WIDTH + 16, barY + HEIGHT / 2, `PESO: ${weightLabel}`, {
-        fontFamily: 'monospace',
-        fontSize:   '10px',
-        color:      '#aaaaaa',
-      }).setOrigin(0, 0.5),
-    )
-
-    this.updatePassCounter()
-  }
-
-  drawBarZones(graphics, x, y, width, height) {
-    const g = graphics
-    const { ZONES } = PHASE1
-
-    g.fillStyle(0x000000, 1)
-    g.fillRect(x - 3, y - 3, width + 6, height + 6)
-
-    const redWidth = ZONES.RED.end * width
-    g.fillGradientStyle(COLORS.RED, COLORS.YELLOW, COLORS.RED, COLORS.YELLOW, 1, 1, 1, 1)
-    g.fillRect(x, y, redWidth, height)
-
-    const yellowX     = ZONES.YELLOW.start * width
-    const yellowWidth = (ZONES.YELLOW.end - ZONES.YELLOW.start) * width
-    g.fillStyle(COLORS.YELLOW, 1)
-    g.fillRect(x + yellowX, y, yellowWidth, height)
-
-    const greenX     = ZONES.GREEN.start * width
-    const greenWidth = (ZONES.GREEN.end - ZONES.GREEN.start) * width
-    g.fillGradientStyle(COLORS.YELLOW, COLORS.GREEN, COLORS.YELLOW, COLORS.GREEN, 1, 1, 1, 1)
-    g.fillRect(x + greenX, y, greenWidth, height)
-
-    g.lineStyle(2, COLORS.WHITE, 0.8)
-    g.strokeRect(x, y, width, height)
-  }
-
-  updatePowerBarUI() {
-    if (!this.barCursor) return
-
-    const { WIDTH, HEIGHT } = PHASE1.BAR
-    const centerX  = GAME_WIDTH / 2
-    const barX     = centerX - WIDTH / 2
-    const barY     = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const cursorX  = barX + this.powerBar.position * WIDTH
-
-    this.barCursor.clear()
-    this.barCursor.fillStyle(COLORS.WHITE, 1)
-    this.barCursor.fillRect(cursorX - 2, barY - 8, 4, HEIGHT + 16)
-    this.barCursor.fillTriangle(cursorX, barY - 14, cursorX - 7, barY - 6,  cursorX + 7, barY - 6)
-    this.barCursor.fillTriangle(cursorX, barY + HEIGHT + 14, cursorX - 7, barY + HEIGHT + 6, cursorX + 7, barY + HEIGHT + 6)
-  }
-
-  updatePassCounter() {
-    if (!this.passText) return
-    const attempt = Math.min(this.powerBar.passes + 1, this.powerBar.maxPasses)
-    this.passText.setText(`INTENTO ${attempt}/${this.powerBar.maxPasses}`)
+    this.phase         = 'impulse'
+    this.powerBarUI    = new PowerBarUI(this, this.powerBar, this.characterData)
+    this.powerBarUI.create()
   }
 
   onBarStopped() {
@@ -243,20 +143,13 @@ export class GameScene extends Scene {
     this.startRunning()
   }
 
-  cleanPhase1UI() {
-    this.phase1UI.forEach(el => { if (el?.destroy) el.destroy() })
-    this.phase1UI      = []
-    this.barCursor     = null
-    this.passText      = null
-    this.instructionText = null
-  }
-
   // ========================================
-  // MOVIMIENTO DE LOS PERSONAJES
+  // MOVIMIENTO DEL PERSONAJE
   // ========================================
 
   startRunning() {
-    this.cleanPhase1UI()
+    this.powerBarUI?.destroy()
+    this.powerBarUI = null
     this.phase = 'running'
 
     const impulse    = this.impulseResult.impulseValue
@@ -265,7 +158,7 @@ export class GameScene extends Scene {
     if (impulse <= 0.01) {
       this.maxDistance      = 0
       this.distanceTraveled = 0
-      this.startFalling()
+      this._fall()
       return
     }
 
@@ -275,27 +168,25 @@ export class GameScene extends Scene {
     this.runElapsed   = 0
     this.distanceTraveled = 0
 
-    const equilibrio = this.characterData?.stats?.equilibrio || 5
+    const equilibrio   = this.characterData?.stats?.equilibrio || 5
     this.balanceBar    = new BalanceBar(equilibrio)
     this.balanceSystem = new BalanceSystem(this.balanceBar)
-    this.balanceInputDir = 0
-    this.createBalanceUI()
+    this.balanceUI     = new BalanceUI(this, this.balanceBar, this.balanceSystem)
+    this.balanceUI.create()
   }
 
   updateRunning(delta) {
     const dt = delta / 1000
 
-    // Actualizar grasa y overlay en cada frame de running
-    const poleLength     = POLE.START_X - POLE.END_X
-    const progressRatio  = Math.max(0, Math.min(1, this.distanceTraveled / poleLength))
+    const poleLength    = POLE.START_X - POLE.END_X
+    const progressRatio = Math.max(0, Math.min(1, this.distanceTraveled / poleLength))
     this.oilSystem.update(dt, progressRatio)
     this._drawOilOverlay()
 
     if (this.balanceBar) {
       const oilMult = this.oilSystem.getDriftMultiplier(progressRatio)
-      this._lastOilMult = oilMult
-      this.balanceSystem.update(dt, this.balanceInputDir, oilMult)
-      this.updateBalanceUI()
+      this.balanceSystem.update(dt, this.balanceUI?.getInputDirection() ?? 0, oilMult)
+      this.balanceUI?.update(oilMult)
 
       if (this.balanceSystem.isFailed()) {
         this.onBalanceLost()
@@ -316,11 +207,11 @@ export class GameScene extends Scene {
         this.distanceTraveled = POLE.START_X - POLE.END_X
       }
 
-      this.player.updateAnimation(dt, 0)   // personaje parado al final de la carrera
+      this.player.updateAnimation(dt, 0)
 
-      if (!this.hasFlag && this.checkFlagCollision()) {
+      if (!this.hasFlag && this._checkFlagCollision()) {
         this.player.redraw()
-        this.grabFlag()
+        this._grabFlag()
         return
       }
 
@@ -333,19 +224,27 @@ export class GameScene extends Scene {
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
     this.player.x         = POLE.START_X - this.distanceTraveled
 
-    // Velocidad instantánea: derivada de distanceTraveled respecto al tiempo
     const currentSpeed = T > 0 ? Math.max(0, this.initialSpeed * (1 - t / T)) : 0
     this.player.updateAnimation(dt, currentSpeed)
 
-    if (!this.hasFlag && this.checkFlagCollision()) {
+    if (!this.hasFlag && this._checkFlagCollision()) {
       this.player.x         = POLE.END_X
       this.distanceTraveled = POLE.START_X - POLE.END_X
       this.player.redraw()
-      this.grabFlag()
+      this._grabFlag()
       return
     }
 
     this.player.redraw()
+  }
+
+  onBalanceLost() {
+    this.sound.play('sfx-hit', { volume: 0.8 })
+    this.balanceUI?.destroy()
+    this.balanceUI     = null
+    this.balanceBar    = null
+    this.balanceSystem = null
+    this._fall()
   }
 
   // ========================================
@@ -353,48 +252,35 @@ export class GameScene extends Scene {
   // ========================================
 
   startJump() {
-    this.cleanBalanceUI()
+    this.balanceUI?.destroy()
+    this.balanceUI     = null
     this.balanceBar    = null
     this.balanceSystem = null
 
-    this.hasJumped   = true
-    this.isJumping   = true
-    this.phase       = 'jumping'
-    this.jumpElapsed = 0
-    this.jumpStartX  = this.player.x
-    this.jumpStartY  = this.player.y
+    this.hasJumped  = true
+    this.phase      = 'jumping'
+
+    this.jumpSystem = new JumpSystem()
+    this.jumpSystem.start({
+      playerX:      this.player.x,
+      playerY:      this.player.y,
+      runElapsed:   this.runElapsed,
+      runDuration:  this.runDuration,
+      initialSpeed: this.initialSpeed,
+      waterY:       this.waterY,
+      jumpDistance: this.characterData?.stats?.jump ?? JUMP.EXTRA_DISTANCE,
+    })
 
     this.player.setJumping(true, this.hasFlag)
-
-    const t              = this.runElapsed
-    const T              = this.runDuration
-    const currentRunSpeed = T > 0 ? Math.max(this.initialSpeed * (1 - t / T), 0) : 0
-
-    const drop        = this.waterY - this.player.y
-    const a           = 0.5 * JUMP.GRAVITY
-    const b           = JUMP.VY0
-    const discriminant = b * b - 4 * a * (-drop)
-    const flightTime   = (-b + Math.sqrt(discriminant)) / (2 * a)
-
-    const jumpDistance = this.characterData?.stats?.jump ?? JUMP.EXTRA_DISTANCE
-    const boostSpeed   = jumpDistance / flightTime
-
-    this.jumpVx  = currentRunSpeed + boostSpeed
-    this.jumpVy0 = JUMP.VY0
   }
 
   updateJumping(delta) {
-    const dt = delta / 1000
-    this.jumpElapsed += dt
-
-    this.player.x  = this.jumpStartX - this.jumpVx * this.jumpElapsed
-    this.player.y  = this.jumpStartY
-      + this.jumpVy0 * this.jumpElapsed
-      + 0.5 * JUMP.GRAVITY * this.jumpElapsed * this.jumpElapsed
-
+    const { x, y } = this.jumpSystem.update(delta / 1000)
+    this.player.x = x
+    this.player.y = y
     this.distanceTraveled = POLE.START_X - this.player.x
 
-    if (!this.hasFlag && this.checkFlagCollision()) {
+    if (!this.hasFlag && this._checkFlagCollision()) {
       this.hasFlag = true
       this.flagGraphics.setVisible(false)
       this.player.setFlag(true)
@@ -403,9 +289,8 @@ export class GameScene extends Scene {
 
     if (this.player.y >= this.waterY) {
       this.player.y = this.waterY
-      this.isJumping = false
       this.player.setVisible(false)
-      this.createSplash()
+      this.fallSystem.splash(this.player.x, this.waterY)
 
       if (this.hasFlag) {
         this.time.delayedCall(600, () => this.showCelebration())
@@ -423,10 +308,10 @@ export class GameScene extends Scene {
   }
 
   // ========================================
-  // COLISIÓN CON LA BANDERA
+  // BANDERA
   // ========================================
 
-  checkFlagCollision() {
+  _checkFlagCollision() {
     const charTop    = this.player.y - 36
     const charBottom = this.player.y + 4
     const charLeft   = this.player.x - 12
@@ -438,206 +323,37 @@ export class GameScene extends Scene {
     return charLeft <= flagRight && charTop < flagBottom && charBottom > flagTop
   }
 
-  grabFlag() {
+  _grabFlag() {
     this.sound.play('sfx-victoria', { volume: 1.0 })
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
-    this.cleanBalanceUI()
+    this.balanceUI?.destroy()
+    this.balanceUI     = null
     this.balanceBar    = null
     this.balanceSystem = null
-    // Capturar grasa ANTES del reset — se usará en startRewardScreen()
     this._capturedGreasePercent = this.oilSystem.getTotalGrease()
     this.oilSystem.reset()
     this.player.setFlag(true)
     this.player.redraw()
-    this.startFalling()
-  }
-
-  // ========================================
-  // FASE 2 — EQUILIBRIO
-  // ========================================
-
-  createBalanceUI() {
-    const { WIDTH, HEIGHT } = BALANCE.BAR
-    const centerX = GAME_WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const barX    = centerX - WIDTH / 2
-
-    const barBg = this.add.graphics()
-    barBg.fillStyle(COLORS.BLACK, 1)
-    barBg.fillRect(barX - 3, barY - 3, WIDTH + 6, HEIGHT + 6)
-    barBg.fillStyle(0x1a1a2e, 1)
-    barBg.fillRect(barX, barY, WIDTH, HEIGHT)
-    barBg.lineStyle(2, COLORS.WHITE, 0.6)
-    barBg.strokeRect(barX, barY, WIDTH, HEIGHT)
-
-    barBg.fillStyle(COLORS.GREEN, 1)
-    barBg.fillRect(centerX - 1, barY - 4, 2, HEIGHT + 8)
-
-    const limit       = this.balanceBar.limit
-    const limitOffset = limit * (WIDTH / 2)
-    barBg.fillStyle(COLORS.RED, 0.6)
-    barBg.fillRect(centerX - limitOffset - 1, barY - 2, 2, HEIGHT + 4)
-    barBg.fillRect(centerX + limitOffset - 1, barY - 2, 2, HEIGHT + 4)
-
-    const dangerWidth = WIDTH * ((1 - limit) / 2)
-    barBg.fillStyle(COLORS.RED, 0.2)
-    barBg.fillRect(barX, barY, dangerWidth, HEIGHT)
-    barBg.fillRect(barX + WIDTH - dangerWidth, barY, dangerWidth, HEIGHT)
-
-    this.balanceUI.push(barBg)
-
-    this.balanceCursor = this.add.graphics()
-    this.balanceUI.push(this.balanceCursor)
-
-    const instrText = this.add.text(centerX, barY - 20, '¡MANTÉN EL EQUILIBRIO!', {
-      fontFamily: 'monospace',
-      fontSize:   '12px',
-      color:      '#ffffff',
-    }).setOrigin(0.5)
-    this.balanceUI.push(instrText)
-
-    this.balanceTimerText = this.add.text(centerX, barY + HEIGHT + 16, '', {
-      fontFamily: 'monospace',
-      fontSize:   '11px',
-      color:      '#aaaaaa',
-    }).setOrigin(0.5)
-    this.balanceUI.push(this.balanceTimerText)
-
-
-    const btnSize   = BALANCE.BUTTON_SIZE
-    const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2
-    const btnMargin = 40
-
-    this.btnLeft = this.add.image(btnMargin + btnSize / 2, btnY + btnSize / 2, 'btn-balance-left')
-      .setDisplaySize(btnSize, btnSize)
-      .setInteractive()
-    this.btnLeft.on('pointerdown', () => { this.balanceInputDir = -1; this.btnLeft.setTexture('btn-balance-left-press').setDisplaySize(btnSize, btnSize) })
-    this.btnLeft.on('pointerup',   () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left').setDisplaySize(btnSize, btnSize) })
-    this.btnLeft.on('pointerout',  () => { if (this.balanceInputDir === -1) this.balanceInputDir = 0; this.btnLeft.setTexture('btn-balance-left').setDisplaySize(btnSize, btnSize) })
-    this.balanceUI.push(this.btnLeft)
-
-    const btnRightX = GAME_WIDTH - btnMargin - btnSize
-    this.btnRight = this.add.image(btnRightX + btnSize / 2, btnY + btnSize / 2, 'btn-balance-right')
-      .setDisplaySize(btnSize, btnSize)
-      .setInteractive()
-    this.btnRight.on('pointerdown', () => { this.balanceInputDir = 1; this.btnRight.setTexture('btn-balance-right-press').setDisplaySize(btnSize, btnSize) })
-    this.btnRight.on('pointerup',   () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
-    this.btnRight.on('pointerout',  () => { if (this.balanceInputDir === 1) this.balanceInputDir = 0; this.btnRight.setTexture('btn-balance-right').setDisplaySize(btnSize, btnSize) })
-    this.balanceUI.push(this.btnRight)
-
-    if (DEBUG.BALANCE_PANEL) {
-      this.balanceDebugPanel = new BalanceDebugPanel(this)
-    }
-  }
-
-  drawBalanceButton(graphics, x, y, size) {
-    const g = graphics
-    g.fillStyle(0x2a2a4a, 1)
-    g.fillRect(x, y, size, size)
-    g.lineStyle(2, COLORS.GOLD, 0.8)
-    g.strokeRect(x, y, size, size)
-    g.lineStyle(1, COLORS.GOLD, 0.3)
-    g.strokeRect(x + 3, y + 3, size - 6, size - 6)
-  }
-
-  updateBalanceUI() {
-    if (!this.balanceCursor || !this.balanceBar) return
-
-    const { WIDTH, HEIGHT } = BALANCE.BAR
-    const centerX  = GAME_WIDTH / 2
-    const barY     = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const cursorX  = centerX + this.balanceBar.position * (WIDTH / 2)
-
-    this.balanceCursor.clear()
-    this.balanceCursor.fillStyle(COLORS.RED, 1)
-    this.balanceCursor.fillRect(cursorX - 2, barY - 6, 4, HEIGHT + 12)
-    this.balanceCursor.fillTriangle(cursorX, barY - 12, cursorX - 6, barY - 4,  cursorX + 6, barY - 4)
-    this.balanceCursor.fillTriangle(cursorX, barY + HEIGHT + 12, cursorX - 6, barY + HEIGHT + 4, cursorX + 6, barY + HEIGHT + 4)
-
-    if (this.balanceTimerText && this.balanceSystem) {
-      this.balanceTimerText.setText(`${this.balanceSystem.getElapsedTime().toFixed(1)}s`)
-    }
-
-    this.balanceDebugPanel?.update(this.balanceBar, this.balanceSystem, this._lastOilMult, this.balanceInputDir)
-  }
-
-  onBalanceLost() {
-    this.sound.play('sfx-hit', { volume: 0.8 })
-    this.cleanBalanceUI()
-    this.balanceBar    = null
-    this.balanceSystem = null
-    this.startFalling()
-  }
-
-  cleanBalanceUI() {
-    this.balanceUI.forEach(el => { if (el?.destroy) el.destroy() })
-    this.balanceUI        = []
-    this.balanceCursor    = null
-    this.balanceTimerText = null
-    this.btnLeft          = null
-    this.btnRight         = null
-    this.balanceInputDir  = 0
-    this.balanceDebugPanel?.destroy()
-    this.balanceDebugPanel = null
+    this._fall()
   }
 
   // ========================================
   // CAÍDA AL AGUA
   // ========================================
 
-  startFalling() {
+  _fall() {
     this.phase = 'falling'
-    this.player.setFalling()
-    const pos  = { y: this.player.y }
-
-    this.tweens.add({
-      targets:  pos,
-      y:        this.waterY + 40,
-      duration: MOVEMENT.FALL_DURATION,
-      ease:     'Quad.easeIn',
-      onUpdate: () => {
-        this.player.y = pos.y
-        this.player.redraw()
-      },
-      onComplete: () => {
-        this.player.setVisible(false)
-        this.createSplash()
-        if (this.hasFlag) {
-          this.time.delayedCall(600, () => this.showCelebration())
-        } else {
-          this.time.delayedCall(400, () => {
-            this.player.showHead(this.waterY)
-            this.showGameOver()
-          })
-        }
-      },
+    this.fallSystem.fall(this.player, this.waterY, () => {
+      if (this.hasFlag) {
+        this.time.delayedCall(600, () => this.showCelebration())
+      } else {
+        this.time.delayedCall(400, () => {
+          this.player.showHead(this.waterY)
+          this.showGameOver()
+        })
+      }
     })
-  }
-
-  createSplash() {
-    this.sound.play('sfx-chapuzon', { volume: 0.9 })
-    const splashX = this.player.x
-    const splashY = this.waterY
-
-    for (let i = 0; i < 10; i++) {
-      const dropG   = this.add.graphics()
-      this.gameWorld.add(dropG)
-      const offsetX = Phaser.Math.Between(-15, 15)
-      const size    = Phaser.Math.Between(2, 5)
-
-      dropG.fillStyle(COLORS.WHITE, 0.9)
-      dropG.fillRect(splashX + offsetX, splashY, size, size)
-
-      this.tweens.add({
-        targets:  dropG,
-        y:        -Phaser.Math.Between(20, 50),
-        alpha:    0,
-        duration: Phaser.Math.Between(300, 600),
-        ease:     'Quad.easeOut',
-        onComplete: () => dropG.destroy(),
-      })
-    }
   }
 
   // ========================================
@@ -714,7 +430,7 @@ export class GameScene extends Scene {
   }
 
   // ========================================
-  // CELEBRACIÓN (bandera cogida)
+  // CELEBRACIÓN
   // ========================================
 
   showCelebration() {
@@ -723,7 +439,7 @@ export class GameScene extends Scene {
   }
 
   startRewardScreen() {
-    this.phase = 'done'
+    this.phase  = 'done'
     const rewards = this.cache.json.get('rewards') || []
     const reward  = weightedRandom(rewards, 'probabilidad')
 
@@ -754,23 +470,15 @@ export class GameScene extends Scene {
     this.input.keyboard.on('keydown-ESC',   () => this.scene.start(SCENES.MENU))
 
     this.input.keyboard.on('keydown-LEFT',  (e) => {
-      if (e.repeat || this.phase !== 'running' || !this.balanceBar) return
-      this.balanceInputDir = -1
-      if (this.btnLeft) this.btnLeft.setTexture('btn-balance-left-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+      if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
+      this.balanceUI.pressLeft()
     })
     this.input.keyboard.on('keydown-RIGHT', (e) => {
-      if (e.repeat || this.phase !== 'running' || !this.balanceBar) return
-      this.balanceInputDir = 1
-      if (this.btnRight) this.btnRight.setTexture('btn-balance-right-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+      if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
+      this.balanceUI.pressRight()
     })
-    this.input.keyboard.on('keyup-LEFT',  () => {
-      if (this.balanceInputDir === -1) this.balanceInputDir = 0
-      if (this.btnLeft) this.btnLeft.setTexture('btn-balance-left').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
-    })
-    this.input.keyboard.on('keyup-RIGHT', () => {
-      if (this.balanceInputDir === 1) this.balanceInputDir = 0
-      if (this.btnRight) this.btnRight.setTexture('btn-balance-right').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
-    })
+    this.input.keyboard.on('keyup-LEFT',  () => { this.balanceUI?.releaseLeft() })
+    this.input.keyboard.on('keyup-RIGHT', () => { this.balanceUI?.releaseRight() })
   }
 
   handleTap(pointer) {
@@ -800,7 +508,6 @@ export class GameScene extends Scene {
     zones.forEach((grease, i) => {
       const alpha = (grease / 100) * OIL.OVERLAY_ALPHA
       if (alpha < 0.01) return
-
       const zoneLeft = POLE.START_X - (i + 1) * zoneW
       this.oilOverlay.fillStyle(0x000000, alpha)
       this.oilOverlay.fillRect(zoneLeft, this.poleY - 3, zoneW, 5)
@@ -819,7 +526,7 @@ export class GameScene extends Scene {
   }
 
   drawPole() {
-    const g           = this.add.graphics()
+    const g = this.add.graphics()
     this.gameWorld.add(g)
     const poleOverlap = 30
 
@@ -868,7 +575,6 @@ export class GameScene extends Scene {
       color:      '#666666',
     }).setOrigin(1, 0)
 
-    // Indicador de grasa: siempre visible, esquina superior izquierda bajo la franja
     this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())
   }
@@ -880,16 +586,13 @@ export class GameScene extends Scene {
   update(time, delta) {
     if (this.phase === 'impulse') {
       this.impulseSystem.update(delta / 1000)
-      this.updatePowerBarUI()
-      this.updatePassCounter()
+      this.powerBarUI?.update()
       if (this.powerBar.finished) this.onBarStopped()
     }
 
     if (this.phase === 'running') this.updateRunning(delta)
-
     if (this.phase === 'jumping') this.updateJumping(delta)
 
-    // Indicador de grasa siempre activo
     this.oilIndicator?.update(this.oilSystem.getTotalGrease())
   }
 }
