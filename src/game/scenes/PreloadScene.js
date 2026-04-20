@@ -204,30 +204,30 @@ export class PreloadScene extends BaseScene {
     this.load.image('btn-nav-right',       'ui/buttons/right-stand.png')
     this.load.image('btn-nav-right-press', 'ui/buttons/right-press.png')
 
-    this.load.image('bg-menu',       'backgrounds/fondoIntro.png')
-    this.load.image('bg-characters', 'backgrounds/fondoPersonajes.png')
-    this.load.image('bg-game',         'backgrounds/fondo_a.png')
-    this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.png')
-    this.load.image('bg-history',    'backgrounds/fondoHistory.png')
+    this.load.image('bg-menu',       'backgrounds/fondoIntro.webp')
+    this.load.image('bg-characters', 'backgrounds/fondoPersonajes.webp')
+    this.load.image('bg-game',         'backgrounds/fondo_a.webp')
+    this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.webp')
+    this.load.image('bg-history',    'backgrounds/fondoHistory.webp')
 
     // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
     this.load.spritesheet('narrator-history',  'sprites/narrators/narrator_history.png',  { frameWidth: 35, frameHeight: 35 })
     this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', { frameWidth: 35, frameHeight: 35 })
 
     // Imágenes del tutorial
-    this.load.image('tut-01', 'tutorial/01-bienvenido.png')
-    this.load.image('tut-02', 'tutorial/02-impulso.png')
-    this.load.image('tut-03', 'tutorial/03-zonas.png')
-    this.load.image('tut-04', 'tutorial/04-equilibrio.png')
-    this.load.image('tut-05', 'tutorial/05-salto.png')
+    this.load.image('tut-01', 'tutorial/01-bienvenido.webp')
+    this.load.image('tut-02', 'tutorial/02-impulso.webp')
+    this.load.image('tut-03', 'tutorial/03-zonas.webp')
+    this.load.image('tut-04', 'tutorial/04-equilibrio.webp')
+    this.load.image('tut-05', 'tutorial/05-salto.webp')
     this.load.image('tut-06', 'tutorial/06-listo.png')
 
     // Imágenes históricas
-    this.load.image('hist-intro',     'backgrounds/hist-intro.png')
-    this.load.image('hist-sabio',     'backgrounds/hist-sabio.png')
-    this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.png')
+    this.load.image('hist-intro',     'backgrounds/hist-intro.webp')
+    this.load.image('hist-sabio',     'backgrounds/hist-sabio.webp')
+    this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
     this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.png')
-    this.load.image('hist-mision',    'backgrounds/hist-mision.png')
+    this.load.image('hist-mision',    'backgrounds/hist-mision.webp')
 
     this.load.image('boat', 'sprites/barco.png')
 

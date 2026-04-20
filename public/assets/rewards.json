@@ -2,62 +2,62 @@
   {
     "id": "reward_pali",
     "nombre": "Llavero del Pali",
-    "imagen": "premios/pali.png",
+    "imagen": "premios/pali.webp",
     "probabilidad": 0.25
   },
   {
     "id": "reward_curro",
     "nombre": "Pin del Curro",
-    "imagen": "premios/curro.png",
+    "imagen": "premios/curro.webp",
     "probabilidad": 0.25
   },
   {
     "id": "reward_wendolin",
     "nombre": "La Wendolin",
-    "imagen": "premios/wendolin.png",
+    "imagen": "premios/wendolin.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_sombrero",
     "nombre": "El Sombrero de Finidi",
-    "imagen": "premios/sombrero.png",
+    "imagen": "premios/sombrero.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_gambrinus",
     "nombre": "Peluche de Gambrinus",
-    "imagen": "premios/gambrinus.png",
+    "imagen": "premios/gambrinus.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_maradona",
     "nombre": "La camiseta del 10",
-    "imagen": "premios/maradona.png",
+    "imagen": "premios/maradona.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_pacogandia",
     "nombre": "La cinta de los mejores chiste de Paco Gandía",
-    "imagen": "premios/pacogandia.png",
+    "imagen": "premios/pacogandia.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_giraldillo",
     "nombre": "Pisacorbatas del Giraldillo",
-    "imagen": "premios/giraldillo.png",
+    "imagen": "premios/giraldillo.webp",
     "probabilidad": 0.3
   },
   {
     "id": "reward_vajilla",
     "nombre": "Vajilla completa de La Cartuja",
-    "imagen": "premios/vajilla.png",
+    "imagen": "premios/vajilla.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_llamador",
     "nombre": "El Llamador",
     "descripcion": "El \"pograma\" para seguir los pasos",
-    "imagen": "premios/llamador.png",
+    "imagen": "premios/llamador.webp",
     "probabilidad": 0.15
   }
 ]
