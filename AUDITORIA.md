@@ -27,10 +27,10 @@
 
 ## HALLAZGOS IMPORTANTES (muy recomendados)
 
-### [ ] 4. Assets sin optimizar — ~31MB de build
-- PNGs de fondo de 1.4-1.6MB cada uno. `preview.png` pesa 3MB.
-- 3 archivos `*_old.png` innecesarios (~40MB extra en repo).
-- **Fix:** Convertir a WebP (ahorro 25-35%), eliminar `*_old.png`.
+### [x] 4. Assets sin optimizar — ~31MB de build ✅ _completado 2026-04-19_
+- ~~PNGs de fondo de 1.4-1.6MB cada uno. `preview.png` pesa 3MB.~~
+- ~~3 archivos `*_old.png` innecesarios (~40MB extra en repo).~~
+- **Implementado:** 30MB → 6.5MB (78% de reducción). Borrados 8 ficheros `_old`/duplicados (~7MB). 23 PNGs convertidos a WebP con `cwebp` (fondos, premios, tutorial, preview social): ahorro medio del 90-95% por imagen. Referencias actualizadas en `PreloadScene.js`, `rewards.json` e `index.html`.
 
 ### [ ] 5. Sin cabeceras de seguridad HTTP
 - No hay Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, ni HSTS configurados.

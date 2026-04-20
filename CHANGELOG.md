@@ -27,7 +27,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Security
 
-- Dependencias de build actualizadas para eliminar 7 vulnerabilidades high-severity: vite 6.3.2 → 6.4.2, rollup 4.40.0 → 4.60.2, picomatch 4.0.2 → 4.0.4. `npm audit` reporta 0 vulnerabilidades.
+- Dependencias de build actualizadas
+
+### Performance
+
+- Assets optimizados: 30MB → 6.5MB (−78%). 23 imágenes convertidas de PNG a WebP (`cwebp -q 85/90`) con una reducción media del 90–95% por imagen. Eliminados 8 ficheros `_old`/duplicados sin referencia en código. Referencias actualizadas en `PreloadScene.js`, `rewards.json` e `index.html`. para eliminar 7 vulnerabilidades high-severity: vite 6.3.2 → 6.4.2, rollup 4.40.0 → 4.60.2, picomatch 4.0.2 → 4.0.4. `npm audit` reporta 0 vulnerabilidades.
 
 ---
 
