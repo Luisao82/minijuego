@@ -11,7 +11,7 @@
         "id": "piece-2-0-p01",
         "x": 50,
         "y": 70,
-        "photo": "map/photos/escultura_torero_roto.png",
+        "photo": "map/photos/escultura_torero_roto.webp",
         "title": "El Torero Roto",
         "text": "escultura del torero roto......"
       }
@@ -21,7 +21,7 @@
         "id": "piece-2-1-p01",
         "x": 146,
         "y": 35,
-        "photo": "map/photos/relojeria.png",
+        "photo": "map/photos/relojeria.webp",
         "title": "Relojería",
         "text": "Relojería típica de la calle Sierpes."
       },
@@ -29,7 +29,7 @@
         "id": "piece-2-1-p02",
         "x": 179,
         "y": 79,
-        "photo": "map/photos/bar.png",
+        "photo": "map/photos/bar.webp",
         "title": "Bar Curioso",
         "text": "Bar con una de las fotos más curiosas de Sevilla."
       },
@@ -37,7 +37,7 @@
         "id": "piece-2-1-p03",
         "x": 189,
         "y": 188,
-        "photo": "map/photos/giralda.png",
+        "photo": "map/photos/giralda.webp",
         "title": "La Giralda",
         "text": "La Giralda, símbolo de Sevilla."
       }
@@ -49,7 +49,7 @@
         "id": "piece-3-1-p01",
         "x": 121,
         "y": 66,
-        "photo": "map/photos/torreDelOro.png",
+        "photo": "map/photos/torreDelOro.webp",
         "title": "Torre del Oro",
         "text": "Torre del Oro, famosa torre de Sevilla."
       }
