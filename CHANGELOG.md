@@ -11,6 +11,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - Puntos de interés en el mapa de Sevilla: Relojería, Bar Curioso y La Giralda en la pieza 2-1; Torre del Oro en la pieza 3-1. Cada punto incluye foto y descripción corta.
 
+### Fixed
+
+- Service worker: bump de versión a `cucana-v4` para invalidar caché antigua y servir la versión actualizada de `map-data.json` (los puntos nuevos no aparecían por cache-first).
+
 ## [0.7.0] - 2026-04-23
 
 ### Added
