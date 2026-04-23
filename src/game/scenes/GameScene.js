@@ -1,5 +1,6 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, OIL } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, OIL, PHASE1 } from '../config/gameConfig'
+import { mapService } from '../services/MapService'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
@@ -141,7 +142,48 @@ export class GameScene extends BaseScene {
     this.impulseResult = this.impulseSystem.isActive()
       ? this.impulseSystem.stop()
       : this.impulseSystem.getResult()
+
+    this.hasPerfectImpulse = this.impulseResult.impulseValue >= PHASE1.PERFECT_IMPULSE_MIN
+    if (this.hasPerfectImpulse) this._showMaxPowerText()
+
     this.startRunning()
+  }
+
+  _showMaxPowerText() {
+    const startY  = CONTROL_PANEL.Y - 10
+    const targetY = 390
+    const cx      = GAME_WIDTH / 2
+
+    const txt = this.add.text(cx, startY, '¡MAX POWER!', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize:   '28px',
+      color:      '#aaff00',
+      stroke:     '#000000',
+      strokeThickness: 4,
+      shadow:     { offsetX: 2, offsetY: 2, color: '#006600', blur: 0, fill: true },
+    }).setOrigin(0.5).setAlpha(0).setDepth(50)
+
+    // Sube y aparece
+    this.tweens.add({
+      targets:  txt,
+      y:        targetY,
+      alpha:    1,
+      duration: 520,
+      ease:     'Cubic.easeOut',
+      onComplete: () => {
+        // Pausa visible
+        this.time.delayedCall(1200, () => {
+          // Desvanece
+          this.tweens.add({
+            targets:  txt,
+            alpha:    0,
+            duration: 350,
+            ease:     'Quad.easeIn',
+            onComplete: () => txt.destroy(),
+          })
+        })
+      },
+    })
   }
 
   // ========================================
@@ -458,7 +500,9 @@ export class GameScene extends BaseScene {
       hasJumped:     this.hasJumped,
     })
 
-    this.scene.start(SCENES.REWARD, { reward, character: this.characterData })
+    const newMapPiece = this.hasPerfectImpulse ? mapService.unlockRandom() : null
+
+    this.scene.start(SCENES.REWARD, { reward, character: this.characterData, newMapPiece })
   }
 
   // ========================================

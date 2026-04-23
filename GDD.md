@@ -734,3 +734,222 @@ Gestionado por `CharacterRewardService` (`src/game/services/CharacterRewardServi
 | `src/game/scenes/GameScene.js` | Carga el spritesheet del skin activo |
 | `src/game/entities/Player.js` | Acepta `spriteKey` para usar el skin correcto |
 | `public/assets/sprites/characters/spritesheet/` | Ficheros PNG de los spritesheets |
+
+---
+
+## 🗺️ Mapa de Sevilla — Sistema de logros territorial
+
+Meta-progresión paralela a los premios individuales. El jugador reconstruye un mapa pixel art de Sevilla dividido en **15 trozos (3 columnas × 5 filas, orientación vertical)**. Cada trozo se desbloquea al clavar un impulso "perfecto" en Fase 1 y conseguir la bandera en la misma partida. Cada trozo contiene uno o varios puntos clickables que muestran una foto real (retocada con estilo pixel art) + texto sobre un lugar de Sevilla. Objetivo: convertir el juego en una mini-guía cultural.
+
+### Disposición del mapa
+
+| Parámetro | Valor |
+|---|---|
+| Total de trozos | 15 |
+| Grid | 3 columnas × 5 filas |
+| Orientación | Vertical (más alto que ancho) |
+| Dimensiones de cada trozo | 200 × 200 px (imagen original) |
+| Dimensiones totales del mapa original | 600 × 1000 px |
+
+> Las dimensiones son las del arte original. En pantalla se escalan según la vista (general o ampliada) manteniendo proporciones.
+
+### Vistas y navegación
+
+**Vista general:**
+- Mapa completo visible (3×5) a escala reducida para caber en pantalla.
+- Trozos **no conseguidos** → oscuros / silueta apagada (sin detalle visible).
+- Trozos **conseguidos** → iluminados con su arte.
+- Trozos **conseguidos pero no vistos aún** (`seen === false`) → marco amarillo destacado **solo en vista general**.
+- Pulsar cualquier trozo (conseguido u oscuro) → entra en vista ampliada de ese trozo.
+
+**Vista ampliada (un trozo a pantalla completa):**
+- Muestra el trozo escalado ocupando la zona principal.
+- Si el trozo está conseguido → se ven sus puntos clickables.
+- Si el trozo no está conseguido → se muestra oscuro y sin puntos.
+- Flechas de navegación **arriba / abajo / izquierda / derecha** para moverse a trozos adyacentes del grid. En los bordes del grid, la flecha correspondiente se deshabilita o se oculta.
+- Botón **"Volver"** para regresar a la vista general.
+- Entrar en un trozo (por pulsación o navegación) marca automáticamente `seen = true`.
+
+**Qué pasa al pulsar un trozo oscuro desde vista general:**
+Se abre en vista ampliada oscuro y sin puntos. El jugador puede seguir navegando desde ahí con las flechas. Esto es intencional: evita la inconsistencia de permitir navegar por oscuros dentro de la vista ampliada pero no abrirlos desde la general.
+
+### Condición de desbloqueo de trozo
+
+**Trigger doble obligatorio en la misma partida:**
+1. Detener la barra de impulso de Fase 1 en el rango **99%-100%** (configurable).
+2. Conseguir la bandera al final de la partida (con o sin salto).
+
+Si solo se cumple 1 → no hay trozo.
+Si solo se cumple 2 → no hay trozo (se otorga premio normal como siempre).
+Si se cumplen ambos → **además** del premio normal, se otorga un trozo de mapa aleatorio entre los aún no conseguidos.
+
+**Aleatoriedad sin reposición:** cada nuevo trozo sale de entre los **no conseguidos todavía**. No se repite ninguno hasta completar el mapa. Garantiza progresión en 15 partidas "perfectas" como mínimo.
+
+**Cuando ya se tienen los 15 trozos:** la señal de impulso perfecto sigue mostrándose igual (feedback consistente), pero no otorga nada adicional.
+
+### Feedback "¡POWER!" — Impulso perfecto
+
+Se dispara en el instante en que el jugador detiene la barra de Fase 1 dentro del rango perfecto, **antes** de la Fase 2.
+
+| Elemento | Detalle |
+|---|---|
+| Texto | "¡POWER!" (o término a decidir) en tipografía pixel art grande |
+| Animación | Pop-in con rebote, se mantiene ~0.4-0.6s, fade out |
+| Posición | Fuera de zonas críticas (no tapar barra de equilibrio ni al jugador) |
+| Sonido | SFX corto retro tipo chispazo / ding |
+| Requisito | **Ambos** elementos (visual + sonido) son obligatorios; el juego debe ser comprensible sin audio |
+
+Variables a exponer en configuración (archivo `mapConfig.js`):
+- Rango de impulso perfecto (por defecto 99-100).
+- Duración del pop-in.
+- Posición del texto en pantalla.
+
+### Feedback al final de la partida
+
+En `RewardScene` (o equivalente), tras mostrar el premio ganado, si en esa partida se cumplió la condición del trozo:
+- Secuencia: primero se muestra el premio normal, **luego** aparece un mensaje adicional tipo *"Has conseguido un trozo del mapa"*.
+- El jugador debe ir a la pantalla de premios y pulsar el botón **"Mapa"** para verlo.
+- No se muestra cuál es el trozo en ese momento: la sorpresa se guarda para cuando abra el mapa y vea el marco amarillo.
+
+### Acceso e integración
+
+- **Botón "Mapa"** en la pantalla de premios (`CollectionScene` o equivalente). Abre `MapScene`.
+- **Porcentaje de mapa desbloqueado** en `StatsScene` como estadística adicional (`mapProgress = conseguidos / 15`).
+
+### Estructura de datos — `map.json`
+
+Fichero mantenido manualmente. El jugador (desarrollador) añadirá los puntos a mano, porque las coordenadas se calculan visualmente sobre cada trozo.
+
+```json
+{
+  "pieces": [
+    {
+      "id": "piece_01",
+      "row": 0,
+      "col": 0,
+      "image": "assets/map/pieces/piece_01.png",
+      "points": [
+        {
+          "id": "piece_01_point_01",
+          "x": 60,
+          "y": 90,
+          "photo": "assets/map/photos/giralda.png",
+          "title": "La Giralda",
+          "text": "Antiguo alminar almohade, símbolo de Sevilla."
+        },
+        {
+          "id": "piece_01_point_02",
+          "x": 140,
+          "y": 30,
+          "photo": "assets/map/photos/catedral.png",
+          "title": "Catedral de Sevilla",
+          "text": "La mayor catedral gótica del mundo."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Reglas del JSON:**
+- `id` de trozo y de punto únicos en todo el fichero.
+- `row` 0-4 (filas de arriba abajo), `col` 0-2 (columnas de izquierda a derecha).
+- Las coordenadas `x` / `y` de cada punto son **en píxeles de la imagen original del trozo** (dominio 0-200, 0-200). **Nunca** se escriben en coordenadas de pantalla ni escaladas.
+- `points` puede estar vacío (`[]`) si un trozo no tiene lugares destacados.
+- Pueden existir trozos definidos en el JSON antes de tener la imagen real o las fotos: el juego debe tolerar assets faltantes mostrando placeholders.
+
+### Posicionamiento de puntos — Nota técnica crítica
+
+El problema: Phaser escala la imagen del trozo para adaptarse a la pantalla (tanto en vista general como en vista ampliada). Los puntos clickables deben permanecer **exactamente sobre el lugar correspondiente de la foto**, sin desalinearse al ampliar.
+
+**Solución:**
+1. Crear un `Phaser.Container` por trozo que contenga la imagen + los círculos de los puntos.
+2. Colocar cada círculo en las coordenadas `{ x, y }` del JSON (relativas a la imagen original, 0-200).
+3. Aplicar escala **al container completo**, no a imagen y puntos por separado. Al escalar el container, Phaser escala todos sus hijos proporcionalmente y los puntos quedan perfectamente alineados.
+4. `pixelArt: true` sigue activo para mantener `NEAREST` sin suavizado.
+
+**Hitarea táctil (móvil):**
+- El círculo visual del punto puede ser pequeño (p.ej. 6-8 px de radio en coordenadas originales).
+- El área clickable debe ser más amplia: en pantalla final (tras escalado) debe llegar a ≥ 44×44 px para ser cómoda con el dedo.
+- Exponer en `mapConfig.js` dos constantes independientes: `POINT_VISUAL_RADIUS` (radio del círculo que se ve) y `POINT_HIT_RADIUS` (radio del área táctil). Así se puede ampliar el hitarea sin cambiar el aspecto.
+
+### Estructura de carpetas — Assets
+
+```
+public/assets/map/
+├── pieces/                  # Trozos del mapa (200x200 px cada uno)
+│   ├── piece_01.png
+│   ├── piece_02.png
+│   └── ... piece_15.png
+├── photos/                  # Fotos reales retocadas pixel art (lugares)
+│   ├── giralda.png
+│   ├── catedral.png
+│   ├── plaza-espana.png
+│   └── ...
+└── ui/                      # Elementos propios de la UI del mapa (opcional)
+    ├── frame-unseen.png     # Marco amarillo para trozos no vistos
+    ├── arrow-nav.png
+    └── point-marker.png     # Sprite del círculo clickable
+```
+
+### Persistencia — `localStorage` con Clean Architecture
+
+**Clave localStorage:** `cucana_map`
+
+**Estructura:**
+```json
+{
+  "unlocked": ["piece_03", "piece_07", "piece_12"],
+  "seen":     ["piece_03", "piece_07"]
+}
+```
+
+- `unlocked`: IDs de trozos conseguidos.
+- `seen`: IDs de trozos ya visualizados al menos una vez por el jugador (vista ampliada). Subconjunto de `unlocked`.
+
+**Arquitectura (Clean Architecture — preparado para migración futura a BD):**
+
+| Capa | Fichero | Responsabilidad |
+|---|---|---|
+| Entidad / modelo | `src/game/entities/MapPiece.js` | Objeto puro: id, row, col, image, points, isUnlocked, isSeen. Sin Phaser. |
+| Caso de uso / servicio | `src/game/services/MapService.js` | Reglas de negocio: desbloquear trozo aleatorio no conseguido, marcar como visto, calcular progreso %, comprobar si puede desbloquear en una partida dada. |
+| Puerto (interfaz) | `src/game/services/ports/MapStoragePort.js` | Contrato: `load()`, `save(state)`, `clear()`. |
+| Adaptador | `src/game/services/adapters/MapLocalStorageAdapter.js` | Implementación con `localStorage`. En el futuro se sustituye por `MapApiAdapter` sin tocar el servicio. |
+| Config | `src/game/config/mapConfig.js` | Rango de impulso perfecto, duración de POWER, radios de punto, etc. |
+| Escena | `src/game/scenes/MapScene.js` | Orquesta vistas (general / ampliada), navegación, render de puntos. |
+
+`MapService` nunca toca `localStorage` directamente: depende del puerto. Así mañana el adaptador pasa a ser una llamada HTTP a BD sin que cambie nada más.
+
+**Sigue la misma pauta ya usada en:**
+- `GameStatsService` (estadísticas con adaptador intercambiable).
+- `UnlockService`, `SkinService`, `CharacterRewardService`.
+
+### Desarrollo incremental — Scaffolding sin arte
+
+Dado que el arte (mapa pixel art + fotos retocadas) llevará tiempo, cuando se empiece la implementación se debe **crear toda la estructura aunque no existan imágenes**:
+
+1. `map.json` con los 15 trozos definidos (row/col/id), con `points: []` o con placeholders.
+2. `MapScene` funcional con placeholders de color sólido (cuadrados pixel art) en lugar de las imágenes reales.
+3. Sistema de desbloqueo e impulso perfecto integrado y funcional.
+4. Persistencia completa.
+5. Pantalla de premios con botón "Mapa" activo.
+6. % en `StatsScene`.
+
+Los assets reales se irán sustituyendo uno a uno sin tocar código. El juego debe detectar assets faltantes y mostrar el placeholder correspondiente.
+
+### Checklist de decisiones cerradas
+
+- ✅ Grid 3×5 vertical, trozos 200×200.
+- ✅ Vista general + vista ampliada con flechas de navegación.
+- ✅ Trozos oscuros navegables y abribles desde vista general.
+- ✅ Desbloqueo aleatorio sin reposición entre pendientes.
+- ✅ Trigger: impulso 99-100% (configurable) + bandera en la misma partida.
+- ✅ Sin bandera → no desbloquea aunque acertase el impulso.
+- ✅ Con los 15 ya conseguidos → señal POWER sigue saliendo sin recompensa extra.
+- ✅ Feedback visual "¡POWER!" pixel art grande pop-in + SFX.
+- ✅ Feedback final de partida: mensaje tras el premio, sin revelar qué trozo.
+- ✅ Flag `seen` por trozo → marco amarillo solo en vista general.
+- ✅ Botón "Mapa" en pantalla de premios.
+- ✅ % de mapa desbloqueado en `StatsScene`.
+- ✅ Persistencia en `localStorage` con Clean Architecture (puerto + adaptador).
+- ✅ Desarrollo con scaffolding completo aunque falten imágenes.
