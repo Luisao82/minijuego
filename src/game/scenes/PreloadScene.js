@@ -279,6 +279,22 @@ export class PreloadScene extends BaseScene {
       }
     })
 
+    // Mapa de Sevilla — JSON de datos y 15 piezas (3 cols × 5 filas)
+    this.load.json('map-data', 'map/map-data.json')
+    this.load.on('filecomplete-json-map-data', () => {
+      const mapData = this.cache.json.get('map-data')
+      mapData?.pieces?.forEach(piece => {
+        piece.points?.forEach(point => {
+          if (point.photo) this.load.image(point.id, point.photo)
+        })
+      })
+    })
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 3; col++) {
+        this.load.image(`map-piece-${row}-${col}`, `map/pieces/piece-${row}-${col}.png`)
+      }
+    }
+
     // Efectos de sonido
     this.load.audio('sfx-click',    'audio/click.wav')
     this.load.audio('sfx-hit',      'audio/hitHurt.wav')

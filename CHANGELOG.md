@@ -7,8 +7,18 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-23
+
 ### Added
 
+- Mapa de Sevilla: meta-progresión 3×5 con 15 trozos desbloqueables. Trigger: impulso perfecto (≥95%) + coger la bandera en la misma partida desbloquea un trozo aleatorio sin reposición. Persistencia en `localStorage` con Clean Architecture (adaptador intercambiable para futura BD).
+- `MapScene` — vista general del mapa con rejilla 3×5 (piezas bloqueadas/desbloqueadas), vista zoom por pieza con navegación en 4 direcciones (flechas arriba/abajo/izquierda/derecha), puntos de interés clicables (dot rojo animado, zona táctil 56×56 px) y modal con foto y descripción del lugar.
+- `MapService` — servicio singleton con `unlockRandom()`, `markSeen()`, `isUnlocked()`, `isSeen()`, `getProgress()` y `hasUnseenPieces()`.
+- Botón "VER MAPA" en `CollectionScene` junto a los botones de navegación existentes.
+- Animación "¡MAX POWER!" en GameScene al alcanzar impulso perfecto: texto verde lima que sube desde el panel de control y se desvanece.
+- Feedback de nuevo trozo en `RewardScene`: texto "¡TROZO DEL MAPA!" con indicación de ir a VER MAPA.
+- Marco dorado pulsante en piezas recién desbloqueadas (desaparece al abrir la pieza).
+- GDD: nueva sección "Mapa de Sevilla — Sistema de logros territorial". Documenta la meta-progresión del mapa 3×5 con trozos desbloqueables, puntos clickables con fotos pixel art de lugares reales, trigger de impulso perfecto (99-100%) + bandera, feedback "¡POWER!" visual + sonoro, aleatoriedad sin reposición, flag `seen` con marco amarillo, persistencia `localStorage` con Clean Architecture (puerto + adaptador intercambiable para futura BD) y estructura de carpetas de assets. Pendiente de implementación.
 - `BaseScene` — clase base para todas las escenas. Registra automáticamente el handler `shutdown` (elimina tweens, timers e input al cambiar de escena, evitando memory leaks). Expone el hook `_onShutdown()` para limpieza específica por escena y el helper `_label()` para texto pixel art consistente. Incluye breadcrumb de Sentry en cada navegación (solo producción). Las 16 escenas migradas.
 - Monitorización de errores en producción con Sentry (`@sentry/browser`). Se inicializa solo en producción vía `VITE_SENTRY_DSN` (configurada en Vercel Dashboard). Sentry gestiona `window.onerror` y `onunhandledrejection` automáticamente. Source maps hidden activados en el build de producción para stack traces legibles en Sentry.
 - `.env.example` como plantilla documentada para variables de entorno del proyecto.

@@ -27,9 +27,10 @@ export class RewardScene extends BaseScene {
 
   init(data) {
     super.init(data)
-    this.reward = data.reward || null
+    this.reward       = data.reward || null
     this.characterData = data.character || null
-    this.canPlay = false
+    this.newMapPiece  = data.newMapPiece || null
+    this.canPlay      = false
 
     // Detectar si es la primera vez antes de guardar
     // Los confetis solo se muestran en la primera obtención del premio
@@ -175,6 +176,26 @@ export class RewardScene extends BaseScene {
         color: '#cccccc',
         align: 'center',
         wordWrap: { width: PANEL_W - 80 },
+      }).setOrigin(0.5)
+    }
+
+    // Trozo de mapa conseguido
+    if (this.newMapPiece) {
+      const mapY = imgCY + IMG_SIZE / 2 + (this.reward?.descripcion ? 74 : 54)
+      this.add.text(CENTER_X, mapY, '🗺️ ¡TROZO DEL MAPA!', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '14px',
+        color: '#aaff00',
+        stroke: '#000000',
+        strokeThickness: 4,
+        align: 'center',
+        wordWrap: { width: PANEL_W - 60 },
+      }).setOrigin(0.5)
+      this.add.text(CENTER_X, mapY + 30, 'Ve a VER MAPA para descubrirlo', {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#88cc00',
+        align: 'center',
       }).setOrigin(0.5)
     }
   }

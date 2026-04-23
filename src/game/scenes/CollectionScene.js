@@ -184,14 +184,18 @@ export class CollectionScene extends BaseScene {
     const gap    = 20
     // top del botón para que su centro quede en Y=600, igual que CharacterSelectScene
     const btnY   = BAND_Y + BAND_H + 40 - btnH / 2
-    const totalW = btnW * 2 + gap
+    const totalW = btnW * 3 + gap * 2
     const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
 
     makeNavButton(this, startX, btnY, btnW, btnH, 'VOLVER AL MENÚ', () => {
       this.scene.start(SCENES.MENU)
     }, { depth: 3 })
 
-    makeNavButton(this, startX + btnW + gap, btnY, btnW, btnH, 'VOLVER A JUGAR', () => {
+    makeNavButton(this, startX + btnW + gap, btnY, btnW, btnH, 'VER MAPA', () => {
+      this.scene.start(SCENES.MAP, { character: this.characterData })
+    }, { depth: 3 })
+
+    makeNavButton(this, startX + (btnW + gap) * 2, btnY, btnW, btnH, 'VOLVER A JUGAR', () => {
       this.scene.start(SCENES.GAME, { character: this.characterData })
     }, { depth: 3 })
   }

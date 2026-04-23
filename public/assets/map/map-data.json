@@ -1,0 +1,28 @@
+{
+  "pieces": [
+    { "id": "piece-0-0", "row": 0, "col": 0, "points": [] },
+    { "id": "piece-0-1", "row": 0, "col": 1, "points": [] },
+    { "id": "piece-0-2", "row": 0, "col": 2, "points": [] },
+    { "id": "piece-1-0", "row": 1, "col": 0, "points": [] },
+    { "id": "piece-1-1", "row": 1, "col": 1, "points": [] },
+    { "id": "piece-1-2", "row": 1, "col": 2, "points": [] },
+    { "id": "piece-2-0", "row": 2, "col": 0, "points": [
+      {
+        "id": "piece-2-0-p01",
+        "x": 50,
+        "y": 70,
+        "photo": "map/photos/escultura_torero_roto.png",
+        "title": "El Torero Roto",
+        "text": "escultura del torero roto......"
+      }
+    ]},
+    { "id": "piece-2-1", "row": 2, "col": 1, "points": [] },
+    { "id": "piece-2-2", "row": 2, "col": 2, "points": [] },
+    { "id": "piece-3-0", "row": 3, "col": 0, "points": [] },
+    { "id": "piece-3-1", "row": 3, "col": 1, "points": [] },
+    { "id": "piece-3-2", "row": 3, "col": 2, "points": [] },
+    { "id": "piece-4-0", "row": 4, "col": 0, "points": [] },
+    { "id": "piece-4-1", "row": 4, "col": 1, "points": [] },
+    { "id": "piece-4-2", "row": 4, "col": 2, "points": [] }
+  ]
+}

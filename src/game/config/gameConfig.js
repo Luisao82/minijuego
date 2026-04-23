@@ -43,6 +43,7 @@ export const SCENES = {
   SKIN_UNLOCK:         'SkinUnlockScene',
   COLLECTION: 'CollectionScene',
   STATS:      'StatsScene',
+  MAP:        'MapScene',
 }
 
 // Configuración de texto pixel art (temporal hasta tener bitmap fonts)
@@ -79,6 +80,7 @@ export const PHASE1 = {
   BASE_ACCELERATION: 0.1,      // Aceleración base por segundo
   WEIGHT_FACTOR: 0.1,          // Aceleración extra por punto de peso
   MAX_PASSES: 5,                // Máximo de pasadas antes de que se acabe el tiempo
+  PERFECT_IMPULSE_MIN: 0.95,    // Umbral mínimo para considerar el impulso "perfecto" (oportunidad de trozo de mapa)
   PASS_SPEED_INCREASE: 0.1,     // Incremento de velocidad base por pasada completada
   ZONES: {
     RED: { start: 0, end: 0.4 },
