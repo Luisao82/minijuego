@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- Modal de punto de interés: imagen ampliada al 98% del ancho del panel (antes tenía 40px de margen fijo). Altura máxima aumentada de 320 a 380px.
+
 ### Added
 
 - Puntos de interés en el mapa de Sevilla: Relojería, Bar Curioso y La Giralda en la pieza 2-1; Torre del Oro en la pieza 3-1. Cada punto incluye foto y descripción corta.

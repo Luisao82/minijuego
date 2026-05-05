@@ -337,7 +337,8 @@ export class MapScene extends BaseScene {
     sep.lineBetween(PX + 24, PY + 50, PX + PW - 24, PY + 50)
 
     // Foto
-    const imgH   = 320
+    const imgMaxW = Math.round(PW * 0.98)
+    const imgH   = 380
     const imgY   = PY + 66
     const hasImg = point.id && this.textures.exists(point.id) &&
       this.textures.get(point.id).key !== '__MISSING'
@@ -346,14 +347,14 @@ export class MapScene extends BaseScene {
       const img = m(this.add.image(CX, imgY + imgH / 2, point.id)
         .setOrigin(0.5)
         .setDepth(D + 2))
-      const scale = Math.min((PW - 40) / img.width, imgH / img.height)
+      const scale = Math.min(imgMaxW / img.width, imgH / img.height)
       img.setScale(scale)
     } else {
       const ig = m(this.add.graphics().setDepth(D + 2))
       ig.fillStyle(0x1a1a2e, 1)
-      ig.fillRect(PX + 20, imgY, PW - 40, imgH)
+      ig.fillRect(PX + Math.round(PW * 0.01), imgY, imgMaxW, imgH)
       ig.lineStyle(1, COLORS.GOLD, 0.4)
-      ig.strokeRect(PX + 20, imgY, PW - 40, imgH)
+      ig.strokeRect(PX + Math.round(PW * 0.01), imgY, imgMaxW, imgH)
       m(this.add.text(CX, imgY + imgH / 2, '?', {
         fontFamily: '"Press Start 2P", monospace', fontSize: '48px', color: '#444466',
       }).setOrigin(0.5).setDepth(D + 2))
