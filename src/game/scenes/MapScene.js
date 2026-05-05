@@ -323,7 +323,7 @@ export class MapScene extends BaseScene {
     // Título
     m(this.add.text(CX, PY + 26, point.title || '', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize:   '14px',
+      fontSize:   '20px',
       color:      '#ffd700',
       stroke:     '#000000',
       strokeThickness: 3,
@@ -363,7 +363,7 @@ export class MapScene extends BaseScene {
     // Texto descriptivo
     m(this.add.text(CX, imgY + imgH + 12, point.text || '', {
       fontFamily:      'monospace',
-      fontSize:        '16px',
+      fontSize:        '20px',
       color:           '#ffd700',
       stroke:          '#000000',
       strokeThickness: 3,
