@@ -284,7 +284,7 @@ export class MapScene extends BaseScene {
     this.closePointModal()
 
     const PW  = 540
-    const PH  = 560
+    const PH  = 660
     const PX  = Math.round((GAME_WIDTH - PW) / 2)
     const PY  = Math.round((GAME_HEIGHT - PH) / 2)
     const CX  = GAME_WIDTH / 2
@@ -338,7 +338,7 @@ export class MapScene extends BaseScene {
 
     // Foto
     const imgMaxW = Math.round(PW * 0.98)
-    const imgH   = 380
+    const imgH   = 460
     const imgY   = PY + 66
     const hasImg = point.id && this.textures.exists(point.id) &&
       this.textures.get(point.id).key !== '__MISSING'
@@ -361,12 +361,14 @@ export class MapScene extends BaseScene {
     }
 
     // Texto descriptivo
-    m(this.add.text(CX, imgY + imgH + 22, point.text || '', {
-      fontFamily: 'monospace',
-      fontSize:   '13px',
-      color:      '#cccccc',
-      align:      'center',
-      wordWrap:   { width: PW - 60 },
+    m(this.add.text(CX, imgY + imgH + 12, point.text || '', {
+      fontFamily:      'monospace',
+      fontSize:        '16px',
+      color:           '#ffd700',
+      stroke:          '#000000',
+      strokeThickness: 3,
+      align:           'center',
+      wordWrap:        { width: PW - 40 },
     }).setOrigin(0.5, 0).setDepth(D + 2))
 
     // Hint cierre

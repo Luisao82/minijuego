@@ -9,7 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
-- Modal de punto de interés: imagen ampliada al 98% del ancho del panel (antes tenía 40px de margen fijo). Altura máxima aumentada de 320 a 380px.
+- Modal de punto de interés: panel ampliado a 660px de alto, imagen aumentada a 460px de alto y 98% del ancho. Texto descriptivo a 16px en amarillo dorado con contorno negro, legible en móvil.
 
 ### Added
 
