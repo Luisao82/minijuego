@@ -19,21 +19,22 @@ const CONTENT_Y = BAND_Y + 20
 // Sección TOP SKINS — pódium
 const PODIUM_CX     = Math.round((COL_R + GAME_WIDTH) / 2)  // centro columna derecha (~777)
 const PODIUM_SEP    = 138   // separación horizontal entre posiciones del pódium
-const PODIUM_BASE_Y = 358   // y del suelo de todos los bloques del pódium
+const PODIUM_BASE_Y = 310   // y del suelo de todos los bloques del pódium
 const SPRITE_W      = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scale  // 48px
 const SPRITE_H      = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scale  // 72px
 const BLOCK_W       = 108   // anchura del bloque del pódium
 
 // Alturas de bloque y colores por posición
 const PODIUM_RANKS = [
-  { rank: 1, x: PODIUM_CX,           blockH: 52, color: 0xd4a520, textColor: '#1a0800' },
+  { rank: 1, x: PODIUM_CX,              blockH: 52, color: 0xd4a520, textColor: '#1a0800' },
   { rank: 2, x: PODIUM_CX - PODIUM_SEP, blockH: 38, color: 0xa0a0a0, textColor: '#1a1a1a' },
   { rank: 3, x: PODIUM_CX + PODIUM_SEP, blockH: 26, color: 0x8b5e2a, textColor: '#f0e0c8' },
 ]
 
 // Sección TOP PREMIOS — empieza debajo del pódium
 const TOP_REWARDS_Y = PODIUM_BASE_Y + 28 + 14   // base del pódium + win labels + gap
-const ROW_H_REWARDS = 50
+const ROW_H_REWARDS = 68
+const IMG_SIZE_REWARD = 60
 
 // ── Tipografía pixel art ──────────────────────────────────────
 const F_SECTION = {
@@ -158,8 +159,9 @@ export class StatsScene extends BaseScene {
       ['RACHA MAX.',  `${summary.consecutiveWins}`],
     ]
 
+    const F_STAT_LABEL = { ...F_LABEL, fontSize: '18px', color: '#ffffff' }
     rows.forEach(([label, value]) => {
-      this.add.text(COL_L + 4, y, label, F_LABEL).setOrigin(0, 0.5)
+      this.add.text(COL_L + 4, y, label, F_STAT_LABEL).setOrigin(0, 0.5)
       this.add.text(COL_LDIV, y, value, F_VALUE).setOrigin(1, 0.5)
       y += 46
     })
@@ -187,8 +189,7 @@ export class StatsScene extends BaseScene {
 
     const textX    = imgX + imgSize / 2 + 12
     const charName = this._getCharacterName(best.characterId)
-    this.add.text(textX, imgY - 14, charName, F_VALUE).setOrigin(0, 0.5)
-    this.add.text(textX, imgY + 12, `${best.winRate}% VICT.`, F_LABEL).setOrigin(0, 0.5)
+    this.add.text(textX, imgY, charName, F_VALUE).setOrigin(0, 0.5)
   }
 
   // ── Columna derecha — Pódium ──────────────────────────────
@@ -235,26 +236,22 @@ export class StatsScene extends BaseScene {
         strokeThickness: 1,
       }).setOrigin(0.5)
 
-      // — Sprite del skin (frame STAND) —
-      if (this.textures.exists(entry.skinKey)) {
-        this.add.image(x, spriteY, entry.skinKey, SPRITE_FRAMES.STAND)
-          .setDisplaySize(SPRITE_W, SPRITE_H)
-          .setOrigin(0.5, 1)
-      }
+      // — Sprite animado del skin —
+      this._makeWalkingSprite(x, spriteY, entry.skinKey)
 
       // — Nombre del skin (encima del sprite, truncado) —
       const rawName  = this._getSkinName(entry.skinKey)
       const skinName = rawName.length > 11 ? rawName.slice(0, 10) + '…' : rawName
       this.add.text(x, nameY, skinName, {
         ...F_LABEL,
-        fontSize: '12px',
+        fontSize: '16px',
         color:    '#ffffff',
       }).setOrigin(0.5, 1)
 
       // — Banderas conseguidas (debajo del bloque) —
-      this.add.text(x, PODIUM_BASE_Y + 10, `${entry.wins} BAND.`, {
+      this.add.text(x, PODIUM_BASE_Y + 10, `${entry.wins} 🏳`, {
         ...F_LABEL,
-        fontSize: '13px',
+        fontSize: '16px',
         color:    rank === 1 ? '#ffd700' : '#aaaaaa',
       }).setOrigin(0.5, 0)
     })
@@ -273,23 +270,77 @@ export class StatsScene extends BaseScene {
       return
     }
 
-    const imgSize = 40
-
-    topRewards.slice(0, 4).forEach(({ rewardId, count }, i) => {
+    topRewards.slice(0, 3).forEach(({ rewardId, count }, i) => {
       const rowY  = y + i * ROW_H_REWARDS
-      const imgX  = COL_R + imgSize / 2
+      const imgX  = COL_R + IMG_SIZE_REWARD / 2
       const imgY  = rowY + ROW_H_REWARDS / 2
 
       if (this.textures.exists(rewardId)) {
         this.add.image(imgX, imgY, rewardId)
-          .setDisplaySize(imgSize, imgSize)
+          .setDisplaySize(IMG_SIZE_REWARD, IMG_SIZE_REWARD)
           .setOrigin(0.5)
       }
 
-      const labelX     = imgX + imgSize / 2 + 10
+      const labelX     = imgX + IMG_SIZE_REWARD / 2 + 10
       const rewardName = this._getRewardName(rewardId)
-      this.add.text(labelX, imgY - 9, rewardName, F_VALUE).setOrigin(0, 0.5)
-      this.add.text(labelX, imgY + 10, `x${count}`, F_LABEL).setOrigin(0, 0.5)
+      this.add.text(labelX, imgY - 12, rewardName, F_VALUE).setOrigin(0, 0.5)
+      this.add.text(labelX, imgY + 14, `x${count}`, {
+        fontFamily:      '"Jersey 10", cursive',
+        fontSize:        '28px',
+        color:           '#ffffff',
+        stroke:          '#000000',
+        strokeThickness: 3,
+      }).setOrigin(0, 0.5)
+    })
+  }
+
+  // ── Sprite animado del pódium ────────────────────────────
+
+  _makeWalkingSprite(x, spriteY, skinKey) {
+    if (!this.textures.exists(skinKey)) return
+
+    const sprite = this.add.sprite(x, spriteY, skinKey, SPRITE_FRAMES.STAND)
+      .setDisplaySize(SPRITE_W, SPRITE_H)
+      .setOrigin(0.5, 1)
+
+    let isJumping = false
+    let walkFrame = SPRITE_FRAMES.STAND
+
+    // Animación de caminar: alterna frame STAND ↔ WALK cada 220 ms
+    this.time.addEvent({
+      delay:    220,
+      loop:     true,
+      callback: () => {
+        if (isJumping) return
+        walkFrame = walkFrame === SPRITE_FRAMES.STAND ? SPRITE_FRAMES.WALK : SPRITE_FRAMES.STAND
+        sprite.setFrame(walkFrame)
+      },
+    })
+
+    // Salto al pulsar: frame JUMP + tween arriba/abajo
+    sprite.setInteractive({ useHandCursor: true })
+    sprite.on('pointerdown', () => {
+      if (isJumping) return
+      isJumping = true
+      sprite.setFrame(SPRITE_FRAMES.JUMP)
+      this.tweens.add({
+        targets:  sprite,
+        y:        spriteY - 24,
+        duration: 180,
+        ease:     'Quad.easeOut',
+        onComplete: () => {
+          this.tweens.add({
+            targets:  sprite,
+            y:        spriteY,
+            duration: 180,
+            ease:     'Quad.easeIn',
+            onComplete: () => {
+              isJumping = false
+              sprite.setFrame(walkFrame)
+            },
+          })
+        },
+      })
     })
   }
 

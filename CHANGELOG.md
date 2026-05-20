@@ -16,6 +16,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - Versión en pantalla de inicio: de 10px a 16px para que sea legible en móvil. Botones de inicio subidos 18px para dejar margen.
 - HistoryScene: botón "MENÚ" sin icono ◀. Botón "¡A JUGAR!" reemplazado por NavButton estándar (amarillo, sin icono ▶).
+- StatsScene — General: etiquetas PARTIDAS/VICTORIAS/etc. a 18px blanco. Mejor personaje: eliminado % victorias. Pódium: bloque subido (PODIUM_BASE_Y 358→310), nombres a 16px blanco, "BAND." reemplazado por "🏳" a 16px, sprites animados (walk frames 0↔1, salto al pulsar). Top Premios: 4→3 items, imagen 40→60px, contador x${n} a 28px blanco.
 
 ### Fixed
 
