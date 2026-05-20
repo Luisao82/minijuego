@@ -9,7 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
-- Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado se mantenía en un índice aleatorio (dependía de dónde se había pulsado "Seleccionar") o volvía al primero si se usó SPACE. Causas: (1) NavButton usaba `pointerdown` en lugar de `pointerup`, filtrando el evento de click a la nueva escena; (2) `selectedIndex` no se pasaba entre escenas. Solucionado propagando `selectedIndex` en el flujo CharacterSelect ↔ SkinSelect y cambiando NavButton a `pointerup`.
+- Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado se mantenía en un índice aleatorio o volvía al primero. Causas: (1) click-through entre escenas; (2) `selectedIndex` no se pasaba entre escenas. NavButton ahora usa el patrón press-tracking (`pointerdown` marca el botón, `pointerup` solo dispara si el mismo botón recibió el press). `selectedIndex` propagado en el flujo CharacterSelect ↔ SkinSelect.
 
 ### Changed
 

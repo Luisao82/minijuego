@@ -80,9 +80,14 @@ export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
 
   const bounds = new Phaser.Geom.Rectangle(x, y, w, h)
   g.setInteractive(bounds, Phaser.Geom.Rectangle.Contains)
-  g.on('pointerover', drawHover)
-  g.on('pointerout', drawNormal)
-  g.on('pointerup', () => {
+  let isPressed = false
+
+  g.on('pointerover',  drawHover)
+  g.on('pointerout',   () => { isPressed = false; drawNormal() })
+  g.on('pointerdown',  () => { isPressed = true })
+  g.on('pointerup',    () => {
+    if (!isPressed) return
+    isPressed = false
     scene.sound.play('sfx-click', { volume: 0.6 })
     onPress()
   })
