@@ -15,6 +15,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Changed
 
 - Versión en pantalla de inicio: de 10px a 16px para que sea legible en móvil. Botones de inicio subidos 18px para dejar margen.
+- HistoryScene: botón "MENÚ" sin icono ◀. Botón "¡A JUGAR!" reemplazado por NavButton estándar (amarillo, sin icono ▶).
 
 ### Fixed
 
