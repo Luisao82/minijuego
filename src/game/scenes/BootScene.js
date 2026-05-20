@@ -16,13 +16,9 @@ export class BootScene extends BaseScene {
 
   create() {
     this.cameras.main.setBackgroundColor(COLORS.BLACK)
-    // Esperar a que las fuentes web estén cargadas antes de arrancar.
-    // document.fonts.ready resuelve siempre (éxito o fallo de red), así que
-    // no hay riesgo de bloqueo indefinido.
-    document.fonts.ready.then(() => {
-      this.scene.launch(SCENES.CRT)
-      this.scene.bringToTop(SCENES.CRT)
-      this.scene.start(SCENES.PRELOAD)
-    })
+    // Lanzar overlay CRT en paralelo — permanece activo durante todo el juego
+    this.scene.launch(SCENES.CRT)
+    this.scene.bringToTop(SCENES.CRT)
+    this.scene.start(SCENES.PRELOAD)
   }
 }

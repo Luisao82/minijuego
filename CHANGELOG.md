@@ -9,7 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
-- Título "La Cucaña" se mostraba con fuente de fallback en la primera carga. Causas: `Jersey 10` usaba `display=swap` (el browser renderiza con fallback hasta que llega la fuente) y BootScene no esperaba a que las fuentes estuviesen listas. Solucionado: `display=block` en Google Fonts + `document.fonts.ready` en BootScene antes de arrancar el juego.
+- Título "La Cucaña" se mostraba con fuente de fallback en la primera carga. `Jersey 10` se carga ahora en `_loadAssets()` de PreloadScene con `document.fonts.load()` (descarga activa durante los 5 s del Spectrum). `create()` de PreloadScene usa `Promise.all([timer, document.fonts.ready])` — el menú solo arranca cuando han pasado los 5 s Y las fuentes están listas.
 - `Press Start 2P` no estaba declarada en `index.html`, por lo que se renderizaba con la fuente monospace del sistema. Añadida al mismo `<link>` de Google Fonts.
 
 ### Changed

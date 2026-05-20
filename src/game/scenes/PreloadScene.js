@@ -60,12 +60,16 @@ export class PreloadScene extends BaseScene {
   }
 
   create() {
-    // La escena arranca solo después de que hayan pasado DISPLAY_MIN_MS
-    // desde el inicio, independientemente de cuánto tardó la carga real.
+    // Esperar a que pasen DISPLAY_MIN_MS Y a que las fuentes web estén cargadas.
+    // Promise.all garantiza que ambas condiciones se cumplan antes de ir al menú.
     const elapsed   = Date.now() - this._startTime
     const remaining = Math.max(0, DISPLAY_MIN_MS - elapsed)
 
-    this.time.delayedCall(remaining, () => {
+    const timerReady = new Promise(resolve => {
+      this.time.delayedCall(remaining, resolve)
+    })
+
+    Promise.all([timerReady, document.fonts.ready]).then(() => {
       this._stripeTimer?.remove()
       this._revealTimer?.remove()
       this.scene.start(SCENES.MENU)
@@ -300,6 +304,11 @@ export class PreloadScene extends BaseScene {
     this.load.audio('sfx-hit',      'audio/hitHurt.wav')
     this.load.audio('sfx-chapuzon', 'audio/chapuzon.wav')
     this.load.audio('sfx-victoria', 'audio/victoria.wav')
+
+    // Forzar descarga activa de las fuentes web durante la pantalla de carga,
+    // de modo que estén disponibles en canvas cuando arranque el menú.
+    document.fonts.load('16px "Jersey 10"')
+    document.fonts.load('16px "Press Start 2P"')
 
     // Aplicar filtro NEAREST a texturas pixel art tras la carga
     this.load.on('filecomplete', (key) => {
