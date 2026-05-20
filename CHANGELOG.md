@@ -9,6 +9,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Título "La Cucaña" se mostraba con fuente de fallback en la primera carga. Causas: `Jersey 10` usaba `display=swap` (el browser renderiza con fallback hasta que llega la fuente) y BootScene no esperaba a que las fuentes estuviesen listas. Solucionado: `display=block` en Google Fonts + `document.fonts.ready` en BootScene antes de arrancar el juego.
+- `Press Start 2P` no estaba declarada en `index.html`, por lo que se renderizaba con la fuente monospace del sistema. Añadida al mismo `<link>` de Google Fonts.
+
+### Changed
+
+- Versión en pantalla de inicio: de 10px a 16px para que sea legible en móvil. Botones de inicio subidos 18px para dejar margen.
+
+### Fixed
+
 - Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado se mantenía en un índice aleatorio o volvía al primero. Causas: (1) click-through entre escenas; (2) `selectedIndex` no se pasaba entre escenas. NavButton ahora usa el patrón press-tracking (`pointerdown` marca el botón, `pointerup` solo dispara si el mismo botón recibió el press). `selectedIndex` propagado en el flujo CharacterSelect ↔ SkinSelect.
 
 ### Changed

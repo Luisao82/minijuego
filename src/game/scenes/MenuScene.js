@@ -158,9 +158,9 @@ export class MenuScene extends BaseScene {
     this.drawTutorialButton()
 
     // Versión — se actualiza automáticamente desde package.json
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 16, `v${version}`, {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 22, `v${version}`, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '16px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 3,
@@ -171,7 +171,7 @@ export class MenuScene extends BaseScene {
     const btnW = 210
     const btnH = 58
     const btnX = 16
-    const btnY = GAME_HEIGHT - 86
+    const btnY = GAME_HEIGHT - 104
 
     this.historiaBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
@@ -185,7 +185,7 @@ export class MenuScene extends BaseScene {
     const btnW = 210
     const btnH = 58
     const btnX = GAME_WIDTH / 2 - btnW / 2
-    const btnY = GAME_HEIGHT - 86
+    const btnY = GAME_HEIGHT - 104
 
     this.statsBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
@@ -199,7 +199,7 @@ export class MenuScene extends BaseScene {
     const btnW = 210
     const btnH = 58
     const btnX = GAME_WIDTH - 16 - btnW
-    const btnY = GAME_HEIGHT - 86
+    const btnY = GAME_HEIGHT - 104
 
     this.tutorialBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
