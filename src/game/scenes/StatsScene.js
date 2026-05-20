@@ -32,14 +32,14 @@ const PODIUM_RANKS = [
 ]
 
 // Sección TOP PREMIOS — empieza debajo del pódium
-const TOP_REWARDS_Y = PODIUM_BASE_Y + 28 + 14   // base del pódium + win labels + gap
+const TOP_REWARDS_Y = PODIUM_BASE_Y + 70         // base del pódium + gap generoso
 const ROW_H_REWARDS = 68
 const IMG_SIZE_REWARD = 60
 
 // ── Tipografía pixel art ──────────────────────────────────────
 const F_SECTION = {
   fontFamily:      '"Jersey 10", cursive',
-  fontSize:        '32px',
+  fontSize:        '44px',
   color:           '#ffd700',
   stroke:          '#000000',
   strokeThickness: 5,
@@ -149,7 +149,7 @@ export class StatsScene extends BaseScene {
     let y = CONTENT_Y + 10
 
     this.add.text(COL_L, y, 'GENERAL', F_SECTION).setOrigin(0, 0.5)
-    y += 32
+    y += 44
 
     const rows = [
       ['PARTIDAS',    `${summary.totalGames}`],
@@ -170,11 +170,11 @@ export class StatsScene extends BaseScene {
   _drawBestCharacter(best) {
     if (!best) return
 
-    // y justo debajo de la sección GENERAL (5 filas × 46 + título 32 + gap 16)
-    let y = CONTENT_Y + 10 + 32 + 5 * 46 + 16
+    // y justo debajo de la sección GENERAL (5 filas × 46 + título 44 + gap 16)
+    let y = CONTENT_Y + 10 + 44 + 5 * 46 + 16
 
     this.add.text(COL_L, y, 'MEJOR PERSONAJE', F_SECTION).setOrigin(0, 0.5)
-    y += 32
+    y += 44
 
     const imgSize = 60
     const imgX    = COL_L + imgSize / 2 + 4
@@ -249,11 +249,12 @@ export class StatsScene extends BaseScene {
       }).setOrigin(0.5, 1)
 
       // — Banderas conseguidas (debajo del bloque) —
-      this.add.text(x, PODIUM_BASE_Y + 10, `${entry.wins} 🏳`, {
-        ...F_LABEL,
-        fontSize: '16px',
-        color:    rank === 1 ? '#ffd700' : '#aaaaaa',
-      }).setOrigin(0.5, 0)
+      this._drawWinsWithFlag(
+        x, PODIUM_BASE_Y + 10,
+        entry.wins,
+        rank === 1 ? '#ffd700' : '#aaaaaa',
+        rank === 1 ? 0xffd700  : 0xaaaaaa,
+      )
     })
   }
 
@@ -263,7 +264,7 @@ export class StatsScene extends BaseScene {
     let y = TOP_REWARDS_Y
 
     this.add.text(COL_R, y, 'TOP PREMIOS', F_SECTION).setOrigin(0, 0.5)
-    y += 32
+    y += 44
 
     if (!topRewards.length) {
       this.add.text(COL_R + 4, y + 20, 'SIN DATOS', F_LABEL).setOrigin(0, 0.5)
@@ -292,6 +293,27 @@ export class StatsScene extends BaseScene {
         strokeThickness: 3,
       }).setOrigin(0, 0.5)
     })
+  }
+
+  // ── Banderas del pódium ──────────────────────────────────
+
+  // Dibuja el número de victorias + mini bandera pixel art (misma estética
+  // que las banderas de SkinSelectScene). El número se centra en x y la
+  // bandera se coloca inmediatamente a la derecha.
+  _drawWinsWithFlag(x, y, wins, textColor, flagHexColor) {
+    const numText = this.add.text(x, y, `${wins}`, {
+      ...F_LABEL,
+      fontSize: '16px',
+      color:    textColor,
+    }).setOrigin(0.5, 0)
+
+    const flagX = Math.round(x + numText.width / 2 + 5)
+    const g     = this.add.graphics()
+    const PW = 2, PH = 14, FW = 9, FH = 6
+
+    g.fillStyle(flagHexColor, 1)
+    g.fillRect(flagX,      y,     PW, PH)       // palo
+    g.fillRect(flagX + PW, y + 1, FW, FH)       // tela
   }
 
   // ── Sprite animado del pódium ────────────────────────────
