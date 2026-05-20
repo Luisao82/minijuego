@@ -131,19 +131,19 @@ export class RewardScene extends BaseScene {
 
     // Título principal
     this.add.text(CENTER_X, topY + 30, '¡ENHORABUENA!', {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '18px',
-      color: '#ffd700',
-      stroke: '#000000',
+      fontFamily:      '"Press Start 2P", monospace',
+      fontSize:        '22px',
+      color:           '#ffd700',
+      stroke:          '#000000',
       strokeThickness: 4,
     }).setOrigin(0.5)
 
     // Subtítulo
-    this.add.text(CENTER_X, topY + 84, 'has conseguido...', {
-      fontFamily: 'monospace',
-      fontSize: '16px',
-      color: '#ffffff',
-      stroke: '#000000',
+    this.add.text(CENTER_X, topY + 88, 'has conseguido...', {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        '28px',
+      color:           '#ffffff',
+      stroke:          '#000000',
       strokeThickness: 2,
     }).setOrigin(0.5)
 

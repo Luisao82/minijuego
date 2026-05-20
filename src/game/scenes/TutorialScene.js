@@ -201,7 +201,7 @@ export class TutorialScene extends BaseScene {
   drawBackButton() {
     makeNavButton(
       this, 12, 12, 170, 58,
-      '◀ MENÚ',
+      'MENÚ',
       () => { this.stopAllTimers(); this.scene.start(SCENES.MENU) },
       { depth: 5 },
     )
@@ -361,43 +361,19 @@ export class TutorialScene extends BaseScene {
   }
 
   drawPlayButton() {
-    const btnW = 180
-    const btnH = 36
-    const btnX = DLG_X + DLG_W - btnW - 14
-    const btnY = DLG_Y + DLG_H - btnH - 10
+    const btnW = 220
+    const btnH = 50
+    const btnX = DLG_X + DLG_W - btnW - 12
+    const btnY = DLG_Y + DLG_H - btnH - 8
 
-    const g = this.add.graphics().setDepth(5)
-    const normal = () => {
-      g.clear()
-      g.fillStyle(0x002a3f, 1)
-      g.fillRect(btnX, btnY, btnW, btnH)
-      g.lineStyle(2, CYAN, 0.85)
-      g.strokeRect(btnX, btnY, btnW, btnH)
-    }
-    const hover = () => {
-      g.clear()
-      g.fillStyle(0x004466, 1)
-      g.fillRect(btnX, btnY, btnW, btnH)
-      g.lineStyle(2, 0x66eeff, 1)
-      g.strokeRect(btnX, btnY, btnW, btnH)
-    }
-    normal()
-
-    this.add.text(btnX + btnW / 2, btnY + btnH / 2, '¡A JUGAR! ▶', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize:   '20px',
-      color:      '#00ddff',
-      stroke:     '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5).setDepth(6)
-
-    g.setInteractive(new Phaser.Geom.Rectangle(btnX, btnY, btnW, btnH), Phaser.Geom.Rectangle.Contains)
-    g.on('pointerover',  hover)
-    g.on('pointerout',   normal)
-    g.on('pointerdown',  () => {
-      this.stopAllTimers()
-      this.scene.start(SCENES.CHARACTER_SELECT)
-    })
+    makeNavButton(
+      this,
+      btnX, btnY,
+      btnW, btnH,
+      '¡A JUGAR!',
+      () => { this.stopAllTimers(); this.scene.start(SCENES.CHARACTER_SELECT) },
+      { depth: 5, fontSize: '30px' },
+    )
   }
 
   // =====================================================

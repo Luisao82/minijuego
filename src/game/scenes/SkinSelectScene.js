@@ -241,10 +241,12 @@ export class SkinSelectScene extends BaseScene {
     // Contador "X / Y" debajo
     const counterColor = currentStep >= stepRequired ? '#ffd700' : '#aaaacc'
     this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, baseY + POLE_H + 10, `${currentStep} / ${stepRequired} banderas`, {
-        fontFamily: 'monospace',
-        fontSize:   '12px',
-        color:      counterColor,
+      this.add.text(GAME_WIDTH / 2, baseY + POLE_H + 20, `${currentStep} / ${stepRequired} banderas`, {
+        fontFamily:      '"Jersey 10", cursive',
+        fontSize:        '32px',
+        color:           counterColor,
+        stroke:          '#000000',
+        strokeThickness: 3,
       }).setOrigin(0.5),
     )
   }

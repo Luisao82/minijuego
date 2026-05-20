@@ -28,17 +28,21 @@ export class PowerBarUI {
     this._cursor = this._scene.add.graphics()
     this._elements.push(this._cursor)
 
-    this._passText = this._scene.add.text(centerX, barY - 16, '', {
-      fontFamily: 'monospace',
-      fontSize:   '12px',
-      color:      '#ffffff',
+    this._passText = this._scene.add.text(centerX, barY - 18, '', {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        '26px',
+      color:           '#ffffff',
+      stroke:          '#000000',
+      strokeThickness: 3,
     }).setOrigin(0.5)
     this._elements.push(this._passText)
 
-    const instrText = this._scene.add.text(centerX, barY + HEIGHT + 20, '¡PULSA PARA DETENER!', {
-      fontFamily: 'monospace',
-      fontSize:   '14px',
-      color:      '#ffffff',
+    const instrText = this._scene.add.text(centerX, barY + HEIGHT + 22, '¡PULSA PARA DETENER!', {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        '28px',
+      color:           '#ffffff',
+      stroke:          '#000000',
+      strokeThickness: 3,
     }).setOrigin(0.5)
     this._elements.push(instrText)
 
@@ -49,15 +53,6 @@ export class PowerBarUI {
       yoyo:     true,
       repeat:   -1,
     })
-
-    const weightLabel = this._characterData?.stats?.peso || 5
-    this._elements.push(
-      this._scene.add.text(barX + WIDTH + 16, barY + HEIGHT / 2, `PESO: ${weightLabel}`, {
-        fontFamily: 'monospace',
-        fontSize:   '10px',
-        color:      '#aaaaaa',
-      }).setOrigin(0, 0.5),
-    )
 
     this._updatePassCounter()
   }
