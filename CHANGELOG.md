@@ -21,7 +21,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
-- Service worker: bumps de versión a `cucana-v5` para invalidar caché antigua y servir `map-data.json` actualizado y los assets en formato WebP.
+- Premio "Pisacorbatas del Giraldillo" no cargaba imagen: `giraldillo.png` no se había convertido a WebP en la migración previa, pero `rewards.json` ya apuntaba a `giraldillo.webp` (404 silencioso). Convertido a WebP (44 KB → 15 KB).
+- Service worker: bumps de versión a `cucana-v6` para invalidar caché antigua y servir `map-data.json` actualizado y los assets en formato WebP.
 
 ## [0.7.0] - 2026-04-23
 
