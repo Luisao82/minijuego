@@ -1,6 +1,9 @@
 # Variables de entorno (secretos locales)
 .env
 
+# Claude Code (worktrees locales, no parte del repo)
+.claude/worktrees/
+
 # Logs
 logs
 *.log
