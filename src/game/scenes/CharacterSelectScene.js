@@ -50,12 +50,12 @@ export class CharacterSelectScene extends BaseScene {
 
   init(data) {
     super.init(data)
-    this.perspective = data?.perspective ?? null
+    this.perspective    = data?.perspective   ?? null
+    this.selectedIndex  = data?.selectedIndex ?? 0
   }
 
   create() {
-    this.characters    = CHARACTERS.filter(c => !c.hidden)
-    this.selectedIndex = 0
+    this.characters  = CHARACTERS.filter(c => !c.hidden)
     this.isScrolling   = false
 
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
@@ -304,6 +304,6 @@ export class CharacterSelectScene extends BaseScene {
   startGame() {
     const char = this.characters[this.selectedIndex]
     if (!unlockService.isUnlocked(char.id)) return
-    this.scene.start(SCENES.SKIN_SELECT, { character: char, perspective: this.perspective })
+    this.scene.start(SCENES.SKIN_SELECT, { character: char, perspective: this.perspective, selectedIndex: this.selectedIndex })
   }
 }

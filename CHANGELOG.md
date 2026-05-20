@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado se mantenía en un índice aleatorio (dependía de dónde se había pulsado "Seleccionar") o volvía al primero si se usó SPACE. Causas: (1) NavButton usaba `pointerdown` en lugar de `pointerup`, filtrando el evento de click a la nueva escena; (2) `selectedIndex` no se pasaba entre escenas. Solucionado propagando `selectedIndex` en el flujo CharacterSelect ↔ SkinSelect y cambiando NavButton a `pointerup`.
+
 ### Changed
 
 - Modal de punto de interés: panel ampliado a 660px de alto, imagen aumentada a 460px de alto y 98% del ancho. Texto descriptivo a 16px en amarillo dorado con contorno negro, legible en móvil.

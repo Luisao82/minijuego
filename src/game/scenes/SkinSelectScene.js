@@ -32,8 +32,9 @@ export class SkinSelectScene extends BaseScene {
 
   init(data) {
     super.init(data)
-    this.character    = data.character
-    this.perspective  = data.perspective ?? null
+    this.character     = data.character
+    this.perspective   = data.perspective   ?? null
+    this.selectedIndex = data.selectedIndex ?? 0
     this.skinIndex    = 0
     this._frameTimer  = null
     this.justUnlocked = data.justUnlocked ?? []   // spritesheets recién desbloqueados
@@ -312,7 +313,7 @@ export class SkinSelectScene extends BaseScene {
       leftBtnX, BTN_TOP,
       BTN_W, BTN_H,
       'VOLVER',
-      () => this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective }),
+      () => this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective, selectedIndex: this.selectedIndex }),
     )
 
     makeNavButton(
@@ -326,7 +327,7 @@ export class SkinSelectScene extends BaseScene {
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
     this.input.keyboard.on('keydown-ESC',   () => {
-      this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective })
+      this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective, selectedIndex: this.selectedIndex })
     })
   }
 

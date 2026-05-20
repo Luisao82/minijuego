@@ -82,7 +82,7 @@ export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
   g.setInteractive(bounds, Phaser.Geom.Rectangle.Contains)
   g.on('pointerover', drawHover)
   g.on('pointerout', drawNormal)
-  g.on('pointerdown', () => {
+  g.on('pointerup', () => {
     scene.sound.play('sfx-click', { volume: 0.6 })
     onPress()
   })
