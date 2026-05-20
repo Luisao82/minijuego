@@ -157,17 +157,6 @@ export class ViewSelectScene extends BaseScene {
       }).setOrigin(0.5),
     )
 
-    // Checkmark si está seleccionada
-    if (selected && !locked) {
-      container.add(
-        this.add.text(CARD_W - 16, IMG_H + 6, '✓', {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize:   '22px',
-          color:      '#ffd700',
-        }).setOrigin(0.5, 0),
-      )
-    }
-
     // Borde exterior
     const border = this.add.graphics()
     if (selected && !locked) {
@@ -326,22 +315,6 @@ export class ViewSelectScene extends BaseScene {
       ease:     'Sine.easeInOut',
     })
 
-    const hintText = this.add.text(GAME_WIDTH / 2, btnY + 38, 'ELIGE TU ESCENARIO', {
-      fontFamily:      'monospace',
-      fontSize:        '11px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-
-    this.tweens.add({
-      targets:  hintText,
-      alpha:    0.3,
-      duration: 600,
-      yoyo:     true,
-      repeat:   -1,
-      ease:     'Sine.easeInOut',
-    })
   }
 
   // ── Input ─────────────────────────────────────────────────────

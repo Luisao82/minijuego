@@ -420,10 +420,33 @@ export class GameScene extends BaseScene {
       hasJumped:     this.hasJumped,
     })
 
+    const poleLength  = POLE.START_X - POLE.END_X
+    const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
+
+    // Texto dinámico según distancia recorrida
+    let expression, phrase, exprColor
+    if (distPercent > 90) {
+      expression = 'Casiiiiii!!!'
+      phrase     = 'Que cerquita has estado, mi arma'
+      exprColor  = '#00cc44'
+    } else if (distPercent >= 50) {
+      expression = 'Bueno… bueno…'
+      phrase     = 'Con un poco más de arte, llegas'
+      exprColor  = '#ffd700'
+    } else if (distPercent >= 10) {
+      expression = 'Ooohhh!'
+      phrase     = 'Hay que practicar más eehh??'
+      exprColor  = '#ff8800'
+    } else {
+      expression = 'Mare mía!!!'
+      phrase     = 'Móntate en "las calesitas del Tardón" anda'
+      exprColor  = '#ff4422'
+    }
+
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
-    const panelW  = 400
-    const panelH  = 222
+    const panelW  = 440
+    const panelH  = 260
 
     const g = this.add.graphics()
     g.fillStyle(COLORS.DARK_BG, 0.88)
@@ -433,36 +456,43 @@ export class GameScene extends BaseScene {
     g.lineStyle(1, COLORS.GOLD, 0.2)
     g.strokeRect(centerX - panelW / 2 + 3, centerY - panelH / 2 + 3, panelW - 6, panelH - 6)
 
-    this.add.text(centerX, centerY - 52, '¡AL AGUA!', {
-      fontFamily: 'monospace',
-      fontSize:   '28px',
-      color:      '#ff6644',
-      stroke:     '#000000',
+    // Expresión grande (tipografía redonda Jersey 10)
+    this.add.text(centerX, centerY - 85, expression, {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        '44px',
+      color:           exprColor,
+      stroke:          '#000000',
       strokeThickness: 5,
+      align:           'center',
     }).setOrigin(0.5)
 
-    const poleLength  = POLE.START_X - POLE.END_X
-    const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
-    this.add.text(centerX, centerY - 14, `DISTANCIA: ${distPercent}%`, {
-      fontFamily: 'monospace',
-      fontSize:   '14px',
-      color:      '#ffffff',
+    // Frase complementaria
+    this.add.text(centerX, centerY - 22, phrase, {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        '28px',
+      color:           exprColor,
+      stroke:          '#000000',
+      strokeThickness: 3,
+      align:           'center',
+      wordWrap:        { width: panelW - 50 },
     }).setOrigin(0.5)
 
     this.time.delayedCall(1000, () => {
       this.canRestart = true
 
-      const restartText = this.add.text(centerX, centerY + 22, 'PULSA PARA REINTENTAR', {
-        fontFamily: 'monospace',
-        fontSize:   '12px',
-        color:      '#aaaaaa',
+      const restartText = this.add.text(centerX, centerY + 32, 'PULSA PARA REINTENTAR', {
+        fontFamily:      '"Jersey 10", cursive',
+        fontSize:        '22px',
+        color:           '#ffffff',
+        stroke:          '#000000',
+        strokeThickness: 3,
       }).setOrigin(0.5)
       this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
 
       const btnW = 220
       const btnH = 58
       const btnX = centerX - btnW / 2
-      const btnY = centerY + 45
+      const btnY = centerY + 58
 
       this.collectionBtnBounds = makeNavButton(
         this, btnX, btnY, btnW, btnH,
@@ -601,17 +631,17 @@ export class GameScene extends BaseScene {
   createHUD() {
     const g = this.add.graphics()
     g.fillStyle(COLORS.DARK_BG, 0.4)
-    g.fillRect(0, 0, GAME_WIDTH, 36)
+    g.fillRect(0, 0, GAME_WIDTH, 40)
     g.fillStyle(COLORS.GOLD, 1)
-    g.fillRect(0, 36, GAME_WIDTH, 2)
+    g.fillRect(0, 40, GAME_WIDTH, 2)
 
     const charName = this.characterData?.name || 'JUGADOR'
-    this.add.text(16, 10, charName, {
+    this.add.text(16, 6, charName, {
       fontFamily: '"Jersey 10", cursive',
-      fontSize:   '18px',
+      fontSize:   '28px',
       color:      '#ffd700',
       stroke:     '#000000',
-      strokeThickness: 2,
+      strokeThickness: 3,
     })
 
     this.add.text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', {

@@ -18,9 +18,9 @@ const IMG_H = 230
 
 const STATS_Y    = CARD_PADDING + IMG_H + 14    // = IMG_Y + IMG_H + 8
 const STATS_X    = CARD_PADDING + 4
-const BAR_WIDTH  = CARD_WIDTH - CARD_PADDING * 2 - 44
-const BAR_HEIGHT = 10
-const STAT_ROW_H = 20
+const BAR_WIDTH  = CARD_WIDTH - CARD_PADDING * 2 - 56   // reducido para acomodar etiquetas más grandes
+const BAR_HEIGHT = 8
+const STAT_ROW_H = 26
 
 // Layout enviado a CharacterCard
 const CARD_LAYOUT = {
@@ -160,7 +160,7 @@ export class CharacterSelectScene extends BaseScene {
     this.detailContainer = this.add.container(0, 0)
 
     const panelW = Math.round(GAME_WIDTH * 0.9)
-    const panelH = 76
+    const panelH = 90
     const panelX = Math.round((GAME_WIDTH - panelW) / 2)
     const panelY = 640   // justo debajo del botón SELECCIONAR (centro Y=600)
 
@@ -173,11 +173,11 @@ export class CharacterSelectScene extends BaseScene {
 
     this.detailContainer.add(
       this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, text, {
-        fontFamily:      'monospace',
-        fontSize:        '16px',
+        fontFamily:      '"Jersey 10", cursive',
+        fontSize:        '22px',
         color,
         stroke:          '#000000',
-        strokeThickness: 5,
+        strokeThickness: 4,
         align:           'center',
         wordWrap:        { width: panelW - 48 },
       }).setOrigin(0.5),

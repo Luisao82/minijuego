@@ -164,7 +164,7 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
       container.add(
         scene.add.text(CARD_WIDTH / 2, STATS_Y + 48, hint, {
           fontFamily: '"Jersey 10", cursive',
-          fontSize:   '18px',
+          fontSize:   '20px',
           color:      '#aaaacc',
           stroke:     '#000000',
           strokeThickness: 2,
@@ -181,30 +181,45 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
 // ── Helpers privados ──────────────────────────────────────────────
 
 function _drawStats(scene, container, stats, { statsY, statsX, barWidth, barHeight, statRowH }) {
-  Object.entries(stats).forEach(([key, value], i) => {
-    const sy = statsY + i * statRowH
+  const SEG_COUNT = 6
+  const SEG_GAP   = 3
+  const SEG_W     = Math.floor((barWidth - SEG_GAP * (SEG_COUNT - 1)) / SEG_COUNT)
+  const BAR_X     = statsX + 48   // espacio para la etiqueta más grande
 
+  Object.entries(stats).forEach(([key, value], i) => {
+    const rowY = statsY + i * statRowH
+    const segY = rowY + Math.round((statRowH - barHeight) / 2)
+
+    // Etiqueta de la estadística
     container.add(
-      scene.add.text(statsX, sy + 1, STAT_NAMES[key] ?? key, {
-        fontFamily: 'monospace',
-        fontSize:   '10px',
-        color:      '#999999',
-      }),
+      scene.add.text(statsX, rowY + statRowH / 2, STAT_NAMES[key] ?? key, {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize:   '20px',
+        color:      '#dddddd',
+      }).setOrigin(0, 0.5),
     )
 
-    const barG = scene.add.graphics()
-    const barX = statsX + 38
+    // Barra segmentada — 6 bloques pixel art rellenos según el valor
+    const filled = Math.round((value / STAT_MAX) * SEG_COUNT)
+    const color  = STAT_COLORS[key] ?? 0xffffff
+    const barG   = scene.add.graphics()
 
-    barG.fillStyle(0x0a0a1e, 1)
-    barG.fillRect(barX, sy + 2, barWidth, barHeight)
-
-    const fillW = (value / STAT_MAX) * barWidth
-    barG.fillStyle(STAT_COLORS[key] ?? 0xffffff, 1)
-    barG.fillRect(barX, sy + 2, fillW, barHeight)
-
-    barG.lineStyle(1, 0x3a3a5a, 1)
-    barG.strokeRect(barX, sy + 2, barWidth, barHeight)
-
+    for (let s = 0; s < SEG_COUNT; s++) {
+      const sx = BAR_X + s * (SEG_W + SEG_GAP)
+      if (s < filled) {
+        // Segmento activo: color pleno + reflejo claro arriba (pixel art bevel)
+        barG.fillStyle(color, 1)
+        barG.fillRect(sx, segY, SEG_W, barHeight)
+        barG.fillStyle(0xffffff, 0.25)
+        barG.fillRect(sx, segY, SEG_W, 2)
+      } else {
+        // Segmento vacío: hueco oscuro con borde sutil
+        barG.fillStyle(0x0a0a1e, 1)
+        barG.fillRect(sx, segY, SEG_W, barHeight)
+        barG.lineStyle(1, 0x2a2a4a, 1)
+        barG.strokeRect(sx, segY, SEG_W, barHeight)
+      }
+    }
     container.add(barG)
   })
 }

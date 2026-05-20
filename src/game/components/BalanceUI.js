@@ -52,21 +52,6 @@ export class BalanceUI {
     this._cursor = this._scene.add.graphics()
     this._elements.push(this._cursor)
 
-    this._elements.push(
-      this._scene.add.text(centerX, barY - 20, '¡MANTÉN EL EQUILIBRIO!', {
-        fontFamily: 'monospace',
-        fontSize:   '12px',
-        color:      '#ffffff',
-      }).setOrigin(0.5),
-    )
-
-    this._timerText = this._scene.add.text(centerX, barY + HEIGHT + 16, '', {
-      fontFamily: 'monospace',
-      fontSize:   '11px',
-      color:      '#aaaaaa',
-    }).setOrigin(0.5)
-    this._elements.push(this._timerText)
-
     this._createButtons()
 
     if (DEBUG.BALANCE_PANEL) {

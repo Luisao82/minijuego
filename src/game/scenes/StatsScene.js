@@ -19,7 +19,7 @@ const CONTENT_Y = BAND_Y + 20
 // Sección TOP SKINS — pódium
 const PODIUM_CX     = Math.round((COL_R + GAME_WIDTH) / 2)  // centro columna derecha (~777)
 const PODIUM_SEP    = 138   // separación horizontal entre posiciones del pódium
-const PODIUM_BASE_Y = 310   // y del suelo de todos los bloques del pódium
+const PODIUM_BASE_Y = 330   // y del suelo de todos los bloques del pódium
 const SPRITE_W      = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scale  // 48px
 const SPRITE_H      = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scale  // 72px
 const BLOCK_W       = 108   // anchura del bloque del pódium
@@ -32,7 +32,7 @@ const PODIUM_RANKS = [
 ]
 
 // Sección TOP PREMIOS — empieza debajo del pódium
-const TOP_REWARDS_Y = PODIUM_BASE_Y + 70         // base del pódium + gap generoso
+const TOP_REWARDS_Y = PODIUM_BASE_Y + 60         // base del pódium + gap generoso
 const ROW_H_REWARDS = 68
 const IMG_SIZE_REWARD = 60
 
@@ -252,8 +252,8 @@ export class StatsScene extends BaseScene {
       this._drawWinsWithFlag(
         x, PODIUM_BASE_Y + 10,
         entry.wins,
-        rank === 1 ? '#ffd700' : '#aaaaaa',
-        rank === 1 ? 0xffd700  : 0xaaaaaa,
+        rank === 1 ? '#ffd700' : rank === 2 ? '#c0c0c0' : '#cd7f32',
+        rank === 1 ? 0xffd700  : rank === 2 ? 0xc0c0c0  : 0xcd7f32,
       )
     })
   }
