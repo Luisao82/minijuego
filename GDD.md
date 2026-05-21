@@ -335,33 +335,104 @@ El fondo es una **imagen estática en pixel art** creada manualmente. Representa
 
 ## 🏗️ Arquitectura del Código
 
-### Archivos principales
-
-| Archivo | Responsabilidad |
-|---|---|
-| `GameScene.js` | Escena principal Phaser — orquesta todo |
-| `GameLogic.js` | Lógica del juego (fases, físicas, estado) |
-| `Renderer.js` | Todo lo visual (fondo, animaciones, efectos) |
-| `CharacterManager.js` | Gestión de personajes y espectadores |
-| `GDD.md` | Guía de referencia del desarrollo |
-
 ### Principio clave
 
-> **La lógica no sabe nada del visual, y el visual no decide nada de la lógica.**
-> `GameLogic.js` calcula el estado. `Renderer.js` lo pinta. `CharacterManager.js` gestiona los objetos personaje.
+> **Las escenas son orquestadoras. La lógica y los datos viven fuera de ellas.**
+> Una escena conecta sistemas, componentes y datos, pero no contiene lógica de negocio ni texto hardcodeado.
+
+### Estructura de carpetas
+
+```
+src/game/
+├── config/               # Constantes, datos y contenido estático
+│   ├── gameConfig.js         — Dimensiones, física, colores, nombres de escenas
+│   ├── characters.js         — Definición de personajes y skins
+│   ├── spriteConfig.js       — Frames y escala del spritesheet
+│   ├── perspectiveConfig.js  — Configuración de vistas (Triana / Sevilla)
+│   ├── gameOverMessages.js   — Expresiones y frases según distancia recorrida
+│   ├── historyContent.js     — Guion completo de la escena Historia
+│   └── tutorialContent.js    — Guion completo de la escena Tutorial
+│
+├── scenes/               # Capa de presentación — solo orquestan
+│   ├── BootScene.js          — Precarga mínima y arranque
+│   ├── PreloadScene.js       — Carga de todos los assets
+│   ├── MenuScene.js          — Pantalla de inicio
+│   ├── HistoryScene.js       — Historia de la Cucaña (narrador + diálogo)
+│   ├── TutorialScene.js      — Tutorial interactivo (narrador + diálogo)
+│   ├── ViewSelectScene.js    — Selección de perspectiva
+│   ├── CharacterSelectScene.js — Carrusel de personajes
+│   ├── SkinSelectScene.js    — Selección de skin con progreso de banderas
+│   ├── GameScene.js          — Partida principal (3 fases)
+│   ├── RewardScene.js        — Premio al ganar
+│   ├── CollectionScene.js    — Colección de premios
+│   ├── StatsScene.js         — Estadísticas del jugador
+│   └── MapScene.js           — Mapa de Sevilla (logros territoriales)
+│
+├── entities/             # Modelos de dominio, sin Phaser
+│   ├── Player.js             — Visual y estados del jugador
+│   ├── Pole.js               — Modelo del palo
+│   └── PowerBar.js           — Barra de impulso
+│
+├── systems/              # Lógica de negocio pura, sin Phaser
+│   ├── ImpulseSystem.js      — Fase 1: cálculo de impulso
+│   ├── BalanceSystem.js      — Fase 2: equilibrio en el palo
+│   ├── JumpSystem.js         — Fase 3: salto a la bandera
+│   ├── FallSystem.js         — Caída al agua
+│   ├── OilSystem.js          — Zonas de aceite / desgaste
+│   └── StatsCalculator.js    — Cálculo de estadísticas del jugador
+│
+├── services/             # Persistencia y estado global (localStorage)
+│   ├── SkinService.js        — Skins desbloqueados por personaje
+│   ├── UnlockService.js      — Personajes desbloqueados
+│   ├── GameStatsService.js   — Historial de partidas
+│   ├── CharacterRewardService.js — Banderas por personaje
+│   ├── PerspectiveUnlockService.js — Perspectivas desbloqueadas
+│   └── MapService.js         — Progreso del mapa de Sevilla
+│
+├── components/           # Componentes UI reutilizables
+│   ├── NavButton.js          — Botón estilo Cartelón de Feria
+│   ├── CharacterCard.js      — Ficha de personaje (carrusel)
+│   ├── RewardCard.js         — Ficha de premio
+│   ├── Narrator.js           — Retrato animado con boca y parpadeo
+│   ├── BalanceUI.js          — HUD de equilibrio (fase 2)
+│   ├── PowerBarUI.js         — HUD de impulso (fase 1)
+│   └── OilIndicator.js       — Indicador de aceite en HUD
+│
+└── utils/                # Funciones puras auxiliares
+    ├── backgroundUtils.js    — drawBandBackground, drawSceneHeader
+    ├── math.js               — weightedRandom y helpers matemáticos
+    └── easterEgg.js          — Lanzador del easter egg
+```
+
+### Regla de dependencias
+
+```
+scenes  →  components, systems, services, config
+systems →  config
+services → (ninguna dependencia de Phaser)
+config  →  (datos puros, sin imports)
+```
+
+Ninguna capa importa de la capa superior. Los datos de contenido (guiones, mensajes) viven en `config/` y las escenas los consumen sin lógica inline.
+
+### Archivos de contenido narrativo
+
+| Archivo | Qué contiene | Quién lo consume |
+|---|---|---|
+| `config/historyContent.js` | `HISTORY_BLOCKS` (título + imagen + páginas) y `HISTORY_END_TEXT` | `HistoryScene.js` |
+| `config/tutorialContent.js` | `TUTORIAL_BLOCKS` (título + imagen + texto) | `TutorialScene.js` |
+| `config/gameOverMessages.js` | `GAME_OVER_MESSAGES` (umbrales, expresión, frase, color) y `getGameOverMessage(pct)` | `GameScene.js` |
+
+Para editar cualquier texto del juego basta con abrir el archivo de contenido correspondiente, sin tocar la escena.
 
 ### Estrategia de versiones
 
 | Versión | Objetivo |
 |---|---|
-| v0.1 | Jugabilidad funcionando — gráficos simples (rectángulos, colores básicos) |
+| v0.1 | Jugabilidad funcionando — gráficos simples |
 | v0.2 | Personajes con sprites pixel art definidos |
 | v0.3 | Fondo pixel art integrado + animaciones pulidas |
 | v1.0 | Versión completa con arte final y balanceo ajustado |
-
----
-
-> 🔧 *Pantalla de resultados por definir...*
 
 ---
 

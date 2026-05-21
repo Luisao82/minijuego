@@ -2,56 +2,7 @@ import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
-
-// ============================================================
-// BLOQUES DE TEXTO — 1 imagen por bloque
-// ============================================================
-const BLOCKS = [
-  {
-    title: 'La Velá de Santa Ana',
-    image: 'hist-intro',
-    pages: [
-      '¡Escúchame bien, valiente! Te lo voy a contar como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.',
-      'Para entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
-    ],
-  },
-  {
-    title: 'El Milagro del Sabio',
-    image: 'hist-sabio',
-    pages: [
-      'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".',
-      'Se encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y ¡catapum!, sanó por arte de magia.',
-      'En agradecimiento, mandó levantar esa joya que es la Parroquia de Santa Ana en 1266. De ese "ir de velada" nos queda el nombre de nuestra fiesta.',
-    ],
-  },
-  {
-    title: 'La Picaresca se echa al río',
-    image: 'hist-picaresca',
-    pages: [
-      'Pero claro, en Triana el espíritu es inquieto. La gente rezaba, sí, pero luego el cuerpo pedía alegría. La fiesta bajó del altar a la orilla del Guadalquivir.',
-      'Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen por arrobas— y en el olor a sardina asada que te quita el sentido.',
-      'La Velá pasó de ser un rito de iglesia a ser la feria del pueblo, donde el río es el que manda.',
-    ],
-  },
-  {
-    title: 'La Leyenda de la Cucaña',
-    image: 'hist-leyenda',
-    pages: [
-      'Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio.',
-      'Para demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.',
-      'Un palo largo, embadurnado de jabón de Triana —¡que resbala más que una anguila en una bañera!— y al final, el trofeo: una banderita que te corona como el rey del río.',
-      'Si llegas, eres un héroe; si te caes —que te vas a caer—, el chapuzón en el Guadalquivir te bautiza como trianero de pura cepa.',
-    ],
-  },
-  {
-    title: 'Tu Misión',
-    image: 'hist-mision',
-    pages: [
-      'Ahora te toca a ti, artista. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo.\nTen cuidado, que el jabón no tiene amigos y el río está esperando.',
-      '¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!',
-    ],
-  },
-]
+import { HISTORY_BLOCKS, HISTORY_END_TEXT } from '../config/historyContent'
 
 // ============================================================
 // LAYOUT
@@ -224,7 +175,7 @@ export class HistoryScene extends BaseScene {
   }
 
   updateHistImage() {
-    const block = BLOCKS[this.blockIdx]
+    const block = HISTORY_BLOCKS[this.blockIdx]
     const key   = block.image
 
     if (this.histImg) {
@@ -316,12 +267,12 @@ export class HistoryScene extends BaseScene {
     this.blockIdx = idx
     this.pageIdx  = 0
     this.updateHistImage()
-    this.blockTitleObj.setText(BLOCKS[idx].title)
+    this.blockTitleObj.setText(HISTORY_BLOCKS[idx].title)
     this.startPage()
   }
 
   startPage() {
-    const text           = BLOCKS[this.blockIdx].pages[this.pageIdx]
+    const text           = HISTORY_BLOCKS[this.blockIdx].pages[this.pageIdx]
     this.fullPageText    = text
     this.charIdx         = 0
     this.isTyping        = true
@@ -354,9 +305,9 @@ export class HistoryScene extends BaseScene {
     this.isTyping = false
     this.narrator.stopTalking()
 
-    const block     = BLOCKS[this.blockIdx]
+    const block     = HISTORY_BLOCKS[this.blockIdx]
     const lastPage  = this.pageIdx  >= block.pages.length - 1
-    const lastBlock = this.blockIdx >= BLOCKS.length - 1
+    const lastBlock = this.blockIdx >= HISTORY_BLOCKS.length - 1
 
     if (lastPage && lastBlock) {
       this.onHistoryEnd()
@@ -380,7 +331,7 @@ export class HistoryScene extends BaseScene {
     this.waitingForInput = false
     this.setContinueVisible(false)
 
-    const block = BLOCKS[this.blockIdx]
+    const block = HISTORY_BLOCKS[this.blockIdx]
 
     if (this.pageIdx < block.pages.length - 1) {
       this.pageIdx++
@@ -391,7 +342,7 @@ export class HistoryScene extends BaseScene {
   }
 
   onHistoryEnd() {
-    this.dialogText.setText('¡Eso es todo, valiente! ¡A por el palo!')
+    this.dialogText.setText(HISTORY_END_TEXT)
     this.setContinueVisible(false)
     this.drawPlayButton()
   }

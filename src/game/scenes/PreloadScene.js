@@ -221,16 +221,16 @@ export class PreloadScene extends BaseScene {
     // Imágenes del tutorial
     this.load.image('tut-01', 'tutorial/01-bienvenido.webp')
     this.load.image('tut-02', 'tutorial/02-impulso.webp')
-    this.load.image('tut-03', 'tutorial/03-zonas.webp')
-    this.load.image('tut-04', 'tutorial/04-equilibrio.webp')
+    this.load.image('tut-03', 'tutorial/03-equilibrio.webp')
+    this.load.image('tut-04', 'tutorial/04-grasa.webp')
     this.load.image('tut-05', 'tutorial/05-salto.webp')
-    this.load.image('tut-06', 'tutorial/06-listo.png')
+    this.load.image('tut-06', 'tutorial/06-listo.webp')
 
     // Imágenes históricas
     this.load.image('hist-intro',     'backgrounds/hist-intro.webp')
     this.load.image('hist-sabio',     'backgrounds/hist-sabio.webp')
     this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
-    this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.png')
+    this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.webp')
     this.load.image('hist-mision',    'backgrounds/hist-mision.webp')
 
     this.load.image('boat', 'sprites/barco.png')

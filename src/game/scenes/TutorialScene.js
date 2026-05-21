@@ -3,42 +3,7 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
 import { launchEasterEgg } from '../utils/easterEgg'
-
-// ============================================================
-// CONTENIDO DEL TUTORIAL — edita aquí títulos y textos
-// ============================================================
-const BLOCKS = [
-  {
-    title: '¡Bienvenido a La Cucaña!',
-    image: 'tut-01',
-    text: '¡Eh, valiente! Soy tu guía en esta aventura. Voy a enseñarte cómo conquistar el palo más famoso del Guadalquivir. ¡Pon atención, que es fácil pero hay trampa!',
-  },
-  {
-    title: 'Fase 1 — El Impulso',
-    image: 'tut-02',
-    text: 'Para correr por el palo necesitas impulso. Verás una barra que se mueve. Pulsa la pantalla, o cualquier tecla, cuando el indicador llegue a la ZONA VERDE para coger el máximo impulso. ¡Más verde, más lejos llegas!',
-  },
-  {
-    title: 'Las Zonas de la Barra',
-    image: 'tut-03',
-    text: 'La barra tiene tres zonas: ROJA (poco impulso), AMARILLA (impulso normal) y VERDE (impulso máximo). Si te quedas en rojo, apenas llegarás a la mitad del palo. ¡Apunta al verde!',
-  },
-  {
-    title: 'Fase 2 — El Equilibrio',
-    image: 'tut-04',
-    text: 'Una vez en el palo, ¡tienes que mantenerte en pie! El palo se mueve solo y tú debes compensar pulsando IZQUIERDA o DERECHA. Si te pasas del límite... ¡al río!',
-  },
-  {
-    title: 'El Salto y la Bandera',
-    image: 'tut-05',
-    text: '¡Al final del palo está la bandera! Cuando llegues al extremo, pulsa para SALTAR y cogerla. ¡Ese es el momento de gloria! Si no saltas a tiempo, el impulso te llevará al agua.',
-  },
-  {
-    title: '¡Ya lo sabes todo!',
-    image: 'tut-06',
-    text: 'Recuerda: VERDE en la barra, EQUILIBRIO con cabeza y SALTA al llegar. Cada personaje tiene sus propias estadísticas de velocidad y equilibrio, ¡elige el que más te guste y a por ella!',
-  },
-]
+import { TUTORIAL_BLOCKS } from '../config/tutorialContent'
 
 // ============================================================
 // LAYOUT
@@ -212,7 +177,7 @@ export class TutorialScene extends BaseScene {
   // =====================================================
 
   updateTutImage() {
-    const key = BLOCKS[this.blockIdx].image
+    const key = TUTORIAL_BLOCKS[this.blockIdx].image
 
     if (this.tutImg) {
       const old = this.tutImg
@@ -291,13 +256,13 @@ export class TutorialScene extends BaseScene {
 
   loadBlock(idx) {
     this.blockIdx = idx
-    this.blockTitleObj.setText(BLOCKS[idx].title)
+    this.blockTitleObj.setText(TUTORIAL_BLOCKS[idx].title)
     this.updateTutImage()
     this.startPage()
   }
 
   startPage() {
-    const text           = BLOCKS[this.blockIdx].text
+    const text           = TUTORIAL_BLOCKS[this.blockIdx].text
     this.fullPageText    = text
     this.charIdx         = 0
     this.isTyping        = true
@@ -330,7 +295,7 @@ export class TutorialScene extends BaseScene {
     this.isTyping = false
     this.narrator.stopTalking()
 
-    if (this.blockIdx >= BLOCKS.length - 1) {
+    if (this.blockIdx >= TUTORIAL_BLOCKS.length - 1) {
       this.onTutorialEnd()
     } else {
       this.waitingForInput = true

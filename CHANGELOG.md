@@ -7,37 +7,48 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-### Fixed
-
-- Título "La Cucaña" se mostraba con fuente de fallback en la primera carga. `Jersey 10` se carga ahora en `_loadAssets()` de PreloadScene con `document.fonts.load()` (descarga activa durante los 5 s del Spectrum). `create()` de PreloadScene usa `Promise.all([timer, document.fonts.ready])` — el menú solo arranca cuando han pasado los 5 s Y las fuentes están listas.
-- `Press Start 2P` no estaba declarada en `index.html`, por lo que se renderizaba con la fuente monospace del sistema. Añadida al mismo `<link>` de Google Fonts.
-
-### Changed
-
-- Versión en pantalla de inicio: de 10px a 16px para que sea legible en móvil. Botones de inicio subidos 18px para dejar margen.
-- HistoryScene: botón "MENÚ" sin icono ◀. Botón "¡A JUGAR!" reemplazado por NavButton estándar (amarillo, sin icono ▶).
-- StatsScene — General: etiquetas PARTIDAS/VICTORIAS/etc. a 18px blanco. Mejor personaje: eliminado % victorias. Pódium: bloque subido (PODIUM_BASE_Y 358→310), nombres a 16px blanco, victorias con mini bandera pixel art (`_drawWinsWithFlag`, misma estética que SkinSelectScene), sprites animados (walk frames 0↔1, salto al pulsar). Top Premios: separado del pódium con más gap (TOP_REWARDS_Y +28px), 4→3 items, imagen 40→60px, contador x${n} a 28px blanco. Cabeceras de módulo (GENERAL, MEJOR PERSONAJE, etc.) a 44px para distinguirse de las etiquetas de contenido.
-
-### Fixed
-
-- Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado se mantenía en un índice aleatorio o volvía al primero. Causas: (1) click-through entre escenas; (2) `selectedIndex` no se pasaba entre escenas. NavButton ahora usa el patrón press-tracking (`pointerdown` marca el botón, `pointerup` solo dispara si el mismo botón recibió el press). `selectedIndex` propagado en el flujo CharacterSelect ↔ SkinSelect.
-
-### Changed
-
-- Modal de punto de interés: panel ampliado a 660px de alto, imagen aumentada a 460px de alto y 98% del ancho. Texto descriptivo a 16px en amarillo dorado con contorno negro, legible en móvil.
+## [1.0.0] - 2026-05-21
 
 ### Added
 
 - Puntos de interés en el mapa de Sevilla: Relojería, Bar Curioso y La Giralda en la pieza 2-1; Torre del Oro en la pieza 3-1. Cada punto incluye foto y descripción corta.
+- `src/game/config/gameOverMessages.js` — tabla de expresiones y frases según distancia recorrida al caer al agua (`GAME_OVER_MESSAGES` + `getGameOverMessage(pct)`). Lógica extraída de GameScene para que el guion sea editable sin tocar código de escena.
+- `src/game/config/historyContent.js` — guion completo de HistoryScene (`HISTORY_BLOCKS` + `HISTORY_END_TEXT`). Editar historia sin tocar la escena.
+- `src/game/config/tutorialContent.js` — guion completo de TutorialScene (`TUTORIAL_BLOCKS`). Editar tutorial sin tocar la escena.
+- Nuevas imágenes de tutorial (slides 01–06) reemplazando las anteriores.
+- GDD.md: sección de arquitectura completamente actualizada con árbol de carpetas real, regla de dependencias entre capas y tabla de archivos de contenido narrativo.
 
 ### Changed
 
-- Fotos de puntos del mapa convertidas de PNG a WebP (q=80). Tamaño total: 4.6 MB → 0.5 MB (~90% menos). Incluye la foto existente `escultura_torero_roto`.
+- **Tipografía — pase completo por todas las escenas:**
+  - MenuScene: texto de versión 10px → 16px. Botones reposicionados.
+  - HistoryScene: botón "MENÚ" sin icono ◀. Botón "¡A JUGAR!" reemplazado por NavButton estándar.
+  - TutorialScene: ídem — MENÚ sin icono, "¡A JUGAR!" con NavButton.
+  - StatsScene: cabeceras de módulo a 44px Jersey 10. Etiquetas de stats a 18px blanco. Pódium: nombres 16px, victorias con mini bandera pixel art, sprites animados (walk + salto al pulsar). Bronce corregido (`#cd7f32`). Top Premios: 4→3 items, imagen 60px, contador 28px.
+  - CharacterSelectScene: panel descriptivo Jersey 10 22px (antes monospace 16px). Barras de stats reemplazadas por 6 segmentos pixel art con gap; etiquetas PES/EQU/ALT/EDA a 20px.
+  - SkinSelectScene: contador de banderas Jersey 10 32px (antes monospace 12px).
+  - ViewSelectScene: eliminado checkmark `✓` de la ficha seleccionada. Eliminado texto "ELIGE TU ESCENARIO".
+  - GameScene: franja superior 36→40px para centrar verticalmente el nombre del personaje (28px). Expresiones al caer al agua (Casiiiiii!!!, Bueno…bueno…, Ooohhh!, Mare mía!!!) con colores por rango. Frase complementaria 22→28px.
+  - RewardScene: textos de premio más grandes.
+- Imágenes históricas estandarizadas: marco negro de 50px en las cuatro imágenes (`hist-intro`, `hist-mision`, `hist-picaresca`, `hist-leyenda`), contenido escalado a 924×924 + relleno negro hasta 1024×1024.
+- `hist-picaresca.png` (1,7 MB) → `hist-picaresca.webp` (112 KB, −93%).
+- `hist-leyenda.png` (1,4 MB) → `hist-leyenda.webp` (90 KB, −94%).
+- `hist-mision.webp`: regenerada desde nueva fuente con marco correcto.
+- `hist-intro.webp`: regenerada desde nueva fuente (42 KB → 20 KB).
+- Imágenes de tutorial: todos los slides convertidos a WebP. Slides 3 y 4 con nuevo contenido y nombres actualizados (`03-equilibrio`, `04-grasa`). `06-listo.png` → `06-listo.webp`.
+- PreloadScene: referencias actualizadas a los nuevos nombres/extensiones de assets.
+- Modal de punto de interés del mapa: panel ampliado, imagen al 98% del ancho, texto 16px amarillo dorado.
+- Fotos de puntos del mapa convertidas de PNG a WebP (4,6 MB → 0,5 MB, −90%).
 
 ### Fixed
 
-- Premio "Pisacorbatas del Giraldillo" no cargaba imagen: `giraldillo.png` no se había convertido a WebP en la migración previa, pero `rewards.json` ya apuntaba a `giraldillo.webp` (404 silencioso). Convertido a WebP (44 KB → 15 KB).
-- Service worker: bumps de versión a `cucana-v6` para invalidar caché antigua y servir `map-data.json` actualizado y los assets en formato WebP.
+- Título "La Cucaña" se mostraba con fuente de fallback en la primera carga. `Jersey 10` y `Press Start 2P` se cargan activamente en PreloadScene con `document.fonts.load()`. Menú solo arranca cuando han pasado los 5 s Y las fuentes están listas (`Promise.all`).
+- `Press Start 2P` no estaba declarada en `index.html`.
+- Al volver desde SkinSelectScene a CharacterSelectScene, el personaje seleccionado volvía al primero. NavButton usa patrón press-tracking para evitar click-through. `selectedIndex` propagado en el flujo CharacterSelect ↔ SkinSelect.
+- Premio "Pisacorbatas del Giraldillo" no cargaba imagen: `giraldillo.png` no convertido a WebP pero `rewards.json` ya apuntaba a `.webp` (404 silencioso). Corregido.
+- `hist-leyenda` no se mostraba en el juego: PreloadScene apuntaba a `.png` pero el archivo era `.webp`. Corregido.
+- `hist-picaresca` no se mostraba en el juego: mismo problema. Corregido.
+- Service worker bumpeado a `cucana-v6` para invalidar caché con assets obsoletos.
 
 ## [0.7.0] - 2026-04-23
 

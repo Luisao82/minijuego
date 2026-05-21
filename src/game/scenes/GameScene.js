@@ -19,6 +19,7 @@ import { BalanceUI } from '../components/BalanceUI'
 import { createOilIndicator } from '../components/OilIndicator'
 import { gameStatsService } from '../services/GameStatsService'
 import { weightedRandom } from '../utils/math'
+import { getGameOverMessage } from '../config/gameOverMessages'
 
 export class GameScene extends BaseScene {
 
@@ -423,25 +424,7 @@ export class GameScene extends BaseScene {
     const poleLength  = POLE.START_X - POLE.END_X
     const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
 
-    // Texto dinámico según distancia recorrida
-    let expression, phrase, exprColor
-    if (distPercent > 90) {
-      expression = 'Casiiiiii!!!'
-      phrase     = 'Que cerquita has estado, mi arma'
-      exprColor  = '#00cc44'
-    } else if (distPercent >= 50) {
-      expression = 'Bueno… bueno…'
-      phrase     = 'Con un poco más de arte, llegas'
-      exprColor  = '#ffd700'
-    } else if (distPercent >= 10) {
-      expression = 'Ooohhh!'
-      phrase     = 'Hay que practicar más eehh??'
-      exprColor  = '#ff8800'
-    } else {
-      expression = 'Mare mía!!!'
-      phrase     = 'Móntate en "las calesitas del Tardón" anda'
-      exprColor  = '#ff4422'
-    }
+    const { expression, phrase, color: exprColor } = getGameOverMessage(distPercent)
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
