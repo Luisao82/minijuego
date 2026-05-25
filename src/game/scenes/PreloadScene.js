@@ -305,6 +305,9 @@ export class PreloadScene extends BaseScene {
     this.load.audio('sfx-chapuzon', 'audio/chapuzon.wav')
     this.load.audio('sfx-victoria', 'audio/victoria.wav')
 
+    // Música de fondo del menú
+    this.load.audio('music-menu', 'audio/intro.wav')
+
     // Forzar descarga activa de las fuentes web durante la pantalla de carga,
     // de modo que estén disponibles en canvas cuando arranque el menú.
     document.fonts.load('16px "Jersey 10"')

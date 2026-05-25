@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- Música de fondo en el menú principal (`audio/intro.wav`, bucle). Se inicia al cargar la escena y hace fade-out de 300 ms al navegar a otra pantalla. En móvil arranca tras el primer toque del usuario (requisito del AudioContext en iOS/Android).
+
 ### Fixed
 
 - RewardScene: cuando se ganaba un trozo del mapa y un premio en la misma partida, los textos se superponían en el panel. Ahora se muestran en secuencia: primero una pantalla dedicada "¡TROZO DEL MAPA!" con la imagen de la pieza desbloqueada, contador de progreso y botón "¡A VER EL PREMIO!", y tras pulsarlo aparece la ficha del premio sin solapamientos.

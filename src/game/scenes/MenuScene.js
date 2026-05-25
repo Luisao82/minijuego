@@ -17,7 +17,46 @@ export class MenuScene extends BaseScene {
 
   create() {
     this.drawBackground()
+    this._initMusic()
     this.animateTitle()
+
+    // Red de seguridad: si la escena se cierra por cualquier motivo, parar la música
+    this.events.on('shutdown', () => { this._music?.stop() })
+  }
+
+  // ── Música de fondo ────────────────────────────────────────────
+
+  _initMusic() {
+    // Detener instancia previa si la escena se reinicia
+    this.sound.stopByKey('music-menu')
+    this._music = this.sound.add('music-menu', { loop: true, volume: 0.4 })
+
+    // En desktop el AudioContext ya está activo: reproducir de inmediato.
+    // En móvil (iOS/Android) el contexto empieza suspendido; el primer toque
+    // lo reanuda (ver setupInput) y arranca la música desde allí.
+    const ctx = this.sound.context
+    if (!ctx || ctx.state !== 'suspended') {
+      this._music.play()
+    }
+  }
+
+  // Fade-out de 300 ms y luego navega a la escena indicada.
+  // Evita el corte brusco de la música al salir del menú.
+  _fadeAndGo(sceneKey, data) {
+    if (!this._music || !this._music.isPlaying) {
+      this.scene.start(sceneKey, data)
+      return
+    }
+    this.tweens.add({
+      targets:  this._music,
+      volume:   0,
+      duration: 300,
+      ease:     'Linear',
+      onComplete: () => {
+        this._music.stop()
+        this.scene.start(sceneKey, data)
+      },
+    })
   }
 
   drawBackground() {
@@ -176,7 +215,7 @@ export class MenuScene extends BaseScene {
     this.historiaBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'HISTORIA',
-      () => this.scene.start(SCENES.HISTORY),
+      () => this._fadeAndGo(SCENES.HISTORY),
       { depth: 2, fontSize: '34px' },
     )
   }
@@ -190,7 +229,7 @@ export class MenuScene extends BaseScene {
     this.statsBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'RÉCORDS',
-      () => this.scene.start(SCENES.STATS),
+      () => this._fadeAndGo(SCENES.STATS),
       { depth: 2, fontSize: '28px' },
     )
   }
@@ -204,18 +243,22 @@ export class MenuScene extends BaseScene {
     this.tutorialBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'TUTORIAL',
-      () => this.scene.start(SCENES.TUTORIAL),
+      () => this._fadeAndGo(SCENES.TUTORIAL),
       { depth: 2, fontSize: '34px' },
     )
   }
 
   setupInput() {
     // iOS y Android requieren desbloquear el AudioContext tras el primer toque.
-    // Phaser intenta hacerlo automáticamente, pero en móvil a veces hace falta forzarlo.
+    // Aprovechamos ese momento también para arrancar la música si aún no suena.
     this.input.once('pointerdown', () => {
       const ctx = this.sound.context
       if (ctx && ctx.state === 'suspended') {
-        ctx.resume()
+        ctx.resume().then(() => {
+          if (this._music && !this._music.isPlaying) this._music.play()
+        })
+      } else if (this._music && !this._music.isPlaying) {
+        this._music.play()
       }
     })
 
@@ -224,12 +267,12 @@ export class MenuScene extends BaseScene {
       const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
       if (!inHistoria && !inStats && !inTutorial) {
-        this.scene.start(SCENES.VIEW_SELECT)
+        this._fadeAndGo(SCENES.VIEW_SELECT)
       }
     })
 
     this.input.keyboard.once('keydown-SPACE', () => {
-      this.scene.start(SCENES.CHARACTER_SELECT)
+      this._fadeAndGo(SCENES.CHARACTER_SELECT)
     })
   }
 }
