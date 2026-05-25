@@ -9,10 +9,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
-- Música de fondo continua en toda la partida (`audio/intro.wav`, bucle). Se inicia en MenuScene y sigue sonando al pasar al juego y al resto de escenas. En móvil arranca tras el primer toque (requisito del AudioContext en iOS/Android).
-- Botón de silencio de música persistente (♪/♩, esquina superior derecha), siempre visible en todas las escenas. Amarillo cuando la música está activa, gris cuando está silenciada. El estado se guarda en localStorage entre sesiones.
-- `src/game/services/MusicService.js` — servicio singleton que gestiona el sonido de música globalmente (volumen, mute, persistencia).
-- `src/game/scenes/UIScene.js` — escena HUD persistente lanzada una sola vez, contiene el botón de mute y se autoeleva al top de la pila de render cada frame.
+- Música de fondo en el menú principal (`audio/intro.wav`, bucle). Se inicia al entrar al menú y se detiene al navegar a cualquier otra pantalla; vuelve a sonar al regresar al menú.
+- Botón de silencio ♪/♩ (esquina superior derecha del menú), sin caja, solo la nota musical. Amarillo cuando la música está activa, gris cuando está silenciada. El estado persiste en localStorage entre sesiones.
+- `src/game/services/MusicService.js` — persiste el estado mute en localStorage.
 
 ### Fixed
 

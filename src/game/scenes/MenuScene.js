@@ -19,8 +19,55 @@ export class MenuScene extends BaseScene {
   create() {
     this.drawBackground()
     this.animateTitle()
-    // Iniciar música (no-op si ya estaba sonando de una sesión anterior en el menú)
-    musicService.init(this)
+    this._startMusic()
+    this._buildMuteButton()
+
+    // Parar música al salir del menú (a cualquier escena)
+    this.events.once('shutdown', () => {
+      if (this._music) { this._music.stop(); this._music.destroy() }
+    })
+  }
+
+  // ── Música de fondo (solo en el menú) ─────────────────────────
+
+  _startMusic() {
+    this._music = this.sound.add('music-menu', {
+      loop:   true,
+      volume: musicService.isMuted ? 0 : 0.4,
+    })
+
+    // Desktop: reproducir de inmediato.
+    // Móvil: el AudioContext arranca suspendido → arrancar tras el primer toque (setupInput).
+    const ctx = this.sound.context
+    if (!ctx || ctx.state !== 'suspended') {
+      this._music.play()
+    }
+  }
+
+  _buildMuteButton() {
+    // Nota musical grande sin caja — esquina superior derecha
+    this._muteBtn = this.add.text(GAME_WIDTH - 16, 14, '♪', {
+      fontFamily:      'monospace',
+      fontSize:        '42px',
+      color:           musicService.isMuted ? '#555555' : '#ffd700',
+      stroke:          '#000000',
+      strokeThickness: 3,
+    }).setOrigin(1, 0).setDepth(10).setInteractive({ useHandCursor: true })
+
+    this._muteBtn.on('pointerover', () => {
+      this._muteBtn.setScale(1.18)
+    })
+    this._muteBtn.on('pointerout', () => {
+      this._muteBtn.setScale(1)
+    })
+    this._muteBtn.on('pointerup', () => {
+      const muted = musicService.toggleMute()
+      this._muteBtn.setColor(muted ? '#555555' : '#ffd700')
+      if (this._music) {
+        this._music.setVolume(muted ? 0 : 0.4)
+        if (!muted && !this._music.isPlaying) this._music.play()
+      }
+    })
   }
 
   drawBackground() {
@@ -213,14 +260,15 @@ export class MenuScene extends BaseScene {
   }
 
   setupInput() {
-    // iOS y Android requieren desbloquear el AudioContext tras el primer toque.
-    // Aprovechamos ese momento para arrancar la música si aún no suena.
+    // Móvil: reanudar AudioContext en el primer toque y arrancar música si aún no suena
     this.input.once('pointerdown', () => {
       const ctx = this.sound.context
       if (ctx && ctx.state === 'suspended') {
-        ctx.resume().then(() => musicService.tryPlay(this))
-      } else {
-        musicService.tryPlay(this)
+        ctx.resume().then(() => {
+          if (this._music && !this._music.isPlaying && !musicService.isMuted) {
+            this._music.play()
+          }
+        })
       }
     })
 

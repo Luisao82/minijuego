@@ -44,7 +44,6 @@ export const SCENES = {
   COLLECTION: 'CollectionScene',
   STATS:      'StatsScene',
   MAP:        'MapScene',
-  UI:         'UIScene',
 }
 
 // Configuración de texto pixel art (temporal hasta tener bitmap fonts)
