@@ -15,6 +15,7 @@ import { SkinUnlockScene } from './scenes/SkinUnlockScene'
 import { CollectionScene } from './scenes/CollectionScene'
 import { StatsScene } from './scenes/StatsScene'
 import { MapScene } from './scenes/MapScene'
+import { UIScene } from './scenes/UIScene'
 import { AUTO, Scale, Game } from 'phaser'
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig'
 
@@ -47,6 +48,7 @@ const config = {
     CollectionScene,
     StatsScene,
     MapScene,
+    UIScene,
   ],
 }
 

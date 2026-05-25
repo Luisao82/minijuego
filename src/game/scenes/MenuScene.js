@@ -1,6 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
+import { musicService } from '../services/MusicService'
 import { version } from '../../../package.json'
 
 const AMBER = 0xd4a520
@@ -17,46 +18,9 @@ export class MenuScene extends BaseScene {
 
   create() {
     this.drawBackground()
-    this._initMusic()
     this.animateTitle()
-
-    // Red de seguridad: si la escena se cierra por cualquier motivo, parar la música
-    this.events.on('shutdown', () => { this._music?.stop() })
-  }
-
-  // ── Música de fondo ────────────────────────────────────────────
-
-  _initMusic() {
-    // Detener instancia previa si la escena se reinicia
-    this.sound.stopByKey('music-menu')
-    this._music = this.sound.add('music-menu', { loop: true, volume: 0.4 })
-
-    // En desktop el AudioContext ya está activo: reproducir de inmediato.
-    // En móvil (iOS/Android) el contexto empieza suspendido; el primer toque
-    // lo reanuda (ver setupInput) y arranca la música desde allí.
-    const ctx = this.sound.context
-    if (!ctx || ctx.state !== 'suspended') {
-      this._music.play()
-    }
-  }
-
-  // Fade-out de 300 ms y luego navega a la escena indicada.
-  // Evita el corte brusco de la música al salir del menú.
-  _fadeAndGo(sceneKey, data) {
-    if (!this._music || !this._music.isPlaying) {
-      this.scene.start(sceneKey, data)
-      return
-    }
-    this.tweens.add({
-      targets:  this._music,
-      volume:   0,
-      duration: 300,
-      ease:     'Linear',
-      onComplete: () => {
-        this._music.stop()
-        this.scene.start(sceneKey, data)
-      },
-    })
+    // Iniciar música (no-op si ya estaba sonando de una sesión anterior en el menú)
+    musicService.init(this)
   }
 
   drawBackground() {
@@ -215,7 +179,7 @@ export class MenuScene extends BaseScene {
     this.historiaBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'HISTORIA',
-      () => this._fadeAndGo(SCENES.HISTORY),
+      () => this.scene.start(SCENES.HISTORY),
       { depth: 2, fontSize: '34px' },
     )
   }
@@ -229,7 +193,7 @@ export class MenuScene extends BaseScene {
     this.statsBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'RÉCORDS',
-      () => this._fadeAndGo(SCENES.STATS),
+      () => this.scene.start(SCENES.STATS),
       { depth: 2, fontSize: '28px' },
     )
   }
@@ -243,22 +207,20 @@ export class MenuScene extends BaseScene {
     this.tutorialBounds = makeNavButton(
       this, btnX, btnY, btnW, btnH,
       'TUTORIAL',
-      () => this._fadeAndGo(SCENES.TUTORIAL),
+      () => this.scene.start(SCENES.TUTORIAL),
       { depth: 2, fontSize: '34px' },
     )
   }
 
   setupInput() {
     // iOS y Android requieren desbloquear el AudioContext tras el primer toque.
-    // Aprovechamos ese momento también para arrancar la música si aún no suena.
+    // Aprovechamos ese momento para arrancar la música si aún no suena.
     this.input.once('pointerdown', () => {
       const ctx = this.sound.context
       if (ctx && ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          if (this._music && !this._music.isPlaying) this._music.play()
-        })
-      } else if (this._music && !this._music.isPlaying) {
-        this._music.play()
+        ctx.resume().then(() => musicService.tryPlay(this))
+      } else {
+        musicService.tryPlay(this)
       }
     })
 
@@ -267,12 +229,12 @@ export class MenuScene extends BaseScene {
       const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
       if (!inHistoria && !inStats && !inTutorial) {
-        this._fadeAndGo(SCENES.VIEW_SELECT)
+        this.scene.start(SCENES.VIEW_SELECT)
       }
     })
 
     this.input.keyboard.once('keydown-SPACE', () => {
-      this._fadeAndGo(SCENES.CHARACTER_SELECT)
+      this.scene.start(SCENES.CHARACTER_SELECT)
     })
   }
 }

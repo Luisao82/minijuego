@@ -1,5 +1,6 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT } from '../config/gameConfig'
+import { musicService } from '../services/MusicService'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
@@ -72,6 +73,8 @@ export class PreloadScene extends BaseScene {
     Promise.all([timerReady, document.fonts.ready]).then(() => {
       this._stripeTimer?.remove()
       this._revealTimer?.remove()
+      // Lanzar el HUD persistente (botón de mute) antes de cualquier otra escena
+      this.scene.launch(SCENES.UI)
       this.scene.start(SCENES.MENU)
     })
   }
