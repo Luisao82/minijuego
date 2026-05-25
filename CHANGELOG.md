@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- RewardScene: cuando se ganaba un trozo del mapa y un premio en la misma partida, los textos se superponían en el panel. Ahora se muestran en secuencia: primero una pantalla dedicada "¡TROZO DEL MAPA!" con la imagen de la pieza desbloqueada, contador de progreso y botón "¡A VER EL PREMIO!", y tras pulsarlo aparece la ficha del premio sin solapamientos.
+
 ## [1.0.0] - 2026-05-21
 
 ### Added
