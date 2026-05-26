@@ -35,13 +35,9 @@ export class MenuScene extends BaseScene {
       loop:   true,
       volume: musicService.isMuted ? 0 : 0.4,
     })
-
-    // Desktop: reproducir de inmediato.
-    // Móvil: el AudioContext arranca suspendido → arrancar tras el primer toque (setupInput).
-    const ctx = this.sound.context
-    if (!ctx || ctx.state !== 'suspended') {
-      this._music.play()
-    }
+    // Phaser gestiona internamente el AudioContext suspendido (móvil/browser autoplay):
+    // encola el sonido y lo reproduce en cuanto el contexto se desbloquea.
+    if (!musicService.isMuted) this._music.play()
   }
 
   _buildMuteButton() {
@@ -260,23 +256,26 @@ export class MenuScene extends BaseScene {
   }
 
   setupInput() {
-    // Móvil: reanudar AudioContext en el primer toque y arrancar música si aún no suena
+    // Primer toque: arrancar música si el browser la bloqueó por autoplay policy
     this.input.once('pointerdown', () => {
-      const ctx = this.sound.context
-      if (ctx && ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          if (this._music && !this._music.isPlaying && !musicService.isMuted) {
-            this._music.play()
-          }
-        })
+      if (this._music && !this._music.isPlaying && !musicService.isMuted) {
+        const ctx = this.sound.context
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().then(() => this._music.play())
+        } else {
+          this._music.play()
+        }
       }
     })
 
-    this.input.on('pointerdown', (pointer) => {
+    // Phaser pasa como segundo argumento el array de objetos interactivos bajo el puntero.
+    // Si el puntero está sobre el botón de mute, ignoramos la navegación por fondo.
+    this.input.on('pointerdown', (pointer, currentlyOver) => {
+      const hitMuteBtn = currentlyOver?.some(obj => obj === this._muteBtn)
       const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
       const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
-      if (!inHistoria && !inStats && !inTutorial) {
+      if (!hitMuteBtn && !inHistoria && !inStats && !inTutorial) {
         this.scene.start(SCENES.VIEW_SELECT)
       }
     })
