@@ -3,6 +3,10 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { makeNavButton } from '../components/NavButton'
+import { makeShareButton } from '../components/ShareButton'
+import { generateShareImage } from '../components/ShareableCard'
+import { shareImage } from '../utils/share'
+import { buildShareText } from '../config/shareConfig'
 import { skinService } from '../services/SkinService'
 import { characterRewardService } from '../services/CharacterRewardService'
 
@@ -147,6 +151,39 @@ export class SkinSelectScene extends BaseScene {
 
     // Indicador de posición (puntos)
     this._drawDots()
+
+    // Botón compartir (solo en skins desbloqueados)
+    this._drawShareButton(skin)
+  }
+
+  _drawShareButton(skin) {
+    const SIZE   = 40
+    const MARGIN = 16
+    let sharing = false
+    const btn = makeShareButton(
+      this,
+      GAME_WIDTH - SIZE - MARGIN,
+      BAND_Y + MARGIN,
+      async () => {
+        if (sharing) return
+        sharing = true
+        try {
+          const blob = await generateShareImage(this, {
+            name:        skin.nombre,
+            textureKey:  `skin-${skin.spritesheet}`,
+            frame:       0,
+            subtitleKey: 'SKIN_COLLECTION',
+          })
+          await shareImage(blob, buildShareText('SKIN_COLLECTION', skin.nombre))
+        } catch (err) {
+          console.error('[share] error:', err)
+        } finally {
+          sharing = false
+        }
+      },
+      { size: SIZE, depth: 6 },
+    )
+    this.skinDisplay.add(btn.graphics)
   }
 
   _drawLockedSkin(skin) {

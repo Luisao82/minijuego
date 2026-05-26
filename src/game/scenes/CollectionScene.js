@@ -2,7 +2,11 @@ import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { rewardStorage } from '../services/RewardStorageService'
 import { makeNavButton } from '../components/NavButton'
+import { makeShareButton } from '../components/ShareButton'
 import { createRewardCard } from '../components/RewardCard'
+import { generateShareImage } from '../components/ShareableCard'
+import { shareImage } from '../utils/share'
+import { buildShareText } from '../config/shareConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
 // ── Dimensiones de las fichas ────────────────────────────────
@@ -341,6 +345,35 @@ export class CollectionScene extends BaseScene {
         color:      '#888899',
       }).setOrigin(0.5).setDepth(12),
     )
+
+    // Botón compartir (esquina superior derecha del panel)
+    const SHARE_SIZE   = 40
+    const SHARE_MARGIN = 10
+    let sharing = false
+    const shareBtn = makeShareButton(
+      this,
+      PX + PW - SHARE_SIZE - SHARE_MARGIN,
+      PY + SHARE_MARGIN,
+      async () => {
+        if (sharing) return
+        sharing = true
+        try {
+          const blob = await generateShareImage(this, {
+            name:        reward.nombre,
+            textureKey:  reward.id,
+            count,
+            subtitleKey: 'REWARD_COLLECTION',
+          })
+          await shareImage(blob, buildShareText('REWARD_COLLECTION', reward.nombre))
+        } catch (err) {
+          console.error('[share] error:', err)
+        } finally {
+          sharing = false
+        }
+      },
+      { size: SHARE_SIZE, depth: 13 },
+    )
+    toDestroy.push(shareBtn.graphics)
 
     const close = () => {
       this.detailOpen = false

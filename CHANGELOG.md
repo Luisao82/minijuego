@@ -9,6 +9,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- **Compartir y viralidad:** botón compartir (icono pixel art en la esquina superior derecha, estilo Cartelón de Feria mini) en `RewardScene`, `CollectionScene` (modal de detalle de premio), `SkinUnlockScene`, `SkinSelectScene` (solo skins desbloqueados) y `CharacterUnlockScene`. Usa Web Share API en móvil con fallback a portapapeles en desktop.
+- `src/game/config/shareConfig.js` — constantes del sistema de compartir (`GAME_URL`, `SHARE_TEXTS`, `SHARE_BRANDING`, `SHARE_IMAGE_SIZE`) y helper `buildShareText`. El enlace al juego solo se incluye si `GAME_URL` no está vacío.
+- `src/game/utils/share.js` — wrapper sobre Web Share API (`canShareImage`, `canShareText`, `shareImage`) con fallback automático a `navigator.clipboard`.
+- `src/game/components/ShareableCard.js` — generador de imagen 1080×1080 PNG con branding "LA CUCAÑA TRIANERA", subtítulo según contexto (¡NUEVO PREMIO! / PREMIO CONSEGUIDO / etc.), imagen del premio o sprite del skin/personaje, nombre y contador opcional.
+- `src/game/components/ShareButton.js` — botón cuadrado compacto reutilizable con icono pixel art de compartir.
+
 - Sonidos de juego: `sfx-maxpower` al llegar al impulso máximo, `sfx-flag` al coger la bandera, aplausos (`sfx-win` × 5 escalonados) al caer al agua con bandera, y `sfx-fail` al caer sin bandera.
 - `Narrator`: nuevo parámetro de config `talkSoundKey` / `talkSoundVol` para blip de voz RPG. Pitch aleatorio ±10% en cada blip. Activado en `HistoryScene` y `TutorialScene`.
 

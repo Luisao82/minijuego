@@ -6,8 +6,8 @@
 ## 🎮 Contenido del juego
 
 ### Premios
-- [ ] Diseñar y añadir nuevos premios (imagen + nombre + probabilidad en `rewards.json`)
-- [ ] Revisar balance de probabilidades con los nuevos premios
+- [x] Diseñar y añadir nuevos premios (imagen + nombre + probabilidad en `rewards.json`)
+- [x] Revisar balance de probabilidades con los nuevos premios
 
 ### Mapa de Sevilla
 - [ ] Añadir más puntos de interés con foto a las piezas existentes del mapa
@@ -15,18 +15,18 @@
 - [ ] Revisar descripciones de los puntos existentes
 
 ### Personajes y skins
-- [ ] Valorar añadir nuevos personajes
-- [ ] Valorar añadir nuevos skins a los personajes existentes
-- [ ] Revisar condiciones de desbloqueo y si son equilibradas
+- [x] Valorar añadir nuevos personajes
+- [x] Valorar añadir nuevos skins a los personajes existentes
+- [x] Revisar condiciones de desbloqueo y si son equilibradas
 
 ---
 
 ## 🔊 Sonido
 
-- [ ] Añadir música de fondo (menú, juego, historia)
-- [ ] Revisar y completar efectos de sonido existentes (click, hit, chapuzón, victoria)
-- [ ] Añadir sonido al saltar en el pódium de StatsScene
-- [ ] Valorar sonido ambiente en la pantalla de juego (río, multitud)
+- [x] Añadir música de fondo (menú, juego, historia)
+- [x] Revisar y completar efectos de sonido existentes (click, hit, chapuzón, victoria)
+- [x] Añadir sonido al saltar en el pódium de StatsScene
+- [x] Valorar sonido ambiente en la pantalla de juego (río, multitud)
 
 ---
 
@@ -83,9 +83,9 @@
 
 ## 🔗 Compartir y viralidad
 
-- [ ] Botón "Compartir resultado" al ganar o perder (Web Share API en móvil)
-- [ ] Imagen de preview generada dinámicamente con la puntuación para compartir
-- [ ] Revisar y validar previews de Open Graph al compartir el enlace
+- [x] Botón "Compartir resultado" al ganar o perder (Web Share API en móvil)
+- [x] Imagen de preview generada dinámicamente con la puntuación para compartir
+- [x] Revisar y validar previews de Open Graph al compartir el enlace
 
 ---
 
@@ -109,4 +109,4 @@
 
 ---
 
-*Última actualización: 2026-05-21 — v1.0.0*
+*Última actualización: 2026-05-26 — v1.0.0*
