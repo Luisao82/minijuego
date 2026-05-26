@@ -408,7 +408,7 @@ export class GameScene extends BaseScene {
   _playWaterSounds() {
     if (this.hasFlag) {
       // Aplausos: esperamos 300ms a que el chapuzón suene y luego palmadas escalonadas
-      ;[300, 560, 800, 1030, 1250, 1470, 1680, 1880].forEach(delay => {
+      ;[300, 520, 730, 930, 1120, 1300, 1480, 1660, 1840, 2020, 2210, 2420, 2650, 2900].forEach(delay => {
         this.time.delayedCall(delay, () => {
           this.sound.play('sfx-win', { volume: 0.65 })
         })
