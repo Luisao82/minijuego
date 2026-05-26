@@ -54,10 +54,12 @@ const NARRATOR_CONFIG = {
     { frame: 2, duration:  80 },
     { frame: 1, duration: 120 },
   ],
-  blinkMin: 3200,
-  blinkMax: 7000,
-  blinkDur: 130,
-  depth:    3,
+  blinkMin:     3200,
+  blinkMax:     7000,
+  blinkDur:     130,
+  depth:        3,
+  talkSoundKey: 'sfx-talk',
+  talkSoundVol: 0.22,
 }
 
 // ============================================================

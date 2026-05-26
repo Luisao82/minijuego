@@ -25,7 +25,9 @@ export class Narrator {
    *   blinkMin?: number,
    *   blinkMax?: number,
    *   blinkDur?: number,
-   *   depth?: number
+   *   depth?: number,
+   *   talkSoundKey?: string,   // clave de audio para blip de voz (opcional)
+   *   talkSoundVol?: number,   // volumen del blip (por defecto 0.25)
    * }} config
    */
   constructor(scene, config) {
@@ -98,6 +100,15 @@ export class Narrator {
     const cycle = this._config.mouthCycle
     const step  = cycle[this._mouthFrame % cycle.length]
     this._applyFrame(step.frame)
+
+    // Blip de voz: solo en frames con boca abierta (frame > 0)
+    if (step.frame > 0 && this._config.talkSoundKey) {
+      this._scene.sound.play(this._config.talkSoundKey, {
+        volume: this._config.talkSoundVol ?? 0.25,
+        rate:   0.9 + Math.random() * 0.2,
+      })
+    }
+
     this._mouthTimer = this._scene.time.delayedCall(step.duration, () => {
       this._mouthFrame++
       this._scheduleMouthFrame()

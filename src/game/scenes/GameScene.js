@@ -145,7 +145,10 @@ export class GameScene extends BaseScene {
       : this.impulseSystem.getResult()
 
     this.hasPerfectImpulse = this.impulseResult.impulseValue >= PHASE1.PERFECT_IMPULSE_MIN
-    if (this.hasPerfectImpulse) this._showMaxPowerText()
+    if (this.hasPerfectImpulse) {
+      this.sound.play('sfx-maxpower', { volume: 0.7 })
+      this._showMaxPowerText()
+    }
 
     this.startRunning()
   }
@@ -335,6 +338,7 @@ export class GameScene extends BaseScene {
       this.player.y = this.waterY
       this.player.setVisible(false)
       this.fallSystem.splash(this.player.x, this.waterY)
+      this._playWaterSounds()
 
       if (this.hasFlag) {
         this.time.delayedCall(600, () => this.showCelebration())
@@ -368,7 +372,7 @@ export class GameScene extends BaseScene {
   }
 
   _grabFlag() {
-    this.sound.play('sfx-victoria', { volume: 1.0 })
+    this.sound.play('sfx-flag', { volume: 1.0 })
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
     this.balanceUI?.destroy()
@@ -389,6 +393,7 @@ export class GameScene extends BaseScene {
   _fall() {
     this.phase = 'falling'
     this.fallSystem.fall(this.player, this.waterY, () => {
+      this._playWaterSounds()
       if (this.hasFlag) {
         this.time.delayedCall(600, () => this.showCelebration())
       } else {
@@ -398,6 +403,19 @@ export class GameScene extends BaseScene {
         })
       }
     })
+  }
+
+  _playWaterSounds() {
+    if (this.hasFlag) {
+      // Aplausos: varios golpes de palmada escalonados
+      ;[0, 280, 520, 750, 960].forEach(delay => {
+        this.time.delayedCall(delay, () => {
+          this.sound.play('sfx-win', { volume: 0.6 })
+        })
+      })
+    } else {
+      this.sound.play('sfx-fail', { volume: 0.7 })
+    }
   }
 
   // ========================================

@@ -303,7 +303,11 @@ export class PreloadScene extends BaseScene {
     this.load.audio('sfx-click',    'audio/click.wav')
     this.load.audio('sfx-hit',      'audio/hitHurt.wav')
     this.load.audio('sfx-chapuzon', 'audio/chapuzon.wav')
-    this.load.audio('sfx-victoria', 'audio/victoria.wav')
+    this.load.audio('sfx-maxpower', 'audio/sfx-maxpower.wav')
+    this.load.audio('sfx-flag',     'audio/sfx-flag.wav')
+    this.load.audio('sfx-win',      'audio/sfx-win.wav')
+    this.load.audio('sfx-fail',     'audio/sfx-fail.wav')
+    this.load.audio('sfx-talk',     'audio/sfx-talk.wav')
 
     // Música de fondo del menú
     this.load.audio('music-menu', 'audio/intro.wav')

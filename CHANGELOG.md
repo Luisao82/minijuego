@@ -9,6 +9,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- Sonidos de juego: `sfx-maxpower` al llegar al impulso máximo, `sfx-flag` al coger la bandera, aplausos (`sfx-win` × 5 escalonados) al caer al agua con bandera, y `sfx-fail` al caer sin bandera.
+- `Narrator`: nuevo parámetro de config `talkSoundKey` / `talkSoundVol` para blip de voz RPG. Pitch aleatorio ±10% en cada blip. Activado en `HistoryScene` y `TutorialScene`.
+
 - Nuevos premios: Cerveza fresquita, Vaso mítico, Vinilo de Los Cantores de Híspalis, Sugus, Grande Triana y Corta (imágenes en WebP listas para añadir al JSON).
 - Imágenes de nuevos premios convertidas a WebP (calidad 80): `hispalis.webp`, `triana.webp`, `vaso.webp`, `sugus.webp`, `corta.webp`. PNGs originales eliminados.
 
