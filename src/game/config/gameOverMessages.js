@@ -7,7 +7,7 @@ export const GAME_OVER_MESSAGES = [
   {
     threshold:  90,           // distPercent > 90
     expression: '¡¡ Casiiiiii !!',
-    phrase:     'Que cerquita has estado, mi arma',
+    phrase:     'Que cerquita has estado, miarma',
     color:      '#00cc44',
   },
   {

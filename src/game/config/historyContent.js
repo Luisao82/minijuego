@@ -7,7 +7,7 @@ export const HISTORY_BLOCKS = [
     title: 'La Velá de Santa Ana',
     image: 'hist-intro',
     pages: [
-      '¡Escúcha mi arma! Te lo voy a contar una historia como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.',
+      '¡Escúcha miarma! Te lo voy a contar una historia como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.',
       'Para entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
     ],
   },
