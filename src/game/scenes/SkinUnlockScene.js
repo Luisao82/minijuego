@@ -2,6 +2,10 @@ import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { makeNavButton } from '../components/NavButton'
+import { makeShareButton } from '../components/ShareButton'
+import { generateShareImage } from '../components/ShareableCard'
+import { shareImage } from '../utils/share'
+import { buildShareText } from '../config/shareConfig'
 
 // Dimensiones del panel — igual que CharacterUnlockScene
 const PANEL_W  = 560
@@ -80,6 +84,7 @@ export class SkinUnlockScene extends BaseScene {
     this.drawBanner()
     this.drawSkinSprite(skin)
     this.drawSkinInfo(skin)
+    this.drawShareButton(skin, 'SKIN_NEW')
     this.drawButtons()
 
     this.tweens.add({
@@ -224,6 +229,36 @@ export class SkinUnlockScene extends BaseScene {
         strokeThickness: 3,
       }).setOrigin(0.5),
     )
+  }
+
+  drawShareButton(skin, subtitleKey) {
+    const SIZE   = 40
+    const MARGIN = 10
+    let sharing = false
+    const btn = makeShareButton(
+      this,
+      PANEL_X + PANEL_W - SIZE - MARGIN,
+      PANEL_Y + MARGIN,
+      async () => {
+        if (sharing || !this.canInteract) return
+        sharing = true
+        try {
+          const blob = await generateShareImage(this, {
+            name:        skin.nombre,
+            textureKey:  `skin-${skin.spritesheet}`,
+            frame:       0,
+            subtitleKey,
+          })
+          await shareImage(blob, buildShareText(subtitleKey, skin.nombre))
+        } catch (err) {
+          console.error('[share] error:', err)
+        } finally {
+          sharing = false
+        }
+      },
+      { size: SIZE, depth: 7 },
+    )
+    this.contentContainer.add(btn.graphics)
   }
 
   // ── Botones ───────────────────────────────────────────────────

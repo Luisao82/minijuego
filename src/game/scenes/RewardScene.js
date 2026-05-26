@@ -6,6 +6,10 @@ import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { characterRewardService } from '../services/CharacterRewardService'
 import { skinService } from '../services/SkinService'
 import { makeNavButton } from '../components/NavButton'
+import { makeShareButton } from '../components/ShareButton'
+import { generateShareImage } from '../components/ShareableCard'
+import { shareImage } from '../utils/share'
+import { buildShareText } from '../config/shareConfig'
 
 // Panel casi a pantalla completa en altura
 const PANEL_W = 560
@@ -312,6 +316,11 @@ export class RewardScene extends BaseScene {
       wordWrap:        { width: PANEL_W - 60 },
     }).setOrigin(0.5)
 
+    // Botón compartir (esquina superior derecha del panel)
+    if (this.reward?.id) {
+      this._addShareButton('REWARD_NEW')
+    }
+
     // Descripción opcional
     if (this.reward?.descripcion) {
       this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 48, this.reward.descripcion, {
@@ -346,6 +355,31 @@ export class RewardScene extends BaseScene {
       () => { if (this.canPlay) this.viewCollection() },
       { depth: 6 },
     )
+  }
+
+  _addShareButton(subtitleKey) {
+    const SIZE   = 40
+    const MARGIN = 10
+    const x = PANEL_X + PANEL_W - SIZE - MARGIN
+    const y = PANEL_Y + MARGIN
+
+    let sharing = false
+    makeShareButton(this, x, y, async () => {
+      if (sharing || !this.canPlay) return
+      sharing = true
+      try {
+        const blob = await generateShareImage(this, {
+          name:        this.reward.nombre,
+          textureKey:  this.reward.id,
+          subtitleKey,
+        })
+        await shareImage(blob, buildShareText(subtitleKey, this.reward.nombre))
+      } catch (err) {
+        console.error('[share] error:', err)
+      } finally {
+        sharing = false
+      }
+    }, { size: SIZE, depth: 7 })
   }
 
   _drawRewardImage(cx, cy) {

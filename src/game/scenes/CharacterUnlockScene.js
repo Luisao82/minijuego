@@ -2,6 +2,10 @@ import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { CHARACTERS } from '../config/characters'
 import { makeNavButton } from '../components/NavButton'
+import { makeShareButton } from '../components/ShareButton'
+import { generateShareImage } from '../components/ShareableCard'
+import { shareImage } from '../utils/share'
+import { buildShareText } from '../config/shareConfig'
 
 // Dimensiones del panel de ficha
 const PANEL_W = 560
@@ -68,6 +72,7 @@ export class CharacterUnlockScene extends BaseScene {
     this.drawBanner()
     this.drawCharacterSprite(char)
     this.drawCharacterInfo(char)
+    this.drawShareButton(char)
     this.drawButtons()
 
     // Entrada: fade del panel + tween del sprite
@@ -253,6 +258,35 @@ export class CharacterUnlockScene extends BaseScene {
 
       this.contentContainer.add(barG)
     })
+  }
+
+  drawShareButton(char) {
+    const SIZE   = 40
+    const MARGIN = 10
+    let sharing = false
+    const btn = makeShareButton(
+      this,
+      PANEL_X + PANEL_W - SIZE - MARGIN,
+      PANEL_Y + MARGIN,
+      async () => {
+        if (sharing || !this.canInteract) return
+        sharing = true
+        try {
+          const blob = await generateShareImage(this, {
+            name:        char.name,
+            textureKey:  char.sprite,
+            subtitleKey: 'CHARACTER_NEW',
+          })
+          await shareImage(blob, buildShareText('CHARACTER_NEW', char.name))
+        } catch (err) {
+          console.error('[share] error:', err)
+        } finally {
+          sharing = false
+        }
+      },
+      { size: SIZE, depth: 7 },
+    )
+    this.contentContainer.add(btn.graphics)
   }
 
   // ── Botones ──────────────────────────────────────────────────
