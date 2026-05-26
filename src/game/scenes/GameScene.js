@@ -407,14 +407,17 @@ export class GameScene extends BaseScene {
 
   _playWaterSounds() {
     if (this.hasFlag) {
-      // Aplausos: varios golpes de palmada escalonados
-      ;[0, 280, 520, 750, 960].forEach(delay => {
+      // Aplausos: esperamos 300ms a que el chapuzón suene y luego palmadas escalonadas
+      ;[300, 560, 800, 1030, 1250, 1470, 1680, 1880].forEach(delay => {
         this.time.delayedCall(delay, () => {
-          this.sound.play('sfx-win', { volume: 0.6 })
+          this.sound.play('sfx-win', { volume: 0.65 })
         })
       })
     } else {
-      this.sound.play('sfx-fail', { volume: 0.7 })
+      // Esperamos 350ms a que el chapuzón baje antes de soltar el oooohh
+      this.time.delayedCall(350, () => {
+        this.sound.play('sfx-fail', { volume: 1.0 })
+      })
     }
   }
 
