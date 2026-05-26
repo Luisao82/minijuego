@@ -59,5 +59,41 @@
     "descripcion": "El \"pograma\" para seguir los pasos",
     "imagen": "premios/llamador.webp",
     "probabilidad": 0.15
+  },
+  {
+    "id": "reward_cerveza",
+    "nombre": "Una cerveza fresquita",
+    "descripcion": "Nada mejor para celebrar que has conseguido el premio que una cerveza bien fría",
+    "imagen": "premios/cerveza.webp",
+    "probabilidad": 0.6
+  },
+  {
+    "id": "reward_vaso",
+    "nombre": "Un mitico vaso",
+    "descripcion": "El mitico vaso que todos recordais al más grande rockero de sevilla en uno de sus conciertos",
+    "imagen": "premios/vaso.webp",
+    "probabilidad": 0.2
+  },
+
+  {
+    "id": "reward_hispalis",
+    "nombre": "Vinilo original de Los cantores de Hispalis",
+    "descripcion": "Este vinilo nos pone a todo el mundo a bailar a bailar. Es un clásico de la música sevillana que no puede faltar en tu colección de premios",
+    "imagen": "premios/hispalis.webp",
+    "probabilidad": 0.4
+  },
+    {
+    "id": "reward_sugus",
+    "nombre": "Un sugus",
+    "descripcion": "Quien no recuerda un sugus, el caramelo que nos ha acompañado en tantos momentos de nuestra infancia y adolescencia",
+    "imagen": "premios/sugus.webp",
+    "probabilidad": 0.5
+  },
+  {
+    "id": "reward_triana",
+    "nombre": "Grande Triana",
+    "descripcion": "Gran grupo de Rock Andaluz que nos ha dejado grandes canciones y momentos inolvidables. Este premio es un homenaje a su legado musical y a su influencia en la cultura sevillana",
+    "imagen": "premios/triana.webp",
+    "probabilidad": 0.4
   }
 ]

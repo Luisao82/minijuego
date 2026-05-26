@@ -9,6 +9,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- Nuevos premios: Cerveza fresquita, Vaso mítico, Vinilo de Los Cantores de Híspalis, Sugus, Grande Triana y Corta (imágenes en WebP listas para añadir al JSON).
+- Imágenes de nuevos premios convertidas a WebP (calidad 80): `hispalis.webp`, `triana.webp`, `vaso.webp`, `sugus.webp`, `corta.webp`. PNGs originales eliminados.
+
 - Música de fondo en el menú principal (`audio/intro.wav`, bucle). Se inicia al entrar al menú y se detiene al navegar a cualquier otra pantalla; vuelve a sonar al regresar al menú.
 - Botón de silencio ♪/♩ (esquina superior derecha del menú), sin caja, solo la nota musical. Amarillo cuando la música está activa, gris cuando está silenciada. El estado persiste en localStorage entre sesiones.
 - `src/game/services/MusicService.js` — persiste el estado mute en localStorage.
