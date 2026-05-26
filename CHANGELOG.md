@@ -10,6 +10,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Added
 
 - **Compartir y viralidad:** botón compartir (icono pixel art en la esquina superior derecha, estilo Cartelón de Feria mini) en `RewardScene`, `CollectionScene` (modal de detalle de premio), `SkinUnlockScene`, `SkinSelectScene` (solo skins desbloqueados) y `CharacterUnlockScene`. Usa Web Share API en móvil con fallback a portapapeles en desktop.
+- `GAME_URL` configurado con la URL de Vercel (`https://minijuego-lilac.vercel.app`): el enlace aparece ahora en el texto compartido y como pie en la imagen 1080×1080.
+
+### Fixed
+
+- `ShareableCard`: los nombres largos de premios (p.ej. "La cinta de los mejores chiste de Paco Gandía") se salían del marco. Ahora el texto se reparte en varias líneas y se reduce el tamaño de fuente progresivamente si sigue sin caber.
+- `ShareableCard`: los sprites de personaje (16×24) se compartían deformados al forzarlos a cuadrado. Ahora se respeta el aspect ratio original.
 - `src/game/config/shareConfig.js` — constantes del sistema de compartir (`GAME_URL`, `SHARE_TEXTS`, `SHARE_BRANDING`, `SHARE_IMAGE_SIZE`) y helper `buildShareText`. El enlace al juego solo se incluye si `GAME_URL` no está vacío.
 - `src/game/utils/share.js` — wrapper sobre Web Share API (`canShareImage`, `canShareText`, `shareImage`) con fallback automático a `navigator.clipboard`.
 - `src/game/components/ShareableCard.js` — generador de imagen 1080×1080 PNG con branding "LA CUCAÑA TRIANERA", subtítulo según contexto (¡NUEVO PREMIO! / PREMIO CONSEGUIDO / etc.), imagen del premio o sprite del skin/personaje, nombre y contador opcional.

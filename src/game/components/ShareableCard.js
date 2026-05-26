@@ -29,6 +29,24 @@ const COLORS = {
   shadow:    '#000000',
 }
 
+// Reparte el texto en varias líneas según el ancho máximo permitido.
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(/\s+/)
+  const lines = []
+  let line = ''
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
+    if (ctx.measureText(test).width <= maxWidth) {
+      line = test
+    } else {
+      if (line) lines.push(line)
+      line = word
+    }
+  }
+  if (line) lines.push(line)
+  return lines
+}
+
 // Espera a que las fuentes web estén cargadas (Press Start 2P / Jersey 10).
 async function ensureFontsReady() {
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
@@ -143,22 +161,37 @@ function drawCardBody(ctx, { name, count, source }) {
     ctx.fillText('?', SIZE / 2, imgY + imgBox / 2)
   }
 
-  // Nombre debajo
+  // Nombre debajo — con wrap automático y reducción de tamaño si hace falta
   ctx.shadowColor = COLORS.shadow
   ctx.shadowOffsetX = 3
   ctx.shadowOffsetY = 3
   ctx.fillStyle = COLORS.gold
-  ctx.font = 'bold 42px "Press Start 2P", monospace'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
-  const nameY = imgY + imgBox + 30
-  ctx.fillText(name, SIZE / 2, nameY)
+
+  const maxTextW = cardW - 60
+  const sizeSteps = [42, 34, 28, 24]   // Reducir progresivamente si no cabe
+  let fontSize = sizeSteps[0]
+  let lines = []
+  for (const s of sizeSteps) {
+    ctx.font = `bold ${s}px "Press Start 2P", monospace`
+    lines = wrapText(ctx, name, maxTextW)
+    fontSize = s
+    if (lines.length <= 3) break
+  }
+
+  const lineHeight = Math.round(fontSize * 1.15)
+  const nameStartY = imgY + imgBox + 30
+  lines.forEach((line, i) => {
+    ctx.fillText(line, SIZE / 2, nameStartY + i * lineHeight)
+  })
 
   // Contador (solo si aplica)
   if (typeof count === 'number' && count > 0) {
     ctx.font = 'bold 34px "Press Start 2P", monospace'
     ctx.fillStyle = COLORS.textSoft
-    ctx.fillText(`x${count}`, SIZE / 2, nameY + 70)
+    const countY = nameStartY + lines.length * lineHeight + 16
+    ctx.fillText(`x${count}`, SIZE / 2, countY)
   }
 
   ctx.shadowOffsetX = 0
