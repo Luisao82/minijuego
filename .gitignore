@@ -18,9 +18,11 @@ dist
 dist-ssr
 *.local
 
-# Capacitor (iOS/Android)
-ios
-android
+# Capacitor (carpetas nativas iOS/Android en la raíz del proyecto)
+# Anclado a la raíz con / para no excluir subcarpetas con esos nombres
+# (p.ej. public/assets/store/icons/ios y .../android, que sí queremos versionar)
+/ios
+/android
 
 # Editor directories and files
 .vscode/*

@@ -10,11 +10,11 @@ export const SHARE_IMAGE_SIZE = 1080  // Cuadrado, óptimo para WhatsApp/Instagr
 // Plantillas de texto. Usa {name} como placeholder del nombre del premio/skin/personaje.
 // El enlace se añade automáticamente al final si GAME_URL no está vacío.
 export const SHARE_TEXTS = {
-  REWARD_NEW:        '¡NUEVO PREMIO! He conseguido {name} en La Cucaña Trianera 🎪',
-  REWARD_COLLECTION: 'Mira el {name} que tengo en La Cucaña Trianera 🎪',
-  SKIN_NEW:          '¡NUEVO SKIN! He desbloqueado {name} en La Cucaña Trianera 🎪',
-  SKIN_COLLECTION:   'Mira el skin {name} que tengo en La Cucaña Trianera 🎪',
-  CHARACTER_NEW:     '¡NUEVO PERSONAJE! He desbloqueado {name} en La Cucaña Trianera 🎪',
+  REWARD_NEW:        '¡NUEVO PREMIO! He conseguido {name} en La Cucaña Trianera 🏳️',
+  REWARD_COLLECTION: 'Mira el {name} que tengo en La Cucaña Trianera 🏳️',
+  SKIN_NEW:          '¡NUEVO SKIN! He desbloqueado {name} en La Cucaña Trianera 🏳️',
+  SKIN_COLLECTION:   'Mira el skin {name} que tengo en La Cucaña Trianera 🏳️',
+  CHARACTER_NEW:     '¡NUEVO PERSONAJE! He desbloqueado {name} en La Cucaña Trianera 🏳️',
 }
 
 // Branding que aparece en la imagen generada

@@ -9,6 +9,28 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- **Feature graphic Google Play (1024×500):** imagen de cabecera con el puente panorámico de fondo, "La Cucaña" en rojo centrado con outline negro, flamenca saltando hacia el centro (izquierda) y feriante saltando hacia el centro (derecha). Generado a partir de `fondoIntro1024b.png` + sprites del juego.
+- `scripts/build-feature-graphic.mjs` — compone bandera + sprites + texto pixel art sobre el fondo del puente. Reutiliza el font 5×7 del icono y los helpers de PNG decode/encode/composite con alpha.
+
+- **Capturas de pantalla para tiendas:** 5 capturas representativas (menú, gameplay, selección de personaje, premio, tutorial) procesadas con letterbox negro centrado para 3 formatos:
+  - iPhone 6.7" landscape (App Store): 2796×1290
+  - iPad Pro 13" landscape (App Store): 2752×2064 — full screen, sin franjas (el aspect del juego coincide con el iPad)
+  - Google Play 16:9 + PWA wide: 1920×1080
+  - Archivos en `public/assets/store/screenshots/{iphone-6.7,ipad-13,play-pwa}/01-…05-….png`
+- `scripts/build-screenshots.mjs` — toma capturas del juego, calcula el ajuste manteniendo aspect ratio y compone sobre lienzo negro centrado para cada formato.
+- `manifest.json`: bloque `screenshots` con las 5 capturas PWA (form_factor wide) para que aparezcan en el prompt de instalación.
+
+- **Iconos de tienda y app:** icono master 1024×1024 (Puente de Triana + bandera blanca + "La Cucaña" en rojo) y batería completa de derivados en `public/assets/store/icons/`:
+  - iOS: 1024, 180, 167, 152, 120, 87, 80, 76, 60, 58, 40, 29, 20
+  - Android: 512 (Play Store), 192, 144, 96, 72, 48, 36
+  - PWA: 512, 384, 192, 180, 152, 144, 128, 96
+  - Favicon: 32, 16
+- `scripts/build-icon.mjs` — generador de pixel art 64×64 (encoder PNG propio, sin dependencias) para iterar diseños del icono.
+- `scripts/upscale-icon.mjs` — decoder PNG + nearest-neighbor upscaling para previsualizar diseños pixel art a tamaños grandes sin pérdida.
+- `scripts/add-flag-text.mjs` — superpone bandera y texto "La Cucaña" en pixel art sobre el master 1024 y regenera toda la batería con `sips`.
+- `index.html`: `apple-touch-icon` por tamaños (180, 167, 152, 120) y favicons separados (32, 16).
+- `manifest.json`: 8 entradas de iconos PWA por tamaño en vez de reusar `favicon.png`.
+
 - **Compartir y viralidad:** botón compartir (icono pixel art en la esquina superior derecha, estilo Cartelón de Feria mini) en `RewardScene`, `CollectionScene` (modal de detalle de premio), `SkinUnlockScene`, `SkinSelectScene` (solo skins desbloqueados) y `CharacterUnlockScene`. Usa Web Share API en móvil con fallback a portapapeles en desktop.
 - `GAME_URL` configurado con la URL de Vercel (`https://minijuego-lilac.vercel.app`): el enlace aparece ahora en el texto compartido y como pie en la imagen 1080×1080.
 

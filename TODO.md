@@ -65,9 +65,9 @@
 
 ## 🎨 Assets de tiendas
 
-- [ ] Icono de la app en todos los tamaños requeridos (1024×1024 base, varios derivados)
-- [ ] Imagen de portada / feature graphic para Google Play (1024×500)
-- [ ] Capturas de pantalla representativas del juego (tutorial, partida, premios, mapa)
+- [x] Icono de la app en todos los tamaños requeridos (1024×1024 base + 30 derivados iOS/Android/PWA/favicon en `public/assets/store/icons/`)
+- [x] Imagen de portada / feature graphic para Google Play (1024×500 — `public/assets/store/feature-graphic-1024x500.png`)
+- [x] Capturas de pantalla representativas del juego (5 capturas × 3 formatos: iPhone 6.7", iPad 13", Google Play / PWA — en `public/assets/store/screenshots/`)
 - [ ] Vídeo de presentación opcional (30 s) para App Store / Play Store
 
 ---
@@ -109,4 +109,4 @@
 
 ---
 
-*Última actualización: 2026-05-26 — v1.0.0*
+*Última actualización: 2026-05-27 — v1.0.0*
