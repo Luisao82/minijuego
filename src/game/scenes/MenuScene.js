@@ -21,6 +21,7 @@ export class MenuScene extends BaseScene {
     this.animateTitle()
     this._startMusic()
     this._buildMuteButton()
+    this._buildCreditsButton()
 
     // Parar música al salir del menú (a cualquier escena)
     this.events.once('shutdown', () => {
@@ -38,6 +39,24 @@ export class MenuScene extends BaseScene {
     // Phaser gestiona internamente el AudioContext suspendido (móvil/browser autoplay):
     // encola el sonido y lo reproduce en cuanto el contexto se desbloquea.
     if (!musicService.isMuted) this._music.play()
+  }
+
+  _buildCreditsButton() {
+    // Símbolo © en la esquina superior izquierda — simétrico al ♪ del mute
+    this._creditsBtn = this.add.text(16, 14, '©', {
+      fontFamily:      'monospace',
+      fontSize:        '38px',
+      color:           '#ffd700',
+      stroke:          '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0, 0).setDepth(10).setInteractive({ useHandCursor: true })
+
+    this._creditsBtn.on('pointerover', () => this._creditsBtn.setScale(1.18))
+    this._creditsBtn.on('pointerout',  () => this._creditsBtn.setScale(1))
+    this._creditsBtn.on('pointerup',   () => {
+      this.sound.play('sfx-click', { volume: 0.6 })
+      this.scene.start(SCENES.CREDITS)
+    })
   }
 
   _buildMuteButton() {
@@ -271,11 +290,12 @@ export class MenuScene extends BaseScene {
     // Phaser pasa como segundo argumento el array de objetos interactivos bajo el puntero.
     // Si el puntero está sobre el botón de mute, ignoramos la navegación por fondo.
     this.input.on('pointerdown', (pointer, currentlyOver) => {
-      const hitMuteBtn = currentlyOver?.some(obj => obj === this._muteBtn)
+      const hitMuteBtn    = currentlyOver?.some(obj => obj === this._muteBtn)
+      const hitCreditsBtn = currentlyOver?.some(obj => obj === this._creditsBtn)
       const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
       const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
       const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
-      if (!hitMuteBtn && !inHistoria && !inStats && !inTutorial) {
+      if (!hitMuteBtn && !hitCreditsBtn && !inHistoria && !inStats && !inTutorial) {
         this.scene.start(SCENES.VIEW_SELECT)
       }
     })

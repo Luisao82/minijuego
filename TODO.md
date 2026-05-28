@@ -74,10 +74,13 @@
 
 ## ⚖️ Legal
 
-- [ ] Redactar Política de privacidad (aunque no se recogen datos personales, Apple la exige)
-- [ ] Revisar licencias de fuentes usadas (Jersey 10, Press Start 2P — Google Fonts, OFL)
-- [ ] Revisar licencias de assets de audio
-- [ ] Valorar añadir créditos en el juego
+- [x] Redactar Política de privacidad (`PRIVACY.md` + `public/privacy.html` listos para Vercel)
+- [x] Revisar licencias de fuentes usadas (Jersey 10 y Press Start 2P — OFL 1.1, atribuidas en `CREDITS.md`)
+- [x] Revisar licencias de assets de audio (SFX propios con jsfxr/CC0; música del menú ⚠️ pendiente de autorización — ver `docs/email-cantores-hispalis.md`)
+- [x] Créditos en el juego (`CreditsScene` accesible desde el menú por el icono ©)
+- [x] Sustituir `LICENSE` del template Phaser Studio por licencia propietaria de Luisao
+- [x] Limpiar `package.json` (autor, licencia, eliminar refs del template)
+- [ ] **Bloqueante de publicación:** contactar con los titulares de Cantores de Híspalis para autorizar la sevillana adaptada del menú (o sustituirla por una composición original)
 
 ---
 
@@ -109,4 +112,4 @@
 
 ---
 
-*Última actualización: 2026-05-27 — v1.0.0*
+*Última actualización: 2026-05-28 — v1.0.0*

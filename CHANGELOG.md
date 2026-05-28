@@ -9,6 +9,22 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- **Bloque Legal completo:**
+  - `PRIVACY.md` y `public/privacy.html` — política de privacidad en español lista para alojarse en Vercel (URL pública estable). Cubre: ausencia de datos personales, almacenamiento local, servicios de terceros (Sentry, Google Fonts, Vercel), Web Share API, RGPD/LOPDGDD, derechos del usuario y contacto.
+  - `CREDITS.md` — documento canónico de créditos con autoría, motor (Phaser, Vite, Capacitor, Sentry — MIT), tipografías (Jersey 10 + Press Start 2P — OFL 1.1), efectos de sonido (jsfxr, CC0) y advertencia sobre la música del menú (pendiente de autorización de los titulares de Cantores de Híspalis).
+  - `CreditsScene` — nueva escena pixel art accesible desde el menú principal a través de un icono `©` discreto en la esquina superior izquierda (simétrico al icono de mute). Layout en dos columnas dentro del cartelón estilo "Cartelón de Feria" con los créditos completos, copyright y email de contacto. Tecla ESC vuelve al menú.
+  - `docs/email-cantores-hispalis.md` — plantilla de email para solicitar autorización a los titulares de la sevillana adaptada como música del menú, con guía sobre SGAE y editor musical.
+
+### Changed
+
+- **`LICENSE`** — reemplazado el MIT del template original de Phaser Studio por una licencia propietaria "Todos los derechos reservados © 2026 Luisao" acorde con el modelo de publicación en tiendas.
+- **`package.json`** — actualizado `author` a Luisao, `license` a `SEE LICENSE IN LICENSE`, añadido `"private": true` y eliminadas las referencias al repo del template Phaser (`repository`, `bugs`, `homepage`).
+- **`MenuScene`** — añadido botón de créditos en la esquina superior izquierda. El filtrado de `pointerdown` ahora ignora también este botón para no encadenar la navegación al carrusel de personajes.
+- **`gameConfig.SCENES`** — añadida la clave `CREDITS: 'CreditsScene'`.
+- **`game/main.js`** — registrada la `CreditsScene` en el array de escenas de Phaser.
+- **Icono de la app** — sustituido el master por una versión definitiva del usuario (`fondoIntro1024C.png`) con tipografía pixel art propia para "La Cucaña" integrada en el propio diseño (en lugar del overlay generado por `add-flag-text.mjs`). Los 30 derivados iOS/Android/PWA/favicon y `public/favicon.png` regenerados con `sips` desde el nuevo master.
+- `scripts/build-icon-sizes.mjs` — script reutilizable que toma cualquier master 1024×1024 y produce la batería completa de derivados sin tocar el contenido (útil para iteraciones futuras del icono sin tener que recomponer texto ni bandera).
+
 - **Feature graphic Google Play (1024×500):** imagen de cabecera con el puente panorámico de fondo, "La Cucaña" en rojo centrado con outline negro, flamenca saltando hacia el centro (izquierda) y feriante saltando hacia el centro (derecha). Generado a partir de `fondoIntro1024b.png` + sprites del juego.
 - `scripts/build-feature-graphic.mjs` — compone bandera + sprites + texto pixel art sobre el fondo del puente. Reutiliza el font 5×7 del icono y los helpers de PNG decode/encode/composite con alpha.
 
