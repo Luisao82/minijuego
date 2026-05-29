@@ -1,6 +1,11 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
+import { createSkinMarquee } from '../components/SkinMarquee'
+import { CHARACTERS } from '../config/characters'
+import { unlockService } from '../services/UnlockService'
+import { skinService } from '../services/SkinService'
+import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { version } from '../../../package.json'
 
 const AMBER     = 0xd4a520
@@ -9,39 +14,46 @@ const PANEL_DIM = 0x000000
 
 const M       = 16
 const PANEL_X = M
-const PANEL_Y = 92
+const PANEL_Y = 112
 const PANEL_W = GAME_WIDTH - M * 2
 const PANEL_H = GAME_HEIGHT - PANEL_Y - M
 
-const COL_LEFT_X  = PANEL_X + 36
-const COL_RIGHT_X = PANEL_X + Math.round(PANEL_W / 2) + 18
+const MARQUEE_SCALE    = 2
+const MARQUEE_DEPTH    = 2
 
-const SECTION_HEADER = {
-  fontFamily:      '"Press Start 2P", monospace',
-  fontSize:        '14px',
-  color:           '#ffd700',
-  stroke:          '#000000',
-  strokeThickness: 3,
-}
+// Layout vertical (calculado top-down):
+const MARQUEE_TOP_Y    = PANEL_Y + 60          // sprite con origin (0.5, 1) ocupa 12-60 desde el top del panel
 
-const ENTRY_LINE = {
-  fontFamily:      '"Jersey 10", cursive',
-  fontSize:        '24px',
-  color:           '#f0d99a',
-  stroke:          '#000000',
-  strokeThickness: 2,
-  lineSpacing:     2,
-}
+// Banner "LUISAO_DEV" — texto Phaser en amarillo dorado para mantener
+// la paleta del resto del juego.
+const BANNER_TEXT      = 'LUISAO_DEV'
+const BANNER_HEIGHT    = 56
+const BANNER_GAP_TOP   = 28
+const BANNER_Y         = MARQUEE_TOP_Y + BANNER_GAP_TOP + BANNER_HEIGHT / 2  // centro vertical
 
-const ENTRY_MUTED = {
-  ...ENTRY_LINE,
-  color: '#c0b89a',
-}
+// Cara del desarrollador: retrato 35×35 del narrador del tutorial,
+// con frames 0 (base) y 3 (ojos cerrados) para el blink.
+const FACE_TEXTURE_KEY = 'narrator-tutorial'
+const FACE_FRAME_BASE  = 0
+const FACE_FRAME_BLINK = 3
+const FACE_SCALE       = 6
+const FACE_HEIGHT      = 35 * FACE_SCALE                                  // 210
+const FACE_GAP_TOP     = 14
+const FACE_CENTER_Y    = BANNER_Y + BANNER_HEIGHT / 2 + FACE_GAP_TOP + FACE_HEIGHT / 2
 
-const ENTRY_WARNING = {
-  ...ENTRY_LINE,
-  color: '#ff9b6b',
-}
+// Texto motivacional: debajo de la cara, mayor tamaño para legibilidad en móvil.
+const MESSAGE_TOP_Y    = FACE_CENTER_Y + FACE_HEIGHT / 2 + 12
+const MESSAGE_FONT     = '30px'
+const MESSAGE_LINE_GAP = 0
+
+const MARQUEE_BOTTOM_Y = PANEL_Y + PANEL_H - 70
+
+const MESSAGE_LINES = [
+  'Juego desarrollado con todo el amor y respeto',
+  'que le tengo a mi ciudad y a sus tradiciones.',
+  'Todos los personajes han sido tratados',
+  'con mucho cariño y arte. Espero haberlo expresado así.',
+]
 
 export class CreditsScene extends BaseScene {
 
@@ -49,15 +61,46 @@ export class CreditsScene extends BaseScene {
     super(SCENES.CREDITS)
   }
 
+  // Pre-calcular qué skins necesitamos para que preload() sepa qué cargar.
+  init() {
+    super.init()
+    this._skinKeys = this._collectUnlockedSkinKeys()
+  }
+
+  // Cargar spritesheets de skins que aún no estén en cache (PreloadScene solo
+  // carga los del easter_egg; los del resto se cargan bajo demanda).
+  preload() {
+    this.load.setPath('assets')
+    this._skinKeys.forEach((skinKey) => {
+      if (this.textures.exists(skinKey)) return
+      const name = skinKey.replace('sprite-', '')
+      this.load.spritesheet(skinKey, `sprites/characters/spritesheet/${name}.png`, {
+        frameWidth:  SPRITE_CONFIG.frameWidth,
+        frameHeight: SPRITE_CONFIG.frameHeight,
+      })
+      this.load.once(`filecomplete-spritesheet-${skinKey}`, () => {
+        const tex = this.textures.get(skinKey)
+        if (tex) tex.setFilter(Phaser.Textures.FilterMode.NEAREST)
+      })
+    })
+
+  }
+
   create() {
     this.drawBackground()
     this.drawHeader()
     this.drawPanel()
-    this.drawColumns()
+    this.drawMarquees()
+    this.drawBanner()
+    this.drawDeveloperFace()
+    this.drawMessage()
     this.drawFooter()
     this.drawBackButton()
+    this.drawDetailsButton()
     this.setupInput()
   }
+
+  // ── Fondo ────────────────────────────────────────────────
 
   drawBackground() {
     if (this.textures.exists('bg-menu') &&
@@ -70,12 +113,14 @@ export class CreditsScene extends BaseScene {
         .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
     this.add.graphics()
-      .fillStyle(0x000000, 0.55)
+      .fillStyle(0x000000, 0.30)
       .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
+  // ── Cabecera ─────────────────────────────────────────────
+
   drawHeader() {
-    this.add.text(GAME_WIDTH / 2, 32, 'La Cucaña Trianera', {
+    this.add.text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', {
       fontFamily:      '"Jersey 10", cursive',
       fontSize:        '40px',
       color:           '#ff6b35',
@@ -83,7 +128,7 @@ export class CreditsScene extends BaseScene {
       strokeThickness: 5,
     }).setOrigin(0.5, 0).setDepth(3)
 
-    this.add.text(GAME_WIDTH / 2, 70, 'CRÉDITOS', {
+    this.add.text(GAME_WIDTH / 2, 72, 'CRÉDITOS', {
       fontFamily:      '"Press Start 2P", monospace',
       fontSize:        '18px',
       color:           '#ffd700',
@@ -93,13 +138,15 @@ export class CreditsScene extends BaseScene {
     }).setOrigin(0.5, 0).setDepth(3)
   }
 
+  // ── Panel con marco "Cartelón de Feria" ──────────────────
+
   drawPanel() {
     const g = this.add.graphics().setDepth(1)
 
     g.fillStyle(PANEL_DIM, 0.5)
     g.fillRect(PANEL_X + 4, PANEL_Y + 4, PANEL_W, PANEL_H)
 
-    g.fillStyle(PANEL_BG, 0.82)
+    g.fillStyle(PANEL_BG, 0.25)
     g.fillRect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
 
     g.lineStyle(3, AMBER, 1)
@@ -122,80 +169,130 @@ export class CreditsScene extends BaseScene {
     })
   }
 
-  drawColumns() {
-    this.drawLeftColumn()
-    this.drawRightColumn()
+  // ── Marquees superior e inferior ─────────────────────────
+
+  drawMarquees() {
+    const skinKeys = (this._skinKeys || []).filter(k => this.textures.exists(k))
+    if (skinKeys.length === 0) return
+
+    // Mask del panel: los sprites se siguen moviendo por toda la pantalla,
+    // pero solo se renderizan dentro del marco oscuro → "aparecen" en un
+    // borde del panel y "desaparecen" en el otro, sin asomar por fuera.
+    const maskShape = this.make.graphics({ x: 0, y: 0, add: false })
+    maskShape.fillStyle(0xffffff)
+    maskShape.fillRect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
+    const panelMask = maskShape.createGeometryMask()
+
+    this._topMarquee = createSkinMarquee(this, {
+      y:         MARQUEE_TOP_Y,
+      direction: 1,                 // izquierda → derecha
+      speed:     32,
+      skinKeys,
+      scale:     MARQUEE_SCALE,
+      depth:     MARQUEE_DEPTH,
+      mask:      panelMask,
+    })
+
+    this._bottomMarquee = createSkinMarquee(this, {
+      y:         MARQUEE_BOTTOM_Y,
+      direction: -1,                // derecha → izquierda
+      speed:     30,
+      skinKeys,
+      scale:     MARQUEE_SCALE,
+      depth:     MARQUEE_DEPTH,
+      mask:      panelMask,
+    })
   }
 
-  drawLeftColumn() {
-    let y = PANEL_Y + 28
-
-    y = this._section(COL_LEFT_X, y, 'AUTOR')
-    y = this._entry(COL_LEFT_X, y, 'Luisao')
-    y = this._muted(COL_LEFT_X, y, 'Diseño, código, arte y dirección')
-    y += 18
-
-    y = this._section(COL_LEFT_X, y, 'MOTOR Y LIBRERÍAS')
-    y = this._entry(COL_LEFT_X, y, 'Phaser 3   ·   MIT')
-    y = this._entry(COL_LEFT_X, y, 'Vite   ·   MIT')
-    y = this._entry(COL_LEFT_X, y, 'Capacitor   ·   MIT')
-    y = this._entry(COL_LEFT_X, y, 'Sentry SDK   ·   MIT')
-    y += 18
-
-    y = this._section(COL_LEFT_X, y, 'TIPOGRAFÍAS (SIL OFL 1.1)')
-    y = this._entry(COL_LEFT_X, y, 'Jersey 10')
-    y = this._muted(COL_LEFT_X, y, 'Sarah Cadigan-Fried')
-    y = this._entry(COL_LEFT_X, y, 'Press Start 2P')
-    y = this._muted(COL_LEFT_X, y, 'Codeman38 (Cody Boisclair)')
+  // Recolecta los texture keys de los skins desbloqueados de cada
+  // personaje también desbloqueado, excluyendo personajes ocultos
+  // (el easter_egg se excluye porque su skin "developer" se usa como
+  //  cara central; mostrarlo en los marquees rompería el sentido).
+  //
+  // Importante: aquí NO filtramos por textures.exists() porque init()
+  // se ejecuta antes que preload(); preload() es el que carga los que
+  // faltan. El filtrado por existencia se hace al construir el marquee.
+  _collectUnlockedSkinKeys() {
+    const keys = new Set()
+    for (const char of CHARACTERS) {
+      if (char.hidden) continue
+      if (!unlockService.isUnlocked(char.id)) continue
+      const unlocked = skinService.getUnlockedSkins(char)
+      for (const spritesheet of unlocked) {
+        keys.add(`sprite-${spritesheet}`)
+      }
+    }
+    return Array.from(keys)
   }
 
-  drawRightColumn() {
-    let y = PANEL_Y + 28
+  // ── Banner "LUISAO_DEV" encima de la cara (texto neón) ───
 
-    y = this._section(COL_RIGHT_X, y, 'EFECTOS DE SONIDO')
-    y = this._entry(COL_RIGHT_X, y, 'Creados con jsfxr  (CC0)')
-    y = this._muted(COL_RIGHT_X, y, 'Composición original — Luisao')
-    y += 18
-
-    y = this._section(COL_RIGHT_X, y, 'MÚSICA DEL MENÚ')
-    y = this._entry(COL_RIGHT_X, y, 'Adaptación BeepBox de sevillana')
-    y = this._muted(COL_RIGHT_X, y, 'popular interpretada por')
-    y = this._muted(COL_RIGHT_X, y, 'Cantores de Híspalis.')
-    y = this._warning(COL_RIGHT_X, y, '⚠ Uso pendiente de autorización')
-    y = this._warning(COL_RIGHT_X, y, '   de los titulares.')
-    y += 18
-
-    y = this._section(COL_RIGHT_X, y, 'ARTE Y SPRITES')
-    y = this._entry(COL_RIGHT_X, y, 'Pixel art original — Luisao')
-    y += 18
-
-    y = this._section(COL_RIGHT_X, y, 'INSPIRACIÓN')
-    y = this._entry(COL_RIGHT_X, y, 'La Velá de Santa Ana,')
-    y = this._entry(COL_RIGHT_X, y, 'Triana — Sevilla')
+  drawBanner() {
+    this.add.text(GAME_WIDTH / 2, BANNER_Y, BANNER_TEXT, {
+      fontFamily:      '"Press Start 2P", monospace',
+      fontSize:        '38px',
+      color:           '#ffd700',
+      stroke:          '#1a0a00',
+      strokeThickness: 5,
+      letterSpacing:   4,
+      shadow: {
+        offsetX: 3,
+        offsetY: 3,
+        color:   '#000000',
+        blur:    0,
+        fill:    true,
+      },
+    }).setOrigin(0.5, 0.5).setDepth(3)
   }
 
-  _section(x, y, label) {
-    this.add.text(x, y, label, SECTION_HEADER).setDepth(3)
-    return y + 26
+  // ── Cara del desarrollador (retrato narrador-tutorial) ──
+
+  drawDeveloperFace() {
+    const cx = GAME_WIDTH / 2
+    const cy = FACE_CENTER_Y
+
+    if (!this.textures.exists(FACE_TEXTURE_KEY)) return
+
+    const face = this.add.sprite(cx, cy, FACE_TEXTURE_KEY, FACE_FRAME_BASE)
+      .setOrigin(0.5, 0.5)
+      .setScale(FACE_SCALE)
+      .setDepth(3)
+
+    // Parpadeo cada ~3,2 s: frame 3 (ojos cerrados) durante 140 ms.
+    this.time.addEvent({
+      delay:    3200,
+      loop:     true,
+      callback: () => {
+        face.setFrame(FACE_FRAME_BLINK)
+        this.time.delayedCall(140, () => face.setFrame(FACE_FRAME_BASE))
+      },
+    })
   }
 
-  _entry(x, y, label) {
-    this.add.text(x, y, label, ENTRY_LINE).setDepth(3)
-    return y + 24
+  // ── Texto motivacional ───────────────────────────────────
+
+  drawMessage() {
+    const cx = GAME_WIDTH / 2
+
+    const style = {
+      fontFamily:      '"Jersey 10", cursive',
+      fontSize:        MESSAGE_FONT,
+      color:           '#ffd647',
+      stroke:          '#000000',
+      strokeThickness: 3,
+      align:           'center',
+    }
+
+    this.add.text(cx, MESSAGE_TOP_Y, MESSAGE_LINES.join('\n'), {
+      ...style,
+      lineSpacing: MESSAGE_LINE_GAP,
+    }).setOrigin(0.5, 0).setDepth(3)
   }
 
-  _muted(x, y, label) {
-    this.add.text(x, y, label, ENTRY_MUTED).setDepth(3)
-    return y + 22
-  }
-
-  _warning(x, y, label) {
-    this.add.text(x, y, label, ENTRY_WARNING).setDepth(3)
-    return y + 22
-  }
+  // ── Footer con copyright y URL portfolio ─────────────────
 
   drawFooter() {
-    const footerY = PANEL_Y + PANEL_H - 38
+    const footerY = PANEL_Y + PANEL_H - 56
 
     this.add.text(GAME_WIDTH / 2, footerY, `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`, {
       fontFamily:      '"Press Start 2P", monospace',
@@ -205,14 +302,23 @@ export class CreditsScene extends BaseScene {
       strokeThickness: 3,
     }).setOrigin(0.5, 0).setDepth(3)
 
-    this.add.text(GAME_WIDTH / 2, footerY + 18, 'luisaodeben@gmail.com', {
+    const url = this.add.text(GAME_WIDTH / 2, footerY + 24, 'https://luisao82.vercel.app', {
       fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '20px',
-      color:           '#c0b89a',
+      fontSize:        '22px',
+      color:           '#ffd647',
       stroke:          '#000000',
       strokeThickness: 2,
-    }).setOrigin(0.5, 0).setDepth(3)
+    }).setOrigin(0.5, 0).setDepth(3).setInteractive({ useHandCursor: true })
+
+    url.on('pointerover', () => url.setColor('#ffffff'))
+    url.on('pointerout',  () => url.setColor('#ffd647'))
+    url.on('pointerup',   () => {
+      this.sound.play('sfx-click', { volume: 0.6 })
+      window.open('https://luisao82.vercel.app/', '_blank', 'noopener')
+    })
   }
+
+  // ── Botones ──────────────────────────────────────────────
 
   drawBackButton() {
     makeNavButton(
@@ -223,7 +329,26 @@ export class CreditsScene extends BaseScene {
     )
   }
 
+  drawDetailsButton() {
+    const btnW = 240
+    const btnH = 58
+    const btnX = GAME_WIDTH - btnW - 12
+    const btnY = 12
+
+    makeNavButton(
+      this, btnX, btnY, btnW, btnH,
+      'FICHA TÉCNICA',
+      () => this.scene.start(SCENES.LICENSES),
+      { depth: 5, fontSize: '22px' },
+    )
+  }
+
   setupInput() {
     this.input.keyboard.once('keydown-ESC', () => this.scene.start(SCENES.MENU))
+  }
+
+  _onShutdown() {
+    this._topMarquee?.destroy()
+    this._bottomMarquee?.destroy()
   }
 }

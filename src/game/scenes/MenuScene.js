@@ -1,6 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
+import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
 import { version } from '../../../package.json'
 
@@ -21,7 +22,6 @@ export class MenuScene extends BaseScene {
     this.animateTitle()
     this._startMusic()
     this._buildMuteButton()
-    this._buildCreditsButton()
 
     // Parar música al salir del menú (a cualquier escena)
     this.events.once('shutdown', () => {
@@ -41,48 +41,25 @@ export class MenuScene extends BaseScene {
     if (!musicService.isMuted) this._music.play()
   }
 
-  _buildCreditsButton() {
-    // Símbolo © en la esquina superior izquierda — simétrico al ♪ del mute
-    this._creditsBtn = this.add.text(16, 14, '©', {
-      fontFamily:      'monospace',
-      fontSize:        '38px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0, 0).setDepth(10).setInteractive({ useHandCursor: true })
-
-    this._creditsBtn.on('pointerover', () => this._creditsBtn.setScale(1.18))
-    this._creditsBtn.on('pointerout',  () => this._creditsBtn.setScale(1))
-    this._creditsBtn.on('pointerup',   () => {
-      this.sound.play('sfx-click', { volume: 0.6 })
-      this.scene.start(SCENES.CREDITS)
-    })
-  }
-
   _buildMuteButton() {
-    // Nota musical grande sin caja — esquina superior derecha
-    this._muteBtn = this.add.text(GAME_WIDTH - 16, 14, '♪', {
-      fontFamily:      'monospace',
-      fontSize:        '42px',
-      color:           musicService.isMuted ? '#555555' : '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 3,
-    }).setOrigin(1, 0).setDepth(10).setInteractive({ useHandCursor: true })
-
-    this._muteBtn.on('pointerover', () => {
-      this._muteBtn.setScale(1.18)
-    })
-    this._muteBtn.on('pointerout', () => {
-      this._muteBtn.setScale(1)
-    })
-    this._muteBtn.on('pointerup', () => {
-      const muted = musicService.toggleMute()
-      this._muteBtn.setColor(muted ? '#555555' : '#ffd700')
-      if (this._music) {
-        this._music.setVolume(muted ? 0 : 0.4)
-        if (!muted && !this._music.isPlaying) this._music.play()
-      }
-    })
+    // ♪ en la esquina superior derecha — cartelón cuadrado pixel art
+    const SIZE = 72
+    const x = GAME_WIDTH - 14 - SIZE
+    this._muteBtn = makeIconButton(
+      this, x, 14, SIZE, '♪',
+      () => {
+        const muted = musicService.toggleMute()
+        this._muteBtn.setIconColor(muted ? '#555555' : '#1a0800')
+        if (this._music) {
+          this._music.setVolume(muted ? 0 : 0.4)
+          if (!muted && !this._music.isPlaying) this._music.play()
+        }
+      },
+      {
+        depth: 10,
+        color: musicService.isMuted ? '#555555' : '#1a0800',
+      },
+    )
   }
 
   drawBackground() {
@@ -217,10 +194,8 @@ export class MenuScene extends BaseScene {
       },
     })
 
-    // Botones HISTORIA (izquierda), ESTADÍSTICAS (centro) y TUTORIAL (derecha)
-    this.drawHistoriaButton()
-    this.drawStatsButton()
-    this.drawTutorialButton()
+    // 4 botones inferiores equidistantes: HISTORIA · RÉCORDS · TUTORIAL · INFO
+    this.drawBottomButtons()
 
     // Versión — se actualiza automáticamente desde package.json
     this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 22, `v${version}`, {
@@ -232,44 +207,41 @@ export class MenuScene extends BaseScene {
     }).setOrigin(0.5).setDepth(2)
   }
 
-  drawHistoriaButton() {
-    const btnW = 210
+  // ── 4 botones inferiores en rejilla equidistante ──────────────
+
+  drawBottomButtons() {
+    const btnW = 230
     const btnH = 58
-    const btnX = 16
     const btnY = GAME_HEIGHT - 104
+    const margin = 16
+    const gap   = Math.round((GAME_WIDTH - 2 * margin - 4 * btnW) / 3)
+    const x = (i) => margin + i * (btnW + gap)
 
     this.historiaBounds = makeNavButton(
-      this, btnX, btnY, btnW, btnH,
+      this, x(0), btnY, btnW, btnH,
       'HISTORIA',
       () => this.scene.start(SCENES.HISTORY),
       { depth: 2, fontSize: '34px' },
     )
-  }
-
-  drawStatsButton() {
-    const btnW = 210
-    const btnH = 58
-    const btnX = GAME_WIDTH / 2 - btnW / 2
-    const btnY = GAME_HEIGHT - 104
 
     this.statsBounds = makeNavButton(
-      this, btnX, btnY, btnW, btnH,
+      this, x(1), btnY, btnW, btnH,
       'RÉCORDS',
       () => this.scene.start(SCENES.STATS),
-      { depth: 2, fontSize: '28px' },
+      { depth: 2, fontSize: '30px' },
     )
-  }
-
-  drawTutorialButton() {
-    const btnW = 210
-    const btnH = 58
-    const btnX = GAME_WIDTH - 16 - btnW
-    const btnY = GAME_HEIGHT - 104
 
     this.tutorialBounds = makeNavButton(
-      this, btnX, btnY, btnW, btnH,
+      this, x(2), btnY, btnW, btnH,
       'TUTORIAL',
       () => this.scene.start(SCENES.TUTORIAL),
+      { depth: 2, fontSize: '34px' },
+    )
+
+    this.infoBounds = makeNavButton(
+      this, x(3), btnY, btnW, btnH,
+      'INFO',
+      () => this.scene.start(SCENES.CREDITS),
       { depth: 2, fontSize: '34px' },
     )
   }
@@ -289,13 +261,13 @@ export class MenuScene extends BaseScene {
 
     // Phaser pasa como segundo argumento el array de objetos interactivos bajo el puntero.
     // Si el puntero está sobre el botón de mute, ignoramos la navegación por fondo.
-    this.input.on('pointerdown', (pointer, currentlyOver) => {
-      const hitMuteBtn    = currentlyOver?.some(obj => obj === this._muteBtn)
-      const hitCreditsBtn = currentlyOver?.some(obj => obj === this._creditsBtn)
-      const inHistoria = this.historiaBounds && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
-      const inStats    = this.statsBounds    && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
-      const inTutorial = this.tutorialBounds && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
-      if (!hitMuteBtn && !hitCreditsBtn && !inHistoria && !inStats && !inTutorial) {
+    this.input.on('pointerdown', (pointer) => {
+      const inMute     = this._muteBtn?.bounds && Phaser.Geom.Rectangle.Contains(this._muteBtn.bounds, pointer.x, pointer.y)
+      const inHistoria = this.historiaBounds   && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
+      const inStats    = this.statsBounds      && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
+      const inTutorial = this.tutorialBounds   && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
+      const inInfo     = this.infoBounds       && Phaser.Geom.Rectangle.Contains(this.infoBounds,     pointer.x, pointer.y)
+      if (!inMute && !inHistoria && !inStats && !inTutorial && !inInfo) {
         this.scene.start(SCENES.VIEW_SELECT)
       }
     })

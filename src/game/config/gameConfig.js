@@ -45,6 +45,7 @@ export const SCENES = {
   STATS:      'StatsScene',
   MAP:        'MapScene',
   CREDITS:    'CreditsScene',
+  LICENSES:   'LicensesScene',
 }
 
 // Configuración de texto pixel art (temporal hasta tener bitmap fonts)

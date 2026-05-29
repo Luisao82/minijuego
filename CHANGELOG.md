@@ -7,7 +7,60 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-05-28
+
 ### Added
+
+- **Pantalla de créditos del desarrollador (`CreditsScene` rediseñada):**
+  - Retrato animado del desarrollador (`narrator-tutorial` con parpadeo cada ~3,2 s).
+  - Banner "LUISAO_DEV" en amarillo dorado con sombra pixel art.
+  - Dos marquees infinitos de skins desbloqueados moviéndose en sentidos opuestos (arriba ←→ derecha, abajo ←→ izquierda) con **geometry mask** del panel: los sprites aparecen y desaparecen exactamente en los bordes del marco oscuro.
+  - Texto motivacional centrado, copyright y URL clicable al portfolio (`https://luisao82.vercel.app`).
+  - Botón `FICHA TÉCNICA` que lleva a las licencias técnicas.
+  - Panel con baja opacidad (0.25) para que el puente del fondo se vea claramente.
+- **`SkinMarquee`** — componente reutilizable (`src/game/components/SkinMarquee.js`): fila infinita de skins con animación STAND ↔ WALK por sprite con jitter para evitar sincronización, mezcla aleatoria evitando repeticiones inmediatas, flip horizontal según dirección, soporte opcional de mask y depth.
+- **`IconButton`** — componente reutilizable (`src/game/components/IconButton.js`): botón cuadrado pixel art estilo cartelón de feria con icono central. Mismo lenguaje visual que `NavButton` pero cuadrado. API: `{ bounds, text, redraw, setIconColor }`.
+- **`LicensesScene`** — pantalla técnica accesible desde la nueva `CreditsScene`. Contiene los créditos técnicos en dos columnas (motor, librerías, fuentes OFL, audio jsfxr, advertencia de música pendiente).
+- **Cuarto botón "INFO"** en la fila inferior del menú (HISTORIA · RÉCORDS · TUTORIAL · INFO), todos en rejilla equidistante de 230 px de ancho.
+
+### Changed
+
+- **`MenuScene`** — los 3 botones inferiores pasan a 4 botones equidistantes (rejilla calculada dinámicamente). Ancho 210 → 230 px, gap entre botones calculado para repartir el espacio sobrante. Botón cuadrado "©" de la esquina superior izquierda eliminado: la entrada a créditos ahora vive en el botón `INFO`.
+- **Service worker `public/sw.js`** — bumpeado de `cucana-v7` a `cucana-v20` durante el ciclo iterativo del rediseño (cache-first invalidaba constantemente).
+- **`gameConfig.SCENES`** — añadida `LICENSES: 'LicensesScene'`. La clave `CREDITS` ahora apunta a la pantalla con la cara, no a las licencias técnicas.
+- **`game/main.js`** — registrada `LicensesScene` junto a `CreditsScene`.
+
+### Bloque Legal (1.0.x → 1.1.0)
+
+Mantiene todo lo aterrizado en el ciclo anterior: política de privacidad
+(`PRIVACY.md` + `public/privacy.html`), créditos canónicos en `CREDITS.md`,
+plantilla de email para Cantores de Híspalis en `docs/email-cantores-hispalis.md`,
+licencia propietaria en `LICENSE` y `package.json` limpio de referencias al
+template de Phaser.
+
+⚠️ **Bloqueante de publicación** sigue vigente: la música del menú (sevillana
+de Cantores de Híspalis adaptada a BeepBox) requiere autorización antes de
+poder publicarse en App Store / Google Play.
+
+## [1.0.0] — 2026-05-28
+
+Primera versión cerrada del juego. Incluye el bloque legal completo,
+los assets de tiendas (iconos, capturas, feature graphic) y la primera
+iteración del bloque de créditos (pantalla técnica + acceso desde el menú).
+
+### Added
+
+- **Bloque de créditos primera iteración (luego rediseñado en 1.1.0):**
+  - **`CreditsScene` (nueva)** — pantalla principal de créditos accesible desde el menú. Muestra el sprite `developer` escalado como retrato central del desarrollador, dos marquees animados de skins desbloqueados (superior derecha→izquierda, inferior izquierda→derecha) que solo usan los frames STAND y WALK para simular caminata, un texto motivacional sobre el respeto a Triana, copyright y enlace clicable al portfolio del autor (`https://luisao82.vercel.app`). Botones `MENÚ` (vuelve al inicio) y `FICHA TÉCNICA` (lleva a las licencias).
+  - **`SkinMarquee`** — componente reutilizable (`src/game/components/SkinMarquee.js`) que dibuja una fila infinita de skins desplazándose lateralmente. Configurable: `y`, `direction`, `speed`, `skinKeys`, `scale`. Cada sprite alterna STAND ↔ WALK con jitter para evitar sincronía robótica. Los sprites que salen por un extremo reaparecen por el opuesto con un skin aleatorio (evitando repeticiones inmediatas cuando hay variedad). Solo se mezclan skins de personajes desbloqueados (excluye `easter_egg` para no chafar la sorpresa).
+  - **`LicensesScene`** — antigua `CreditsScene` renombrada y movida a pantalla secundaria. Mantiene el contenido técnico (motor, librerías, tipografías OFL, audio, advertencia de música) en el cartelón de dos columnas. Accesible solo desde la nueva `CreditsScene` mediante el botón `FICHA TÉCNICA`.
+
+### Changed
+
+- **Retoques visuales en la `LicensesScene` (ex `CreditsScene`):** título `CRÉDITOS` sustituido por `FICHA TÉCNICA`; subtítulo separado del panel oscuro (PANEL_Y subido de 92 a 112); footer con copyright y URL portfolio separados del borde inferior del panel (footerY a -64 con +26 de separación entre líneas). El email personal `luisaodeben@gmail.com` se sustituye por la URL `https://luisao82.vercel.app` (visible y clicable en la nueva `CreditsScene`).
+- **Navegación dentro del bloque de créditos:** el botón `MENÚ` de la antigua escena pasa a `VOLVER` y devuelve a `CreditsScene` (la nueva). ESC también vuelve a la pantalla principal de créditos.
+- **`gameConfig.SCENES`** — añadida la clave `LICENSES: 'LicensesScene'` (la antigua `CREDITS` ahora apunta a la pantalla con la cara, no a las licencias).
+- **`game/main.js`** — registrada la `LicensesScene` junto a la `CreditsScene`.
 
 - **Bloque Legal completo:**
   - `PRIVACY.md` y `public/privacy.html` — política de privacidad en español lista para alojarse en Vercel (URL pública estable). Cubre: ausencia de datos personales, almacenamiento local, servicios de terceros (Sentry, Google Fonts, Vercel), Web Share API, RGPD/LOPDGDD, derechos del usuario y contacto.
