@@ -1,0 +1,25 @@
+# Dependencias y artefactos de build
+node_modules
+dist
+
+# Plataformas nativas (gestionadas por Capacitor/Xcode/Android Studio)
+ios
+android
+
+# Assets binarios y de juego (no son código a formatear)
+public/assets
+public/favicon.png
+
+# Service worker y registro — los versionamos a mano con cuidado
+public/sw.js
+public/register-sw.js
+
+# Lockfile generado por npm
+package-lock.json
+
+# Cachés
+.vite
+.cache
+
+# Sistema
+.DS_Store
