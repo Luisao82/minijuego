@@ -44,7 +44,7 @@ export class OilSystem {
   // Resetear al 100% (cuando se coge la bandera)
   reset() {
     this.zones.fill(100)
-    try { sessionStorage.removeItem('cucana_oil') } catch(e) {}
+    try { sessionStorage.removeItem('cucana_oil') } catch(_) {}
   }
 
   _zoneIndex(progressRatio) {
@@ -52,13 +52,13 @@ export class OilSystem {
   }
 
   _save() {
-    try { sessionStorage.setItem('cucana_oil', JSON.stringify(this.zones)) } catch(e) {}
+    try { sessionStorage.setItem('cucana_oil', JSON.stringify(this.zones)) } catch(_) {}
   }
 
   _load() {
     try {
       const raw = sessionStorage.getItem('cucana_oil')
       if (raw) this.zones = JSON.parse(raw)
-    } catch(e) {}
+    } catch(_) {}
   }
 }

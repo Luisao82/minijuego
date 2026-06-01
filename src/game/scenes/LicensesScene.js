@@ -128,6 +128,7 @@ export class LicensesScene extends BaseScene {
   }
 
   drawLeftColumn() {
+    
     let y = PANEL_Y + 28
 
     y = this._section(COL_LEFT_X, y, 'AUTOR')
@@ -146,7 +147,8 @@ export class LicensesScene extends BaseScene {
     y = this._entry(COL_LEFT_X, y, 'Jersey 10')
     y = this._muted(COL_LEFT_X, y, 'Sarah Cadigan-Fried')
     y = this._entry(COL_LEFT_X, y, 'Press Start 2P')
-    y = this._muted(COL_LEFT_X, y, 'Codeman38 (Cody Boisclair)')
+    this._muted(COL_LEFT_X, y, 'Codeman38 (Cody Boisclair)')
+    
   }
 
   drawRightColumn() {
@@ -171,7 +173,7 @@ export class LicensesScene extends BaseScene {
 
     y = this._section(COL_RIGHT_X, y, 'INSPIRACIÓN')
     y = this._entry(COL_RIGHT_X, y, 'La Velá de Santa Ana,')
-    y = this._entry(COL_RIGHT_X, y, 'Triana — Sevilla')
+    this._entry(COL_RIGHT_X, y, 'Triana — Sevilla')
   }
 
   _section(x, y, label) {

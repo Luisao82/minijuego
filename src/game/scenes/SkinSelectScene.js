@@ -1,5 +1,5 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { makeNavButton } from '../components/NavButton'
