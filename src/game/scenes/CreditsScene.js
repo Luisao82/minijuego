@@ -49,10 +49,10 @@ const MESSAGE_LINE_GAP = 0
 const MARQUEE_BOTTOM_Y = PANEL_Y + PANEL_H - 70
 
 const MESSAGE_LINES = [
-  'Juego desarrollado con todo el amor y respeto',
+  'Juego desarrollado con todo mi amor y pasión',
   'que le tengo a mi ciudad y a sus tradiciones.',
   'Todos los personajes han sido tratados',
-  'con mucho cariño y arte. Espero haberlo expresado así.',
+  'con todo respeto y cariño. Espero haberlo expresado así.',
 ]
 
 export class CreditsScene extends BaseScene {
