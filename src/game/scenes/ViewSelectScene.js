@@ -1,5 +1,5 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'

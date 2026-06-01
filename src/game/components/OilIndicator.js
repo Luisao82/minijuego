@@ -145,7 +145,7 @@ function _drawFill(g, ox, oy, percentage) {
   const fillColor = 0xd4a017   // amarillo aceite, siempre igual
 
   // Rellena de abajo (FILL_END) hacia arriba (FILL_START) según el nivel
-  for (let i = 0; i < filledRows; i++) {
+  for (let i = FILL_START; i < filledRows; i++) {
     const row      = FILL_END - i
     const [col, w] = SHAPE[row]
 

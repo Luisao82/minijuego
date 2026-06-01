@@ -1,4 +1,4 @@
-// Panel de debug del equilibrio — solo visible cuando DEBUG.BALANCE_PANEL = true
+// Panel de debug del equilibrio — solo visible cuando DEBUG.BALANCE_PANEL = true en el archivo de configuración gameConfig.js
 // Muestra en tiempo real todos los parámetros y fuerzas que afectan a la velocidad.
 // Se instancia y destruye junto con la fase de equilibrio en GameScene.
 
@@ -16,13 +16,15 @@ const VEL_SCALE = BALANCE.INPUT_FORCE / BALANCE.DAMPING
 
 const COL_VALUE  = '#ffffff'
 const COL_ACCENT = '#00ffcc'
+// Colores para la ventana de debug, barras y texto (ajustados para buen contraste y legibilidad) — se pueden personalizar
+/*
 const COL_DRIFT  = '#ff8844'
 const COL_INPUT  = '#44aaff'
 const COL_DAMP   = '#aa88ff'
 const COL_NET    = '#ffff44'
 const COL_WARN   = '#ffaa00'
 const COL_DANGER = '#ff4444'
-
+*/
 export class BalanceDebugPanel {
 
   constructor(scene) {
@@ -72,7 +74,7 @@ export class BalanceDebugPanel {
     this.bg.strokeRect(X + 2, Y + 2, W - 4, H - 4)
   }
 
-  _drawBars(bar, system, inputDir) {
+  _drawBars(bar) {
     const bW  = W - PAD * 2
     const bH  = 12
     const bX  = X + PAD

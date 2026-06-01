@@ -1,11 +1,11 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
 import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
 import { version } from '../../../package.json'
 
-const AMBER = 0xd4a520
+const _AMBER = 0xd4a520
 
 const CENTER_X = GAME_WIDTH / 2
 const TITLE_Y = GAME_HEIGHT / 2 - 40
