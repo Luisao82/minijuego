@@ -56,10 +56,15 @@
 - Cero tests. Ni framework de test configurado.
 - **Fix:** Añadir Vitest. Empezar por services (`GameStatsService`, `UnlockService`, `SkinService`) y systems (`BalanceSystem`, `ImpulseSystem`).
 
-### [ ] 8. Sin linting ni formatting
+### [x] 8. Sin linting ni formatting ✅ _completado 2026-05-31_
 
-- No hay ESLint ni Prettier configurados. El estilo es consistente pero no se aplica automáticamente.
-- **Fix:** Añadir ESLint + Prettier + script en `package.json`.
+- ~~No hay ESLint ni Prettier configurados. El estilo es consistente pero no se aplica automáticamente.~~
+- **Implementado** (branch `audit/finalize-pending`):
+  - **ESLint 10 flat config** (`eslint.config.js`) en capas — `@eslint/js` recomendado + reglas del CLAUDE.md (`no-var`, `prefer-const`, `eqeqeq` como errores; `no-unused-vars` con `^_` para args/vars/caughtErrors; `no-console` permitiendo warn/error; `no-empty` con `allowEmptyCatch`). Globals por zona: `src/` browser + Phaser, `vite/`/`scripts/`/`*.config.*` Node. `eslint-config-prettier` como capa final desactiva las reglas de formato.
+  - **Prettier 3** (`.prettierrc.json` + `.prettierignore`) — sin punto y coma, comillas simples, 100 chars, 2 espacios, trailing comma `es5`, LF.
+  - **Limpieza completa de warnings:** 31 problemas reportados inicialmente → 0 errores / 0 warnings. Renombrados `catch (e)` no usados a `(_)`, eliminados imports no usados (`COLORS`, `GAME_HEIGHT`), constantes huérfanas (`AMBER`, `FILL_START`, 6 constantes COL_* de debug) y asignaciones muertas a `y` en `LicensesScene`.
+  - **Reformat masivo** aplicado en commit aislado (`style: apply Prettier formatting to entire codebase`) sobre los 79 archivos bajo dominio de Prettier.
+  - **Pendiente para mayor calidad de vida del equipo** (no bloqueante): `.vscode/extensions.json` + `.vscode/settings.json` con `formatOnSave`, Husky + lint-staged como pre-commit hook, y steps de `lint`/`format:check` en CI cuando exista (depende del #6).
 
 ---
 
