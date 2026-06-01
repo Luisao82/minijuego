@@ -5,9 +5,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/store/icons/favicon/favicon-16.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Press+Start+2P&display=block" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
     <title>La Cucaña Trianera</title>
 
@@ -48,15 +45,13 @@
 
 <body>
     <div id="app">
-        <div id="game-container"></div>
+        <div
+            id="game-container"
+            role="application"
+            aria-label="La Cucaña Trianera — minijuego pixel art. Usa los controles táctiles o el teclado para jugar."
+        ></div>
     </div>
     <script type="module" src="src/main.js"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-        })
-      }
-    </script>
+    <script src="/register-sw.js"></script>
 </body>
 </html>

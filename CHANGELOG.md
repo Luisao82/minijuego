@@ -7,6 +7,22 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Accesibilidad — `prefers-reduced-motion`:**
+  - Helper `src/game/utils/accessibility.js` con `prefersReducedMotion()`.
+  - Getter `this.prefersReducedMotion` en `BaseScene`.
+  - Aplicado a `SkinMarquee` (marquees infinitos de `CreditsScene`): cuando el usuario tiene activado "Reducir movimiento" en su SO, los sprites no se desplazan ni alternan STAND/WALK — quedan estáticos en pose STAND.
+- **ARIA en el canvas:** `role="application"` y `aria-label` descriptivo en `#game-container` para lectores de pantalla.
+- **Cabeceras de seguridad HTTP (`vercel.json`):** Content-Security-Policy estricta (`default-src 'self'`, sin `'unsafe-inline'` en scripts), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security` con preload, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denegando cámara/micro/geo/pago/USB/FLoC. Cabeceras específicas para `/sw.js` (no-cache) y `/assets/fonts/*` (immutable, 1 año).
+- **Fuentes self-hosted (`public/assets/fonts/`):** Jersey 10 y Press Start 2P descargadas localmente desde Google Fonts y servidas con `@font-face` en `public/style.css`. Funcionan offline, sin dependencia externa, sin riesgos de SRI.
+- **`public/register-sw.js`:** script de registro del service worker extraído del `index.html` inline para permitir CSP estricta sin `'unsafe-inline'` en `script-src`.
+
+### Removed
+
+- Referencias a `https://fonts.googleapis.com` y `https://fonts.gstatic.com` en `index.html` (preconnect + stylesheet).
+- Script inline de registro del service worker en `index.html`.
+
 ## [1.1.0] — 2026-05-28
 
 ### Added
