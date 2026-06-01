@@ -37,12 +37,12 @@ Es una tradición que lleva generaciones formando parte del verano trianero, don
 
 Cada personaje tiene estadísticas que afectan a la partida:
 
-| Stat | Efecto |
-|------|--------|
-| **Peso** | Afecta a la física del palo. Más peso = más inercia, pero también más estabilidad en condiciones normales |
-| **Equilibrio** | Determina el margen antes de caer. Más equilibrio = más tiempo de reacción |
-| **Altura** | Centro de gravedad más alto (más difícil de equilibrar), pero brazos más largos para alcanzar la bandera |
-| **Edad** | Afecta a la velocidad de movimiento y la resistencia |
+| Stat           | Efecto                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------- |
+| **Peso**       | Afecta a la física del palo. Más peso = más inercia, pero también más estabilidad en condiciones normales |
+| **Equilibrio** | Determina el margen antes de caer. Más equilibrio = más tiempo de reacción                                |
+| **Altura**     | Centro de gravedad más alto (más difícil de equilibrar), pero brazos más largos para alcanzar la bandera  |
+| **Edad**       | Afecta a la velocidad de movimiento y la resistencia                                                      |
 
 **Personaje inicial: "El Trianero"** - Stats medios en todo. El personaje equilibrado para aprender las mecánicas.
 
@@ -57,22 +57,22 @@ Cada personaje tiene estadísticas que afectan a la partida:
 
 ## Stack tecnológico
 
-| Tecnología | Uso |
-|------------|-----|
-| **Phaser 3** | Motor del juego (v3.90.0) |
-| **Vite** | Bundler y servidor de desarrollo (v6.3.1) |
-| **JavaScript** | Lenguaje base |
-| **LibreSprite / Aseprite** | Creación de sprites y pixel art |
+| Tecnología                 | Uso                                       |
+| -------------------------- | ----------------------------------------- |
+| **Phaser 3**               | Motor del juego (v3.90.0)                 |
+| **Vite**                   | Bundler y servidor de desarrollo (v6.3.1) |
+| **JavaScript**             | Lenguaje base                             |
+| **LibreSprite / Aseprite** | Creación de sprites y pixel art           |
 
 ---
 
 ## Comandos disponibles
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm install` | Instalar dependencias |
-| `npm run dev` | Servidor de desarrollo en `http://localhost:8080` |
-| `npm run build` | Build de producción en carpeta `dist` |
+| Comando         | Descripción                                       |
+| --------------- | ------------------------------------------------- |
+| `npm install`   | Instalar dependencias                             |
+| `npm run dev`   | Servidor de desarrollo en `http://localhost:8080` |
+| `npm run build` | Build de producción en carpeta `dist`             |
 
 ## Estructura del proyecto
 

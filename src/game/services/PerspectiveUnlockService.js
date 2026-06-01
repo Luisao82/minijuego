@@ -15,7 +15,7 @@
 //   const newUnlocks = perspectiveUnlockService.checkNewUnlocks(rewardStorage)
 //   perspectiveUnlockService.saveUnlocks(newUnlocks)
 
-const STORAGE_KEY      = 'cucana_unlocked_perspectives'
+const STORAGE_KEY = 'cucana_unlocked_perspectives'
 const DEFAULT_UNLOCKED = ['triana']
 
 export function createPerspectiveUnlockService() {
@@ -37,7 +37,7 @@ export function createPerspectiveUnlockService() {
     //   direction "ltr" (izq→der, espejado)  → flipX: true
     //   direction "rtl" (der→izq, normal)    → flipX: false
     getById(id) {
-      const p = perspectives.find(p => p.id === id) ?? null
+      const p = perspectives.find((p) => p.id === id) ?? null
       if (!p) return null
       return { ...p, flipX: p.direction === 'ltr' }
     },
@@ -58,7 +58,7 @@ export function createPerspectiveUnlockService() {
     isUnlocked(perspectiveId) {
       const p = this.getById(perspectiveId)
       if (!p) return false
-      if (!p.condition) return true   // sin condición = siempre disponible
+      if (!p.condition) return true // sin condición = siempre disponible
       return this.getUnlocked().includes(perspectiveId)
     },
 

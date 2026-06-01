@@ -14,13 +14,12 @@ const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2)
 const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2)
 const CENTER_X = GAME_WIDTH / 2
 
-const SPRITE_SIZE  = 260
-const STAT_COLORS  = { peso: 0xe74c3c, equilibrio: 0x3498db, altura: 0x2ecc71, edad: 0xf39c12 }
-const STAT_NAMES   = { peso: 'PESO', equilibrio: 'EQUIL', altura: 'ALT', edad: 'EDAD' }
-const STAT_MAX     = 10
+const SPRITE_SIZE = 260
+const STAT_COLORS = { peso: 0xe74c3c, equilibrio: 0x3498db, altura: 0x2ecc71, edad: 0xf39c12 }
+const STAT_NAMES = { peso: 'PESO', equilibrio: 'EQUIL', altura: 'ALT', edad: 'EDAD' }
+const STAT_MAX = 10
 
 export class CharacterUnlockScene extends BaseScene {
-
   constructor() {
     super(SCENES.CHARACTER_UNLOCK)
   }
@@ -28,9 +27,9 @@ export class CharacterUnlockScene extends BaseScene {
   init(data) {
     super.init(data)
     this.unlockedCharacters = data.unlockedCharacters || []
-    this.characterData      = data.character || null
-    this.currentIndex       = 0
-    this.canInteract        = false
+    this.characterData = data.character || null
+    this.currentIndex = 0
+    this.canInteract = false
   }
 
   create() {
@@ -41,7 +40,8 @@ export class CharacterUnlockScene extends BaseScene {
   // ── Fondo ────────────────────────────────────────────────────
 
   drawBackground() {
-    this.bgImage = this.add.image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
+    this.bgImage = this.add
+      .image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
 
     this.overlay = this.add.graphics()
@@ -56,13 +56,13 @@ export class CharacterUnlockScene extends BaseScene {
 
     // Limpiar contenido previo (excepto fondo y overlay)
     if (this.contentContainer) this.contentContainer.destroy()
-    if (this.buttonContainer)  this.buttonContainer.destroy()
+    if (this.buttonContainer) this.buttonContainer.destroy()
 
     this.contentContainer = this.add.container(0, 0)
     this.contentContainer.setAlpha(0)
 
     const charId = this.unlockedCharacters[this.currentIndex]
-    const char   = CHARACTERS.find(c => c.id === charId)
+    const char = CHARACTERS.find((c) => c.id === charId)
     if (!char) {
       this.proceedOrFinish()
       return
@@ -77,10 +77,10 @@ export class CharacterUnlockScene extends BaseScene {
 
     // Entrada: fade del panel + tween del sprite
     this.tweens.add({
-      targets:  this.contentContainer,
-      alpha:    1,
+      targets: this.contentContainer,
+      alpha: 1,
       duration: 300,
-      ease:     'Quad.easeOut',
+      ease: 'Quad.easeOut',
       onComplete: () => this.animateSprite(),
     })
   }
@@ -111,13 +111,15 @@ export class CharacterUnlockScene extends BaseScene {
 
   drawBanner() {
     this.contentContainer.add(
-      this.add.text(CENTER_X, PANEL_Y + 30, '¡NUEVO PERSONAJE!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '16px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 4,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, PANEL_Y + 30, '¡NUEVO PERSONAJE!', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '16px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 4,
+        })
+        .setOrigin(0.5)
     )
   }
 
@@ -131,11 +133,12 @@ export class CharacterUnlockScene extends BaseScene {
     this.contentContainer.add(frameG)
 
     // Sprite del personaje (empieza con scale 0 para el tween)
-    const hasSprite = this.textures.exists(char.sprite) &&
-      this.textures.get(char.sprite).key !== '__MISSING'
+    const hasSprite =
+      this.textures.exists(char.sprite) && this.textures.get(char.sprite).key !== '__MISSING'
 
     if (hasSprite) {
-      this.charSprite = this.add.image(CENTER_X, spriteY, char.sprite)
+      this.charSprite = this.add
+        .image(CENTER_X, spriteY, char.sprite)
         .setDisplaySize(SPRITE_SIZE, SPRITE_SIZE)
         .setOrigin(0.5)
         .setScale(0)
@@ -145,11 +148,14 @@ export class CharacterUnlockScene extends BaseScene {
       placeholderG.fillRect(CENTER_X - SPRITE_SIZE / 2, PANEL_Y + 80, SPRITE_SIZE, SPRITE_SIZE)
       this.contentContainer.add(placeholderG)
 
-      this.charSprite = this.add.text(CENTER_X, spriteY, '?', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '80px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setScale(0)
+      this.charSprite = this.add
+        .text(CENTER_X, spriteY, '?', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '80px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setScale(0)
     }
 
     this.contentContainer.add(this.charSprite)
@@ -163,35 +169,38 @@ export class CharacterUnlockScene extends BaseScene {
       { x: cx + radius, y: cy - radius + 10 },
       { x: cx - radius, y: cy + radius - 10 },
       { x: cx + radius, y: cy + radius - 10 },
-      { x: cx,          y: cy - radius - 10 },
+      { x: cx, y: cy - radius - 10 },
     ]
 
     positions.forEach((pos, i) => {
-      const star = this.add.text(pos.x, pos.y, '★', {
-        fontFamily: 'monospace',
-        fontSize:   '18px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setAlpha(0)
+      const star = this.add
+        .text(pos.x, pos.y, '★', {
+          fontFamily: 'monospace',
+          fontSize: '18px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setAlpha(0)
 
       this.contentContainer.add(star)
 
       this.tweens.add({
-        targets:  star,
-        alpha:    1,
-        scaleX:   { from: 0.3, to: 1 },
-        scaleY:   { from: 0.3, to: 1 },
-        delay:    500 + i * 80,
+        targets: star,
+        alpha: 1,
+        scaleX: { from: 0.3, to: 1 },
+        scaleY: { from: 0.3, to: 1 },
+        delay: 500 + i * 80,
         duration: 300,
-        ease:     'Back.easeOut',
+        ease: 'Back.easeOut',
       })
       this.tweens.add({
-        targets:  star,
-        alpha:    { from: 1, to: 0.3 },
-        delay:    900 + i * 80,
+        targets: star,
+        alpha: { from: 1, to: 0.3 },
+        delay: 900 + i * 80,
         duration: 700,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       })
     })
   }
@@ -201,25 +210,29 @@ export class CharacterUnlockScene extends BaseScene {
 
     // Nombre
     this.contentContainer.add(
-      this.add.text(CENTER_X, infoY, char.name, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '14px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, infoY, char.name, {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '14px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     )
 
     // Descripción
     this.contentContainer.add(
-      this.add.text(CENTER_X, infoY + 30, char.description, {
-        fontFamily: 'monospace',
-        fontSize:   '11px',
-        color:      '#bbbbbb',
-        align:      'center',
-        lineSpacing: 4,
-        wordWrap:   { width: PANEL_W - 60 },
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, infoY + 30, char.description, {
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          color: '#bbbbbb',
+          align: 'center',
+          lineSpacing: 4,
+          wordWrap: { width: PANEL_W - 60 },
+        })
+        .setOrigin(0.5)
     )
 
     // Stats
@@ -227,27 +240,27 @@ export class CharacterUnlockScene extends BaseScene {
   }
 
   _drawStats(stats, startY) {
-    const barW    = 200
-    const barH    = 10
-    const labelW  = 52
-    const rowH    = 20
-    const totalW  = labelW + 8 + barW
-    const startX  = CENTER_X - totalW / 2
+    const barW = 200
+    const barH = 10
+    const labelW = 52
+    const rowH = 20
+    const totalW = labelW + 8 + barW
+    const startX = CENTER_X - totalW / 2
 
     Object.entries(stats).forEach(([key, value], i) => {
-      const sy    = startY + i * rowH
+      const sy = startY + i * rowH
       const color = STAT_COLORS[key] ?? 0xffffff
 
       this.contentContainer.add(
         this.add.text(startX, sy, STAT_NAMES[key] ?? key, {
           fontFamily: 'monospace',
-          fontSize:   '9px',
-          color:      '#999999',
-        }),
+          fontSize: '9px',
+          color: '#999999',
+        })
       )
 
       const barG = this.add.graphics()
-      const bx   = startX + labelW + 8
+      const bx = startX + labelW + 8
 
       barG.fillStyle(0x0a0a1e, 1)
       barG.fillRect(bx, sy + 1, barW, barH)
@@ -261,7 +274,7 @@ export class CharacterUnlockScene extends BaseScene {
   }
 
   drawShareButton(char) {
-    const SIZE   = 40
+    const SIZE = 40
     const MARGIN = 10
     let sharing = false
     const btn = makeShareButton(
@@ -273,8 +286,8 @@ export class CharacterUnlockScene extends BaseScene {
         sharing = true
         try {
           const blob = await generateShareImage(this, {
-            name:        char.name,
-            textureKey:  char.sprite,
+            name: char.name,
+            textureKey: char.sprite,
             subtitleKey: 'CHARACTER_NEW',
           })
           await shareImage(blob, buildShareText('CHARACTER_NEW', char.name))
@@ -284,7 +297,7 @@ export class CharacterUnlockScene extends BaseScene {
           sharing = false
         }
       },
-      { size: SIZE, depth: 7 },
+      { size: SIZE, depth: 7 }
     )
     this.contentContainer.add(btn.graphics)
   }
@@ -292,9 +305,9 @@ export class CharacterUnlockScene extends BaseScene {
   // ── Botones ──────────────────────────────────────────────────
 
   drawButtons() {
-    const isLast   = this.currentIndex >= this.unlockedCharacters.length - 1
-    const btnH     = 52
-    const btnY     = PANEL_Y + PANEL_H - btnH - 16
+    const isLast = this.currentIndex >= this.unlockedCharacters.length - 1
+    const btnH = 52
+    const btnY = PANEL_Y + PANEL_H - btnH - 16
 
     this.buttonContainer = this.add.container(0, 0)
     this.buttonContainer.setAlpha(0)
@@ -302,33 +315,45 @@ export class CharacterUnlockScene extends BaseScene {
     if (isLast) {
       // Último (o único) desbloqueo: mostrar opciones finales
       const btnW = 220
-      const gap  = 16
+      const gap = 16
 
       makeNavButton(
         this,
         CENTER_X - btnW - gap / 2,
-        btnY, btnW, btnH,
+        btnY,
+        btnW,
+        btnH,
         'ELEGIR PERSONAJE',
-        () => { if (this.canInteract) this.goToCharacterSelect() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.goToCharacterSelect()
+        },
+        { depth: 6 }
       )
       makeNavButton(
         this,
         CENTER_X + gap / 2,
-        btnY, btnW, btnH,
+        btnY,
+        btnW,
+        btnH,
         'VOLVER A JUGAR',
-        () => { if (this.canInteract) this.playAgain() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.playAgain()
+        },
+        { depth: 6 }
       )
     } else {
       // Hay más personajes por revelar
       makeNavButton(
         this,
         CENTER_X - 120,
-        btnY, 240, btnH,
+        btnY,
+        240,
+        btnH,
         'SIGUIENTE ▶',
-        () => { if (this.canInteract) this.nextCharacter() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.nextCharacter()
+        },
+        { depth: 6 }
       )
     }
   }
@@ -337,19 +362,21 @@ export class CharacterUnlockScene extends BaseScene {
 
   animateSprite() {
     this.tweens.add({
-      targets:  this.charSprite,
-      scaleX:   1,
-      scaleY:   1,
+      targets: this.charSprite,
+      scaleX: 1,
+      scaleY: 1,
       duration: 450,
-      ease:     'Back.easeOut',
+      ease: 'Back.easeOut',
       onComplete: () => {
         // Mostrar botones con fade tras la animación del sprite
         this.tweens.add({
-          targets:  this.buttonContainer,
-          alpha:    1,
+          targets: this.buttonContainer,
+          alpha: 1,
           duration: 250,
-          ease:     'Quad.easeOut',
-          onComplete: () => { this.canInteract = true },
+          ease: 'Quad.easeOut',
+          onComplete: () => {
+            this.canInteract = true
+          },
         })
       },
     })

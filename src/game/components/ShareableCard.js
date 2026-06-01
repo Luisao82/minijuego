@@ -17,16 +17,16 @@
 import { GAME_URL, SHARE_BRANDING, SHARE_IMAGE_SIZE } from '../config/shareConfig'
 
 const SIZE = SHARE_IMAGE_SIZE
-const PAD  = 60
+const PAD = 60
 
 const COLORS = {
-  bg:        '#1a1a2e',
-  panel:     '#16213e',
-  gold:      '#ffd700',
-  goldSoft:  'rgba(255, 215, 0, 0.3)',
-  text:      '#ffd700',
-  textSoft:  '#fff8dc',
-  shadow:    '#000000',
+  bg: '#1a1a2e',
+  panel: '#16213e',
+  gold: '#ffd700',
+  goldSoft: 'rgba(255, 215, 0, 0.3)',
+  text: '#ffd700',
+  textSoft: '#fff8dc',
+  shadow: '#000000',
 }
 
 // Reparte el texto en varias líneas según el ancho máximo permitido.
@@ -50,7 +50,11 @@ function wrapText(ctx, text, maxWidth) {
 // Espera a que las fuentes web estén cargadas (Press Start 2P / Jersey 10).
 async function ensureFontsReady() {
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-    try { await document.fonts.ready } catch { /* ignore */ }
+    try {
+      await document.fonts.ready
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -75,7 +79,7 @@ function getSourceImage(scene, textureKey, frameIndex = 0) {
 }
 
 function drawHeader(ctx, subtitleKey) {
-  const title    = SHARE_BRANDING.TITLE
+  const title = SHARE_BRANDING.TITLE
   const subtitle = SHARE_BRANDING.SUBTITLE[subtitleKey] ?? ''
 
   ctx.fillStyle = COLORS.gold
@@ -149,7 +153,17 @@ function drawCardBody(ctx, { name, count, source }) {
     const drawY = Math.round(imgY + (imgBox - drawH) / 2)
 
     ctx.imageSmoothingEnabled = false
-    ctx.drawImage(source.image, source.sx, source.sy, source.sw, source.sh, drawX, drawY, drawW, drawH)
+    ctx.drawImage(
+      source.image,
+      source.sx,
+      source.sy,
+      source.sw,
+      source.sh,
+      drawX,
+      drawY,
+      drawW,
+      drawH
+    )
   } else {
     const imgX = Math.round(SIZE / 2 - imgBox / 2)
     ctx.fillStyle = '#2a2a4a'
@@ -170,7 +184,7 @@ function drawCardBody(ctx, { name, count, source }) {
   ctx.textBaseline = 'top'
 
   const maxTextW = cardW - 60
-  const sizeSteps = [42, 34, 28, 24]   // Reducir progresivamente si no cabe
+  const sizeSteps = [42, 34, 28, 24] // Reducir progresivamente si no cabe
   let fontSize = sizeSteps[0]
   let lines = []
   for (const s of sizeSteps) {
@@ -217,7 +231,7 @@ export async function generateShareImage(scene, options) {
   await ensureFontsReady()
 
   const canvas = document.createElement('canvas')
-  canvas.width  = SIZE
+  canvas.width = SIZE
   canvas.height = SIZE
   const ctx = canvas.getContext('2d')
 
@@ -235,8 +249,8 @@ export async function generateShareImage(scene, options) {
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
-      (blob) => blob ? resolve(blob) : reject(new Error('toBlob returned null')),
-      'image/png',
+      (blob) => (blob ? resolve(blob) : reject(new Error('toBlob returned null'))),
+      'image/png'
     )
   })
 }

@@ -24,29 +24,23 @@ import { prefersReducedMotion } from '../utils/accessibility'
 // (No es estrictamente necesario: el listener se da de baja con el
 //  shutdown de la escena vía BaseScene.)
 
-const FRAME_DELAY = 240        // ms entre cambios STAND ↔ WALK
-const SPACING_RATIO = 0.5      // separación entre sprites = medio sprite
-const FRAME_JITTER = 60        // ms de variación para desincronizar
-const MAX_REPEAT_LOOKBACK = 2  // cuántos vecinos consultar para evitar repetición inmediata
+const FRAME_DELAY = 240 // ms entre cambios STAND ↔ WALK
+const SPACING_RATIO = 0.5 // separación entre sprites = medio sprite
+const FRAME_JITTER = 60 // ms de variación para desincronizar
+const MAX_REPEAT_LOOKBACK = 2 // cuántos vecinos consultar para evitar repetición inmediata
 
-export function createSkinMarquee(scene, {
-  y,
-  direction = -1,
-  speed = 35,
-  skinKeys,
-  scale = 2,
-  depth = 0,
-  mask = null,
-} = {}) {
-
+export function createSkinMarquee(
+  scene,
+  { y, direction = -1, speed = 35, skinKeys, scale = 2, depth = 0, mask = null } = {}
+) {
   if (!Array.isArray(skinKeys) || skinKeys.length === 0) {
     return { sprites: [], destroy: () => {} }
   }
 
-  const W        = scene.scale.width
-  const spriteW  = SPRITE_CONFIG.frameWidth  * scale
-  const spriteH  = SPRITE_CONFIG.frameHeight * scale
-  const spacing  = Math.round(spriteW * (1 + SPACING_RATIO))
+  const W = scene.scale.width
+  const spriteW = SPRITE_CONFIG.frameWidth * scale
+  const spriteH = SPRITE_CONFIG.frameHeight * scale
+  const spacing = Math.round(spriteW * (1 + SPACING_RATIO))
 
   // Buffer: un sprite extra a cada lado para que las transiciones sean fluidas
   const count = Math.ceil(W / spacing) + 2
@@ -65,13 +59,14 @@ export function createSkinMarquee(scene, {
 
   // Creación inicial: ordenados de izquierda a derecha, sin huecos.
   const sprites = []
-  const recent  = []
+  const recent = []
   for (let i = 0; i < count; i++) {
-    const x   = -spacing + i * spacing
+    const x = -spacing + i * spacing
     const key = pickKey(recent.slice(-MAX_REPEAT_LOOKBACK))
     recent.push(key)
 
-    const sprite = scene.add.sprite(x, y, key, SPRITE_FRAMES.STAND)
+    const sprite = scene.add
+      .sprite(x, y, key, SPRITE_FRAMES.STAND)
       .setDisplaySize(spriteW, spriteH)
       .setOrigin(0.5, 1)
       .setDepth(depth)
@@ -97,13 +92,15 @@ export function createSkinMarquee(scene, {
   sprites.forEach((s, i) => {
     const startFrame = reduceMotion
       ? SPRITE_FRAMES.STAND
-      : (i % 2 === 0 ? SPRITE_FRAMES.STAND : SPRITE_FRAMES.WALK)
+      : i % 2 === 0
+        ? SPRITE_FRAMES.STAND
+        : SPRITE_FRAMES.WALK
     s.setFrame(startFrame)
     if (reduceMotion) return
     let frame = startFrame
     const timer = scene.time.addEvent({
-      delay:    FRAME_DELAY + Math.floor(Math.random() * FRAME_JITTER),
-      loop:     true,
+      delay: FRAME_DELAY + Math.floor(Math.random() * FRAME_JITTER),
+      loop: true,
       callback: () => {
         frame = frame === SPRITE_FRAMES.STAND ? SPRITE_FRAMES.WALK : SPRITE_FRAMES.STAND
         s.setFrame(frame)
@@ -121,21 +118,21 @@ export function createSkinMarquee(scene, {
       s.x += dx
 
       if (direction === -1 && s.x < -spacing) {
-        const recentKeys = sprites.map(o => o.texture.key).slice(-MAX_REPEAT_LOOKBACK)
+        const recentKeys = sprites.map((o) => o.texture.key).slice(-MAX_REPEAT_LOOKBACK)
         const newKey = pickKey(recentKeys)
         const currentFrame = s.frame.name
         s.setTexture(newKey)
         s.setFrame(currentFrame)
         // Reaparecer pegado al sprite más a la derecha + spacing
-        const rightmost = sprites.reduce((max, o) => o.x > max ? o.x : max, -Infinity)
+        const rightmost = sprites.reduce((max, o) => (o.x > max ? o.x : max), -Infinity)
         s.x = rightmost + spacing
       } else if (direction === 1 && s.x > W + spacing) {
-        const recentKeys = sprites.map(o => o.texture.key).slice(-MAX_REPEAT_LOOKBACK)
+        const recentKeys = sprites.map((o) => o.texture.key).slice(-MAX_REPEAT_LOOKBACK)
         const newKey = pickKey(recentKeys)
         const currentFrame = s.frame.name
         s.setTexture(newKey)
         s.setFrame(currentFrame)
-        const leftmost = sprites.reduce((min, o) => o.x < min ? o.x : min, Infinity)
+        const leftmost = sprites.reduce((min, o) => (o.x < min ? o.x : min), Infinity)
         s.x = leftmost - spacing
       }
     }
@@ -145,8 +142,8 @@ export function createSkinMarquee(scene, {
 
   const destroy = () => {
     scene.events.off('update', update)
-    frameTimers.forEach(t => t.destroy())
-    sprites.forEach(s => s.destroy())
+    frameTimers.forEach((t) => t.destroy())
+    sprites.forEach((s) => s.destroy())
   }
 
   return { sprites, destroy }

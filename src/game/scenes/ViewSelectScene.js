@@ -5,31 +5,30 @@ import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
 // ── Dimensiones del carrusel ── igual que CharacterSelectScene ──
-const CARD_W    = 280
-const CARD_H    = 360
-const CARD_GAP  = 40
+const CARD_W = 280
+const CARD_H = 360
+const CARD_GAP = 40
 const CARD_STEP = CARD_W + CARD_GAP
-const CARDS_Y   = 150
-const IMG_H     = 250
-const LABEL_H   = CARD_H - IMG_H   // 110 px
+const CARDS_Y = 150
+const IMG_H = 250
+const LABEL_H = CARD_H - IMG_H // 110 px
 
 // Mismos valores que el resto de pantallas de selección
 const BAND_Y = 120
 const BAND_H = 440
 
-const VISIBLE_AREA_LEFT  = 60
+const VISIBLE_AREA_LEFT = 60
 const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
 
 export class ViewSelectScene extends BaseScene {
-
   constructor() {
     super(SCENES.VIEW_SELECT)
   }
 
   create() {
-    this.perspectives  = perspectiveUnlockService.getAll()
+    this.perspectives = perspectiveUnlockService.getAll()
     this.selectedIndex = this._storedIndex()
-    this.isScrolling   = false
+    this.isScrolling = false
 
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
     drawSceneHeader(this, GAME_WIDTH / 2, 55, 'ELIGE TU VISTA', 280)
@@ -45,7 +44,7 @@ export class ViewSelectScene extends BaseScene {
 
   _storedIndex() {
     const storedId = getStoredPerspective()
-    const idx      = this.perspectives.findIndex(p => p.id === storedId)
+    const idx = this.perspectives.findIndex((p) => p.id === storedId)
     return idx >= 0 ? idx : 0
   }
 
@@ -53,7 +52,7 @@ export class ViewSelectScene extends BaseScene {
 
   createCarousel() {
     this.carouselContainer = this.add.container(0, 0)
-    this.cardContainers    = []
+    this.cardContainers = []
 
     this._buildCards()
 
@@ -63,20 +62,20 @@ export class ViewSelectScene extends BaseScene {
       VISIBLE_AREA_LEFT,
       CARDS_Y - 10,
       VISIBLE_AREA_RIGHT - VISIBLE_AREA_LEFT,
-      CARD_H + 20,
+      CARD_H + 20
     )
     this.carouselContainer.setMask(maskShape.createGeometryMask())
   }
 
   _buildCards() {
-    this.cardContainers.forEach(c => c.destroy())
+    this.cardContainers.forEach((c) => c.destroy())
     this.cardContainers = []
 
     this.perspectives.forEach((cfg, i) => {
       const isSelected = i === this.selectedIndex
-      const locked     = !perspectiveUnlockService.isUnlocked(cfg.id)
-      const container  = this._makeCard(cfg, isSelected, locked)
-      container.y      = CARDS_Y
+      const locked = !perspectiveUnlockService.isUnlocked(cfg.id)
+      const container = this._makeCard(cfg, isSelected, locked)
+      container.y = CARDS_Y
       this.carouselContainer.add(container)
       this.cardContainers.push(container)
     })
@@ -113,22 +112,26 @@ export class ViewSelectScene extends BaseScene {
       container.add(lockBg)
 
       container.add(
-        this.add.text(CARD_W / 2, IMG_H / 2 - 20, '🔒', {
-          fontSize: '48px',
-        }).setOrigin(0.5),
+        this.add
+          .text(CARD_W / 2, IMG_H / 2 - 20, '🔒', {
+            fontSize: '48px',
+          })
+          .setOrigin(0.5)
       )
 
       const hint = perspectiveUnlockService.getHint(cfg.id) ?? 'Bloqueado'
       container.add(
-        this.add.text(CARD_W / 2, IMG_H / 2 + 30, hint, {
-          fontFamily:      '"Jersey 10", cursive',
-          fontSize:        '22px',
-          color:           '#ccccee',
-          stroke:          '#000000',
-          strokeThickness: 3,
-          align:           'center',
-          wordWrap:        { width: CARD_W - 24 },
-        }).setOrigin(0.5),
+        this.add
+          .text(CARD_W / 2, IMG_H / 2 + 30, hint, {
+            fontFamily: '"Jersey 10", cursive',
+            fontSize: '22px',
+            color: '#ccccee',
+            stroke: '#000000',
+            strokeThickness: 3,
+            align: 'center',
+            wordWrap: { width: CARD_W - 24 },
+          })
+          .setOrigin(0.5)
       )
     }
 
@@ -145,16 +148,18 @@ export class ViewSelectScene extends BaseScene {
     container.add(labelBg)
 
     // Nombre de la vista
-    const labelColor = locked ? '#555577' : (selected ? '#ffd700' : '#cccccc')
+    const labelColor = locked ? '#555577' : selected ? '#ffd700' : '#cccccc'
     container.add(
-      this.add.text(CARD_W / 2, IMG_H + LABEL_H / 2, cfg.label, {
-        fontFamily:      '"Jersey 10", cursive',
-        fontSize:        '38px',
-        color:           labelColor,
-        stroke:          '#1a0a00',
-        strokeThickness: 5,
-        letterSpacing:   4,
-      }).setOrigin(0.5),
+      this.add
+        .text(CARD_W / 2, IMG_H + LABEL_H / 2, cfg.label, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '38px',
+          color: labelColor,
+          stroke: '#1a0a00',
+          strokeThickness: 5,
+          letterSpacing: 4,
+        })
+        .setOrigin(0.5)
     )
 
     // Borde exterior
@@ -173,7 +178,7 @@ export class ViewSelectScene extends BaseScene {
   }
 
   _updateCarouselPositions(animate = true) {
-    const centerX      = GAME_WIDTH / 2 - CARD_W / 2
+    const centerX = GAME_WIDTH / 2 - CARD_W / 2
     const targetOffset = centerX - this.selectedIndex * CARD_STEP
 
     if (animate && !this.isScrolling) {
@@ -181,11 +186,13 @@ export class ViewSelectScene extends BaseScene {
       this.cardContainers.forEach((container, i) => {
         const targetX = targetOffset + i * CARD_STEP
         this.tweens.add({
-          targets:  container,
-          x:        targetX,
+          targets: container,
+          x: targetX,
           duration: 250,
-          ease:     'Cubic.easeOut',
-          onComplete: () => { if (i === this.selectedIndex) this.isScrolling = false },
+          ease: 'Cubic.easeOut',
+          onComplete: () => {
+            if (i === this.selectedIndex) this.isScrolling = false
+          },
         })
       })
     } else {
@@ -195,19 +202,19 @@ export class ViewSelectScene extends BaseScene {
     }
 
     this.cardContainers.forEach((container, i) => {
-      const isSelected  = i === this.selectedIndex
-      const distance    = Math.abs(i - this.selectedIndex)
+      const isSelected = i === this.selectedIndex
+      const distance = Math.abs(i - this.selectedIndex)
       const targetAlpha = isSelected ? 1 : Math.max(0.4, 1 - distance * 0.25)
       const targetScale = isSelected ? 1 : Math.max(0.85, 1 - distance * 0.06)
 
       if (animate) {
         this.tweens.add({
-          targets:  container,
-          alpha:    targetAlpha,
-          scaleX:   targetScale,
-          scaleY:   targetScale,
+          targets: container,
+          alpha: targetAlpha,
+          scaleX: targetScale,
+          scaleY: targetScale,
           duration: 250,
-          ease:     'Cubic.easeOut',
+          ease: 'Cubic.easeOut',
         })
       } else {
         container.setAlpha(targetAlpha)
@@ -222,11 +229,11 @@ export class ViewSelectScene extends BaseScene {
   drawSelectedDetail() {
     if (this.detailContainer) this.detailContainer.destroy()
 
-    const cfg    = this.perspectives[this.selectedIndex]
+    const cfg = this.perspectives[this.selectedIndex]
     if (!cfg) return
 
     const locked = !perspectiveUnlockService.isUnlocked(cfg.id)
-    if (!locked) return   // vistas desbloqueadas: sin panel adicional
+    if (!locked) return // vistas desbloqueadas: sin panel adicional
 
     const hint = perspectiveUnlockService.getHint(cfg.id) ?? 'Vista bloqueada'
 
@@ -235,7 +242,7 @@ export class ViewSelectScene extends BaseScene {
     const panelY = CARDS_Y + CARD_H + 10
     const panelH = 46
     const panelW = 460
-    const px     = GAME_WIDTH / 2 - panelW / 2
+    const px = GAME_WIDTH / 2 - panelW / 2
 
     const g = this.add.graphics()
     g.fillStyle(0x0d0d24, 0.9)
@@ -245,26 +252,34 @@ export class ViewSelectScene extends BaseScene {
     this.detailContainer.add(g)
 
     this.detailContainer.add(
-      this.add.text(GAME_WIDTH / 2, panelY + panelH / 2, hint, {
-        fontFamily:  'monospace',
-        fontSize:    '12px',
-        color:       '#888888',
-        align:       'center',
-        lineSpacing: 6,
-      }).setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, panelY + panelH / 2, hint, {
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          color: '#888888',
+          align: 'center',
+          lineSpacing: 6,
+        })
+        .setOrigin(0.5)
     )
   }
 
   // ── Navegación ◀▶ ────────────────────────────────────────────
 
   drawNavigation() {
-    const arrowY = CARDS_Y + CARD_H / 2  // Y=330, igual que CharacterSelectScene
+    const arrowY = CARDS_Y + CARD_H / 2 // Y=330, igual que CharacterSelectScene
 
-    this.leftArrow = this.add.image(40, arrowY, 'btn-nav-left')
-      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
+    this.leftArrow = this.add
+      .image(40, arrowY, 'btn-nav-left')
+      .setOrigin(0.5)
+      .setScale(2)
+      .setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.image(GAME_WIDTH - 40, arrowY, 'btn-nav-right')
-      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
+    this.rightArrow = this.add
+      .image(GAME_WIDTH - 40, arrowY, 'btn-nav-right')
+      .setOrigin(0.5)
+      .setScale(2)
+      .setInteractive({ useHandCursor: true })
 
     this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_H + 66)
     this._updateDots()
@@ -276,11 +291,11 @@ export class ViewSelectScene extends BaseScene {
     if (total <= 1) return
 
     const dotSpacing = 16
-    const startX     = -((total - 1) * dotSpacing) / 2
+    const startX = -((total - 1) * dotSpacing) / 2
 
     this.perspectives.forEach((_, i) => {
       const isActive = i === this.selectedIndex
-      const dot      = this.add.graphics()
+      const dot = this.add.graphics()
       dot.fillStyle(isActive ? COLORS.GOLD : 0x444466, 1)
       const size = isActive ? 5 : 3
       dot.fillRect(startX + i * dotSpacing - size / 2, -size / 2, size, size)
@@ -291,49 +306,59 @@ export class ViewSelectScene extends BaseScene {
   // ── Botón SELECCIONAR VISTA ───────────────────────────────────
 
   drawConfirmButton() {
-    const btnY = BAND_Y + BAND_H + 40   // Y=600, igual que CharacterSelectScene
+    const btnY = BAND_Y + BAND_H + 40 // Y=600, igual que CharacterSelectScene
 
-    this.confirmText = this.add.text(GAME_WIDTH / 2, btnY, 'SELECCIONAR VISTA', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '52px',
-      color:           '#ffd700',
-      stroke:          '#1a0800',
-      strokeThickness: 8,
-      letterSpacing:   12,
-      shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    this.confirmText = this.add
+      .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR VISTA', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '52px',
+        color: '#ffd700',
+        stroke: '#1a0800',
+        strokeThickness: 8,
+        letterSpacing: 12,
+        shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true },
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
 
     this.confirmText.on('pointerdown', () => this._goToCharacterSelect())
 
     this.tweens.add({
-      targets:  this.confirmText,
-      scaleX:   1.08,
-      scaleY:   1.08,
+      targets: this.confirmText,
+      scaleX: 1.08,
+      scaleY: 1.08,
       duration: 800,
-      yoyo:     true,
-      repeat:   -1,
-      ease:     'Sine.easeInOut',
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
     })
-
   }
 
   // ── Input ─────────────────────────────────────────────────────
 
   setupInput() {
-    this.leftArrow.on('pointerdown',  () => { this.leftArrow.setTexture('btn-nav-left-press'); this._navigate(-1) })
-    this.leftArrow.on('pointerup',    () => this.leftArrow.setTexture('btn-nav-left'))
-    this.leftArrow.on('pointerout',   () => this.leftArrow.setTexture('btn-nav-left'))
-    this.rightArrow.on('pointerdown', () => { this.rightArrow.setTexture('btn-nav-right-press'); this._navigate(1) })
-    this.rightArrow.on('pointerup',   () => this.rightArrow.setTexture('btn-nav-right'))
-    this.rightArrow.on('pointerout',  () => this.rightArrow.setTexture('btn-nav-right'))
+    this.leftArrow.on('pointerdown', () => {
+      this.leftArrow.setTexture('btn-nav-left-press')
+      this._navigate(-1)
+    })
+    this.leftArrow.on('pointerup', () => this.leftArrow.setTexture('btn-nav-left'))
+    this.leftArrow.on('pointerout', () => this.leftArrow.setTexture('btn-nav-left'))
+    this.rightArrow.on('pointerdown', () => {
+      this.rightArrow.setTexture('btn-nav-right-press')
+      this._navigate(1)
+    })
+    this.rightArrow.on('pointerup', () => this.rightArrow.setTexture('btn-nav-right'))
+    this.rightArrow.on('pointerout', () => this.rightArrow.setTexture('btn-nav-right'))
 
-    this.input.keyboard.on('keydown-LEFT',  () => this._navigate(-1))
+    this.input.keyboard.on('keydown-LEFT', () => this._navigate(-1))
     this.input.keyboard.on('keydown-RIGHT', () => this._navigate(1))
     this.input.keyboard.on('keydown-SPACE', () => this._goToCharacterSelect())
     this.input.keyboard.on('keydown-ENTER', () => this._goToCharacterSelect())
 
-    this.input.on('pointerdown', (pointer) => { this.swipeStartX = pointer.x })
-    this.input.on('pointerup',   (pointer) => {
+    this.input.on('pointerdown', (pointer) => {
+      this.swipeStartX = pointer.x
+    })
+    this.input.on('pointerup', (pointer) => {
       if (this.swipeStartX === undefined) return
       const diff = pointer.x - this.swipeStartX
       if (Math.abs(diff) > 50) this._navigate(diff < 0 ? 1 : -1)
@@ -346,7 +371,7 @@ export class ViewSelectScene extends BaseScene {
     this.selectedIndex = Phaser.Math.Wrap(
       this.selectedIndex + direction,
       0,
-      this.perspectives.length,
+      this.perspectives.length
     )
     storePerspective(this.perspectives[this.selectedIndex].id)
     this._buildCards()

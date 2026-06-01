@@ -20,7 +20,13 @@ import { COLORS } from '../config/gameConfig'
  * @returns {Phaser.GameObjects.Container}
  */
 export function createRewardCard(scene, reward, count, layout) {
-  const { width: CARD_W, height: CARD_H, imgSize: IMG_SIZE, imgYLocal: IMG_Y_LOCAL, onPress } = layout
+  const {
+    width: CARD_W,
+    height: CARD_H,
+    imgSize: IMG_SIZE,
+    imgYLocal: IMG_Y_LOCAL,
+    onPress,
+  } = layout
   const earned = count > 0
 
   const container = scene.add.container(0, 0)
@@ -48,27 +54,30 @@ export function createRewardCard(scene, reward, count, layout) {
   // ── Nombre (oculto con ??? si no se ha ganado) ────────────────
   const displayName = earned ? reward.nombre : '???'
   container.add(
-    scene.add.text(CARD_W / 2, 14, displayName, {
-      fontFamily: 'monospace',
-      fontSize:   '10px',
-      color:      earned ? '#ffd700' : '#444455',
-      stroke:     '#000000',
-      strokeThickness: earned ? 2 : 1,
-      align: 'center',
-      wordWrap: { width: CARD_W - 16 },
-    }).setOrigin(0.5, 0),
+    scene.add
+      .text(CARD_W / 2, 14, displayName, {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: earned ? '#ffd700' : '#444455',
+        stroke: '#000000',
+        strokeThickness: earned ? 2 : 1,
+        align: 'center',
+        wordWrap: { width: CARD_W - 16 },
+      })
+      .setOrigin(0.5, 0)
   )
 
   // ── Imagen (centro de la ficha) ───────────────────────────────
   const imgCX = CARD_W / 2
   const imgCY = IMG_Y_LOCAL + IMG_SIZE / 2
 
-  if (earned && scene.textures.exists(reward.id) &&
-      scene.textures.get(reward.id).key !== '__MISSING') {
+  if (
+    earned &&
+    scene.textures.exists(reward.id) &&
+    scene.textures.get(reward.id).key !== '__MISSING'
+  ) {
     container.add(
-      scene.add.image(imgCX, imgCY, reward.id)
-        .setDisplaySize(IMG_SIZE, IMG_SIZE)
-        .setOrigin(0.5),
+      scene.add.image(imgCX, imgCY, reward.id).setDisplaySize(IMG_SIZE, IMG_SIZE).setOrigin(0.5)
     )
   } else {
     const imgG = scene.add.graphics()
@@ -79,11 +88,13 @@ export function createRewardCard(scene, reward, count, layout) {
     container.add(imgG)
 
     container.add(
-      scene.add.text(imgCX, imgCY, '?', {
-        fontFamily: 'monospace',
-        fontSize:   '36px',
-        color:      earned ? '#ffd700' : '#2a2a3a',
-      }).setOrigin(0.5),
+      scene.add
+        .text(imgCX, imgCY, '?', {
+          fontFamily: 'monospace',
+          fontSize: '36px',
+          color: earned ? '#ffd700' : '#2a2a3a',
+        })
+        .setOrigin(0.5)
     )
   }
 
@@ -95,13 +106,15 @@ export function createRewardCard(scene, reward, count, layout) {
 
   // ── Contador (parte inferior) ─────────────────────────────────
   container.add(
-    scene.add.text(CARD_W / 2, CARD_H - 22, `x${count}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize:   '13px',
-      color:      earned ? '#ffd700' : '#2a2a3a',
-      stroke:     '#000000',
-      strokeThickness: earned ? 3 : 1,
-    }).setOrigin(0.5),
+    scene.add
+      .text(CARD_W / 2, CARD_H - 22, `x${count}`, {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '13px',
+        color: earned ? '#ffd700' : '#2a2a3a',
+        stroke: '#000000',
+        strokeThickness: earned ? 3 : 1,
+      })
+      .setOrigin(0.5)
   )
 
   // ── Interacción (solo premios ganados) ───────────────────────
@@ -111,7 +124,7 @@ export function createRewardCard(scene, reward, count, layout) {
     hit.fillRect(0, 0, CARD_W, CARD_H)
     hit.setInteractive(
       new Phaser.Geom.Rectangle(0, 0, CARD_W, CARD_H),
-      Phaser.Geom.Rectangle.Contains,
+      Phaser.Geom.Rectangle.Contains
     )
 
     const drawNormal = () => {
@@ -138,9 +151,9 @@ export function createRewardCard(scene, reward, count, layout) {
       g.strokeRect(3, 3, CARD_W - 6, CARD_H - 6)
     }
 
-    hit.on('pointerover',  drawHover)
-    hit.on('pointerout',   drawNormal)
-    hit.on('pointerdown',  () => onPress(reward, count))
+    hit.on('pointerover', drawHover)
+    hit.on('pointerout', drawNormal)
+    hit.on('pointerdown', () => onPress(reward, count))
     container.add(hit)
   }
 

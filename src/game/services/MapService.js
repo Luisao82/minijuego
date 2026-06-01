@@ -5,9 +5,7 @@
 const STORAGE_KEY = 'cucana_map'
 
 const ALL_PIECES = []
-for (let r = 0; r < 5; r++)
-  for (let c = 0; c < 3; c++)
-    ALL_PIECES.push(`piece-${r}-${c}`)
+for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) ALL_PIECES.push(`piece-${r}-${c}`)
 
 function load() {
   try {
@@ -18,7 +16,9 @@ function load() {
 }
 
 function save(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)) } catch (_) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (_) {}
 }
 
 class MapService {
@@ -33,8 +33,8 @@ class MapService {
   // Desbloquea un trozo aleatorio de los aún no conseguidos.
   // Devuelve el ID del trozo nuevo, o null si ya están todos.
   unlockRandom() {
-    const state    = load()
-    const pending  = ALL_PIECES.filter(id => !state.unlocked.includes(id))
+    const state = load()
+    const pending = ALL_PIECES.filter((id) => !state.unlocked.includes(id))
     if (pending.length === 0) return null
 
     const newPiece = pending[Math.floor(Math.random() * pending.length)]
@@ -62,7 +62,7 @@ class MapService {
 
   hasUnseenPieces() {
     const state = load()
-    return state.unlocked.some(id => !state.seen.includes(id))
+    return state.unlocked.some((id) => !state.seen.includes(id))
   }
 }
 

@@ -12,7 +12,6 @@ const TITLE_Y = GAME_HEIGHT / 2 - 40
 const SUB_Y = TITLE_Y + 80
 
 export class MenuScene extends BaseScene {
-
   constructor() {
     super(SCENES.MENU)
   }
@@ -25,7 +24,10 @@ export class MenuScene extends BaseScene {
 
     // Parar música al salir del menú (a cualquier escena)
     this.events.once('shutdown', () => {
-      if (this._music) { this._music.stop(); this._music.destroy() }
+      if (this._music) {
+        this._music.stop()
+        this._music.destroy()
+      }
     })
   }
 
@@ -33,7 +35,7 @@ export class MenuScene extends BaseScene {
 
   _startMusic() {
     this._music = this.sound.add('music-menu', {
-      loop:   true,
+      loop: true,
       volume: musicService.isMuted ? 0 : 0.4,
     })
     // Phaser gestiona internamente el AudioContext suspendido (móvil/browser autoplay):
@@ -46,7 +48,11 @@ export class MenuScene extends BaseScene {
     const SIZE = 72
     const x = GAME_WIDTH - 14 - SIZE
     this._muteBtn = makeIconButton(
-      this, x, 14, SIZE, '♪',
+      this,
+      x,
+      14,
+      SIZE,
+      '♪',
       () => {
         const muted = musicService.toggleMute()
         this._muteBtn.setIconColor(muted ? '#555555' : '#1a0800')
@@ -58,7 +64,7 @@ export class MenuScene extends BaseScene {
       {
         depth: 10,
         color: musicService.isMuted ? '#555555' : '#1a0800',
-      },
+      }
     )
   }
 
@@ -73,37 +79,44 @@ export class MenuScene extends BaseScene {
 
   animateTitle() {
     // "La Cucaña" — empieza fuera de pantalla arriba
-    this.titleText = this.add.text(CENTER_X, -120, 'La Cucaña', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '110px',
-      color: '#ff6b35',
-      stroke: '#1a0a00',
-      strokeThickness: 10,
-      letterSpacing: 4,
-      shadow: {
-        offsetX: 4,
-        offsetY: 4,
-        color: '#000000',
-        blur: 0,
-        fill: true,
-      },
-    }).setOrigin(0.5).setAlpha(0)
+    this.titleText = this.add
+      .text(CENTER_X, -120, 'La Cucaña', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '110px',
+        color: '#ff6b35',
+        stroke: '#1a0a00',
+        strokeThickness: 10,
+        letterSpacing: 4,
+        shadow: {
+          offsetX: 4,
+          offsetY: 4,
+          color: '#000000',
+          blur: 0,
+          fill: true,
+        },
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
 
     // "de Triana" — empieza muy pequeño (viene desde el fondo)
-    this.subText = this.add.text(CENTER_X, SUB_Y, 'de Triana', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '58px',
-      color: '#ffd647',
-      stroke: '#1a0a00',
-      strokeThickness: 7,
-      shadow: {
-        offsetX: 3,
-        offsetY: 3,
-        color: '#000000',
-        blur: 0,
-        fill: true,
-      },
-    }).setOrigin(0.5).setScale(0).setAlpha(0)
+    this.subText = this.add
+      .text(CENTER_X, SUB_Y, 'de Triana', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '58px',
+        color: '#ffd647',
+        stroke: '#1a0a00',
+        strokeThickness: 7,
+        shadow: {
+          offsetX: 3,
+          offsetY: 3,
+          color: '#000000',
+          blur: 0,
+          fill: true,
+        },
+      })
+      .setOrigin(0.5)
+      .setScale(0)
+      .setAlpha(0)
 
     // Fondo oscuro — empieza fuera a la izquierda
     this.titleBg = this.add.graphics()
@@ -173,13 +186,17 @@ export class MenuScene extends BaseScene {
   }
 
   drawStartPrompt() {
-    this.startText = this.add.text(GAME_WIDTH / 2, SUB_Y + 100, 'PULSA PARA EMPEZAR', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '22px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setAlpha(0).setDepth(2)
+    this.startText = this.add
+      .text(GAME_WIDTH / 2, SUB_Y + 100, 'PULSA PARA EMPEZAR', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '22px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+      .setDepth(2)
 
     this.tweens.add({
       targets: this.startText,
@@ -189,7 +206,9 @@ export class MenuScene extends BaseScene {
         this.time.addEvent({
           delay: 500,
           loop: true,
-          callback: () => { this.startText.visible = !this.startText.visible },
+          callback: () => {
+            this.startText.visible = !this.startText.visible
+          },
         })
       },
     })
@@ -198,13 +217,16 @@ export class MenuScene extends BaseScene {
     this.drawBottomButtons()
 
     // Versión — se actualiza automáticamente desde package.json
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 22, `v${version}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '16px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5).setDepth(2)
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT - 22, `v${version}`, {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '16px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setDepth(2)
   }
 
   // ── 4 botones inferiores en rejilla equidistante ──────────────
@@ -214,35 +236,51 @@ export class MenuScene extends BaseScene {
     const btnH = 58
     const btnY = GAME_HEIGHT - 104
     const margin = 16
-    const gap   = Math.round((GAME_WIDTH - 2 * margin - 4 * btnW) / 3)
+    const gap = Math.round((GAME_WIDTH - 2 * margin - 4 * btnW) / 3)
     const x = (i) => margin + i * (btnW + gap)
 
     this.historiaBounds = makeNavButton(
-      this, x(0), btnY, btnW, btnH,
+      this,
+      x(0),
+      btnY,
+      btnW,
+      btnH,
       'HISTORIA',
       () => this.scene.start(SCENES.HISTORY),
-      { depth: 2, fontSize: '34px' },
+      { depth: 2, fontSize: '34px' }
     )
 
     this.statsBounds = makeNavButton(
-      this, x(1), btnY, btnW, btnH,
+      this,
+      x(1),
+      btnY,
+      btnW,
+      btnH,
       'RÉCORDS',
       () => this.scene.start(SCENES.STATS),
-      { depth: 2, fontSize: '30px' },
+      { depth: 2, fontSize: '30px' }
     )
 
     this.tutorialBounds = makeNavButton(
-      this, x(2), btnY, btnW, btnH,
+      this,
+      x(2),
+      btnY,
+      btnW,
+      btnH,
       'TUTORIAL',
       () => this.scene.start(SCENES.TUTORIAL),
-      { depth: 2, fontSize: '34px' },
+      { depth: 2, fontSize: '34px' }
     )
 
     this.infoBounds = makeNavButton(
-      this, x(3), btnY, btnW, btnH,
+      this,
+      x(3),
+      btnY,
+      btnW,
+      btnH,
       'INFO',
       () => this.scene.start(SCENES.CREDITS),
-      { depth: 2, fontSize: '34px' },
+      { depth: 2, fontSize: '34px' }
     )
   }
 
@@ -262,11 +300,19 @@ export class MenuScene extends BaseScene {
     // Phaser pasa como segundo argumento el array de objetos interactivos bajo el puntero.
     // Si el puntero está sobre el botón de mute, ignoramos la navegación por fondo.
     this.input.on('pointerdown', (pointer) => {
-      const inMute     = this._muteBtn?.bounds && Phaser.Geom.Rectangle.Contains(this._muteBtn.bounds, pointer.x, pointer.y)
-      const inHistoria = this.historiaBounds   && Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
-      const inStats    = this.statsBounds      && Phaser.Geom.Rectangle.Contains(this.statsBounds,    pointer.x, pointer.y)
-      const inTutorial = this.tutorialBounds   && Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
-      const inInfo     = this.infoBounds       && Phaser.Geom.Rectangle.Contains(this.infoBounds,     pointer.x, pointer.y)
+      const inMute =
+        this._muteBtn?.bounds &&
+        Phaser.Geom.Rectangle.Contains(this._muteBtn.bounds, pointer.x, pointer.y)
+      const inHistoria =
+        this.historiaBounds &&
+        Phaser.Geom.Rectangle.Contains(this.historiaBounds, pointer.x, pointer.y)
+      const inStats =
+        this.statsBounds && Phaser.Geom.Rectangle.Contains(this.statsBounds, pointer.x, pointer.y)
+      const inTutorial =
+        this.tutorialBounds &&
+        Phaser.Geom.Rectangle.Contains(this.tutorialBounds, pointer.x, pointer.y)
+      const inInfo =
+        this.infoBounds && Phaser.Geom.Rectangle.Contains(this.infoBounds, pointer.x, pointer.y)
       if (!inMute && !inHistoria && !inStats && !inTutorial && !inInfo) {
         this.scene.start(SCENES.VIEW_SELECT)
       }

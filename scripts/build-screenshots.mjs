@@ -15,14 +15,19 @@ import { inflateSync, deflateSync } from 'node:zlib'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = resolve(__dirname, '..')
 
-const INPUT_DIR  = '/Users/luisao/Desktop/pantallazos'
+const INPUT_DIR = '/Users/luisao/Desktop/pantallazos'
 const OUTPUT_BASE = resolve(PROJECT_ROOT, 'public/assets/store/screenshots')
-const TMP_DIR     = '/tmp/cucana-shots-tmp'
+const TMP_DIR = '/tmp/cucana-shots-tmp'
 
 const TARGETS = [
-  { name: 'iphone-6.7', width: 2796, height: 1290, desc: 'iPhone 6.7" landscape (App Store, REQUIRED)' },
-  { name: 'ipad-13',    width: 2752, height: 2064, desc: 'iPad Pro 13" landscape (App Store)' },
-  { name: 'play-pwa',   width: 1920, height: 1080, desc: 'Google Play 16:9 + PWA wide' },
+  {
+    name: 'iphone-6.7',
+    width: 2796,
+    height: 1290,
+    desc: 'iPhone 6.7" landscape (App Store, REQUIRED)',
+  },
+  { name: 'ipad-13', width: 2752, height: 2064, desc: 'iPad Pro 13" landscape (App Store)' },
+  { name: 'play-pwa', width: 1920, height: 1080, desc: 'Google Play 16:9 + PWA wide' },
 ]
 
 // Orden recomendado para tiendas (primero el hook visual)
@@ -32,45 +37,65 @@ const ORDER = ['intro', 'juego', 'seleccion', 'premio', 'tutorial']
 function decodePNG(buffer) {
   const sig = [137, 80, 78, 71, 13, 10, 26, 10]
   for (let i = 0; i < 8; i++) if (buffer[i] !== sig[i]) throw new Error('No es PNG')
-  let offset = 8, width = 0, height = 0, bitDepth = 0, colorType = 0
+  let offset = 8,
+    width = 0,
+    height = 0,
+    bitDepth = 0,
+    colorType = 0
   const idat = []
   while (offset < buffer.length) {
     const len = buffer.readUInt32BE(offset)
     const type = buffer.toString('ascii', offset + 4, offset + 8)
     const data = buffer.subarray(offset + 8, offset + 8 + len)
     if (type === 'IHDR') {
-      width = data.readUInt32BE(0); height = data.readUInt32BE(4)
-      bitDepth = data[8]; colorType = data[9]
+      width = data.readUInt32BE(0)
+      height = data.readUInt32BE(4)
+      bitDepth = data[8]
+      colorType = data[9]
     } else if (type === 'IDAT') idat.push(data)
     else if (type === 'IEND') break
     offset += 8 + len + 4
   }
-  if (bitDepth !== 8 || colorType !== 6) throw new Error(`PNG no soportado: ${bitDepth}/${colorType}`)
-  const bpp = 4, stride = width * bpp
+  if (bitDepth !== 8 || colorType !== 6)
+    throw new Error(`PNG no soportado: ${bitDepth}/${colorType}`)
+  const bpp = 4,
+    stride = width * bpp
   const inflated = inflateSync(Buffer.concat(idat))
   const pixels = Buffer.alloc(width * height * bpp)
   for (let y = 0; y < height; y++) {
-    const inOff = y * (1 + stride), outOff = y * stride
+    const inOff = y * (1 + stride),
+      outOff = y * stride
     const filter = inflated[inOff]
     for (let x = 0; x < stride; x++) {
       const f = inflated[inOff + 1 + x]
       const a = x >= bpp ? pixels[outOff + x - bpp] : 0
       const b = y > 0 ? pixels[outOff - stride + x] : 0
-      const c = (x >= bpp && y > 0) ? pixels[outOff - stride + x - bpp] : 0
+      const c = x >= bpp && y > 0 ? pixels[outOff - stride + x - bpp] : 0
       let recon
       switch (filter) {
-        case 0: recon = f; break
-        case 1: recon = (f + a) & 0xff; break
-        case 2: recon = (f + b) & 0xff; break
-        case 3: recon = (f + ((a + b) >> 1)) & 0xff; break
+        case 0:
+          recon = f
+          break
+        case 1:
+          recon = (f + a) & 0xff
+          break
+        case 2:
+          recon = (f + b) & 0xff
+          break
+        case 3:
+          recon = (f + ((a + b) >> 1)) & 0xff
+          break
         case 4: {
           const p = a + b - c
-          const pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c)
-          const pred = (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c)
+          const pa = Math.abs(p - a),
+            pb = Math.abs(p - b),
+            pc = Math.abs(p - c)
+          const pred = pa <= pb && pa <= pc ? a : pb <= pc ? b : c
           recon = (f + pred) & 0xff
           break
         }
-        default: throw new Error(`Filtro desconocido: ${filter}`)
+        default:
+          throw new Error(`Filtro desconocido: ${filter}`)
       }
       pixels[outOff + x] = recon
     }
@@ -82,7 +107,7 @@ const CRC_TABLE = (() => {
   const t = new Uint32Array(256)
   for (let n = 0; n < 256; n++) {
     let c = n
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1)
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
     t[n] = c
   }
   return t
@@ -93,9 +118,11 @@ const crc32 = (b) => {
   return (c ^ 0xffffffff) >>> 0
 }
 const chunk = (type, data) => {
-  const len = Buffer.alloc(4); len.writeUInt32BE(data.length, 0)
+  const len = Buffer.alloc(4)
+  len.writeUInt32BE(data.length, 0)
   const t = Buffer.from(type, 'ascii')
-  const c = Buffer.alloc(4); c.writeUInt32BE(crc32(Buffer.concat([t, data])), 0)
+  const c = Buffer.alloc(4)
+  c.writeUInt32BE(crc32(Buffer.concat([t, data])), 0)
   return Buffer.concat([len, t, data, c])
 }
 function encodePNG(width, height, rgba) {
@@ -108,8 +135,13 @@ function encodePNG(width, height, rgba) {
   const z = deflateSync(raw, { level: 9 })
   const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
   const ihdr = Buffer.alloc(13)
-  ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4)
-  ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0
+  ihdr.writeUInt32BE(width, 0)
+  ihdr.writeUInt32BE(height, 4)
+  ihdr[8] = 8
+  ihdr[9] = 6
+  ihdr[10] = 0
+  ihdr[11] = 0
+  ihdr[12] = 0
   return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', z), chunk('IEND', Buffer.alloc(0))])
 }
 
@@ -133,13 +165,13 @@ function pasteCenter(dst, dW, dH, src, sW, sH) {
 // ─── Main ────────────────────────────────────────────────────────────────
 mkdirSync(TMP_DIR, { recursive: true })
 
-const screens = readdirSync(INPUT_DIR).filter(f => f.toLowerCase().endsWith('.png'))
+const screens = readdirSync(INPUT_DIR).filter((f) => f.toLowerCase().endsWith('.png'))
 console.log(`Capturas encontradas: ${screens.length}`)
 console.log(`  ${screens.join(', ')}`)
 
 // Aplicar orden recomendado
-const orderedNames = ORDER.map(n => `${n}.png`).filter(f => screens.includes(f))
-const remaining = screens.filter(f => !orderedNames.includes(f))
+const orderedNames = ORDER.map((n) => `${n}.png`).filter((f) => screens.includes(f))
+const remaining = screens.filter((f) => !orderedNames.includes(f))
 const finalOrder = [...orderedNames, ...remaining]
 
 let totalGenerated = 0
@@ -185,8 +217,10 @@ for (const target of TARGETS) {
     writeFileSync(outPath, encodePNG(target.width, target.height, canvas))
     totalGenerated++
 
-    const barInfo = (sourceRatio === targetRatio) ? 'sin bandas' : `bandas ${bars}`
-    console.log(`  ${n}-${baseName}.png  → ${fitW}×${fitH} en ${target.width}×${target.height} (${barInfo})`)
+    const barInfo = sourceRatio === targetRatio ? 'sin bandas' : `bandas ${bars}`
+    console.log(
+      `  ${n}-${baseName}.png  → ${fitW}×${fitH} en ${target.width}×${target.height} (${barInfo})`
+    )
   })
 }
 

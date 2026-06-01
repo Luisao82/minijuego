@@ -7,7 +7,6 @@
 import { BALANCE, DEBUG } from '../config/gameConfig'
 
 export class BalanceBar {
-
   constructor(equilibrioStat) {
     this.velocity = 0
     this.driftAcceleration = 0
@@ -62,7 +61,7 @@ export class BalanceBar {
     this.velocity += this.inputDirection * BALANCE.INPUT_FORCE * dt
 
     // 3. Amortiguamiento: frena la velocity de forma natural al soltar el botón
-    this.velocity *= (1 - BALANCE.DAMPING * dt)
+    this.velocity *= 1 - BALANCE.DAMPING * dt
 
     // 4. Cap de velocidad: evita acumulación descontrolada independientemente del modelo
     this.velocity = Math.max(-BALANCE.VELOCITY_CAP, Math.min(BALANCE.VELOCITY_CAP, this.velocity))

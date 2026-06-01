@@ -2,7 +2,6 @@ import { BaseScene } from './BaseScene'
 import { SCENES, COLORS } from '../config/gameConfig'
 
 export class BootScene extends BaseScene {
-
   constructor() {
     super(SCENES.BOOT)
   }

@@ -12,7 +12,6 @@
 //   const summary = calc.getSummary()
 
 export class StatsCalculator {
-
   constructor(records) {
     this.records = records || []
   }
@@ -24,7 +23,7 @@ export class StatsCalculator {
 
   // Partidas en las que se cogió la bandera
   totalWins() {
-    return this.records.filter(r => r.success).length
+    return this.records.filter((r) => r.success).length
   }
 
   // Porcentaje de victorias (0-100, entero)
@@ -48,12 +47,14 @@ export class StatsCalculator {
   // Top N skins con más victorias — [{ skinKey, characterId, wins }] ordenado desc
   topSkinsByWins(n = 3) {
     const map = {}
-    this.records.filter(r => r.success).forEach(r => {
-      if (!map[r.skinKey]) {
-        map[r.skinKey] = { skinKey: r.skinKey, characterId: r.characterId, wins: 0 }
-      }
-      map[r.skinKey].wins++
-    })
+    this.records
+      .filter((r) => r.success)
+      .forEach((r) => {
+        if (!map[r.skinKey]) {
+          map[r.skinKey] = { skinKey: r.skinKey, characterId: r.characterId, wins: 0 }
+        }
+        map[r.skinKey].wins++
+      })
     return Object.values(map)
       .sort((a, b) => b.wins - a.wins)
       .slice(0, n)
@@ -62,9 +63,11 @@ export class StatsCalculator {
   // Top N premios conseguidos, de más a menos — [{ rewardId, count }]
   topRewards(n = 5) {
     const map = {}
-    this.records.filter(r => r.rewardId).forEach(r => {
-      map[r.rewardId] = (map[r.rewardId] || 0) + 1
-    })
+    this.records
+      .filter((r) => r.rewardId)
+      .forEach((r) => {
+        map[r.rewardId] = (map[r.rewardId] || 0) + 1
+      })
     return Object.entries(map)
       .sort((a, b) => b[1] - a[1])
       .slice(0, n)
@@ -74,7 +77,7 @@ export class StatsCalculator {
   // Personaje con mejor ratio de victorias — { characterId, games, wins, winRate }
   bestCharacter() {
     const map = {}
-    this.records.forEach(r => {
+    this.records.forEach((r) => {
       if (!map[r.characterId]) {
         map[r.characterId] = { characterId: r.characterId, games: 0, wins: 0 }
       }
@@ -82,7 +85,7 @@ export class StatsCalculator {
       if (r.success) map[r.characterId].wins++
     })
     const sorted = Object.values(map)
-      .map(c => ({ ...c, winRate: Math.round((c.wins / c.games) * 100) }))
+      .map((c) => ({ ...c, winRate: Math.round((c.wins / c.games) * 100) }))
       .sort((a, b) => b.winRate - a.winRate)
     return sorted[0] || null
   }
@@ -105,15 +108,15 @@ export class StatsCalculator {
   // Objeto resumen con todas las estadísticas — consumido por StatsScene
   getSummary() {
     return {
-      totalGames:      this.totalGames(),
-      totalWins:       this.totalWins(),
-      winRate:         this.winRate(),
-      totalRewards:    this.totalRewards(),
-      avgPolePercent:  this.avgPolePercent(),
+      totalGames: this.totalGames(),
+      totalWins: this.totalWins(),
+      winRate: this.winRate(),
+      totalRewards: this.totalRewards(),
+      avgPolePercent: this.avgPolePercent(),
       consecutiveWins: this.consecutiveWins(),
-      topSkins:        this.topSkinsByWins(3),
-      topRewards:      this.topRewards(5),
-      bestCharacter:  this.bestCharacter(),
+      topSkins: this.topSkinsByWins(3),
+      topRewards: this.topRewards(5),
+      bestCharacter: this.bestCharacter(),
     }
   }
 }

@@ -1,31 +1,31 @@
 @font-face {
-    font-family: 'Jersey 10';
-    font-style: normal;
-    font-weight: 400;
-    font-display: block;
-    src: url('/assets/fonts/jersey10.ttf') format('truetype');
+  font-family: 'Jersey 10';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/assets/fonts/jersey10.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Press Start 2P';
-    font-style: normal;
-    font-weight: 400;
-    font-display: block;
-    src: url('/assets/fonts/press-start-2p.ttf') format('truetype');
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/assets/fonts/press-start-2p.ttf') format('truetype');
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #000000;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #000000;
 }
 
 #app {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

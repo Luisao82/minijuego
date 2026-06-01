@@ -11,7 +11,6 @@
 //   otra clave de spritesheet. La lógica de animación es idéntica.
 
 export class Narrator {
-
   /**
    * @param {Phaser.Scene} scene
    * @param {{
@@ -31,13 +30,13 @@ export class Narrator {
    * }} config
    */
   constructor(scene, config) {
-    this._scene      = scene
-    this._config     = config
-    this._isTalking  = false
+    this._scene = scene
+    this._config = config
+    this._isTalking = false
     this._mouthFrame = 0
     this._mouthTimer = null
     this._blinkTimer = null
-    this._img        = null
+    this._img = null
 
     this._createPortrait()
     this._scheduleNextBlink()
@@ -48,9 +47,12 @@ export class Narrator {
   _createPortrait() {
     const { cx, cy, size, spritesheet, baseFrame = 0, depth = 3 } = this._config
 
-    if (this._scene.textures.exists(spritesheet) &&
-        this._scene.textures.get(spritesheet).key !== '__MISSING') {
-      this._img = this._scene.add.image(cx, cy, spritesheet, baseFrame)
+    if (
+      this._scene.textures.exists(spritesheet) &&
+      this._scene.textures.get(spritesheet).key !== '__MISSING'
+    ) {
+      this._img = this._scene.add
+        .image(cx, cy, spritesheet, baseFrame)
         .setDisplaySize(size, size)
         .setOrigin(0.5)
         .setDepth(depth)
@@ -73,7 +75,7 @@ export class Narrator {
     g.fillRect(x + s * 0.2, y + s * 0.15, s * 0.6, s * 0.7)
     // Ojos
     g.fillStyle(0x1a0a00, 1)
-    g.fillRect(x + s * 0.3,  y + s * 0.32, s * 0.12, s * 0.1)
+    g.fillRect(x + s * 0.3, y + s * 0.32, s * 0.12, s * 0.1)
     g.fillRect(x + s * 0.58, y + s * 0.32, s * 0.12, s * 0.1)
     // Boca
     g.fillRect(x + s * 0.35, y + s * 0.62, s * 0.3, s * 0.06)
@@ -84,28 +86,31 @@ export class Narrator {
   // ── Animación de boca ─────────────────────────────────────────
 
   startTalking() {
-    this._isTalking  = true
+    this._isTalking = true
     this._mouthFrame = 0
     this._scheduleMouthFrame()
   }
 
   stopTalking() {
     this._isTalking = false
-    if (this._mouthTimer) { this._mouthTimer.remove(); this._mouthTimer = null }
+    if (this._mouthTimer) {
+      this._mouthTimer.remove()
+      this._mouthTimer = null
+    }
     this._applyFrame(this._config.baseFrame ?? 0)
   }
 
   _scheduleMouthFrame() {
     if (!this._isTalking) return
     const cycle = this._config.mouthCycle
-    const step  = cycle[this._mouthFrame % cycle.length]
+    const step = cycle[this._mouthFrame % cycle.length]
     this._applyFrame(step.frame)
 
     // Blip de voz: solo en frames con boca abierta (frame > 0)
     if (step.frame > 0 && this._config.talkSoundKey) {
       this._scene.sound.play(this._config.talkSoundKey, {
         volume: this._config.talkSoundVol ?? 0.25,
-        rate:   0.9 + Math.random() * 0.2,
+        rate: 0.9 + Math.random() * 0.2,
       })
     }
 
@@ -118,7 +123,13 @@ export class Narrator {
   // ── Parpadeo ─────────────────────────────────────────────────
 
   _scheduleNextBlink() {
-    const { blinkMin = 3200, blinkMax = 7000, blinkDur = 130, blinkFrame = 3, baseFrame = 0 } = this._config
+    const {
+      blinkMin = 3200,
+      blinkMax = 7000,
+      blinkDur = 130,
+      blinkFrame = 3,
+      baseFrame = 0,
+    } = this._config
     const delay = Phaser.Math.Between(blinkMin, blinkMax)
 
     this._blinkTimer = this._scene.time.delayedCall(delay, () => {
@@ -147,8 +158,14 @@ export class Narrator {
 
   stopAllTimers() {
     this._isTalking = false
-    if (this._mouthTimer) { this._mouthTimer.remove(); this._mouthTimer = null }
-    if (this._blinkTimer) { this._blinkTimer.remove(); this._blinkTimer = null }
+    if (this._mouthTimer) {
+      this._mouthTimer.remove()
+      this._mouthTimer = null
+    }
+    if (this._blinkTimer) {
+      this._blinkTimer.remove()
+      this._blinkTimer = null
+    }
   }
 
   destroy() {

@@ -1,8 +1,8 @@
 # Plantilla de contacto — Solicitud de uso de obra musical
 
 Este documento es una **plantilla** para solicitar permiso de uso de la
-sevillana de *Cantores de Híspalis* adaptada como música del menú principal
-del juego *La Cucaña Trianera*.
+sevillana de _Cantores de Híspalis_ adaptada como música del menú principal
+del juego _La Cucaña Trianera_.
 
 ---
 
@@ -94,7 +94,7 @@ aunque el juego sea gratuito.
 > Un cordial saludo,
 >
 > **Luisao**
-> Desarrollador y autor de *La Cucaña Trianera*
+> Desarrollador y autor de _La Cucaña Trianera_
 > luisaodeben@gmail.com
 > Web del juego: [URL de Vercel del juego]
 > Política de privacidad: [URL de privacy.html]

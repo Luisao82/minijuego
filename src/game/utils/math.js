@@ -23,7 +23,7 @@ export function weightedRandom(items, weightKey = 'probabilidad') {
   let roll = Math.random() * totalWeight
 
   for (const item of items) {
-    roll -= (item[weightKey] || 0)
+    roll -= item[weightKey] || 0
     if (roll <= 0) return item
   }
 

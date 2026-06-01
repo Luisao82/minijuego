@@ -4,22 +4,21 @@ import { PHASE1, GAME_WIDTH, CONTROL_PANEL, COLORS } from '../config/gameConfig'
 // Gestiona su propio ciclo de vida: create → update → destroy
 
 export class PowerBarUI {
-
   constructor(scene, powerBar, characterData) {
-    this._scene         = scene
-    this._powerBar      = powerBar
+    this._scene = scene
+    this._powerBar = powerBar
     this._characterData = characterData
-    this._elements      = []
-    this._cursor        = null
-    this._passText      = null
+    this._elements = []
+    this._cursor = null
+    this._passText = null
     this._instructionTween = null
   }
 
   create() {
     const { WIDTH, HEIGHT } = PHASE1.BAR
     const centerX = GAME_WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const barX    = centerX - WIDTH / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+    const barX = centerX - WIDTH / 2
 
     const barBg = this._scene.add.graphics()
     this._drawZones(barBg, barX, barY, WIDTH, HEIGHT)
@@ -28,30 +27,34 @@ export class PowerBarUI {
     this._cursor = this._scene.add.graphics()
     this._elements.push(this._cursor)
 
-    this._passText = this._scene.add.text(centerX, barY - 18, '', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '26px',
-      color:           '#ffffff',
-      stroke:          '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5)
+    this._passText = this._scene.add
+      .text(centerX, barY - 18, '', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '26px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
     this._elements.push(this._passText)
 
-    const instrText = this._scene.add.text(centerX, barY + HEIGHT + 22, '¡PULSA PARA DETENER!', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '28px',
-      color:           '#ffffff',
-      stroke:          '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5)
+    const instrText = this._scene.add
+      .text(centerX, barY + HEIGHT + 22, '¡PULSA PARA DETENER!', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '28px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
     this._elements.push(instrText)
 
     this._instructionTween = this._scene.tweens.add({
-      targets:  instrText,
-      alpha:    0.3,
+      targets: instrText,
+      alpha: 0.3,
       duration: 500,
-      yoyo:     true,
-      repeat:   -1,
+      yoyo: true,
+      repeat: -1,
     })
 
     this._updatePassCounter()
@@ -64,10 +67,10 @@ export class PowerBarUI {
 
   destroy() {
     this._instructionTween?.stop()
-    this._elements.forEach(el => el?.destroy())
-    this._elements         = []
-    this._cursor           = null
-    this._passText         = null
+    this._elements.forEach((el) => el?.destroy())
+    this._elements = []
+    this._cursor = null
+    this._passText = null
     this._instructionTween = null
   }
 
@@ -84,12 +87,12 @@ export class PowerBarUI {
     g.fillGradientStyle(COLORS.RED, COLORS.YELLOW, COLORS.RED, COLORS.YELLOW, 1, 1, 1, 1)
     g.fillRect(x, y, redWidth, height)
 
-    const yellowX     = ZONES.YELLOW.start * width
+    const yellowX = ZONES.YELLOW.start * width
     const yellowWidth = (ZONES.YELLOW.end - ZONES.YELLOW.start) * width
     g.fillStyle(COLORS.YELLOW, 1)
     g.fillRect(x + yellowX, y, yellowWidth, height)
 
-    const greenX     = ZONES.GREEN.start * width
+    const greenX = ZONES.GREEN.start * width
     const greenWidth = (ZONES.GREEN.end - ZONES.GREEN.start) * width
     g.fillGradientStyle(COLORS.YELLOW, COLORS.GREEN, COLORS.YELLOW, COLORS.GREEN, 1, 1, 1, 1)
     g.fillRect(x + greenX, y, greenWidth, height)
@@ -103,15 +106,22 @@ export class PowerBarUI {
 
     const { WIDTH, HEIGHT } = PHASE1.BAR
     const centerX = GAME_WIDTH / 2
-    const barX    = centerX - WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+    const barX = centerX - WIDTH / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
     const cursorX = barX + this._powerBar.position * WIDTH
 
     this._cursor.clear()
     this._cursor.fillStyle(COLORS.WHITE, 1)
     this._cursor.fillRect(cursorX - 2, barY - 8, 4, HEIGHT + 16)
-    this._cursor.fillTriangle(cursorX, barY - 14, cursorX - 7, barY - 6,  cursorX + 7, barY - 6)
-    this._cursor.fillTriangle(cursorX, barY + HEIGHT + 14, cursorX - 7, barY + HEIGHT + 6, cursorX + 7, barY + HEIGHT + 6)
+    this._cursor.fillTriangle(cursorX, barY - 14, cursorX - 7, barY - 6, cursorX + 7, barY - 6)
+    this._cursor.fillTriangle(
+      cursorX,
+      barY + HEIGHT + 14,
+      cursorX - 7,
+      barY + HEIGHT + 6,
+      cursorX + 7,
+      barY + HEIGHT + 6
+    )
   }
 
   _updatePassCounter() {

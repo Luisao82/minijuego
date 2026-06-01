@@ -10,7 +10,6 @@ import { prefersReducedMotion } from '../utils/accessibility'
 //   • Hook _onShutdown() para limpieza específica de cada subclase
 
 export class BaseScene extends Scene {
-
   // Flag de accesibilidad: true si el SO del usuario tiene "Reducir movimiento"
   // activado. Las escenas con animaciones decorativas (marquees, parpadeos,
   // partículas) deben comprobarlo y omitir/acortar dichas animaciones.
@@ -24,8 +23,8 @@ export class BaseScene extends Scene {
     if (import.meta.env.PROD) {
       Sentry.addBreadcrumb({
         category: 'navigation',
-        message:  `scene: ${this.scene.key}`,
-        level:    'info',
+        message: `scene: ${this.scene.key}`,
+        level: 'info',
       })
     }
 
@@ -45,11 +44,13 @@ export class BaseScene extends Scene {
   // opts acepta cualquier propiedad de Phaser TextStyle + originX / originY.
   _label(x, y, text, opts = {}) {
     const { originX = 0.5, originY = 0.5, ...style } = opts
-    return this.add.text(x, y, text, {
-      fontFamily: 'monospace',
-      fontSize:   '13px',
-      color:      '#ffffff',
-      ...style,
-    }).setOrigin(originX, originY)
+    return this.add
+      .text(x, y, text, {
+        fontFamily: 'monospace',
+        fontSize: '13px',
+        color: '#ffffff',
+        ...style,
+      })
+      .setOrigin(originX, originY)
   }
 }

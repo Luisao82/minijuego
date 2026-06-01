@@ -5,13 +5,13 @@
 import { COLORS } from '../config/gameConfig'
 
 const STAT_COLORS = {
-  peso:       0xe74c3c,
+  peso: 0xe74c3c,
   equilibrio: 0x3498db,
-  altura:     0x2ecc71,
-  edad:       0xf39c12,
+  altura: 0x2ecc71,
+  edad: 0xf39c12,
 }
 const STAT_NAMES = { peso: 'PES', equilibrio: 'EQU', altura: 'ALT', edad: 'EDA' }
-const STAT_MAX   = 10
+const STAT_MAX = 10
 
 /**
  * Crea una ficha de personaje y la devuelve como Container.
@@ -35,18 +35,25 @@ const STAT_MAX   = 10
  * @param {string|null} [hint=null]  - Texto de pista para desbloquear
  * @returns {Phaser.GameObjects.Container}
  */
-export function createCharacterCard(scene, char, isSelected, layout, isLocked = false, hint = null) {
+export function createCharacterCard(
+  scene,
+  char,
+  isSelected,
+  layout,
+  isLocked = false,
+  hint = null
+) {
   const {
-    width:      CARD_WIDTH,
-    height:     CARD_HEIGHT,
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
     cardPadding: CARD_PADDING,
-    imgW:       IMG_W,
-    imgH:       IMG_H,
-    statsY:     STATS_Y,
-    statsX:     STATS_X,
-    barWidth:   BAR_WIDTH,
-    barHeight:  BAR_HEIGHT,
-    statRowH:   STAT_ROW_H,
+    imgW: IMG_W,
+    imgH: IMG_H,
+    statsY: STATS_Y,
+    statsX: STATS_X,
+    barWidth: BAR_WIDTH,
+    barHeight: BAR_HEIGHT,
+    statRowH: STAT_ROW_H,
   } = layout
 
   const IMG_X = CARD_PADDING
@@ -85,8 +92,8 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
   container.add(g)
 
   // ── Imagen del personaje ──────────────────────────────────────
-  const hasSprite = scene.textures.exists(char.sprite) &&
-    scene.textures.get(char.sprite).key !== '__MISSING'
+  const hasSprite =
+    scene.textures.exists(char.sprite) && scene.textures.get(char.sprite).key !== '__MISSING'
 
   if (isLocked) {
     // Personaje bloqueado: fondo oscuro con candado centrado, sin revelar el sprite
@@ -100,10 +107,10 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
     _drawLockIcon(scene, container, IMG_X + IMG_W / 2, IMG_Y + IMG_H / 2 - 8)
   } else if (hasSprite) {
     const sprite = scene.add.image(IMG_X + IMG_W / 2, IMG_Y + IMG_H / 2, char.sprite)
-    const scale  = Math.max(IMG_W / sprite.width, IMG_H / sprite.height)
+    const scale = Math.max(IMG_W / sprite.width, IMG_H / sprite.height)
     sprite.setScale(scale)
 
-    const cropX = (sprite.displayWidth  - IMG_W) / 2
+    const cropX = (sprite.displayWidth - IMG_W) / 2
     const cropY = (sprite.displayHeight - IMG_H) / 2
     sprite.setCrop(cropX / scale, cropY / scale, IMG_W / scale, IMG_H / scale)
 
@@ -133,44 +140,56 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
   }
 
   // ── Nombre (superpuesto sobre la imagen) ──────────────────────
-  const nameColor  = isPlayable ? '#ffd700' : '#555555'
-  const nameLabel  = isLocked ? '???' : char.name
+  const nameColor = isPlayable ? '#ffd700' : '#555555'
+  const nameLabel = isLocked ? '???' : char.name
   container.add(
-    scene.add.text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, nameLabel, {
-      fontFamily: 'monospace',
-      fontSize:   '16px',
-      color:      nameColor,
-      stroke:     '#000000',
-      strokeThickness: 5,
-      align: 'center',
-    }).setOrigin(0.5, 1),
+    scene.add
+      .text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, nameLabel, {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        color: nameColor,
+        stroke: '#000000',
+        strokeThickness: 5,
+        align: 'center',
+      })
+      .setOrigin(0.5, 1)
   )
 
   // ── Stats / bloqueado ─────────────────────────────────────────
   if (isPlayable) {
-    _drawStats(scene, container, char.stats, { statsY: STATS_Y, statsX: STATS_X, barWidth: BAR_WIDTH, barHeight: BAR_HEIGHT, statRowH: STAT_ROW_H })
+    _drawStats(scene, container, char.stats, {
+      statsY: STATS_Y,
+      statsX: STATS_X,
+      barWidth: BAR_WIDTH,
+      barHeight: BAR_HEIGHT,
+      statRowH: STAT_ROW_H,
+    })
   } else {
     // Personaje bloqueado: hint de desbloqueo
     container.add(
-      scene.add.text(CARD_WIDTH / 2, STATS_Y + 14, 'BLOQUEADO', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize:   '22px',
-        color:      '#555577',
-        stroke:     '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5),
+      scene.add
+        .text(CARD_WIDTH / 2, STATS_Y + 14, 'BLOQUEADO', {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '22px',
+          color: '#555577',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     )
     if (hint) {
       container.add(
-        scene.add.text(CARD_WIDTH / 2, STATS_Y + 48, hint, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize:   '20px',
-          color:      '#aaaacc',
-          stroke:     '#000000',
-          strokeThickness: 2,
-          align:      'center',
-          wordWrap:   { width: CARD_WIDTH - 20 },
-        }).setOrigin(0.5),
+        scene.add
+          .text(CARD_WIDTH / 2, STATS_Y + 48, hint, {
+            fontFamily: '"Jersey 10", cursive',
+            fontSize: '20px',
+            color: '#aaaacc',
+            stroke: '#000000',
+            strokeThickness: 2,
+            align: 'center',
+            wordWrap: { width: CARD_WIDTH - 20 },
+          })
+          .setOrigin(0.5)
       )
     }
   }
@@ -182,9 +201,9 @@ export function createCharacterCard(scene, char, isSelected, layout, isLocked = 
 
 function _drawStats(scene, container, stats, { statsY, statsX, barWidth, barHeight, statRowH }) {
   const SEG_COUNT = 6
-  const SEG_GAP   = 3
-  const SEG_W     = Math.floor((barWidth - SEG_GAP * (SEG_COUNT - 1)) / SEG_COUNT)
-  const BAR_X     = statsX + 48   // espacio para la etiqueta más grande
+  const SEG_GAP = 3
+  const SEG_W = Math.floor((barWidth - SEG_GAP * (SEG_COUNT - 1)) / SEG_COUNT)
+  const BAR_X = statsX + 48 // espacio para la etiqueta más grande
 
   Object.entries(stats).forEach(([key, value], i) => {
     const rowY = statsY + i * statRowH
@@ -192,17 +211,19 @@ function _drawStats(scene, container, stats, { statsY, statsX, barWidth, barHeig
 
     // Etiqueta de la estadística
     container.add(
-      scene.add.text(statsX, rowY + statRowH / 2, STAT_NAMES[key] ?? key, {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize:   '20px',
-        color:      '#dddddd',
-      }).setOrigin(0, 0.5),
+      scene.add
+        .text(statsX, rowY + statRowH / 2, STAT_NAMES[key] ?? key, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '20px',
+          color: '#dddddd',
+        })
+        .setOrigin(0, 0.5)
     )
 
     // Barra segmentada — 6 bloques pixel art rellenos según el valor
     const filled = Math.round((value / STAT_MAX) * SEG_COUNT)
-    const color  = STAT_COLORS[key] ?? 0xffffff
-    const barG   = scene.add.graphics()
+    const color = STAT_COLORS[key] ?? 0xffffff
+    const barG = scene.add.graphics()
 
     for (let s = 0; s < SEG_COUNT; s++) {
       const sx = BAR_X + s * (SEG_W + SEG_GAP)
@@ -233,20 +254,20 @@ function _drawLockIcon(scene, container, cx, cy) {
 
   // Arco superior del candado (parte redonda)
   g.lineStyle(2 * s, 0x888888, 1)
-  g.strokeRect(ox + 3 * s, oy,          10 * s, 8 * s)  // arco (simplificado pixel art)
+  g.strokeRect(ox + 3 * s, oy, 10 * s, 8 * s) // arco (simplificado pixel art)
   g.fillStyle(0x1a1a2e, 1)
-  g.fillRect(ox + 4 * s,  oy + s,        8 * s, 6 * s)  // hueco interior del arco
+  g.fillRect(ox + 4 * s, oy + s, 8 * s, 6 * s) // hueco interior del arco
 
   // Cuerpo del candado
   g.fillStyle(0x888888, 1)
-  g.fillRect(ox,           oy + 8 * s,  16 * s, 12 * s)
+  g.fillRect(ox, oy + 8 * s, 16 * s, 12 * s)
   g.lineStyle(s, 0x555555, 1)
-  g.strokeRect(ox,         oy + 8 * s,  16 * s, 12 * s)
+  g.strokeRect(ox, oy + 8 * s, 16 * s, 12 * s)
 
   // Ojo de la cerradura
   g.fillStyle(0x1a1a2e, 1)
-  g.fillRect(ox + 6 * s,  oy + 11 * s,  4 * s,  3 * s)
-  g.fillRect(ox + 7 * s,  oy + 14 * s,  2 * s,  3 * s)
+  g.fillRect(ox + 6 * s, oy + 11 * s, 4 * s, 3 * s)
+  g.fillRect(ox + 7 * s, oy + 14 * s, 2 * s, 3 * s)
 
   container.add(g)
 }
@@ -257,7 +278,7 @@ function _drawSilhouette(graphics, cx, cy, available) {
   graphics.fillRect(cx - 10, cy - 36, 20, 18)
   graphics.fillRect(cx - 14, cy - 18, 28, 28)
   graphics.fillRect(cx - 12, cy + 10, 10, 18)
-  graphics.fillRect(cx +  2, cy + 10, 10, 18)
-  graphics.fillRect(cx - 22, cy - 14,  8, 20)
-  graphics.fillRect(cx + 14, cy - 14,  8, 20)
+  graphics.fillRect(cx + 2, cy + 10, 10, 18)
+  graphics.fillRect(cx - 22, cy - 14, 8, 20)
+  graphics.fillRect(cx + 14, cy - 14, 8, 20)
 }
