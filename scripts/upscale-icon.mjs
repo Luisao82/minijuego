@@ -21,7 +21,10 @@ function decodePNG(buffer) {
   }
 
   let offset = 8
-  let width = 0, height = 0, bitDepth = 0, colorType = 0
+  let width = 0,
+    height = 0,
+    bitDepth = 0,
+    colorType = 0
   const idatChunks = []
 
   while (offset < buffer.length) {
@@ -43,7 +46,9 @@ function decodePNG(buffer) {
   }
 
   if (bitDepth !== 8 || colorType !== 6) {
-    throw new Error(`PNG no soportado: bitDepth=${bitDepth}, colorType=${colorType}. Esperado: 8-bit RGBA.`)
+    throw new Error(
+      `PNG no soportado: bitDepth=${bitDepth}, colorType=${colorType}. Esperado: 8-bit RGBA.`
+    )
   }
 
   const bpp = 4
@@ -59,23 +64,32 @@ function decodePNG(buffer) {
       const f = inflated[inOff + 1 + x]
       const a = x >= bpp ? pixels[outOff + x - bpp] : 0
       const b = y > 0 ? pixels[outOff - stride + x] : 0
-      const c = (x >= bpp && y > 0) ? pixels[outOff - stride + x - bpp] : 0
+      const c = x >= bpp && y > 0 ? pixels[outOff - stride + x - bpp] : 0
       let recon
       switch (filter) {
-        case 0: recon = f; break
-        case 1: recon = (f + a) & 0xff; break
-        case 2: recon = (f + b) & 0xff; break
-        case 3: recon = (f + ((a + b) >> 1)) & 0xff; break
+        case 0:
+          recon = f
+          break
+        case 1:
+          recon = (f + a) & 0xff
+          break
+        case 2:
+          recon = (f + b) & 0xff
+          break
+        case 3:
+          recon = (f + ((a + b) >> 1)) & 0xff
+          break
         case 4: {
           const p = a + b - c
           const pa = Math.abs(p - a)
           const pb = Math.abs(p - b)
           const pc = Math.abs(p - c)
-          const pred = (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c)
+          const pred = pa <= pb && pa <= pc ? a : pb <= pc ? b : c
           recon = (f + pred) & 0xff
           break
         }
-        default: throw new Error(`Filtro desconocido: ${filter}`)
+        default:
+          throw new Error(`Filtro desconocido: ${filter}`)
       }
       pixels[outOff + x] = recon
     }
@@ -87,9 +101,9 @@ function decodePNG(buffer) {
 function scaleRGBA(src, srcW, srcH, dstW, dstH) {
   const dst = Buffer.alloc(dstW * dstH * 4)
   for (let dy = 0; dy < dstH; dy++) {
-    const sy = Math.floor(dy * srcH / dstH)
+    const sy = Math.floor((dy * srcH) / dstH)
     for (let dx = 0; dx < dstW; dx++) {
-      const sx = Math.floor(dx * srcW / dstW)
+      const sx = Math.floor((dx * srcW) / dstW)
       const sOff = (sy * srcW + sx) * 4
       const dOff = (dy * dstW + dx) * 4
       dst[dOff] = src[sOff]
@@ -106,7 +120,7 @@ const CRC_TABLE = (() => {
   const t = new Uint32Array(256)
   for (let n = 0; n < 256; n++) {
     let c = n
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1)
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
     t[n] = c
   }
   return t
@@ -117,9 +131,11 @@ const crc32 = (bytes) => {
   return (c ^ 0xffffffff) >>> 0
 }
 const chunk = (type, data) => {
-  const len = Buffer.alloc(4); len.writeUInt32BE(data.length, 0)
+  const len = Buffer.alloc(4)
+  len.writeUInt32BE(data.length, 0)
   const typeBuf = Buffer.from(type, 'ascii')
-  const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0)
+  const crc = Buffer.alloc(4)
+  crc.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0)
   return Buffer.concat([len, typeBuf, data, crc])
 }
 function encodePNG(width, height, rgba) {
@@ -132,9 +148,19 @@ function encodePNG(width, height, rgba) {
   const compressed = deflateSync(raw, { level: 9 })
   const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
   const ihdr = Buffer.alloc(13)
-  ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4)
-  ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0
-  return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', compressed), chunk('IEND', Buffer.alloc(0))])
+  ihdr.writeUInt32BE(width, 0)
+  ihdr.writeUInt32BE(height, 4)
+  ihdr[8] = 8
+  ihdr[9] = 6
+  ihdr[10] = 0
+  ihdr[11] = 0
+  ihdr[12] = 0
+  return Buffer.concat([
+    sig,
+    chunk('IHDR', ihdr),
+    chunk('IDAT', compressed),
+    chunk('IEND', Buffer.alloc(0)),
+  ])
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────

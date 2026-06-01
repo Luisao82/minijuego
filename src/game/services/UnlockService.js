@@ -22,15 +22,15 @@
 
 import { version } from '../../../package.json'
 
-const STORAGE_KEY              = 'cucana_unlocked_characters'
-const REWARDS_KEY              = 'cucana_rewards'
-const VERSION_KEY              = 'cucana_version'
+const STORAGE_KEY = 'cucana_unlocked_characters'
+const REWARDS_KEY = 'cucana_rewards'
+const VERSION_KEY = 'cucana_version'
 const PERSPECTIVES_STORAGE_KEY = 'cucana_unlocked_perspectives'
-const CHARACTER_REWARDS_KEY    = 'cucana_character_rewards'
-const SKINS_KEY                = 'cucana_skins'
-const DEFAULT_UNLOCKED         = ['trianero', 'flamenca']
-const GAME_STATS_KEY           = 'cucana_game_stats'
-const RESET_BELOW_VERSION      = '0.6.0'
+const CHARACTER_REWARDS_KEY = 'cucana_character_rewards'
+const SKINS_KEY = 'cucana_skins'
+const DEFAULT_UNLOCKED = ['trianero', 'flamenca']
+const GAME_STATS_KEY = 'cucana_game_stats'
+const RESET_BELOW_VERSION = '0.6.0'
 
 // Devuelve true si la versión a es estrictamente menor que b (semver)
 const semverLt = (a, b) => {
@@ -135,7 +135,7 @@ export function createUnlockService() {
 
     // Devuelve el hint de desbloqueo de un personaje (o null si no tiene condición)
     getHint(characterId) {
-      const entry = conditions.find(e => e.characterId === characterId)
+      const entry = conditions.find((e) => e.characterId === characterId)
       return entry?.condition?.hint ?? null
     },
 

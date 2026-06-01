@@ -1,4 +1,4 @@
-import js from '@eslint/js';
+import js from '@eslint/js'
 import globals from 'globals'
 import prettierConfig from 'eslint-config-prettier'
 
@@ -17,12 +17,15 @@ export default [
     rules: {
       'no-var': 'error',
       'prefer-const': 'error',
-      'eqeqeq': 'error',
-      'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_',
-      }],
+      eqeqeq: 'error',
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-empty': ['error', { allowEmptyCatch: true }],
     },
@@ -35,12 +38,12 @@ export default [
   },
   prettierConfig,
   {
-  ignores: [
-    'dist/**',
-    'node_modules/**',
-    'ios/**',
-    'public/sw.js',         // contiene `self` que es WorkerGlobal, no Window
-    'public/register-sw.js',
-  ],
-},
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'ios/**',
+      'public/sw.js', // contiene `self` que es WorkerGlobal, no Window
+      'public/register-sw.js',
+    ],
+  },
 ]

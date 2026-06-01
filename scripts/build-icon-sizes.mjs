@@ -43,9 +43,9 @@ if (mW !== 1024 || mH !== 1024) {
 
 // Batería de derivados
 const targets = {
-  ios:     [1024, 180, 167, 152, 120, 87, 80, 76, 60, 58, 40, 29, 20],
+  ios: [1024, 180, 167, 152, 120, 87, 80, 76, 60, 58, 40, 29, 20],
   android: [512, 192, 144, 96, 72, 48, 36],
-  pwa:     [512, 384, 192, 180, 152, 144, 128, 96],
+  pwa: [512, 384, 192, 180, 152, 144, 128, 96],
   favicon: [32, 16],
 }
 
@@ -63,7 +63,9 @@ for (const [platform, sizes] of Object.entries(targets)) {
 }
 
 // Sustituir el favicon.png raíz por la versión 32×32
-copyFileSync(resolve(STORE_DIR, 'icons/favicon/favicon-32.png'),
-             resolve(PROJECT_ROOT, 'public/favicon.png'))
+copyFileSync(
+  resolve(STORE_DIR, 'icons/favicon/favicon-32.png'),
+  resolve(PROJECT_ROOT, 'public/favicon.png')
+)
 console.log(`\nFavicon raíz actualizado (public/favicon.png ← favicon-32.png)`)
 console.log(`Total: ${total} archivos generados.`)

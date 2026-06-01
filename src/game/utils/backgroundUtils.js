@@ -66,30 +66,32 @@ export function drawSceneHeader(scene, cx, headerY, title, halfWidth) {
   // Esquinas decorativas retro
   const corners = scene.add.graphics()
   corners.lineStyle(2, COLORS.GOLD, 0.8)
-  const cLen  = 12
-  const left  = cx - halfWidth + 4
+  const cLen = 12
+  const left = cx - halfWidth + 4
   const right = cx + halfWidth - 4
-  const top   = headerY - 21
-  const bot   = headerY + 21
-  corners.lineBetween(left,  top, left + cLen,  top)
-  corners.lineBetween(left,  top, left,  top + cLen)
+  const top = headerY - 21
+  const bot = headerY + 21
+  corners.lineBetween(left, top, left + cLen, top)
+  corners.lineBetween(left, top, left, top + cLen)
   corners.lineBetween(right, top, right - cLen, top)
   corners.lineBetween(right, top, right, top + cLen)
-  corners.lineBetween(left,  bot, left + cLen,  bot)
-  corners.lineBetween(left,  bot, left,  bot - cLen)
+  corners.lineBetween(left, bot, left + cLen, bot)
+  corners.lineBetween(left, bot, left, bot - cLen)
   corners.lineBetween(right, bot, right - cLen, bot)
   corners.lineBetween(right, bot, right, bot - cLen)
 
   // Texto del título
-  scene.add.text(cx, headerY, title, {
-    fontFamily: '"Jersey 10", cursive',
-    fontSize:   '42px',
-    color:      '#ffd700',
-    stroke:     '#1a0a00',
-    strokeThickness: 6,
-    letterSpacing:   6,
-    shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true },
-  }).setOrigin(0.5)
+  scene.add
+    .text(cx, headerY, title, {
+      fontFamily: '"Jersey 10", cursive',
+      fontSize: '42px',
+      color: '#ffd700',
+      stroke: '#1a0a00',
+      strokeThickness: 6,
+      letterSpacing: 6,
+      shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true },
+    })
+    .setOrigin(0.5)
 
   // Línea decorativa debajo con diamante central
   const lineY = headerY + 28

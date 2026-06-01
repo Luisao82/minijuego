@@ -9,14 +9,22 @@ class MusicService {
   }
 
   _load() {
-    try { return localStorage.getItem(STORAGE_KEY) === 'true' } catch (_) { return false }
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'true'
+    } catch (_) {
+      return false
+    }
   }
 
   _save(val) {
-    try { localStorage.setItem(STORAGE_KEY, String(val)) } catch (_) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, String(val))
+    } catch (_) {}
   }
 
-  get isMuted() { return this._muted }
+  get isMuted() {
+    return this._muted
+  }
 
   toggleMute() {
     this._muted = !this._muted

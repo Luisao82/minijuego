@@ -4,7 +4,7 @@
 **Versión de la aplicación:** 1.0.0
 
 Este documento es la **fuente de verdad** de la política de privacidad de la
-aplicación *La Cucaña Trianera*. La versión publicada en web
+aplicación _La Cucaña Trianera_. La versión publicada en web
 (`public/privacy.html`) refleja este mismo contenido.
 
 ---
@@ -13,7 +13,7 @@ aplicación *La Cucaña Trianera*. La versión publicada en web
 
 - **Responsable:** Luisao (desarrollador independiente)
 - **Contacto:** [luisaodeben@gmail.com](mailto:luisaodeben@gmail.com)
-- **Aplicación:** *La Cucaña Trianera* — minijuego pixel art para web e instalable
+- **Aplicación:** _La Cucaña Trianera_ — minijuego pixel art para web e instalable
   como aplicación móvil (iOS / Android).
 
 ## 2. Datos personales que recogemos
@@ -25,7 +25,7 @@ personales identificables** del usuario:
 - No se piden nombre, correo electrónico, edad ni ningún otro dato personal.
 - No se accede a contactos, fotos, micrófono, cámara ni ubicación.
 - No se utilizan cookies de seguimiento ni identificadores publicitarios.
-- No se realiza *fingerprinting* del dispositivo.
+- No se realiza _fingerprinting_ del dispositivo.
 - La aplicación es **gratuita** y **no contiene publicidad ni compras
   integradas**.
 
@@ -66,7 +66,7 @@ dato personal.
 ### 4.2 Google Fonts (tipografías)
 
 - **Proveedor:** Google Ireland Limited.
-- **Finalidad:** cargar las tipografías *Jersey 10* y *Press Start 2P* para el
+- **Finalidad:** cargar las tipografías _Jersey 10_ y _Press Start 2P_ para el
   diseño pixel art del juego.
 - **Datos transmitidos al servidor de Google al cargar la fuente:** dirección
   IP y datos técnicos básicos del navegador.

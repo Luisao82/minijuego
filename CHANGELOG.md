@@ -309,7 +309,7 @@ iteración del bloque de créditos (pantalla técnica + acceso desde el menú).
   ```js
   // src/game/config/gameConfig.js
   export const DEBUG = {
-    BALANCE_PANEL: false,  // true → panel visible + personaje inmortal en límites
+    BALANCE_PANEL: false, // true → panel visible + personaje inmortal en límites
   }
   ```
 - `gameConfig.js` — `BALANCE.VELOCITY_CAP`: límite absoluto de velocidad del cursor (u/s). Evita acumulación descontrolada independientemente de la aceleración. Ajustable para calibrar la sensación de control.
@@ -321,7 +321,7 @@ iteración del bloque de créditos (pantalla técnica + acceso desde el menú).
 - `GameScene`: overlay negro sobre la mitad superior del palo que se aclara zona a zona según se desgasta la grasa. Gota `OilIndicator` en la esquina superior izquierda del HUD.
 - `src/game/components/NavButton.js`: componente compartido `makeNavButton()` — botón de navegación estilo **Cartelón de Feria**: fondo dorado sólido `0xd4a520`, texto casi negro `#1a0800` (contraste WCAG AAA ~7:1), borde marrón `0x5c2d00`, efecto 3D con línea de brillo superior y sombra inferior, sombra exterior desplazada 3 px. Hover a dorado vivo `0xffcc00`. Fuente Jersey 10 26 px. Devuelve `Phaser.Geom.Rectangle` para exclusiones de input.
 - `HistoryScene`: rediseño completo al estilo RPG. Cuadro de diálogo en la parte inferior (178 px, full-width), narrador pixel art a la izquierda con animación de boca (4 frames) y parpadeo aleatorio. Texto dividido en 14 páginas individuales; el jugador avanza pulsando el cuadro o ESPACIO. Imagen histórica centrada en pantalla (una por bloque) con fade al cambiar de bloque.
-- Botón "📜  HISTORIA" en `MenuScene`, posicionado bajo "PULSA PARA EMPEZAR".
+- Botón "📜 HISTORIA" en `MenuScene`, posicionado bajo "PULSA PARA EMPEZAR".
 - `CollectionScene`: vista ampliada al pulsar una ficha conseguida — overlay oscuro con panel 520×660 px, imagen 220 px, contador "x{N} conseguidos", estrellas animadas y "Toca para cerrar".
 - `CollectionScene`: botón "VOLVER A JUGAR" junto a "VOLVER AL MENÚ".
 - Confeti pixel art en `RewardScene` únicamente la primera vez que se obtiene cada premio.
@@ -342,14 +342,14 @@ iteración del bloque de créditos (pantalla técnica + acceso desde el menú).
 - **`BalanceBar.js` — corrección de bug de timing + velocity cap:** el input activo ahora se captura en el momento exacto del cruce de centro (`this._inputAtCross = this.inputDirection` dentro de `update()`), evitando evaluaciones erróneas cuando el jugador suelta el botón entre frames. Añadido cap de velocidad absoluta tras el amortiguamiento. Modo debug: cuando `DEBUG.BALANCE_PANEL` es `true`, al llegar al límite la posición se clampea y la velocidad se anula en lugar de marcar `failed`.
 - **`gameConfig.js` — `BALANCE`: reajuste completo de parámetros de jugabilidad:**
 
-  | Parámetro | Antes | Ahora | Motivo |
-  |---|---|---|---|
-  | `DRIFT_MIN` | `0.6` | `0.3` | Inicio más suave |
-  | `DRIFT_MAX` | `2.2` | `1.2` | Techo más bajo, progresión gradual |
-  | `DRIFT_GROWTH_PER_CROSS` | `0.15` | `0.06` | Ramp-up más lento |
-  | `INPUT_FORCE` | `8` | `2.5` | Proporcional al nuevo drift; garantía: `2.5 > 1.2 × 1.5 = 1.8` |
-  | `DAMPING` | `0.65` | `0.35` | Más inercia; velocity acumulada dura más |
-  | `VELOCITY_CAP` | — | `5` | Nuevo: límite absoluto de velocidad |
+  | Parámetro                | Antes  | Ahora  | Motivo                                                         |
+  | ------------------------ | ------ | ------ | -------------------------------------------------------------- |
+  | `DRIFT_MIN`              | `0.6`  | `0.3`  | Inicio más suave                                               |
+  | `DRIFT_MAX`              | `2.2`  | `1.2`  | Techo más bajo, progresión gradual                             |
+  | `DRIFT_GROWTH_PER_CROSS` | `0.15` | `0.06` | Ramp-up más lento                                              |
+  | `INPUT_FORCE`            | `8`    | `2.5`  | Proporcional al nuevo drift; garantía: `2.5 > 1.2 × 1.5 = 1.8` |
+  | `DAMPING`                | `0.65` | `0.35` | Más inercia; velocity acumulada dura más                       |
+  | `VELOCITY_CAP`           | —      | `5`    | Nuevo: límite absoluto de velocidad                            |
 
 - **`gameConfig.js` — `OIL.DRIFT_MULTIPLIER`:** reducido de `1.7` a `0.5` (drift × 1.5 como máximo con aceite al 100%, antes × 2.7). Margen de control con aceite máximo: `2.5 − 1.8 = 0.7` garantizado.
 - `GameScene.js`: añadidos `this.balanceDebugPanel`, `this._lastOilMult` al estado de init. El panel de debug se crea al inicio de la fase de equilibrio y se destruye con `cleanBalanceUI()`. `updateRunning()` guarda `_lastOilMult` para pasarlo al panel cada frame.

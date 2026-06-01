@@ -14,7 +14,6 @@
 import { BALANCE } from '../config/gameConfig'
 
 export class BalanceSystem {
-
   constructor(balanceBar) {
     this.bar = balanceBar
     this.elapsed = 0

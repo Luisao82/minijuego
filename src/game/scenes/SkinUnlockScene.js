@@ -8,18 +8,17 @@ import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
 
 // Dimensiones del panel — igual que CharacterUnlockScene
-const PANEL_W  = 560
-const PANEL_H  = 580
-const PANEL_X  = Math.round((GAME_WIDTH - PANEL_W) / 2)
-const PANEL_Y  = Math.round((GAME_HEIGHT - PANEL_H) / 2)
+const PANEL_W = 560
+const PANEL_H = 580
+const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2)
+const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2)
 const CENTER_X = GAME_WIDTH / 2
 
 // Tamaño del sprite en pantalla: usa scalePreview de config
-const SPRITE_DISPLAY_W = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
+const SPRITE_DISPLAY_W = SPRITE_CONFIG.frameWidth * SPRITE_CONFIG.scalePreview
 const SPRITE_DISPLAY_H = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview
 
 export class SkinUnlockScene extends BaseScene {
-
   constructor() {
     super(SCENES.SKIN_UNLOCK)
   }
@@ -27,10 +26,10 @@ export class SkinUnlockScene extends BaseScene {
   init(data) {
     super.init(data)
     // newSkins: array de objetos skin { spritesheet, nombre, como, condicion }
-    this.newSkins      = data.newSkins     || []
-    this.character     = data.character    || null
-    this.currentIndex  = 0
-    this.canInteract   = false
+    this.newSkins = data.newSkins || []
+    this.character = data.character || null
+    this.currentIndex = 0
+    this.canInteract = false
   }
 
   preload() {
@@ -40,7 +39,7 @@ export class SkinUnlockScene extends BaseScene {
       const key = `skin-${skin.spritesheet}`
       if (!this.textures.exists(key)) {
         this.load.spritesheet(key, `sprites/characters/spritesheet/${skin.spritesheet}.png`, {
-          frameWidth:  SPRITE_CONFIG.frameWidth,
+          frameWidth: SPRITE_CONFIG.frameWidth,
           frameHeight: SPRITE_CONFIG.frameHeight,
         })
       }
@@ -55,7 +54,8 @@ export class SkinUnlockScene extends BaseScene {
   // ── Fondo ─────────────────────────────────────────────────────
 
   drawBackground() {
-    this.add.image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
+    this.add
+      .image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
 
     const overlay = this.add.graphics()
@@ -69,7 +69,7 @@ export class SkinUnlockScene extends BaseScene {
     this.canInteract = false
 
     if (this.contentContainer) this.contentContainer.destroy()
-    if (this.buttonContainer)  this.buttonContainer.destroy()
+    if (this.buttonContainer) this.buttonContainer.destroy()
 
     this.contentContainer = this.add.container(0, 0)
     this.contentContainer.setAlpha(0)
@@ -88,10 +88,10 @@ export class SkinUnlockScene extends BaseScene {
     this.drawButtons()
 
     this.tweens.add({
-      targets:  this.contentContainer,
-      alpha:    1,
+      targets: this.contentContainer,
+      alpha: 1,
       duration: 300,
-      ease:     'Quad.easeOut',
+      ease: 'Quad.easeOut',
       onComplete: () => this.animateSprite(),
     })
   }
@@ -118,44 +118,60 @@ export class SkinUnlockScene extends BaseScene {
 
   drawBanner() {
     this.contentContainer.add(
-      this.add.text(CENTER_X, PANEL_Y + 30, '¡NUEVO SKIN!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '16px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 4,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, PANEL_Y + 30, '¡NUEVO SKIN!', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '16px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 4,
+        })
+        .setOrigin(0.5)
     )
   }
 
   drawSkinSprite(skin) {
     const spriteAreaY = PANEL_Y + 80
     const spriteAreaH = SPRITE_DISPLAY_H + 16
-    const spriteCY    = spriteAreaY + spriteAreaH / 2
+    const spriteCY = spriteAreaY + spriteAreaH / 2
 
     // Marco
     const frameG = this.add.graphics()
     frameG.lineStyle(2, COLORS.UI_BORDER, 1)
     frameG.fillStyle(0x0a0a1e, 1)
-    frameG.fillRect(CENTER_X - SPRITE_DISPLAY_W / 2 - 8, spriteAreaY, SPRITE_DISPLAY_W + 16, spriteAreaH)
-    frameG.strokeRect(CENTER_X - SPRITE_DISPLAY_W / 2 - 8, spriteAreaY, SPRITE_DISPLAY_W + 16, spriteAreaH)
+    frameG.fillRect(
+      CENTER_X - SPRITE_DISPLAY_W / 2 - 8,
+      spriteAreaY,
+      SPRITE_DISPLAY_W + 16,
+      spriteAreaH
+    )
+    frameG.strokeRect(
+      CENTER_X - SPRITE_DISPLAY_W / 2 - 8,
+      spriteAreaY,
+      SPRITE_DISPLAY_W + 16,
+      spriteAreaH
+    )
     this.contentContainer.add(frameG)
 
     // Sprite — frame 0 (STAND), estático
-    const key      = `skin-${skin.spritesheet}`
+    const key = `skin-${skin.spritesheet}`
     const hasSprite = this.textures.exists(key) && this.textures.get(key).key !== '__MISSING'
 
     if (hasSprite) {
-      this.skinSprite = this.add.image(CENTER_X, spriteCY, key, SPRITE_FRAMES.STAND)
+      this.skinSprite = this.add
+        .image(CENTER_X, spriteCY, key, SPRITE_FRAMES.STAND)
         .setScale(0)
         .setOrigin(0.5)
       this.skinSprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
     } else {
-      this.skinSprite = this.add.text(CENTER_X, spriteCY, '?', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '60px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setScale(0)
+      this.skinSprite = this.add
+        .text(CENTER_X, spriteCY, '?', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '60px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setScale(0)
     }
 
     this.contentContainer.add(this.skinSprite)
@@ -171,68 +187,75 @@ export class SkinUnlockScene extends BaseScene {
       { x: cx + radius, y: cy - radius + 10 },
       { x: cx - radius, y: cy + radius - 10 },
       { x: cx + radius, y: cy + radius - 10 },
-      { x: cx,          y: cy - radius - 10 },
+      { x: cx, y: cy - radius - 10 },
     ]
 
     positions.forEach((pos, i) => {
-      const star = this.add.text(pos.x, pos.y, '★', {
-        fontFamily: 'monospace',
-        fontSize:   '18px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setAlpha(0)
+      const star = this.add
+        .text(pos.x, pos.y, '★', {
+          fontFamily: 'monospace',
+          fontSize: '18px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setAlpha(0)
 
       this.contentContainer.add(star)
 
       this.tweens.add({
-        targets:  star,
-        alpha:    1,
-        scaleX:   { from: 0.3, to: 1 },
-        scaleY:   { from: 0.3, to: 1 },
-        delay:    500 + i * 80,
+        targets: star,
+        alpha: 1,
+        scaleX: { from: 0.3, to: 1 },
+        scaleY: { from: 0.3, to: 1 },
+        delay: 500 + i * 80,
         duration: 300,
-        ease:     'Back.easeOut',
+        ease: 'Back.easeOut',
       })
       this.tweens.add({
-        targets:  star,
-        alpha:    { from: 1, to: 0.3 },
-        delay:    900 + i * 80,
+        targets: star,
+        alpha: { from: 1, to: 0.3 },
+        delay: 900 + i * 80,
         duration: 700,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       })
     })
   }
 
   drawSkinInfo(skin) {
     const spriteAreaH = SPRITE_DISPLAY_H + 16
-    const nameY       = PANEL_Y + 80 + spriteAreaH + 20
+    const nameY = PANEL_Y + 80 + spriteAreaH + 20
 
     // Nombre del personaje (contexto)
     if (this.character) {
       this.contentContainer.add(
-        this.add.text(CENTER_X, nameY, this.character.name, {
-          fontFamily: 'monospace',
-          fontSize:   '11px',
-          color:      '#888888',
-        }).setOrigin(0.5),
+        this.add
+          .text(CENTER_X, nameY, this.character.name, {
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            color: '#888888',
+          })
+          .setOrigin(0.5)
       )
     }
 
     // Nombre del skin
     this.contentContainer.add(
-      this.add.text(CENTER_X, nameY + 20, skin.nombre, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '14px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, nameY + 20, skin.nombre, {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '14px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     )
   }
 
   drawShareButton(skin, subtitleKey) {
-    const SIZE   = 40
+    const SIZE = 40
     const MARGIN = 10
     let sharing = false
     const btn = makeShareButton(
@@ -244,9 +267,9 @@ export class SkinUnlockScene extends BaseScene {
         sharing = true
         try {
           const blob = await generateShareImage(this, {
-            name:        skin.nombre,
-            textureKey:  `skin-${skin.spritesheet}`,
-            frame:       0,
+            name: skin.nombre,
+            textureKey: `skin-${skin.spritesheet}`,
+            frame: 0,
             subtitleKey,
           })
           await shareImage(blob, buildShareText(subtitleKey, skin.nombre))
@@ -256,7 +279,7 @@ export class SkinUnlockScene extends BaseScene {
           sharing = false
         }
       },
-      { size: SIZE, depth: 7 },
+      { size: SIZE, depth: 7 }
     )
     this.contentContainer.add(btn.graphics)
   }
@@ -265,40 +288,52 @@ export class SkinUnlockScene extends BaseScene {
 
   drawButtons() {
     const isLast = this.currentIndex >= this.newSkins.length - 1
-    const btnH   = 52
-    const btnY   = PANEL_Y + PANEL_H - btnH - 16
+    const btnH = 52
+    const btnY = PANEL_Y + PANEL_H - btnH - 16
 
     this.buttonContainer = this.add.container(0, 0)
     this.buttonContainer.setAlpha(0)
 
     if (isLast) {
       const btnW = 220
-      const gap  = 16
+      const gap = 16
 
       makeNavButton(
         this,
         CENTER_X - btnW - gap / 2,
-        btnY, btnW, btnH,
+        btnY,
+        btnW,
+        btnH,
         'ELEGIR SKIN',
-        () => { if (this.canInteract) this.goToSkinSelect() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.goToSkinSelect()
+        },
+        { depth: 6 }
       )
       makeNavButton(
         this,
         CENTER_X + gap / 2,
-        btnY, btnW, btnH,
+        btnY,
+        btnW,
+        btnH,
         'VOLVER A JUGAR',
-        () => { if (this.canInteract) this.playAgain() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.playAgain()
+        },
+        { depth: 6 }
       )
     } else {
       makeNavButton(
         this,
         CENTER_X - 120,
-        btnY, 240, btnH,
+        btnY,
+        240,
+        btnH,
         'SIGUIENTE ▶',
-        () => { if (this.canInteract) this.nextSkin() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this.nextSkin()
+        },
+        { depth: 6 }
       )
     }
   }
@@ -307,18 +342,20 @@ export class SkinUnlockScene extends BaseScene {
 
   animateSprite() {
     this.tweens.add({
-      targets:  this.skinSprite,
-      scaleX:   this._spriteTargetScale,
-      scaleY:   this._spriteTargetScale,
+      targets: this.skinSprite,
+      scaleX: this._spriteTargetScale,
+      scaleY: this._spriteTargetScale,
       duration: 450,
-      ease:     'Back.easeOut',
+      ease: 'Back.easeOut',
       onComplete: () => {
         this.tweens.add({
-          targets:  this.buttonContainer,
-          alpha:    1,
+          targets: this.buttonContainer,
+          alpha: 1,
           duration: 250,
-          ease:     'Quad.easeOut',
-          onComplete: () => { this.canInteract = true },
+          ease: 'Quad.easeOut',
+          onComplete: () => {
+            this.canInteract = true
+          },
         })
       },
     })
@@ -333,8 +370,8 @@ export class SkinUnlockScene extends BaseScene {
 
   goToSkinSelect() {
     this.scene.start(SCENES.SKIN_SELECT, {
-      character:    this.character,
-      justUnlocked: this.newSkins.map(s => s.spritesheet),
+      character: this.character,
+      justUnlocked: this.newSkins.map((s) => s.spritesheet),
     })
   }
 

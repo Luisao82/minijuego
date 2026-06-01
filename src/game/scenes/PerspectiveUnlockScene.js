@@ -3,17 +3,16 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
 
-const PANEL_W  = 560
-const PANEL_H  = 620
-const PANEL_X  = Math.round((GAME_WIDTH - PANEL_W) / 2)
-const PANEL_Y  = Math.round((GAME_HEIGHT - PANEL_H) / 2)
+const PANEL_W = 560
+const PANEL_H = 620
+const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2)
+const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2)
 const CENTER_X = GAME_WIDTH / 2
 
 const THUMB_W = PANEL_W - 48
 const THUMB_H = 290
 
 export class PerspectiveUnlockScene extends BaseScene {
-
   constructor() {
     super(SCENES.PERSPECTIVE_UNLOCK)
   }
@@ -21,11 +20,11 @@ export class PerspectiveUnlockScene extends BaseScene {
   init(data) {
     super.init(data)
     this.unlockedPerspectives = data.unlockedPerspectives || []
-    this.characterData        = data.character || null
-    this.nextUnlocks          = data.nextUnlocks || []    // personajes pendientes de mostrar
-    this.nextScene            = data.nextScene || SCENES.CHARACTER_SELECT
-    this.currentIndex         = 0
-    this.canInteract          = false
+    this.characterData = data.character || null
+    this.nextUnlocks = data.nextUnlocks || [] // personajes pendientes de mostrar
+    this.nextScene = data.nextScene || SCENES.CHARACTER_SELECT
+    this.currentIndex = 0
+    this.canInteract = false
   }
 
   create() {
@@ -36,7 +35,8 @@ export class PerspectiveUnlockScene extends BaseScene {
   // ── Fondo ─────────────────────────────────────────────────────
 
   _drawBackground() {
-    this.add.image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
+    this.add
+      .image(CENTER_X, GAME_HEIGHT / 2, 'bg-characters')
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
     const ov = this.add.graphics()
     ov.fillStyle(0x000000, 0.78)
@@ -49,13 +49,13 @@ export class PerspectiveUnlockScene extends BaseScene {
     this.canInteract = false
 
     if (this.contentContainer) this.contentContainer.destroy()
-    if (this.buttonContainer)  this.buttonContainer.destroy()
+    if (this.buttonContainer) this.buttonContainer.destroy()
 
     this.contentContainer = this.add.container(0, 0)
     this.contentContainer.setAlpha(0)
 
     const perspId = this.unlockedPerspectives[this.currentIndex]
-    const persp   = perspectiveUnlockService.getById(perspId)
+    const persp = perspectiveUnlockService.getById(perspId)
 
     if (!persp) {
       this._proceed()
@@ -69,10 +69,10 @@ export class PerspectiveUnlockScene extends BaseScene {
     this._drawButtons()
 
     this.tweens.add({
-      targets:  this.contentContainer,
-      alpha:    1,
+      targets: this.contentContainer,
+      alpha: 1,
       duration: 300,
-      ease:     'Quad.easeOut',
+      ease: 'Quad.easeOut',
       onComplete: () => this._animateThumb(),
     })
   }
@@ -99,20 +99,22 @@ export class PerspectiveUnlockScene extends BaseScene {
 
   _drawBanner() {
     this.contentContainer.add(
-      this.add.text(CENTER_X, PANEL_Y + 30, '¡NUEVA VISTA DESBLOQUEADA!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '12px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 4,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, PANEL_Y + 30, '¡NUEVA VISTA DESBLOQUEADA!', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '12px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 4,
+        })
+        .setOrigin(0.5)
     )
   }
 
   _drawThumb(persp) {
     const thumbY = PANEL_Y + 56 + 16
-    const cx     = CENTER_X
-    const cy     = thumbY + THUMB_H / 2
+    const cx = CENTER_X
+    const cy = thumbY + THUMB_H / 2
 
     // Marco
     const frameG = this.add.graphics()
@@ -134,7 +136,7 @@ export class PerspectiveUnlockScene extends BaseScene {
     thumb.setMask(maskGfx.createGeometryMask())
 
     this.contentContainer.add(thumb)
-    this.thumbObject    = thumb
+    this.thumbObject = thumb
     this.thumbBaseScale = baseScale
 
     this._drawStars(cx, cy, Math.min(THUMB_W, THUMB_H) / 2)
@@ -146,35 +148,38 @@ export class PerspectiveUnlockScene extends BaseScene {
       { x: cx + radius + 20, y: cy - radius + 10 },
       { x: cx - radius - 14, y: cy + radius - 10 },
       { x: cx + radius + 14, y: cy + radius - 10 },
-      { x: cx,               y: cy - radius - 20 },
+      { x: cx, y: cy - radius - 20 },
     ]
 
     positions.forEach((pos, i) => {
-      const star = this.add.text(pos.x, pos.y, '★', {
-        fontFamily: 'monospace',
-        fontSize:   '18px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setAlpha(0)
+      const star = this.add
+        .text(pos.x, pos.y, '★', {
+          fontFamily: 'monospace',
+          fontSize: '18px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setAlpha(0)
 
       this.contentContainer.add(star)
 
       this.tweens.add({
-        targets:  star,
-        alpha:    1,
-        scaleX:   { from: 0.3, to: 1 },
-        scaleY:   { from: 0.3, to: 1 },
-        delay:    500 + i * 80,
+        targets: star,
+        alpha: 1,
+        scaleX: { from: 0.3, to: 1 },
+        scaleY: { from: 0.3, to: 1 },
+        delay: 500 + i * 80,
         duration: 300,
-        ease:     'Back.easeOut',
+        ease: 'Back.easeOut',
       })
       this.tweens.add({
-        targets:  star,
-        alpha:    { from: 1, to: 0.3 },
-        delay:    900 + i * 80,
+        targets: star,
+        alpha: { from: 1, to: 0.3 },
+        delay: 900 + i * 80,
         duration: 700,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       })
     })
   }
@@ -183,30 +188,34 @@ export class PerspectiveUnlockScene extends BaseScene {
     const labelY = PANEL_Y + 56 + 16 + THUMB_H + 18
 
     this.contentContainer.add(
-      this.add.text(CENTER_X, labelY, persp.label, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize:   '22px',
-        color:      '#ffd700',
-        stroke:     '#000000',
-        strokeThickness: 4,
-        letterSpacing:   6,
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, labelY, persp.label, {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '22px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 4,
+          letterSpacing: 6,
+        })
+        .setOrigin(0.5)
     )
 
     this.contentContainer.add(
-      this.add.text(CENTER_X, labelY + 38, 'Vista desbloqueada', {
-        fontFamily: 'monospace',
-        fontSize:   '12px',
-        color:      '#aaaaaa',
-      }).setOrigin(0.5),
+      this.add
+        .text(CENTER_X, labelY + 38, 'Vista desbloqueada', {
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          color: '#aaaaaa',
+        })
+        .setOrigin(0.5)
     )
   }
 
   // ── Botones ──────────────────────────────────────────────────
 
   _drawButtons() {
-    const btnH  = 52
-    const btnY  = PANEL_Y + PANEL_H - btnH - 16
+    const btnH = 52
+    const btnY = PANEL_Y + PANEL_H - btnH - 16
     const isLast = this.currentIndex >= this.unlockedPerspectives.length - 1
 
     this.buttonContainer = this.add.container(0, 0)
@@ -215,18 +224,28 @@ export class PerspectiveUnlockScene extends BaseScene {
     if (isLast) {
       makeNavButton(
         this,
-        CENTER_X - 120, btnY, 240, btnH,
+        CENTER_X - 120,
+        btnY,
+        240,
+        btnH,
         'CONTINUAR ▶',
-        () => { if (this.canInteract) this._proceed() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this._proceed()
+        },
+        { depth: 6 }
       )
     } else {
       makeNavButton(
         this,
-        CENTER_X - 120, btnY, 240, btnH,
+        CENTER_X - 120,
+        btnY,
+        240,
+        btnH,
         'SIGUIENTE ▶',
-        () => { if (this.canInteract) this._nextPerspective() },
-        { depth: 6 },
+        () => {
+          if (this.canInteract) this._nextPerspective()
+        },
+        { depth: 6 }
       )
     }
   }
@@ -235,18 +254,20 @@ export class PerspectiveUnlockScene extends BaseScene {
 
   _animateThumb() {
     this.tweens.add({
-      targets:  this.thumbObject,
-      scaleX:   this.thumbBaseScale,
-      scaleY:   this.thumbBaseScale,
+      targets: this.thumbObject,
+      scaleX: this.thumbBaseScale,
+      scaleY: this.thumbBaseScale,
       duration: 450,
-      ease:     'Back.easeOut',
+      ease: 'Back.easeOut',
       onComplete: () => {
         this.tweens.add({
-          targets:  this.buttonContainer,
-          alpha:    1,
+          targets: this.buttonContainer,
+          alpha: 1,
           duration: 250,
-          ease:     'Quad.easeOut',
-          onComplete: () => { this.canInteract = true },
+          ease: 'Quad.easeOut',
+          onComplete: () => {
+            this.canInteract = true
+          },
         })
       },
     })
@@ -264,7 +285,7 @@ export class PerspectiveUnlockScene extends BaseScene {
     if (this.nextUnlocks?.length > 0) {
       this.scene.start(SCENES.CHARACTER_UNLOCK, {
         unlockedCharacters: this.nextUnlocks,
-        character:          this.characterData,
+        character: this.characterData,
       })
       return
     }

@@ -6,7 +6,6 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 // Se lanza desde BootScene y nunca se detiene.
 
 export class CRTScene extends BaseScene {
-
   constructor() {
     super({ key: SCENES.CRT, active: false })
   }

@@ -12,7 +12,9 @@ export function canShareImage() {
   if (!isSecureCtx()) return false
   if (typeof navigator === 'undefined' || !navigator.canShare || !navigator.share) return false
   try {
-    const probe = new File([new Blob([''], { type: 'image/png' })], 'probe.png', { type: 'image/png' })
+    const probe = new File([new Blob([''], { type: 'image/png' })], 'probe.png', {
+      type: 'image/png',
+    })
     return navigator.canShare({ files: [probe] })
   } catch {
     return false

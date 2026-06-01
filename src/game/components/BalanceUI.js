@@ -6,25 +6,24 @@ import { BalanceDebugPanel } from './BalanceDebugPanel'
 // Encapsula el estado de input direccional (izquierda / derecha).
 
 export class BalanceUI {
-
   constructor(scene, balanceBar, balanceSystem) {
-    this._scene         = scene
-    this._balanceBar    = balanceBar
+    this._scene = scene
+    this._balanceBar = balanceBar
     this._balanceSystem = balanceSystem
-    this._elements      = []
-    this._cursor        = null
-    this._timerText     = null
-    this._btnLeft       = null
-    this._btnRight      = null
-    this._debugPanel    = null
-    this._inputDir      = 0
+    this._elements = []
+    this._cursor = null
+    this._timerText = null
+    this._btnLeft = null
+    this._btnRight = null
+    this._debugPanel = null
+    this._inputDir = 0
   }
 
   create() {
     const { WIDTH, HEIGHT } = BALANCE.BAR
     const centerX = GAME_WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
-    const barX    = centerX - WIDTH / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+    const barX = centerX - WIDTH / 2
 
     const barBg = this._scene.add.graphics()
     barBg.fillStyle(COLORS.BLACK, 1)
@@ -37,7 +36,7 @@ export class BalanceUI {
     barBg.fillStyle(COLORS.GREEN, 1)
     barBg.fillRect(centerX - 1, barY - 4, 2, HEIGHT + 8)
 
-    const limit       = this._balanceBar.limit
+    const limit = this._balanceBar.limit
     const limitOffset = limit * (WIDTH / 2)
     barBg.fillStyle(COLORS.RED, 0.6)
     barBg.fillRect(centerX - limitOffset - 1, barY - 2, 2, HEIGHT + 4)
@@ -71,32 +70,40 @@ export class BalanceUI {
 
   pressLeft() {
     this._inputDir = -1
-    this._btnLeft?.setTexture('btn-balance-left-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    this._btnLeft
+      ?.setTexture('btn-balance-left-press')
+      .setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
   }
 
   releaseLeft() {
     if (this._inputDir === -1) this._inputDir = 0
-    this._btnLeft?.setTexture('btn-balance-left').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    this._btnLeft
+      ?.setTexture('btn-balance-left')
+      .setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
   }
 
   pressRight() {
     this._inputDir = 1
-    this._btnRight?.setTexture('btn-balance-right-press').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    this._btnRight
+      ?.setTexture('btn-balance-right-press')
+      .setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
   }
 
   releaseRight() {
     if (this._inputDir === 1) this._inputDir = 0
-    this._btnRight?.setTexture('btn-balance-right').setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
+    this._btnRight
+      ?.setTexture('btn-balance-right')
+      .setDisplaySize(BALANCE.BUTTON_SIZE, BALANCE.BUTTON_SIZE)
   }
 
   destroy() {
-    this._elements.forEach(el => el?.destroy())
-    this._elements  = []
-    this._cursor    = null
+    this._elements.forEach((el) => el?.destroy())
+    this._elements = []
+    this._cursor = null
     this._timerText = null
-    this._btnLeft   = null
-    this._btnRight  = null
-    this._inputDir  = 0
+    this._btnLeft = null
+    this._btnRight = null
+    this._inputDir = 0
     this._debugPanel?.destroy()
     this._debugPanel = null
   }
@@ -104,25 +111,27 @@ export class BalanceUI {
   // ── privado ──────────────────────────────────────────────────────────────────
 
   _createButtons() {
-    const btnSize   = BALANCE.BUTTON_SIZE
-    const btnY      = CONTROL_PANEL.CENTER_Y - btnSize / 2
+    const btnSize = BALANCE.BUTTON_SIZE
+    const btnY = CONTROL_PANEL.CENTER_Y - btnSize / 2
     const btnMargin = 40
 
-    this._btnLeft = this._scene.add.image(btnMargin + btnSize / 2, btnY + btnSize / 2, 'btn-balance-left')
+    this._btnLeft = this._scene.add
+      .image(btnMargin + btnSize / 2, btnY + btnSize / 2, 'btn-balance-left')
       .setDisplaySize(btnSize, btnSize)
       .setInteractive()
     this._btnLeft.on('pointerdown', () => this.pressLeft())
-    this._btnLeft.on('pointerup',   () => this.releaseLeft())
-    this._btnLeft.on('pointerout',  () => this.releaseLeft())
+    this._btnLeft.on('pointerup', () => this.releaseLeft())
+    this._btnLeft.on('pointerout', () => this.releaseLeft())
     this._elements.push(this._btnLeft)
 
     const btnRightX = GAME_WIDTH - btnMargin - btnSize
-    this._btnRight = this._scene.add.image(btnRightX + btnSize / 2, btnY + btnSize / 2, 'btn-balance-right')
+    this._btnRight = this._scene.add
+      .image(btnRightX + btnSize / 2, btnY + btnSize / 2, 'btn-balance-right')
       .setDisplaySize(btnSize, btnSize)
       .setInteractive()
     this._btnRight.on('pointerdown', () => this.pressRight())
-    this._btnRight.on('pointerup',   () => this.releaseRight())
-    this._btnRight.on('pointerout',  () => this.releaseRight())
+    this._btnRight.on('pointerup', () => this.releaseRight())
+    this._btnRight.on('pointerout', () => this.releaseRight())
     this._elements.push(this._btnRight)
   }
 
@@ -131,14 +140,21 @@ export class BalanceUI {
 
     const { WIDTH, HEIGHT } = BALANCE.BAR
     const centerX = GAME_WIDTH / 2
-    const barY    = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
+    const barY = CONTROL_PANEL.CENTER_Y - HEIGHT / 2
     const cursorX = centerX + this._balanceBar.position * (WIDTH / 2)
 
     this._cursor.clear()
     this._cursor.fillStyle(COLORS.RED, 1)
     this._cursor.fillRect(cursorX - 2, barY - 6, 4, HEIGHT + 12)
-    this._cursor.fillTriangle(cursorX, barY - 12, cursorX - 6, barY - 4,  cursorX + 6, barY - 4)
-    this._cursor.fillTriangle(cursorX, barY + HEIGHT + 12, cursorX - 6, barY + HEIGHT + 4, cursorX + 6, barY + HEIGHT + 4)
+    this._cursor.fillTriangle(cursorX, barY - 12, cursorX - 6, barY - 4, cursorX + 6, barY - 4)
+    this._cursor.fillTriangle(
+      cursorX,
+      barY + HEIGHT + 12,
+      cursorX - 6,
+      barY + HEIGHT + 4,
+      cursorX + 6,
+      barY + HEIGHT + 4
+    )
   }
 
   _updateTimer() {

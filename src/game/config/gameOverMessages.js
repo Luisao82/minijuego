@@ -5,28 +5,28 @@
 
 export const GAME_OVER_MESSAGES = [
   {
-    threshold:  90,           // distPercent > 90
+    threshold: 90, // distPercent > 90
     expression: '¡¡ Casiiiiii !!',
-    phrase:     'Que cerquita has estado, miarma',
-    color:      '#00cc44',
+    phrase: 'Que cerquita has estado, miarma',
+    color: '#00cc44',
   },
   {
-    threshold:  50,           // distPercent >= 50
+    threshold: 50, // distPercent >= 50
     expression: '¡¡ Bueno… bueno… !!',
-    phrase:     'Con un poco más de arte, llegas',
-    color:      '#ffd700',
+    phrase: 'Con un poco más de arte, llegas',
+    color: '#ffd700',
   },
   {
-    threshold:  10,           // distPercent >= 10
+    threshold: 10, // distPercent >= 10
     expression: '¡¡ Ooohhh !!',
-    phrase:     'Hay que practicar más eehh??',
-    color:      '#ff8800',
+    phrase: 'Hay que practicar más eehh??',
+    color: '#ff8800',
   },
   {
-    threshold:   0,           // distPercent < 10
+    threshold: 0, // distPercent < 10
     expression: '¡¡ Mare mía !!',
-    phrase:     'Móntate en "las calesitas del Tardón" anda',
-    color:      '#ff4422',
+    phrase: 'Móntate en "las calesitas del Tardón" anda',
+    color: '#ff4422',
   },
 ]
 

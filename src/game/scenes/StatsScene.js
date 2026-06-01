@@ -8,57 +8,56 @@ import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
 // ── Layout ───────────────────────────────────────────────────
-const BAND_Y    = 120
-const BAND_H    = 520
-const COL_L     = 30      // margen izquierdo columna izquierda
-const COL_LDIV  = 500     // posición x de los valores (alineados a la derecha)
-const DIVIDER_X = 512     // línea divisoria central
-const COL_R     = 530     // inicio columna derecha
+const BAND_Y = 120
+const BAND_H = 520
+const COL_L = 30 // margen izquierdo columna izquierda
+const COL_LDIV = 500 // posición x de los valores (alineados a la derecha)
+const DIVIDER_X = 512 // línea divisoria central
+const COL_R = 530 // inicio columna derecha
 const CONTENT_Y = BAND_Y + 20
 
 // Sección TOP SKINS — pódium
-const PODIUM_CX     = Math.round((COL_R + GAME_WIDTH) / 2)  // centro columna derecha (~777)
-const PODIUM_SEP    = 138   // separación horizontal entre posiciones del pódium
-const PODIUM_BASE_Y = 330   // y del suelo de todos los bloques del pódium
-const SPRITE_W      = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scale  // 48px
-const SPRITE_H      = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scale  // 72px
-const BLOCK_W       = 108   // anchura del bloque del pódium
+const PODIUM_CX = Math.round((COL_R + GAME_WIDTH) / 2) // centro columna derecha (~777)
+const PODIUM_SEP = 138 // separación horizontal entre posiciones del pódium
+const PODIUM_BASE_Y = 330 // y del suelo de todos los bloques del pódium
+const SPRITE_W = SPRITE_CONFIG.frameWidth * SPRITE_CONFIG.scale // 48px
+const SPRITE_H = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scale // 72px
+const BLOCK_W = 108 // anchura del bloque del pódium
 
 // Alturas de bloque y colores por posición
 const PODIUM_RANKS = [
-  { rank: 1, x: PODIUM_CX,              blockH: 52, color: 0xd4a520, textColor: '#1a0800' },
+  { rank: 1, x: PODIUM_CX, blockH: 52, color: 0xd4a520, textColor: '#1a0800' },
   { rank: 2, x: PODIUM_CX - PODIUM_SEP, blockH: 38, color: 0xa0a0a0, textColor: '#1a1a1a' },
   { rank: 3, x: PODIUM_CX + PODIUM_SEP, blockH: 26, color: 0x8b5e2a, textColor: '#f0e0c8' },
 ]
 
 // Sección TOP PREMIOS — empieza debajo del pódium
-const TOP_REWARDS_Y = PODIUM_BASE_Y + 60         // base del pódium + gap generoso
+const TOP_REWARDS_Y = PODIUM_BASE_Y + 60 // base del pódium + gap generoso
 const ROW_H_REWARDS = 68
 const IMG_SIZE_REWARD = 60
 
 // ── Tipografía pixel art ──────────────────────────────────────
 const F_SECTION = {
-  fontFamily:      '"Jersey 10", cursive',
-  fontSize:        '44px',
-  color:           '#ffd700',
-  stroke:          '#000000',
+  fontFamily: '"Jersey 10", cursive',
+  fontSize: '44px',
+  color: '#ffd700',
+  stroke: '#000000',
   strokeThickness: 5,
 }
 const F_LABEL = {
   fontFamily: '"Press Start 2P", monospace',
-  fontSize:   '16px',
-  color:      '#aaaaaa',
+  fontSize: '16px',
+  color: '#aaaaaa',
 }
 const F_VALUE = {
-  fontFamily:      '"Jersey 10", cursive',
-  fontSize:        '32px',
-  color:           '#ffd700',
-  stroke:          '#000000',
+  fontFamily: '"Jersey 10", cursive',
+  fontSize: '32px',
+  color: '#ffd700',
+  stroke: '#000000',
   strokeThickness: 4,
 }
 
 export class StatsScene extends BaseScene {
-
   constructor() {
     super(SCENES.STATS)
   }
@@ -66,9 +65,9 @@ export class StatsScene extends BaseScene {
   // Pre-calcular summary en init() para que preload() sepa qué spritesheets cargar
   init() {
     super.init()
-    const records  = gameStatsService.getAll()
-    const calc     = new StatsCalculator(records)
-    this._summary  = calc.getSummary()
+    const records = gameStatsService.getAll()
+    const calc = new StatsCalculator(records)
+    this._summary = calc.getSummary()
   }
 
   // Cargar los spritesheets de los skins del pódium
@@ -78,7 +77,7 @@ export class StatsScene extends BaseScene {
       if (this.textures.exists(skinKey)) return
       const name = skinKey.replace('sprite-', '')
       this.load.spritesheet(skinKey, `sprites/characters/spritesheet/${name}.png`, {
-        frameWidth:  SPRITE_CONFIG.frameWidth,
+        frameWidth: SPRITE_CONFIG.frameWidth,
         frameHeight: SPRITE_CONFIG.frameHeight,
       })
       // Filtro NEAREST para pixel art limpio al escalar
@@ -123,24 +122,29 @@ export class StatsScene extends BaseScene {
       this,
       GAME_WIDTH / 2 - btnW / 2,
       BAND_Y + BAND_H + 16,
-      btnW, btnH,
+      btnW,
+      btnH,
       'VOLVER',
       () => this.scene.start(SCENES.MENU),
-      { depth: 2, fontSize: '32px' },
+      { depth: 2, fontSize: '32px' }
     )
   }
 
   _drawEmpty() {
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20, 'AÚN NO HAS JUGADO', {
-      ...F_LABEL,
-      fontSize: '14px',
-      color:    '#666666',
-    }).setOrigin(0.5)
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 22, 'JUEGA TU PRIMERA PARTIDA', {
-      ...F_LABEL,
-      fontSize: '11px',
-      color:    '#444444',
-    }).setOrigin(0.5)
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20, 'AÚN NO HAS JUGADO', {
+        ...F_LABEL,
+        fontSize: '14px',
+        color: '#666666',
+      })
+      .setOrigin(0.5)
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 22, 'JUEGA TU PRIMERA PARTIDA', {
+        ...F_LABEL,
+        fontSize: '11px',
+        color: '#444444',
+      })
+      .setOrigin(0.5)
   }
 
   // ── Columna izquierda ─────────────────────────────────────
@@ -152,11 +156,11 @@ export class StatsScene extends BaseScene {
     y += 44
 
     const rows = [
-      ['PARTIDAS',    `${summary.totalGames}`],
-      ['VICTORIAS',   `${summary.totalWins}`],
-      ['% VICT.',     `${summary.winRate}%`],
-      ['REC. MEDIO',  `${summary.avgPolePercent}%`],
-      ['RACHA MAX.',  `${summary.consecutiveWins}`],
+      ['PARTIDAS', `${summary.totalGames}`],
+      ['VICTORIAS', `${summary.totalWins}`],
+      ['% VICT.', `${summary.winRate}%`],
+      ['REC. MEDIO', `${summary.avgPolePercent}%`],
+      ['RACHA MAX.', `${summary.consecutiveWins}`],
     ]
 
     const F_STAT_LABEL = { ...F_LABEL, fontSize: '18px', color: '#ffffff' }
@@ -177,17 +181,15 @@ export class StatsScene extends BaseScene {
     y += 44
 
     const imgSize = 60
-    const imgX    = COL_L + imgSize / 2 + 4
-    const imgY    = y + imgSize / 2
-    const imgKey  = `char-${best.characterId}`
+    const imgX = COL_L + imgSize / 2 + 4
+    const imgY = y + imgSize / 2
+    const imgKey = `char-${best.characterId}`
 
     if (this.textures.exists(imgKey)) {
-      this.add.image(imgX, imgY, imgKey)
-        .setDisplaySize(imgSize, imgSize)
-        .setOrigin(0.5)
+      this.add.image(imgX, imgY, imgKey).setDisplaySize(imgSize, imgSize).setOrigin(0.5)
     }
 
-    const textX    = imgX + imgSize / 2 + 12
+    const textX = imgX + imgSize / 2 + 12
     const charName = this._getCharacterName(best.characterId)
     this.add.text(textX, imgY, charName, F_VALUE).setOrigin(0, 0.5)
   }
@@ -210,9 +212,9 @@ export class StatsScene extends BaseScene {
       const entry = topSkins[rank - 1]
       if (!entry) return
 
-      const blockY   = PODIUM_BASE_Y - blockH
-      const spriteY  = blockY              // sprite con origin (0.5, 1) → pies en blockY
-      const nameY    = spriteY - SPRITE_H - 6
+      const blockY = PODIUM_BASE_Y - blockH
+      const spriteY = blockY // sprite con origin (0.5, 1) → pies en blockY
+      const nameY = spriteY - SPRITE_H - 6
 
       // — Bloque del pódium —
       g.fillStyle(color, 1)
@@ -228,32 +230,37 @@ export class StatsScene extends BaseScene {
       g.strokeRect(x - BLOCK_W / 2, blockY, BLOCK_W, blockH)
 
       // — Número de posición dentro del bloque —
-      this.add.text(x, blockY + blockH / 2, `${rank}`, {
-        fontFamily:      '"Press Start 2P", monospace',
-        fontSize:        '16px',
-        color:           textColor,
-        stroke:          '#00000055',
-        strokeThickness: 1,
-      }).setOrigin(0.5)
+      this.add
+        .text(x, blockY + blockH / 2, `${rank}`, {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '16px',
+          color: textColor,
+          stroke: '#00000055',
+          strokeThickness: 1,
+        })
+        .setOrigin(0.5)
 
       // — Sprite animado del skin —
       this._makeWalkingSprite(x, spriteY, entry.skinKey)
 
       // — Nombre del skin (encima del sprite, truncado) —
-      const rawName  = this._getSkinName(entry.skinKey)
+      const rawName = this._getSkinName(entry.skinKey)
       const skinName = rawName.length > 11 ? rawName.slice(0, 10) + '…' : rawName
-      this.add.text(x, nameY, skinName, {
-        ...F_LABEL,
-        fontSize: '16px',
-        color:    '#ffffff',
-      }).setOrigin(0.5, 1)
+      this.add
+        .text(x, nameY, skinName, {
+          ...F_LABEL,
+          fontSize: '16px',
+          color: '#ffffff',
+        })
+        .setOrigin(0.5, 1)
 
       // — Banderas conseguidas (debajo del bloque) —
       this._drawWinsWithFlag(
-        x, PODIUM_BASE_Y + 10,
+        x,
+        PODIUM_BASE_Y + 10,
         entry.wins,
         rank === 1 ? '#ffd700' : rank === 2 ? '#c0c0c0' : '#cd7f32',
-        rank === 1 ? 0xffd700  : rank === 2 ? 0xc0c0c0  : 0xcd7f32,
+        rank === 1 ? 0xffd700 : rank === 2 ? 0xc0c0c0 : 0xcd7f32
       )
     })
   }
@@ -272,26 +279,29 @@ export class StatsScene extends BaseScene {
     }
 
     topRewards.slice(0, 3).forEach(({ rewardId, count }, i) => {
-      const rowY  = y + i * ROW_H_REWARDS
-      const imgX  = COL_R + IMG_SIZE_REWARD / 2
-      const imgY  = rowY + ROW_H_REWARDS / 2
+      const rowY = y + i * ROW_H_REWARDS
+      const imgX = COL_R + IMG_SIZE_REWARD / 2
+      const imgY = rowY + ROW_H_REWARDS / 2
 
       if (this.textures.exists(rewardId)) {
-        this.add.image(imgX, imgY, rewardId)
+        this.add
+          .image(imgX, imgY, rewardId)
           .setDisplaySize(IMG_SIZE_REWARD, IMG_SIZE_REWARD)
           .setOrigin(0.5)
       }
 
-      const labelX     = imgX + IMG_SIZE_REWARD / 2 + 10
+      const labelX = imgX + IMG_SIZE_REWARD / 2 + 10
       const rewardName = this._getRewardName(rewardId)
       this.add.text(labelX, imgY - 12, rewardName, F_VALUE).setOrigin(0, 0.5)
-      this.add.text(labelX, imgY + 14, `x${count}`, {
-        fontFamily:      '"Jersey 10", cursive',
-        fontSize:        '28px',
-        color:           '#ffffff',
-        stroke:          '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0, 0.5)
+      this.add
+        .text(labelX, imgY + 14, `x${count}`, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '28px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0, 0.5)
     })
   }
 
@@ -301,19 +311,24 @@ export class StatsScene extends BaseScene {
   // que las banderas de SkinSelectScene). El número se centra en x y la
   // bandera se coloca inmediatamente a la derecha.
   _drawWinsWithFlag(x, y, wins, textColor, flagHexColor) {
-    const numText = this.add.text(x, y, `${wins}`, {
-      ...F_LABEL,
-      fontSize: '16px',
-      color:    textColor,
-    }).setOrigin(0.5, 0)
+    const numText = this.add
+      .text(x, y, `${wins}`, {
+        ...F_LABEL,
+        fontSize: '16px',
+        color: textColor,
+      })
+      .setOrigin(0.5, 0)
 
     const flagX = Math.round(x + numText.width / 2 + 5)
-    const g     = this.add.graphics()
-    const PW = 2, PH = 14, FW = 9, FH = 6
+    const g = this.add.graphics()
+    const PW = 2,
+      PH = 14,
+      FW = 9,
+      FH = 6
 
     g.fillStyle(flagHexColor, 1)
-    g.fillRect(flagX,      y,     PW, PH)       // palo
-    g.fillRect(flagX + PW, y + 1, FW, FH)       // tela
+    g.fillRect(flagX, y, PW, PH) // palo
+    g.fillRect(flagX + PW, y + 1, FW, FH) // tela
   }
 
   // ── Sprite animado del pódium ────────────────────────────
@@ -321,7 +336,8 @@ export class StatsScene extends BaseScene {
   _makeWalkingSprite(x, spriteY, skinKey) {
     if (!this.textures.exists(skinKey)) return
 
-    const sprite = this.add.sprite(x, spriteY, skinKey, SPRITE_FRAMES.STAND)
+    const sprite = this.add
+      .sprite(x, spriteY, skinKey, SPRITE_FRAMES.STAND)
       .setDisplaySize(SPRITE_W, SPRITE_H)
       .setOrigin(0.5, 1)
 
@@ -330,8 +346,8 @@ export class StatsScene extends BaseScene {
 
     // Animación de caminar: alterna frame STAND ↔ WALK cada 220 ms
     this.time.addEvent({
-      delay:    220,
-      loop:     true,
+      delay: 220,
+      loop: true,
       callback: () => {
         if (isJumping) return
         walkFrame = walkFrame === SPRITE_FRAMES.STAND ? SPRITE_FRAMES.WALK : SPRITE_FRAMES.STAND
@@ -346,16 +362,16 @@ export class StatsScene extends BaseScene {
       isJumping = true
       sprite.setFrame(SPRITE_FRAMES.JUMP)
       this.tweens.add({
-        targets:  sprite,
-        y:        spriteY - 24,
+        targets: sprite,
+        y: spriteY - 24,
         duration: 180,
-        ease:     'Quad.easeOut',
+        ease: 'Quad.easeOut',
         onComplete: () => {
           this.tweens.add({
-            targets:  sprite,
-            y:        spriteY,
+            targets: sprite,
+            y: spriteY,
             duration: 180,
-            ease:     'Quad.easeIn',
+            ease: 'Quad.easeIn',
             onComplete: () => {
               isJumping = false
               sprite.setFrame(walkFrame)
@@ -371,20 +387,20 @@ export class StatsScene extends BaseScene {
   _getSkinName(skinKey) {
     const spritesheetName = skinKey.replace('sprite-', '')
     for (const char of CHARACTERS) {
-      const skin = char.skins?.find(s => s.spritesheet === spritesheetName)
+      const skin = char.skins?.find((s) => s.spritesheet === spritesheetName)
       if (skin) return skin.nombre
     }
     return spritesheetName
   }
 
   _getCharacterName(characterId) {
-    const char = CHARACTERS.find(c => c.id === characterId)
+    const char = CHARACTERS.find((c) => c.id === characterId)
     return char ? char.name : characterId
   }
 
   _getRewardName(rewardId) {
     const rewards = this.cache.json.get('rewards') || []
-    const reward  = rewards.find(r => r.id === rewardId)
+    const reward = rewards.find((r) => r.id === rewardId)
     return reward ? reward.nombre : rewardId
   }
 }

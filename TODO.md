@@ -1,4 +1,5 @@
 # TODO — La Cucaña Trianera
+
 > Hoja de ruta hacia el producto final. Actualizar este documento tras cada sesión de trabajo.
 
 ---
@@ -6,15 +7,18 @@
 ## 🎮 Contenido del juego
 
 ### Premios
+
 - [x] Diseñar y añadir nuevos premios (imagen + nombre + probabilidad en `rewards.json`)
 - [x] Revisar balance de probabilidades con los nuevos premios
 
 ### Mapa de Sevilla
+
 - [ ] Añadir más puntos de interés con foto a las piezas existentes del mapa
 - [ ] Completar las piezas que aún no tienen ningún punto asignado
 - [ ] Revisar descripciones de los puntos existentes
 
 ### Personajes y skins
+
 - [x] Valorar añadir nuevos personajes
 - [x] Valorar añadir nuevos skins a los personajes existentes
 - [x] Revisar condiciones de desbloqueo y si son equilibradas
@@ -112,4 +116,4 @@
 
 ---
 
-*Última actualización: 2026-05-28 — v1.0.0*
+_Última actualización: 2026-05-28 — v1.0.0_

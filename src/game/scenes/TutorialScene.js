@@ -8,56 +8,56 @@ import { TUTORIAL_BLOCKS } from '../config/tutorialContent'
 // ============================================================
 // LAYOUT
 // ============================================================
-const DLG_M    = 16
-const DLG_H    = 256
-const DLG_X    = DLG_M
-const DLG_Y    = GAME_HEIGHT - DLG_H - DLG_M
-const DLG_W    = GAME_WIDTH  - DLG_M * 2
+const DLG_M = 16
+const DLG_H = 256
+const DLG_X = DLG_M
+const DLG_Y = GAME_HEIGHT - DLG_H - DLG_M
+const DLG_W = GAME_WIDTH - DLG_M * 2
 
-const FACE_W    = 160
+const FACE_W = 160
 const NARR_SIZE = 150
 
-const TITLE_H  = 26
-const TEXT_X   = DLG_X + FACE_W + 14
-const TEXT_Y   = DLG_Y + TITLE_H + 16
-const TEXT_W   = DLG_W - FACE_W - 26
+const TITLE_H = 26
+const TEXT_X = DLG_X + FACE_W + 14
+const TEXT_Y = DLG_Y + TITLE_H + 16
+const TEXT_W = DLG_W - FACE_W - 26
 
-const IMG_CX       = GAME_WIDTH / 2
+const IMG_CX = GAME_WIDTH / 2
 const IMG_AREA_TOP = 30
 const IMG_AREA_BTM = DLG_Y - 16
-const IMG_CY       = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)
-const IMG_MAX_W    = 860
-const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP
+const IMG_CY = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)
+const IMG_MAX_W = 860
+const IMG_MAX_H = IMG_AREA_BTM - IMG_AREA_TOP
 
 // Máquina de escribir
 const CHAR_DELAY = 28
 
 // Easter egg
-const EE_TAP_THRESHOLD  = 12
+const EE_TAP_THRESHOLD = 12
 const EE_TAP_TIMEOUT_MS = 1500
 
 // ============================================================
 // PALETA — moderno, azul/cian
 // ============================================================
-const CYAN     = 0x00ccff
+const CYAN = 0x00ccff
 const DLG_DARK = 0x0a1628
 const DLG_FACE = 0x0d2040
 
 const NARRATOR_CONFIG = {
-  cx:          DLG_X + Math.round(FACE_W / 2),
-  cy:          DLG_Y + Math.round(DLG_H / 2),
-  size:        NARR_SIZE,
+  cx: DLG_X + Math.round(FACE_W / 2),
+  cy: DLG_Y + Math.round(DLG_H / 2),
+  size: NARR_SIZE,
   spritesheet: 'narrator-tutorial',
   mouthCycle: [
-    { frame: 0, duration:  90 },
-    { frame: 1, duration:  75 },
-    { frame: 2, duration:  55 },
-    { frame: 1, duration:  75 },
+    { frame: 0, duration: 90 },
+    { frame: 1, duration: 75 },
+    { frame: 2, duration: 55 },
+    { frame: 1, duration: 75 },
   ],
-  blinkMin:     3200,
-  blinkMax:     7000,
-  blinkDur:     130,
-  depth:        3,
+  blinkMin: 3200,
+  blinkMax: 7000,
+  blinkDur: 130,
+  depth: 3,
   talkSoundKey: 'sfx-talk',
   talkSoundVol: 0.22,
 }
@@ -66,23 +66,22 @@ const NARRATOR_CONFIG = {
 // ESCENA
 // ============================================================
 export class TutorialScene extends BaseScene {
-
   constructor() {
     super(SCENES.TUTORIAL)
   }
 
   create() {
-    this.blockIdx        = 0
-    this.charIdx         = 0
-    this.isTyping        = false
+    this.blockIdx = 0
+    this.charIdx = 0
+    this.isTyping = false
     this.waitingForInput = false
-    this.typingTimer     = null
-    this.tutImg          = null
+    this.typingTimer = null
+    this.tutImg = null
 
     // Easter egg
-    this._eeTapCount    = 0
+    this._eeTapCount = 0
     this._eeLastTapTime = 0
-    this._eeTriggered   = false
+    this._eeTriggered = false
 
     this.drawBackground()
     this.drawDialogBox()
@@ -100,19 +99,17 @@ export class TutorialScene extends BaseScene {
   // =====================================================
 
   drawBackground() {
-    if (this.textures.exists('bg-characters') &&
-        this.textures.get('bg-characters').key !== '__MISSING') {
+    if (
+      this.textures.exists('bg-characters') &&
+      this.textures.get('bg-characters').key !== '__MISSING'
+    ) {
       const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-characters')
       bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
     } else {
-      this.add.graphics()
-        .fillStyle(0x00080f, 1)
-        .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      this.add.graphics().fillStyle(0x00080f, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
 
-    this.add.graphics()
-      .fillStyle(0x001a2e, 0.58)
-      .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    this.add.graphics().fillStyle(0x001a2e, 0.58).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
   // =====================================================
@@ -147,12 +144,12 @@ export class TutorialScene extends BaseScene {
     g.lineStyle(1, CYAN, 0.35)
     g.lineBetween(DLG_X + FACE_W + 12, DLG_Y + TITLE_H + 6, DLG_X + DLG_W - 12, DLG_Y + TITLE_H + 6)
 
-    const cLen    = 11
+    const cLen = 11
     const corners = [
-      [DLG_X + 2,          DLG_Y + 2,          1,  1],
-      [DLG_X + DLG_W - 2,  DLG_Y + 2,         -1,  1],
-      [DLG_X + 2,          DLG_Y + DLG_H - 2,  1, -1],
-      [DLG_X + DLG_W - 2,  DLG_Y + DLG_H - 2, -1, -1],
+      [DLG_X + 2, DLG_Y + 2, 1, 1],
+      [DLG_X + DLG_W - 2, DLG_Y + 2, -1, 1],
+      [DLG_X + 2, DLG_Y + DLG_H - 2, 1, -1],
+      [DLG_X + DLG_W - 2, DLG_Y + DLG_H - 2, -1, -1],
     ]
     g.lineStyle(2, CYAN, 0.9)
     corners.forEach(([cx, cy, sx, sy]) => {
@@ -167,10 +164,17 @@ export class TutorialScene extends BaseScene {
 
   drawBackButton() {
     makeNavButton(
-      this, 12, 12, 170, 58,
+      this,
+      12,
+      12,
+      170,
+      58,
       'MENÚ',
-      () => { this.stopAllTimers(); this.scene.start(SCENES.MENU) },
-      { depth: 5 },
+      () => {
+        this.stopAllTimers()
+        this.scene.start(SCENES.MENU)
+      },
+      { depth: 5 }
     )
   }
 
@@ -201,28 +205,28 @@ export class TutorialScene extends BaseScene {
   // =====================================================
 
   createTextObjects() {
-    this.blockTitleObj = this.add.text(
-      DLG_X + FACE_W + 16,
-      DLG_Y + Math.round(TITLE_H / 2) + 3,
-      '',
-      {
+    this.blockTitleObj = this.add
+      .text(DLG_X + FACE_W + 16, DLG_Y + Math.round(TITLE_H / 2) + 3, '', {
         fontFamily: '"Jersey 10", cursive',
-        fontSize:   '22px',
-        color:      '#00ccff',
-        stroke:     '#000000',
+        fontSize: '22px',
+        color: '#00ccff',
+        stroke: '#000000',
         strokeThickness: 3,
-      },
-    ).setOrigin(0, 0.5).setDepth(4)
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(4)
 
-    this.dialogText = this.add.text(TEXT_X, TEXT_Y, '', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize:   '34px',
-      color:      '#e8f4ff',
-      stroke:     '#000000',
-      strokeThickness: 2,
-      wordWrap: { width: TEXT_W },
-      lineSpacing: 4,
-    }).setDepth(4)
+    this.dialogText = this.add
+      .text(TEXT_X, TEXT_Y, '', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '34px',
+        color: '#e8f4ff',
+        stroke: '#000000',
+        strokeThickness: 2,
+        wordWrap: { width: TEXT_W },
+        lineSpacing: 4,
+      })
+      .setDepth(4)
   }
 
   // =====================================================
@@ -233,18 +237,22 @@ export class TutorialScene extends BaseScene {
     const x = DLG_X + DLG_W - 20
     const y = DLG_Y + DLG_H - 14
 
-    this.continueInd = this.add.text(x, y, '▼', {
-      fontFamily: 'monospace',
-      fontSize:   '16px',
-      color:      '#00ccff',
-    }).setOrigin(0.5).setDepth(5).setVisible(false)
+    this.continueInd = this.add
+      .text(x, y, '▼', {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        color: '#00ccff',
+      })
+      .setOrigin(0.5)
+      .setDepth(5)
+      .setVisible(false)
 
     this.tweens.add({
-      targets:  this.continueInd,
-      alpha:    { from: 1, to: 0.15 },
+      targets: this.continueInd,
+      alpha: { from: 1, to: 0.15 },
       duration: 480,
-      yoyo:     true,
-      repeat:   -1,
+      yoyo: true,
+      repeat: -1,
     })
   }
 
@@ -264,10 +272,10 @@ export class TutorialScene extends BaseScene {
   }
 
   startPage() {
-    const text           = TUTORIAL_BLOCKS[this.blockIdx].text
-    this.fullPageText    = text
-    this.charIdx         = 0
-    this.isTyping        = true
+    const text = TUTORIAL_BLOCKS[this.blockIdx].text
+    this.fullPageText = text
+    this.charIdx = 0
+    this.isTyping = true
     this.waitingForInput = false
 
     this.dialogText.setText('')
@@ -275,9 +283,9 @@ export class TutorialScene extends BaseScene {
     this.narrator.startTalking()
 
     this.typingTimer = this.time.addEvent({
-      delay:         CHAR_DELAY,
-      loop:          true,
-      callback:      this.typeNextChar,
+      delay: CHAR_DELAY,
+      loop: true,
+      callback: this.typeNextChar,
       callbackScope: this,
     })
   }
@@ -293,7 +301,10 @@ export class TutorialScene extends BaseScene {
   }
 
   onPageComplete() {
-    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    if (this.typingTimer) {
+      this.typingTimer.destroy()
+      this.typingTimer = null
+    }
     this.isTyping = false
     this.narrator.stopTalking()
 
@@ -308,7 +319,10 @@ export class TutorialScene extends BaseScene {
   advanceDialog() {
     if (this.isTyping) {
       this.isTyping = false
-      if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+      if (this.typingTimer) {
+        this.typingTimer.destroy()
+        this.typingTimer = null
+      }
       this.dialogText.setText(this.fullPageText)
       this.onPageComplete()
       return
@@ -335,11 +349,16 @@ export class TutorialScene extends BaseScene {
 
     makeNavButton(
       this,
-      btnX, btnY,
-      btnW, btnH,
+      btnX,
+      btnY,
+      btnW,
+      btnH,
       '¡A JUGAR!',
-      () => { this.stopAllTimers(); this.scene.start(SCENES.CHARACTER_SELECT) },
-      { depth: 5, fontSize: '30px' },
+      () => {
+        this.stopAllTimers()
+        this.scene.start(SCENES.CHARACTER_SELECT)
+      },
+      { depth: 5, fontSize: '30px' }
     )
   }
 
@@ -363,7 +382,7 @@ export class TutorialScene extends BaseScene {
 
     const now = Date.now()
 
-    if (this._eeTapCount > 0 && (now - this._eeLastTapTime) > EE_TAP_TIMEOUT_MS) {
+    if (this._eeTapCount > 0 && now - this._eeLastTapTime > EE_TAP_TIMEOUT_MS) {
       this._eeTapCount = 0
       this._resetNarratorVisuals()
     }
@@ -387,17 +406,27 @@ export class TutorialScene extends BaseScene {
 
     if (count === 4) {
       this.tweens.add({
-        targets: img, x: this._eeBaseX + 3,
-        duration: 50, yoyo: true, repeat: 3,
-        onComplete: () => { img.x = this._eeBaseX },
+        targets: img,
+        x: this._eeBaseX + 3,
+        duration: 50,
+        yoyo: true,
+        repeat: 3,
+        onComplete: () => {
+          img.x = this._eeBaseX
+        },
       })
     }
 
     if (count === 8) {
       this.tweens.add({
-        targets: img, x: this._eeBaseX + 5,
-        duration: 40, yoyo: true, repeat: 5,
-        onComplete: () => { img.x = this._eeBaseX },
+        targets: img,
+        x: this._eeBaseX + 5,
+        duration: 40,
+        yoyo: true,
+        repeat: 5,
+        onComplete: () => {
+          img.x = this._eeBaseX
+        },
       })
       if (typeof img.setTint === 'function') img.setTint(0xffddaa)
     }
@@ -405,9 +434,15 @@ export class TutorialScene extends BaseScene {
     if (count === 11) {
       this.tweens.add({
         targets: img,
-        x: this._eeBaseX + 7, y: this._eeBaseY - 2,
-        duration: 30, yoyo: true, repeat: 7,
-        onComplete: () => { img.x = this._eeBaseX; img.y = this._eeBaseY },
+        x: this._eeBaseX + 7,
+        y: this._eeBaseY - 2,
+        duration: 30,
+        yoyo: true,
+        repeat: 7,
+        onComplete: () => {
+          img.x = this._eeBaseX
+          img.y = this._eeBaseY
+        },
       })
       if (typeof img.setTint === 'function') img.setTint(0xff8866)
       this.dialogText.setText('¡Eh, para, para! ¿Qué haces?')
@@ -418,8 +453,10 @@ export class TutorialScene extends BaseScene {
       const origSY = img.scaleY
       this.tweens.add({
         targets: img,
-        scaleX: origSX * 1.05, scaleY: origSY * 1.05,
-        duration: 60, yoyo: true,
+        scaleX: origSX * 1.05,
+        scaleY: origSY * 1.05,
+        duration: 60,
+        yoyo: true,
       })
     }
   }
@@ -439,7 +476,8 @@ export class TutorialScene extends BaseScene {
     flash.fillStyle(0xffffff, 0.9)
     flash.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     this.tweens.add({
-      targets: flash, alpha: 0,
+      targets: flash,
+      alpha: 0,
       duration: 600,
       onComplete: () => flash.destroy(),
     })
@@ -454,10 +492,13 @@ export class TutorialScene extends BaseScene {
   // =====================================================
 
   stopAllTimers() {
-    this.isTyping        = false
+    this.isTyping = false
     this.waitingForInput = false
-    this._eeTriggered    = true
-    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    this._eeTriggered = true
+    if (this.typingTimer) {
+      this.typingTimer.destroy()
+      this.typingTimer = null
+    }
     this.narrator.stopAllTimers()
   }
 
@@ -471,7 +512,7 @@ export class TutorialScene extends BaseScene {
     })
     this.input.keyboard.on('keydown-SPACE', () => this.advanceDialog())
     this.input.keyboard.on('keydown-ENTER', () => this.advanceDialog())
-    this.input.keyboard.on('keydown-ESC',   () => {
+    this.input.keyboard.on('keydown-ESC', () => {
       this.stopAllTimers()
       this.scene.start(SCENES.MENU)
     })

@@ -14,35 +14,44 @@ const PROJECT_ROOT = resolve(__dirname, '..')
 
 // ─── Paleta ──────────────────────────────────────────────────────────────
 const PAL = [
-  [0,   0,   0,   0],     // 0  TRANSPARENT
-  [74,  144, 217, 255],   // 1  SKY        (#4a90d9)
-  [120, 175, 235, 255],   // 2  SKY_HI
-  [255, 255, 255, 255],   // 3  FLAG
-  [225, 220, 200, 255],   // 4  FLAG_SH
-  [139, 105, 20,  255],   // 5  WOOD_L     (mástil)
-  [92,  74,  30,  255],   // 6  WOOD_D
-  [225, 145, 85,  255],   // 7  STONE_L    (puente, piedra cálida)
-  [180, 100, 55,  255],   // 8  STONE_M
-  [130, 70,  40,  255],   // 9  STONE_D
-  [55,  55,  65,  255],   // 10 RAIL       (barandilla de hierro)
-  [70,  140, 185, 255],   // 11 WATER_L
-  [40,  100, 155, 255],   // 12 WATER_M
-  [25,  70,  115, 255],   // 13 WATER_D
-  [20,  20,  30,  255],   // 14 OUTLINE
+  [0, 0, 0, 0], // 0  TRANSPARENT
+  [74, 144, 217, 255], // 1  SKY        (#4a90d9)
+  [120, 175, 235, 255], // 2  SKY_HI
+  [255, 255, 255, 255], // 3  FLAG
+  [225, 220, 200, 255], // 4  FLAG_SH
+  [139, 105, 20, 255], // 5  WOOD_L     (mástil)
+  [92, 74, 30, 255], // 6  WOOD_D
+  [225, 145, 85, 255], // 7  STONE_L    (puente, piedra cálida)
+  [180, 100, 55, 255], // 8  STONE_M
+  [130, 70, 40, 255], // 9  STONE_D
+  [55, 55, 65, 255], // 10 RAIL       (barandilla de hierro)
+  [70, 140, 185, 255], // 11 WATER_L
+  [40, 100, 155, 255], // 12 WATER_M
+  [25, 70, 115, 255], // 13 WATER_D
+  [20, 20, 30, 255], // 14 OUTLINE
 ]
 
 const I = {
-  TR: 0, SKY: 1, SKY_HI: 2,
-  FLAG: 3, FLAG_SH: 4,
-  WOOD_L: 5, WOOD_D: 6,
-  STONE_L: 7, STONE_M: 8, STONE_D: 9,
+  TR: 0,
+  SKY: 1,
+  SKY_HI: 2,
+  FLAG: 3,
+  FLAG_SH: 4,
+  WOOD_L: 5,
+  WOOD_D: 6,
+  STONE_L: 7,
+  STONE_M: 8,
+  STONE_D: 9,
   RAIL: 10,
-  WATER_L: 11, WATER_M: 12, WATER_D: 13,
+  WATER_L: 11,
+  WATER_M: 12,
+  WATER_D: 13,
   OL: 14,
 }
 
 // ─── Canvas 64×64 ────────────────────────────────────────────────────────
-const W = 64, H = 64
+const W = 64,
+  H = 64
 const buf = new Uint8Array(W * H)
 
 const setPx = (x, y, id) => {
@@ -50,8 +59,7 @@ const setPx = (x, y, id) => {
   buf[y * W + x] = id
 }
 const fill = (x, y, w, h, id) => {
-  for (let yy = y; yy < y + h; yy++)
-    for (let xx = x; xx < x + w; xx++) setPx(xx, yy, id)
+  for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) setPx(xx, yy, id)
 }
 
 // ─── Composición ─────────────────────────────────────────────────────────
@@ -62,7 +70,7 @@ fill(0, 0, W, 8, I.SKY_HI)
 
 // 2. Agua (parte inferior del icono)
 const WATER_TOP = 46
-fill(0, WATER_TOP,     W, 2, I.WATER_M)
+fill(0, WATER_TOP, W, 2, I.WATER_M)
 fill(0, WATER_TOP + 2, W, H - WATER_TOP - 2, I.WATER_D)
 // Ondas/brillos en el agua
 for (let y = WATER_TOP + 3; y < H; y += 3) {
@@ -77,9 +85,10 @@ for (let y = WATER_TOP + 1; y < WATER_TOP + 4; y++) {
 }
 
 // 3. Puente — 3 arcos icónicos (Puente de Isabel II)
-const BRIDGE_X0 = 4, BRIDGE_X1 = 60     // x=4..59 (56 wide)
-const DECK_Y = 28                        // arriba de la barandilla
-const BASE_Y = 46                        // donde el puente toca el agua
+const BRIDGE_X0 = 4,
+  BRIDGE_X1 = 60 // x=4..59 (56 wide)
+const DECK_Y = 28 // arriba de la barandilla
+const BASE_Y = 46 // donde el puente toca el agua
 
 // Cuerpo del puente (piedra cálida)
 fill(BRIDGE_X0, DECK_Y + 2, BRIDGE_X1 - BRIDGE_X0, BASE_Y - DECK_Y - 2, I.STONE_L)
@@ -89,7 +98,7 @@ fill(BRIDGE_X0, BASE_Y - 2, BRIDGE_X1 - BRIDGE_X0, 2, I.STONE_M)
 for (let x = BRIDGE_X0; x < BRIDGE_X1; x++) setPx(x, BASE_Y - 1, I.STONE_D)
 
 // Barandilla / deck del puente (hierro oscuro)
-fill(BRIDGE_X0, DECK_Y,     BRIDGE_X1 - BRIDGE_X0, 1, I.OL)
+fill(BRIDGE_X0, DECK_Y, BRIDGE_X1 - BRIDGE_X0, 1, I.OL)
 fill(BRIDGE_X0, DECK_Y + 1, BRIDGE_X1 - BRIDGE_X0, 1, I.RAIL)
 // Pequeñas verticales de la barandilla (postes)
 for (let x = BRIDGE_X0 + 2; x < BRIDGE_X1; x += 4) {
@@ -101,8 +110,8 @@ for (let x = BRIDGE_X0 + 2; x < BRIDGE_X1; x += 4) {
 // x: 4..8 | 9..20 | 21..25 | 26..37 | 38..42 | 43..54 | 55..59
 const archXs = [9, 26, 43]
 const ARCH_W = 12
-const ARCH_TOP = 32         // donde empieza la curva superior del arco
-const ARCH_BOTTOM = BASE_Y - 2  // 44
+const ARCH_TOP = 32 // donde empieza la curva superior del arco
+const ARCH_BOTTOM = BASE_Y - 2 // 44
 
 // Cortar arco: semicírculo arriba + rectángulo debajo (revela cielo)
 function cutArch(x0) {
@@ -140,7 +149,7 @@ function cutArch(x0) {
   }
   // Sombra suave dentro del arco (justo bajo la curva, lado izquierdo)
   for (let i = 1; i < 3; i++) {
-    setPx(x0 + ((ARCH_W - widths[i]) / 2), ARCH_TOP + i + 1, I.STONE_M)
+    setPx(x0 + (ARCH_W - widths[i]) / 2, ARCH_TOP + i + 1, I.STONE_M)
   }
 }
 archXs.forEach(cutArch)
@@ -154,7 +163,7 @@ function ornament(cx) {
   setPx(cx - 1, cy, I.OL)
   setPx(cx + 1, cy, I.OL)
   setPx(cx, cy + 1, I.OL)
-  setPx(cx, cy, I.SKY)  // hueco que deja ver el cielo
+  setPx(cx, cy, I.SKY) // hueco que deja ver el cielo
 }
 ornament(23)
 ornament(40)
@@ -162,7 +171,7 @@ ornament(40)
 // 5. Mástil de la bandera — centrado en el deck del puente, vertical
 const POLE_X = 31
 for (let y = 7; y < DECK_Y; y++) {
-  setPx(POLE_X,     y, I.WOOD_L)
+  setPx(POLE_X, y, I.WOOD_L)
   setPx(POLE_X + 1, y, I.WOOD_D)
 }
 // Outline del mástil
@@ -170,11 +179,11 @@ for (let y = 6; y < DECK_Y; y++) {
   setPx(POLE_X - 1, y, I.OL)
   setPx(POLE_X + 2, y, I.OL)
 }
-setPx(POLE_X,     6, I.OL)
+setPx(POLE_X, 6, I.OL)
 setPx(POLE_X + 1, 6, I.OL)
 
 // 6. Bandera blanca rectangular ondeando a la derecha
-const FLAG_LEFT = POLE_X + 2  // 33
+const FLAG_LEFT = POLE_X + 2 // 33
 const FLAG_TOP = 8
 const flagRows = [
   { dy: 0, w: 13 },
@@ -205,7 +214,7 @@ const CRC_TABLE = (() => {
   const t = new Uint32Array(256)
   for (let n = 0; n < 256; n++) {
     let c = n
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1)
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
     t[n] = c
   }
   return t
@@ -218,9 +227,11 @@ const crc32 = (bytes) => {
 
 // ─── Encoder PNG ─────────────────────────────────────────────────────────
 const chunk = (type, data) => {
-  const len = Buffer.alloc(4); len.writeUInt32BE(data.length, 0)
+  const len = Buffer.alloc(4)
+  len.writeUInt32BE(data.length, 0)
   const typeBuf = Buffer.from(type, 'ascii')
-  const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0)
+  const crc = Buffer.alloc(4)
+  crc.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0)
   return Buffer.concat([len, typeBuf, data, crc])
 }
 
@@ -232,7 +243,10 @@ const encodePNG = (width, height, indices, palette) => {
     for (let x = 0; x < width; x++) {
       const c = palette[indices[y * width + x]]
       const off = y * (1 + rowBytes) + 1 + x * 4
-      raw[off] = c[0]; raw[off + 1] = c[1]; raw[off + 2] = c[2]; raw[off + 3] = c[3]
+      raw[off] = c[0]
+      raw[off + 1] = c[1]
+      raw[off + 2] = c[2]
+      raw[off + 3] = c[3]
     }
   }
   const compressed = deflateSync(raw, { level: 9 })
@@ -241,18 +255,27 @@ const encodePNG = (width, height, indices, palette) => {
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(width, 0)
   ihdr.writeUInt32BE(height, 4)
-  ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0
+  ihdr[8] = 8
+  ihdr[9] = 6
+  ihdr[10] = 0
+  ihdr[11] = 0
+  ihdr[12] = 0
 
-  return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', compressed), chunk('IEND', Buffer.alloc(0))])
+  return Buffer.concat([
+    sig,
+    chunk('IHDR', ihdr),
+    chunk('IDAT', compressed),
+    chunk('IEND', Buffer.alloc(0)),
+  ])
 }
 
 // ─── Upscale nearest-neighbor ────────────────────────────────────────────
 const upscaleNearest = (src, srcW, srcH, dstW, dstH) => {
   const dst = new Uint8Array(dstW * dstH)
   for (let dy = 0; dy < dstH; dy++) {
-    const sy = Math.floor(dy * srcH / dstH)
+    const sy = Math.floor((dy * srcH) / dstH)
     for (let dx = 0; dx < dstW; dx++) {
-      const sx = Math.floor(dx * srcW / dstW)
+      const sx = Math.floor((dx * srcW) / dstW)
       dst[dy * dstW + dx] = src[sy * srcW + sx]
     }
   }

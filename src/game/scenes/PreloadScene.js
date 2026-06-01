@@ -15,18 +15,18 @@ const RETRO_PX = 6
 // Los grosores son múltiplos de RETRO_PX para que el scroll sea pixel-perfect.
 // (1 rp = 4px, 2 rp = 8px, 3 rp = 12px, etc.)
 const SPECTRUM_PATTERN = [
-  { color: 0xFFFF00, h: 3 * RETRO_PX },   // amarillo — 3 rp
-  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
-  { color: 0xFFFF00, h: 2 * RETRO_PX },   // amarillo — 2 rp
-  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
-  { color: 0xFFFF00, h: 4 * RETRO_PX },   // amarillo — 4 rp
-  { color: 0x0000CD, h: 2 * RETRO_PX },   // azul     — 2 rp
-  { color: 0xFFFF00, h: 1 * RETRO_PX },   // amarillo — 1 rp
-  { color: 0x0000CD, h: 5 * RETRO_PX },   // azul     — 5 rp
-  { color: 0xFFFF00, h: 2 * RETRO_PX },   // amarillo — 2 rp
-  { color: 0x0000CD, h: 1 * RETRO_PX },   // azul     — 1 rp
-  { color: 0xFFFF00, h: 5 * RETRO_PX },   // amarillo — 5 rp
-  { color: 0x0000CD, h: 3 * RETRO_PX },   // azul     — 3 rp
+  { color: 0xffff00, h: 3 * RETRO_PX }, // amarillo — 3 rp
+  { color: 0x0000cd, h: 1 * RETRO_PX }, // azul     — 1 rp
+  { color: 0xffff00, h: 2 * RETRO_PX }, // amarillo — 2 rp
+  { color: 0x0000cd, h: 1 * RETRO_PX }, // azul     — 1 rp
+  { color: 0xffff00, h: 4 * RETRO_PX }, // amarillo — 4 rp
+  { color: 0x0000cd, h: 2 * RETRO_PX }, // azul     — 2 rp
+  { color: 0xffff00, h: 1 * RETRO_PX }, // amarillo — 1 rp
+  { color: 0x0000cd, h: 5 * RETRO_PX }, // azul     — 5 rp
+  { color: 0xffff00, h: 2 * RETRO_PX }, // amarillo — 2 rp
+  { color: 0x0000cd, h: 1 * RETRO_PX }, // azul     — 1 rp
+  { color: 0xffff00, h: 5 * RETRO_PX }, // amarillo — 5 rp
+  { color: 0x0000cd, h: 3 * RETRO_PX }, // azul     — 3 rp
 ]
 // Ciclo total: (3+1+2+1+4+2+1+5+2+1+5+3) × 4 = 120px por vuelta
 
@@ -35,23 +35,22 @@ const PATTERN_COLORS = []
 for (const stripe of SPECTRUM_PATTERN) {
   for (let i = 0; i < stripe.h; i++) PATTERN_COLORS.push(stripe.color)
 }
-const PATTERN_TOTAL = PATTERN_COLORS.length   // 120
+const PATTERN_TOTAL = PATTERN_COLORS.length // 120
 
 // Scroll estroboscópico: avanza 3 píxeles retro por tick a máxima frecuencia
 // (~60 ticks/s) → la vibración rápida simula el borde del Spectrum cargando datos.
-const STRIPE_SCROLL_PX = RETRO_PX * 3   // 18px por tick (salto visible y chunky)
-const STRIPE_DELAY_MS  = 16             // 1 frame (~60 ticks/s)
-const DISPLAY_MIN_MS   = 5000       // tiempo mínimo de pantalla
+const STRIPE_SCROLL_PX = RETRO_PX * 3 // 18px por tick (salto visible y chunky)
+const STRIPE_DELAY_MS = 16 // 1 frame (~60 ticks/s)
+const DISPLAY_MIN_MS = 5000 // tiempo mínimo de pantalla
 
 export class PreloadScene extends BaseScene {
-
   constructor() {
     super(SCENES.PRELOAD)
   }
 
   preload() {
-    this._startTime     = Date.now()
-    this._stripeScrollY = 0   // offset en píxeles dentro del patrón
+    this._startTime = Date.now()
+    this._stripeScrollY = 0 // offset en píxeles dentro del patrón
 
     this._buildScreen()
     this._startStripeAnimation()
@@ -62,10 +61,10 @@ export class PreloadScene extends BaseScene {
   create() {
     // Esperar a que pasen DISPLAY_MIN_MS Y a que las fuentes web estén cargadas.
     // Promise.all garantiza que ambas condiciones se cumplan antes de ir al menú.
-    const elapsed   = Date.now() - this._startTime
+    const elapsed = Date.now() - this._startTime
     const remaining = Math.max(0, DISPLAY_MIN_MS - elapsed)
 
-    const timerReady = new Promise(resolve => {
+    const timerReady = new Promise((resolve) => {
       this.time.delayedCall(remaining, resolve)
     })
 
@@ -79,7 +78,7 @@ export class PreloadScene extends BaseScene {
   // ── Construcción visual ────────────────────────────────────────
 
   _buildScreen() {
-    const cx = GAME_WIDTH  / 2
+    const cx = GAME_WIDTH / 2
     const cy = GAME_HEIGHT / 2
 
     // 1 — Franjas Spectrum (capa más baja)
@@ -89,45 +88,47 @@ export class PreloadScene extends BaseScene {
     // 2 — Recuadro negro + imagen de portada
     // El recuadro negro tiene exactamente el tamaño de la imagen escalada
     // y actúa como "pantalla" donde la imagen se va revelando.
-    const scl     = Math.min(GAME_WIDTH / 1025, GAME_HEIGHT / 836) * 0.80
-    const imgW    = 1025 * scl
-    const imgH    = 836  * scl
-    const imgTopY = (cy - 18) - imgH / 2
+    const scl = Math.min(GAME_WIDTH / 1025, GAME_HEIGHT / 836) * 0.8
+    const imgW = 1025 * scl
+    const imgH = 836 * scl
+    const imgTopY = cy - 18 - imgH / 2
 
     const bg = this.add.graphics()
     bg.fillStyle(0x000000, 1)
     bg.fillRect(cx - imgW / 2, imgTopY, imgW, imgH)
-    const brd = 3 * RETRO_PX   // grosor del borde en píxeles retro
-    bg.lineStyle(brd, 0x00FFFF, 1)
+    const brd = 3 * RETRO_PX // grosor del borde en píxeles retro
+    bg.lineStyle(brd, 0x00ffff, 1)
     bg.strokeRect(cx - imgW / 2 - brd / 2, imgTopY - brd / 2, imgW + brd, imgH + brd)
 
-    this._revealImg = this.add.image(cx, imgTopY, 'img-preload')
+    this._revealImg = this.add
+      .image(cx, imgTopY, 'img-preload')
       .setScale(scl)
       .setOrigin(0.5, 0)
-      .setCrop(0, 0, 1025, 0)   // empieza completamente oculta
+      .setCrop(0, 0, 1025, 0) // empieza completamente oculta
 
     // 3 — Indicador de carga pequeño en la parte inferior
-    this._loadingText = this.add.text(cx, GAME_HEIGHT - 18, 'CARGANDO...', {
-      ...PIXEL_FONT,
-      fontSize: '10px',
-      color: '#aaaaaa',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
-
+    this._loadingText = this.add
+      .text(cx, GAME_HEIGHT - 18, 'CARGANDO...', {
+        ...PIXEL_FONT,
+        fontSize: '10px',
+        color: '#aaaaaa',
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5)
   }
 
   // ── Animación de franjas ───────────────────────────────────────
 
   _startStripeAnimation() {
-    this._stripePaused    = false
-    this._stripePauseLeft = 3   // máximo 3 paradas durante los 5 segundos
+    this._stripePaused = false
+    this._stripePauseLeft = 3 // máximo 3 paradas durante los 5 segundos
 
     // Programar la primera parada aleatoria
     this._scheduleNextPause()
 
     this._stripeTimer = this.time.addEvent({
-      delay:    STRIPE_DELAY_MS,
-      loop:     true,
+      delay: STRIPE_DELAY_MS,
+      loop: true,
       callback: () => {
         if (this._stripePaused) return
         this._stripeScrollY = (this._stripeScrollY + STRIPE_SCROLL_PX) % PATTERN_TOTAL
@@ -163,10 +164,13 @@ export class PreloadScene extends BaseScene {
   _startReveal() {
     this._revealRows = 0
     this._revealTimer = this.time.addEvent({
-      delay:    16,
-      loop:     true,
+      delay: 16,
+      loop: true,
       callback: () => {
-        if (this._revealRows >= 836) { this._revealTimer.remove(); return }
+        if (this._revealRows >= 836) {
+          this._revealTimer.remove()
+          return
+        }
         this._revealRows = Math.min(this._revealRows + Phaser.Math.Between(2, 5), 836)
         this._revealImg.setCrop(0, 0, 1025, this._revealRows)
       },
@@ -186,7 +190,9 @@ export class PreloadScene extends BaseScene {
       while (
         y + h < GAME_HEIGHT &&
         PATTERN_COLORS[(y + h + this._stripeScrollY) % PATTERN_TOTAL] === color
-      ) { h++ }
+      ) {
+        h++
+      }
       g.fillStyle(color, 1)
       g.fillRect(0, y, GAME_WIDTH, h)
       y += h
@@ -198,25 +204,31 @@ export class PreloadScene extends BaseScene {
   _loadAssets() {
     this.load.setPath('assets')
 
-    this.load.image('btn-balance-left',       'ui/buttons/buttonRed.png')
+    this.load.image('btn-balance-left', 'ui/buttons/buttonRed.png')
     this.load.image('btn-balance-left-press', 'ui/buttons/buttonRedPress.png')
-    this.load.image('btn-balance-right',       'ui/buttons/buttonBlue.png')
+    this.load.image('btn-balance-right', 'ui/buttons/buttonBlue.png')
     this.load.image('btn-balance-right-press', 'ui/buttons/buttonBluePress.png')
 
-    this.load.image('btn-nav-left',        'ui/buttons/left-stand.png')
-    this.load.image('btn-nav-left-press',  'ui/buttons/left-press.png')
-    this.load.image('btn-nav-right',       'ui/buttons/right-stand.png')
+    this.load.image('btn-nav-left', 'ui/buttons/left-stand.png')
+    this.load.image('btn-nav-left-press', 'ui/buttons/left-press.png')
+    this.load.image('btn-nav-right', 'ui/buttons/right-stand.png')
     this.load.image('btn-nav-right-press', 'ui/buttons/right-press.png')
 
-    this.load.image('bg-menu',       'backgrounds/fondoIntro.webp')
+    this.load.image('bg-menu', 'backgrounds/fondoIntro.webp')
     this.load.image('bg-characters', 'backgrounds/fondoPersonajes.webp')
-    this.load.image('bg-game',         'backgrounds/fondo_a.webp')
+    this.load.image('bg-game', 'backgrounds/fondo_a.webp')
     this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.webp')
-    this.load.image('bg-history',    'backgrounds/fondoHistory.webp')
+    this.load.image('bg-history', 'backgrounds/fondoHistory.webp')
 
     // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
-    this.load.spritesheet('narrator-history',  'sprites/narrators/narrator_history.png',  { frameWidth: 35, frameHeight: 35 })
-    this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', { frameWidth: 35, frameHeight: 35 })
+    this.load.spritesheet('narrator-history', 'sprites/narrators/narrator_history.png', {
+      frameWidth: 35,
+      frameHeight: 35,
+    })
+    this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', {
+      frameWidth: 35,
+      frameHeight: 35,
+    })
 
     // Imágenes del tutorial
     this.load.image('tut-01', 'tutorial/01-bienvenido.webp')
@@ -227,33 +239,33 @@ export class PreloadScene extends BaseScene {
     this.load.image('tut-06', 'tutorial/06-listo.webp')
 
     // Imágenes históricas
-    this.load.image('hist-intro',     'backgrounds/hist-intro.webp')
-    this.load.image('hist-sabio',     'backgrounds/hist-sabio.webp')
+    this.load.image('hist-intro', 'backgrounds/hist-intro.webp')
+    this.load.image('hist-sabio', 'backgrounds/hist-sabio.webp')
     this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
-    this.load.image('hist-leyenda',   'backgrounds/hist-leyenda.webp')
-    this.load.image('hist-mision',    'backgrounds/hist-mision.webp')
+    this.load.image('hist-leyenda', 'backgrounds/hist-leyenda.webp')
+    this.load.image('hist-mision', 'backgrounds/hist-mision.webp')
 
     this.load.image('boat', 'sprites/barco.png')
 
     // Sprites de personajes (excluir hidden — no tienen portrait)
-    CHARACTERS.filter(c => !c.hidden).forEach((char) => {
+    CHARACTERS.filter((c) => !c.hidden).forEach((char) => {
       this.load.image(char.sprite, `sprites/characters/${char.id}.png`)
     })
 
     // Spritesheet por defecto
     this.load.spritesheet('sprite-default', 'sprites/characters/spritesheet/default.png', {
-      frameWidth:  SPRITE_CONFIG.frameWidth,
+      frameWidth: SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
     })
 
     // Spritesheets de Easter eggs (pre-cargados para evitar flash)
-    const eeChar = CHARACTERS.find(c => c.id === 'easter_egg')
+    const eeChar = CHARACTERS.find((c) => c.id === 'easter_egg')
     if (eeChar) {
-      eeChar.skins.forEach(skin => {
+      eeChar.skins.forEach((skin) => {
         this.load.spritesheet(
           `sprite-${skin.spritesheet}`,
           `sprites/characters/spritesheet/${skin.spritesheet}.png`,
-          { frameWidth: SPRITE_CONFIG.frameWidth, frameHeight: SPRITE_CONFIG.frameHeight },
+          { frameWidth: SPRITE_CONFIG.frameWidth, frameHeight: SPRITE_CONFIG.frameHeight }
         )
       })
     }
@@ -277,7 +289,7 @@ export class PreloadScene extends BaseScene {
     this.load.on('filecomplete-json-rewards', () => {
       const rewards = this.cache.json.get('rewards')
       if (rewards && Array.isArray(rewards)) {
-        rewards.forEach(reward => {
+        rewards.forEach((reward) => {
           this.load.image(reward.id, reward.imagen)
         })
       }
@@ -287,8 +299,8 @@ export class PreloadScene extends BaseScene {
     this.load.json('map-data', 'map/map-data.json')
     this.load.on('filecomplete-json-map-data', () => {
       const mapData = this.cache.json.get('map-data')
-      mapData?.pieces?.forEach(piece => {
-        piece.points?.forEach(point => {
+      mapData?.pieces?.forEach((piece) => {
+        piece.points?.forEach((point) => {
           if (point.photo) this.load.image(point.id, point.photo)
         })
       })
@@ -300,14 +312,14 @@ export class PreloadScene extends BaseScene {
     }
 
     // Efectos de sonido
-    this.load.audio('sfx-click',    'audio/click.wav')
-    this.load.audio('sfx-hit',      'audio/hitHurt.wav')
+    this.load.audio('sfx-click', 'audio/click.wav')
+    this.load.audio('sfx-hit', 'audio/hitHurt.wav')
     this.load.audio('sfx-chapuzon', 'audio/chapuzon.wav')
     this.load.audio('sfx-maxpower', 'audio/sfx-maxpower.wav')
-    this.load.audio('sfx-flag',     'audio/sfx-flag.wav')
-    this.load.audio('sfx-win',      'audio/sfx-win.wav')
-    this.load.audio('sfx-fail',     'audio/sfx-fail.wav')
-    this.load.audio('sfx-talk',     'audio/sfx-talk.wav')
+    this.load.audio('sfx-flag', 'audio/sfx-flag.wav')
+    this.load.audio('sfx-win', 'audio/sfx-win.wav')
+    this.load.audio('sfx-fail', 'audio/sfx-fail.wav')
+    this.load.audio('sfx-talk', 'audio/sfx-talk.wav')
 
     // Música de fondo del menú
     this.load.audio('music-menu', 'audio/intro.wav')

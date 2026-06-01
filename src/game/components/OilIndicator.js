@@ -8,7 +8,7 @@
 
 // ─── Configuración ───────────────────────────────────────────────────────────
 
-const PIXEL = 4   // px de pantalla por cada "píxel" del pixel art
+const PIXEL = 4 // px de pantalla por cada "píxel" del pixel art
 
 const SHAPE = [
   [7, 1],
@@ -26,15 +26,15 @@ const SHAPE = [
   [2, 11],
   [3, 9],
   [4, 7],
-  [6, 3]
+  [6, 3],
 ]
 
-const FILL_START = 0                      // primera fila rellenable
-const FILL_END   = SHAPE.length - 1       // última fila rellenable (14)
-const FILL_COUNT = SHAPE.length           // todas las filas (15)
+const FILL_START = 0 // primera fila rellenable
+const FILL_END = SHAPE.length - 1 // última fila rellenable (14)
+const FILL_COUNT = SHAPE.length // todas las filas (15)
 
-const SHAPE_W = 14 * PIXEL   // 56 px
-const SHAPE_H = SHAPE.length * PIXEL   // 52 px
+const SHAPE_W = 14 * PIXEL // 56 px
+const SHAPE_H = SHAPE.length * PIXEL // 52 px
 
 // Caja HUD: mitad de la altura del panel de game over (222 px)
 const BOX = 135
@@ -47,43 +47,49 @@ const FONT_PX = '"Jersey 10", cursive'
 export function createOilIndicator(scene, x, y) {
   const container = scene.add.container(x, y)
 
-  const gBox    = scene.add.graphics()
-  const gShape  = scene.add.graphics()
-  const gFill   = scene.add.graphics()
+  const gBox = scene.add.graphics()
+  const gShape = scene.add.graphics()
+  const gFill = scene.add.graphics()
 
   const iconX = Math.floor((BOX - SHAPE_W) / 2)
-  const iconY = PAD + 35  
+  const iconY = PAD + 35
 
   _drawBox(gBox)
   _drawShape(gShape, iconX, iconY)
 
-  const labelTitle = scene.add.text(BOX / 2, PAD, 'GRASA', {
-    fontFamily:      FONT_PX,
-    fontSize:        '25px',
-    color:           '#ffd700',
-    stroke:          '#000000',
-    strokeThickness: 3,
-  }).setOrigin(0.5, 0)
+  const labelTitle = scene.add
+    .text(BOX / 2, PAD, 'GRASA', {
+      fontFamily: FONT_PX,
+      fontSize: '25px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 3,
+    })
+    .setOrigin(0.5, 0)
 
-  const labelPct = scene.add.text(BOX / 2, iconY + SHAPE_H + 2, '100%', {
-    fontFamily:      FONT_PX,
-    fontSize:        '25px',
-    color:           '#ffd700',
-    stroke:          '#000000',
-    strokeThickness: 3,
-  }).setOrigin(0.5, 0)
+  const labelPct = scene.add
+    .text(BOX / 2, iconY + SHAPE_H + 2, '100%', {
+      fontFamily: FONT_PX,
+      fontSize: '25px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 3,
+    })
+    .setOrigin(0.5, 0)
 
   container.add([gBox, gShape, gFill, labelTitle, labelPct])
 
   return {
     update(percentage) {
       _drawFill(gFill, iconX, iconY, percentage)
-      const pct   = Math.round(Math.max(0, Math.min(100, percentage)))
+      const pct = Math.round(Math.max(0, Math.min(100, percentage)))
       const color = pct > 60 ? '#ff3300' : pct > 30 ? '#ffaa00' : '#33cc33'
       labelPct.setText(`${pct}%`)
       labelPct.setStyle({ color })
     },
-    destroy() { container.destroy() },
+    destroy() {
+      container.destroy()
+    },
   }
 }
 
@@ -119,10 +125,10 @@ function _drawShape(g, ox, oy) {
   //    luz reflejada en la superficie de la lata. Siempre visible,
   //    independientemente del nivel de relleno, para dar profundidad.
   //    Filas 11-13, pegado al borde derecho del cuerpo.
-  const shine = [11, 12, 13]   // filas donde aparece el reflejo
+  const shine = [11, 12, 13] // filas donde aparece el reflejo
   shine.forEach((rowIdx, i) => {
     const [col, w] = SHAPE[rowIdx]
-    const rx = ox + (col + w - 1) * PIXEL   // borde derecho de esa fila
+    const rx = ox + (col + w - 1) * PIXEL // borde derecho de esa fila
     const ry = oy + rowIdx * PIXEL
     // Trazo vertical (1 px de ancho real)
     g.fillStyle(0xffffff, i === 0 ? 0.15 : 0.22)
@@ -137,16 +143,16 @@ function _drawShape(g, ox, oy) {
 function _drawFill(g, ox, oy, percentage) {
   g.clear()
 
-  const pct        = Math.max(0, Math.min(100, percentage))
+  const pct = Math.max(0, Math.min(100, percentage))
   const filledRows = Math.round((pct / 100) * FILL_COUNT)
 
   if (filledRows === 0) return
 
-  const fillColor = 0xd4a017   // amarillo aceite, siempre igual
+  const fillColor = 0xd4a017 // amarillo aceite, siempre igual
 
   // Rellena de abajo (FILL_END) hacia arriba (FILL_START) según el nivel
   for (let i = FILL_START; i < filledRows; i++) {
-    const row      = FILL_END - i
+    const row = FILL_END - i
     const [col, w] = SHAPE[row]
 
     g.fillStyle(fillColor, 1)

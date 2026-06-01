@@ -7,67 +7,66 @@ import { HISTORY_BLOCKS, HISTORY_END_TEXT } from '../config/historyContent'
 // ============================================================
 // LAYOUT
 // ============================================================
-const DLG_M    = 16
-const DLG_H    = 256
-const DLG_X    = DLG_M
-const DLG_Y    = GAME_HEIGHT - DLG_H - DLG_M
-const DLG_W    = GAME_WIDTH  - DLG_M * 2
+const DLG_M = 16
+const DLG_H = 256
+const DLG_X = DLG_M
+const DLG_Y = GAME_HEIGHT - DLG_H - DLG_M
+const DLG_W = GAME_WIDTH - DLG_M * 2
 
-const FACE_W    = 160
+const FACE_W = 160
 const NARR_SIZE = 150
 
-const TITLE_H  = 26
-const TEXT_X   = DLG_X + FACE_W + 14
-const TEXT_Y   = DLG_Y + TITLE_H + 16
-const TEXT_W   = DLG_W - FACE_W - 26
+const TITLE_H = 26
+const TEXT_X = DLG_X + FACE_W + 14
+const TEXT_Y = DLG_Y + TITLE_H + 16
+const TEXT_W = DLG_W - FACE_W - 26
 
-const IMG_CX       = GAME_WIDTH / 2
+const IMG_CX = GAME_WIDTH / 2
 const IMG_AREA_TOP = 30
 const IMG_AREA_BTM = DLG_Y - 16
-const IMG_CY       = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)
-const IMG_MAX_W    = 840
-const IMG_MAX_H    = IMG_AREA_BTM - IMG_AREA_TOP
+const IMG_CY = Math.round((IMG_AREA_TOP + IMG_AREA_BTM) / 2)
+const IMG_MAX_W = 840
+const IMG_MAX_H = IMG_AREA_BTM - IMG_AREA_TOP
 
 // Máquina de escribir
 const CHAR_DELAY = 28
 
 // Configuración del narrador (extraída para fácil sustitución por otro narrador)
 const NARRATOR_CONFIG = {
-  cx:          DLG_X + Math.round(FACE_W / 2),
-  cy:          DLG_Y + Math.round(DLG_H / 2),
-  size:        NARR_SIZE,
+  cx: DLG_X + Math.round(FACE_W / 2),
+  cy: DLG_Y + Math.round(DLG_H / 2),
+  size: NARR_SIZE,
   spritesheet: 'narrator-history',
   mouthCycle: [
-    { frame: 0, duration:  90 },
-    { frame: 1, duration:  75 },
-    { frame: 2, duration:  55 },
-    { frame: 1, duration:  75 },
+    { frame: 0, duration: 90 },
+    { frame: 1, duration: 75 },
+    { frame: 2, duration: 55 },
+    { frame: 1, duration: 75 },
   ],
-  blinkMin:     3200,
-  blinkMax:     7000,
-  blinkDur:     130,
-  depth:        3,
+  blinkMin: 3200,
+  blinkMax: 7000,
+  blinkDur: 130,
+  depth: 3,
   talkSoundKey: 'sfx-talk',
   talkSoundVol: 0.22,
 }
 
-const AMBER    = 0xd4a520
+const AMBER = 0xd4a520
 const DLG_DARK = 0x0d0600
 const DLG_FACE = 0x5c3318
 
 export class HistoryScene extends BaseScene {
-
   constructor() {
     super(SCENES.HISTORY)
   }
 
   create() {
-    this.blockIdx        = 0
-    this.pageIdx         = 0
-    this.charIdx         = 0
-    this.isTyping        = false
+    this.blockIdx = 0
+    this.pageIdx = 0
+    this.charIdx = 0
+    this.isTyping = false
     this.waitingForInput = false
-    this.typingTimer     = null
+    this.typingTimer = null
 
     this.drawBackground()
     this.drawDialogBox()
@@ -86,19 +85,14 @@ export class HistoryScene extends BaseScene {
   // =====================================================
 
   drawBackground() {
-    if (this.textures.exists('bg-history') &&
-        this.textures.get('bg-history').key !== '__MISSING') {
+    if (this.textures.exists('bg-history') && this.textures.get('bg-history').key !== '__MISSING') {
       const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-history')
       bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
     } else {
-      this.add.graphics()
-        .fillStyle(0x0a0800, 1)
-        .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      this.add.graphics().fillStyle(0x0a0800, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
 
-    this.add.graphics()
-      .fillStyle(0x3d1800, 0.48)
-      .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    this.add.graphics().fillStyle(0x3d1800, 0.48).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
   // =====================================================
@@ -134,12 +128,12 @@ export class HistoryScene extends BaseScene {
     g.lineStyle(1, AMBER, 0.35)
     g.lineBetween(DLG_X + FACE_W + 12, DLG_Y + TITLE_H + 6, DLG_X + DLG_W - 12, DLG_Y + TITLE_H + 6)
 
-    const cLen    = 11
+    const cLen = 11
     const corners = [
-      [DLG_X + 2,          DLG_Y + 2,          1,  1],
-      [DLG_X + DLG_W - 2,  DLG_Y + 2,         -1,  1],
-      [DLG_X + 2,          DLG_Y + DLG_H - 2,  1, -1],
-      [DLG_X + DLG_W - 2,  DLG_Y + DLG_H - 2, -1, -1],
+      [DLG_X + 2, DLG_Y + 2, 1, 1],
+      [DLG_X + DLG_W - 2, DLG_Y + 2, -1, 1],
+      [DLG_X + 2, DLG_Y + DLG_H - 2, 1, -1],
+      [DLG_X + DLG_W - 2, DLG_Y + DLG_H - 2, -1, -1],
     ]
     g.lineStyle(2, AMBER, 0.9)
     corners.forEach(([cx, cy, sx, sy]) => {
@@ -154,10 +148,17 @@ export class HistoryScene extends BaseScene {
 
   drawBackButton() {
     makeNavButton(
-      this, 12, 12, 170, 58,
+      this,
+      12,
+      12,
+      170,
+      58,
       'MENÚ',
-      () => { this.stopAllTimers(); this.scene.start(SCENES.MENU) },
-      { depth: 5 },
+      () => {
+        this.stopAllTimers()
+        this.scene.start(SCENES.MENU)
+      },
+      { depth: 5 }
     )
   }
 
@@ -166,19 +167,23 @@ export class HistoryScene extends BaseScene {
   // =====================================================
 
   createHistImageLayer() {
-    this.histImg            = null
+    this.histImg = null
     this.histImgPlaceholder = this.add.graphics().setDepth(1)
-    this.histImgLabel       = this.add.text(IMG_CX, IMG_CY, '', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize:   '22px',
-      color:      '#7a6030',
-      align:      'center',
-    }).setOrigin(0.5).setDepth(2).setVisible(false)
+    this.histImgLabel = this.add
+      .text(IMG_CX, IMG_CY, '', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '22px',
+        color: '#7a6030',
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setDepth(2)
+      .setVisible(false)
   }
 
   updateHistImage() {
     const block = HISTORY_BLOCKS[this.blockIdx]
-    const key   = block.image
+    const key = block.image
 
     if (this.histImg) {
       const old = this.histImg
@@ -195,8 +200,10 @@ export class HistoryScene extends BaseScene {
       this.histImg.setScale(Math.min(scaleX, scaleY))
       this.tweens.add({ targets: this.histImg, alpha: 1, duration: 350 })
     } else {
-      const pw = 460; const ph = 280
-      const px = IMG_CX - pw / 2; const py = IMG_CY - ph / 2
+      const pw = 460
+      const ph = 280
+      const px = IMG_CX - pw / 2
+      const py = IMG_CY - ph / 2
       this.histImgPlaceholder.fillStyle(0x1a0a00, 0.65)
       this.histImgPlaceholder.fillRect(px, py, pw, ph)
       this.histImgPlaceholder.lineStyle(2, AMBER, 0.35)
@@ -210,28 +217,28 @@ export class HistoryScene extends BaseScene {
   // =====================================================
 
   createTextObjects() {
-    this.blockTitleObj = this.add.text(
-      DLG_X + FACE_W + 16,
-      DLG_Y + Math.round(TITLE_H / 2) + 3,
-      '',
-      {
+    this.blockTitleObj = this.add
+      .text(DLG_X + FACE_W + 16, DLG_Y + Math.round(TITLE_H / 2) + 3, '', {
         fontFamily: '"Jersey 10", cursive',
-        fontSize:   '22px',
-        color:      '#ffd700',
-        stroke:     '#000000',
+        fontSize: '22px',
+        color: '#ffd700',
+        stroke: '#000000',
         strokeThickness: 3,
-      },
-    ).setOrigin(0, 0.5).setDepth(4)
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(4)
 
-    this.dialogText = this.add.text(TEXT_X, TEXT_Y, '', {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize:   '34px',
-      color:      '#f0d99a',
-      stroke:     '#000000',
-      strokeThickness: 2,
-      wordWrap: { width: TEXT_W },
-      lineSpacing: 4,
-    }).setDepth(4)
+    this.dialogText = this.add
+      .text(TEXT_X, TEXT_Y, '', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '34px',
+        color: '#f0d99a',
+        stroke: '#000000',
+        strokeThickness: 2,
+        wordWrap: { width: TEXT_W },
+        lineSpacing: 4,
+      })
+      .setDepth(4)
   }
 
   // =====================================================
@@ -242,18 +249,22 @@ export class HistoryScene extends BaseScene {
     const x = DLG_X + DLG_W - 20
     const y = DLG_Y + DLG_H - 14
 
-    this.continueInd = this.add.text(x, y, '▼', {
-      fontFamily: 'monospace',
-      fontSize:   '16px',
-      color:      '#ffd700',
-    }).setOrigin(0.5).setDepth(5).setVisible(false)
+    this.continueInd = this.add
+      .text(x, y, '▼', {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        color: '#ffd700',
+      })
+      .setOrigin(0.5)
+      .setDepth(5)
+      .setVisible(false)
 
     this.tweens.add({
-      targets:  this.continueInd,
-      alpha:    { from: 1, to: 0.15 },
+      targets: this.continueInd,
+      alpha: { from: 1, to: 0.15 },
       duration: 480,
-      yoyo:     true,
-      repeat:   -1,
+      yoyo: true,
+      repeat: -1,
     })
   }
 
@@ -267,17 +278,17 @@ export class HistoryScene extends BaseScene {
 
   loadBlock(idx) {
     this.blockIdx = idx
-    this.pageIdx  = 0
+    this.pageIdx = 0
     this.updateHistImage()
     this.blockTitleObj.setText(HISTORY_BLOCKS[idx].title)
     this.startPage()
   }
 
   startPage() {
-    const text           = HISTORY_BLOCKS[this.blockIdx].pages[this.pageIdx]
-    this.fullPageText    = text
-    this.charIdx         = 0
-    this.isTyping        = true
+    const text = HISTORY_BLOCKS[this.blockIdx].pages[this.pageIdx]
+    this.fullPageText = text
+    this.charIdx = 0
+    this.isTyping = true
     this.waitingForInput = false
 
     this.dialogText.setText('')
@@ -285,9 +296,9 @@ export class HistoryScene extends BaseScene {
     this.narrator.startTalking()
 
     this.typingTimer = this.time.addEvent({
-      delay:         CHAR_DELAY,
-      loop:          true,
-      callback:      this.typeNextChar,
+      delay: CHAR_DELAY,
+      loop: true,
+      callback: this.typeNextChar,
       callbackScope: this,
     })
   }
@@ -303,12 +314,15 @@ export class HistoryScene extends BaseScene {
   }
 
   onPageComplete() {
-    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    if (this.typingTimer) {
+      this.typingTimer.destroy()
+      this.typingTimer = null
+    }
     this.isTyping = false
     this.narrator.stopTalking()
 
-    const block     = HISTORY_BLOCKS[this.blockIdx]
-    const lastPage  = this.pageIdx  >= block.pages.length - 1
+    const block = HISTORY_BLOCKS[this.blockIdx]
+    const lastPage = this.pageIdx >= block.pages.length - 1
     const lastBlock = this.blockIdx >= HISTORY_BLOCKS.length - 1
 
     if (lastPage && lastBlock) {
@@ -322,7 +336,10 @@ export class HistoryScene extends BaseScene {
   advanceDialog() {
     if (this.isTyping) {
       this.isTyping = false
-      if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+      if (this.typingTimer) {
+        this.typingTimer.destroy()
+        this.typingTimer = null
+      }
       this.dialogText.setText(this.fullPageText)
       this.onPageComplete()
       return
@@ -356,10 +373,17 @@ export class HistoryScene extends BaseScene {
     const btnY = DLG_Y + DLG_H - btnH - 10
 
     makeNavButton(
-      this, btnX, btnY, btnW, btnH,
+      this,
+      btnX,
+      btnY,
+      btnW,
+      btnH,
       '¡A JUGAR!',
-      () => { this.stopAllTimers(); this.scene.start(SCENES.CHARACTER_SELECT) },
-      { depth: 5, fontSize: '30px' },
+      () => {
+        this.stopAllTimers()
+        this.scene.start(SCENES.CHARACTER_SELECT)
+      },
+      { depth: 5, fontSize: '30px' }
     )
   }
 
@@ -368,9 +392,12 @@ export class HistoryScene extends BaseScene {
   // =====================================================
 
   stopAllTimers() {
-    this.isTyping        = false
+    this.isTyping = false
     this.waitingForInput = false
-    if (this.typingTimer) { this.typingTimer.destroy(); this.typingTimer = null }
+    if (this.typingTimer) {
+      this.typingTimer.destroy()
+      this.typingTimer = null
+    }
     this.narrator.stopAllTimers()
   }
 
@@ -384,7 +411,7 @@ export class HistoryScene extends BaseScene {
     })
     this.input.keyboard.on('keydown-SPACE', () => this.advanceDialog())
     this.input.keyboard.on('keydown-ENTER', () => this.advanceDialog())
-    this.input.keyboard.on('keydown-ESC',   () => {
+    this.input.keyboard.on('keydown-ESC', () => {
       this.stopAllTimers()
       this.scene.start(SCENES.MENU)
     })

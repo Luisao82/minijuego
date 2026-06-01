@@ -55,20 +55,17 @@ export const CHARACTERS = [
     sprite: 'char-chaval',
     stats: { peso: 3, equilibrio: 4, altura: 3, edad: 2 },
     available: true,
-    skins: [
-      { spritesheet: 'chaval', nombre: 'Clásico', flags: null },
-    ],
+    skins: [{ spritesheet: 'chaval', nombre: 'Clásico', flags: null }],
   },
   {
     id: 'guiri',
     name: 'El guiri',
-    description: 'Turista despistado, que le gusta las tradiciones "baratas" de Sevillanas\nLe cuesta mantener el equilibrio.',
+    description:
+      'Turista despistado, que le gusta las tradiciones "baratas" de Sevillanas\nLe cuesta mantener el equilibrio.',
     sprite: 'char-guiri',
     stats: { peso: 4, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
-    skins: [
-      { spritesheet: 'guiri', nombre: 'Clásico', flags: null },
-    ],
+    skins: [{ spritesheet: 'guiri', nombre: 'Clásico', flags: null }],
   },
   {
     id: 'cunaos',
@@ -107,8 +104,6 @@ export const CHARACTERS = [
     stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
     available: true,
     hidden: true,
-    skins: [
-      { spritesheet: 'developer', nombre: 'Developer', flags: null },
-    ],
+    skins: [{ spritesheet: 'developer', nombre: 'Developer', flags: null }],
   },
 ]

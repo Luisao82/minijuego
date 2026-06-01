@@ -3,34 +3,34 @@ import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
 import { makeNavButton } from '../components/NavButton'
 import { version } from '../../../package.json'
 
-const AMBER     = 0xd4a520
-const PANEL_BG  = 0x0d0600
+const AMBER = 0xd4a520
+const PANEL_BG = 0x0d0600
 const PANEL_DIM = 0x000000
 
-const M       = 16
+const M = 16
 const PANEL_X = M
 const PANEL_Y = 112
 const PANEL_W = GAME_WIDTH - M * 2
 const PANEL_H = GAME_HEIGHT - PANEL_Y - M
 
-const COL_LEFT_X  = PANEL_X + 36
+const COL_LEFT_X = PANEL_X + 36
 const COL_RIGHT_X = PANEL_X + Math.round(PANEL_W / 2) + 18
 
 const SECTION_HEADER = {
-  fontFamily:      '"Press Start 2P", monospace',
-  fontSize:        '14px',
-  color:           '#ffd700',
-  stroke:          '#000000',
+  fontFamily: '"Press Start 2P", monospace',
+  fontSize: '14px',
+  color: '#ffd700',
+  stroke: '#000000',
   strokeThickness: 3,
 }
 
 const ENTRY_LINE = {
-  fontFamily:      '"Jersey 10", cursive',
-  fontSize:        '24px',
-  color:           '#f0d99a',
-  stroke:          '#000000',
+  fontFamily: '"Jersey 10", cursive',
+  fontSize: '24px',
+  color: '#f0d99a',
+  stroke: '#000000',
   strokeThickness: 2,
-  lineSpacing:     2,
+  lineSpacing: 2,
 }
 
 const ENTRY_MUTED = {
@@ -44,7 +44,6 @@ const ENTRY_WARNING = {
 }
 
 export class LicensesScene extends BaseScene {
-
   constructor() {
     super(SCENES.LICENSES)
   }
@@ -60,37 +59,38 @@ export class LicensesScene extends BaseScene {
   }
 
   drawBackground() {
-    if (this.textures.exists('bg-menu') &&
-        this.textures.get('bg-menu').key !== '__MISSING') {
+    if (this.textures.exists('bg-menu') && this.textures.get('bg-menu').key !== '__MISSING') {
       const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-menu')
       bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
     } else {
-      this.add.graphics()
-        .fillStyle(0x0a0800, 1)
-        .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      this.add.graphics().fillStyle(0x0a0800, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
-    this.add.graphics()
-      .fillStyle(0x000000, 0.55)
-      .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    this.add.graphics().fillStyle(0x000000, 0.55).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
   drawHeader() {
-    this.add.text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '40px',
-      color:           '#ff6b35',
-      stroke:          '#1a0a00',
-      strokeThickness: 5,
-    }).setOrigin(0.5, 0).setDepth(3)
+    this.add
+      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '40px',
+        color: '#ff6b35',
+        stroke: '#1a0a00',
+        strokeThickness: 5,
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(3)
 
-    this.add.text(GAME_WIDTH / 2, 72, 'FICHA TÉCNICA', {
-      fontFamily:      '"Press Start 2P", monospace',
-      fontSize:        '18px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 4,
-      letterSpacing:   4,
-    }).setOrigin(0.5, 0).setDepth(3)
+    this.add
+      .text(GAME_WIDTH / 2, 72, 'FICHA TÉCNICA', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '18px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 4,
+        letterSpacing: 4,
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(3)
   }
 
   drawPanel() {
@@ -108,12 +108,12 @@ export class LicensesScene extends BaseScene {
     g.lineStyle(1, AMBER, 0.22)
     g.strokeRect(PANEL_X + 5, PANEL_Y + 5, PANEL_W - 10, PANEL_H - 10)
 
-    const cLen    = 14
+    const cLen = 14
     const corners = [
-      [PANEL_X + 3,           PANEL_Y + 3,           1,  1],
-      [PANEL_X + PANEL_W - 3, PANEL_Y + 3,          -1,  1],
-      [PANEL_X + 3,           PANEL_Y + PANEL_H - 3, 1, -1],
-      [PANEL_X + PANEL_W - 3, PANEL_Y + PANEL_H - 3,-1, -1],
+      [PANEL_X + 3, PANEL_Y + 3, 1, 1],
+      [PANEL_X + PANEL_W - 3, PANEL_Y + 3, -1, 1],
+      [PANEL_X + 3, PANEL_Y + PANEL_H - 3, 1, -1],
+      [PANEL_X + PANEL_W - 3, PANEL_Y + PANEL_H - 3, -1, -1],
     ]
     g.lineStyle(2, AMBER, 0.95)
     corners.forEach(([cx, cy, sx, sy]) => {
@@ -128,7 +128,6 @@ export class LicensesScene extends BaseScene {
   }
 
   drawLeftColumn() {
-    
     let y = PANEL_Y + 28
 
     y = this._section(COL_LEFT_X, y, 'AUTOR')
@@ -148,7 +147,6 @@ export class LicensesScene extends BaseScene {
     y = this._muted(COL_LEFT_X, y, 'Sarah Cadigan-Fried')
     y = this._entry(COL_LEFT_X, y, 'Press Start 2P')
     this._muted(COL_LEFT_X, y, 'Codeman38 (Cody Boisclair)')
-    
   }
 
   drawRightColumn() {
@@ -199,30 +197,38 @@ export class LicensesScene extends BaseScene {
   drawFooter() {
     const footerY = PANEL_Y + PANEL_H - 64
 
-    this.add.text(GAME_WIDTH / 2, footerY, `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`, {
-      fontFamily:      '"Press Start 2P", monospace',
-      fontSize:        '10px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5, 0).setDepth(3)
+    this.add
+      .text(
+        GAME_WIDTH / 2,
+        footerY,
+        `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
+        {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '10px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 3,
+        }
+      )
+      .setOrigin(0.5, 0)
+      .setDepth(3)
 
-    this.add.text(GAME_WIDTH / 2, footerY + 26, 'https://luisao82.vercel.app', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '22px',
-      color:           '#ffd647',
-      stroke:          '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5, 0).setDepth(3)
+    this.add
+      .text(GAME_WIDTH / 2, footerY + 26, 'https://luisao82.vercel.app', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '22px',
+        color: '#ffd647',
+        stroke: '#000000',
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(3)
   }
 
   drawBackButton() {
-    makeNavButton(
-      this, 12, 12, 200, 58,
-      'VOLVER',
-      () => this.scene.start(SCENES.CREDITS),
-      { depth: 5 },
-    )
+    makeNavButton(this, 12, 12, 200, 58, 'VOLVER', () => this.scene.start(SCENES.CREDITS), {
+      depth: 5,
+    })
   }
 
   setupInput() {

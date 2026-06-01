@@ -12,36 +12,35 @@ import { characterRewardService } from '../services/CharacterRewardService'
 
 // ── Constantes de layout ────────────────────────────────────────
 // Mismos valores que CharacterSelectScene para coherencia visual
-const BAND_Y          = 120   // igual que CharacterSelectScene
-const BAND_H          = 440   // igual que CharacterSelectScene
-const SKIN_NAME_Y     = 185
+const BAND_Y = 120 // igual que CharacterSelectScene
+const BAND_H = 440 // igual que CharacterSelectScene
+const SKIN_NAME_Y = 185
 const SPRITE_CENTER_Y = 330
-const LOCK_ICON_Y     = 290
-const COMO_TEXT_Y     = 445
-const BTN_W           = 200
-const BTN_H           = 56
+const LOCK_ICON_Y = 290
+const COMO_TEXT_Y = 445
+const BTN_W = 200
+const BTN_H = 56
 // CharacterSelectScene coloca 'SELECCIONAR' centrado en Y=600 (BAND_Y+BAND_H+40).
 // makeNavButton recibe la esquina superior izquierda, así que el centro queda en BTN_TOP + BTN_H/2.
 // Para que el centro coincida con Y=600: BTN_TOP = 600 - 56/2 = 572.
-const BTN_TOP         = 572
-const FRAME_INTERVAL  = 400   // ms entre frame STAND y WALK
+const BTN_TOP = 572
+const FRAME_INTERVAL = 400 // ms entre frame STAND y WALK
 
 const SPRITE_PATH = 'sprites/characters/spritesheet/'
 
 export class SkinSelectScene extends BaseScene {
-
   constructor() {
     super(SCENES.SKIN_SELECT)
   }
 
   init(data) {
     super.init(data)
-    this.character     = data.character
-    this.perspective   = data.perspective   ?? null
+    this.character = data.character
+    this.perspective = data.perspective ?? null
     this.selectedIndex = data.selectedIndex ?? 0
-    this.skinIndex    = 0
-    this._frameTimer  = null
-    this.justUnlocked = data.justUnlocked ?? []   // spritesheets recién desbloqueados
+    this.skinIndex = 0
+    this._frameTimer = null
+    this.justUnlocked = data.justUnlocked ?? [] // spritesheets recién desbloqueados
   }
 
   preload() {
@@ -51,7 +50,7 @@ export class SkinSelectScene extends BaseScene {
       const key = `skin-${skin.spritesheet}`
       if (!this.textures.exists(key)) {
         this.load.spritesheet(key, `${SPRITE_PATH}${skin.spritesheet}.png`, {
-          frameWidth:  SPRITE_CONFIG.frameWidth,
+          frameWidth: SPRITE_CONFIG.frameWidth,
           frameHeight: SPRITE_CONFIG.frameHeight,
         })
       }
@@ -77,9 +76,9 @@ export class SkinSelectScene extends BaseScene {
       this._frameTimer = null
     }
 
-    const skin       = this.character.skins[this.skinIndex]
-    const isUnlocked = skinService.isSkinUnlocked(this.character, skin.spritesheet)
-      || skin.flags === null  // el skin por defecto siempre desbloqueado
+    const skin = this.character.skins[this.skinIndex]
+    const isUnlocked =
+      skinService.isSkinUnlocked(this.character, skin.spritesheet) || skin.flags === null // el skin por defecto siempre desbloqueado
 
     if (isUnlocked) {
       this._drawUnlockedSkin(skin)
@@ -91,23 +90,20 @@ export class SkinSelectScene extends BaseScene {
   _drawUnlockedSkin(skin) {
     // Nombre del skin
     this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, SKIN_NAME_Y, skin.nombre, {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize:   '36px',
-        color:      '#ffd700',
-        stroke:     '#1a0800',
-        strokeThickness: 6,
-      }).setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, SKIN_NAME_Y, skin.nombre, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '36px',
+          color: '#ffd700',
+          stroke: '#1a0800',
+          strokeThickness: 6,
+        })
+        .setOrigin(0.5)
     )
 
     // Sprite grande
-    const key    = `skin-${skin.spritesheet}`
-    const sprite = this.add.image(
-      GAME_WIDTH / 2,
-      SPRITE_CENTER_Y,
-      key,
-      SPRITE_FRAMES.STAND,
-    )
+    const key = `skin-${skin.spritesheet}`
+    const sprite = this.add.image(GAME_WIDTH / 2, SPRITE_CENTER_Y, key, SPRITE_FRAMES.STAND)
     sprite.setScale(SPRITE_CONFIG.scalePreview)
     sprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.skinDisplay.add(sprite)
@@ -115,8 +111,8 @@ export class SkinSelectScene extends BaseScene {
     // Animación: alterna entre STAND y WALK
     let showStand = true
     this._frameTimer = this.time.addEvent({
-      delay:    FRAME_INTERVAL,
-      loop:     true,
+      delay: FRAME_INTERVAL,
+      loop: true,
       callback: () => {
         showStand = !showStand
         sprite.setFrame(showStand ? SPRITE_FRAMES.STAND : SPRITE_FRAMES.WALK)
@@ -125,27 +121,29 @@ export class SkinSelectScene extends BaseScene {
 
     // Badge ¡NUEVO! si este skin se acaba de desbloquear
     if (this.justUnlocked.includes(skin.spritesheet)) {
-      const spriteW   = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
-      const badgeText = this.add.text(
-        GAME_WIDTH / 2 + spriteW / 2 + 8,
-        SPRITE_CENTER_Y - SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview / 2,
-        '¡NUEVO!',
-        {
-          fontFamily:      '"Jersey 10", cursive',
-          fontSize:        '26px',
-          color:           '#00ff88',
-          stroke:          '#003322',
-          strokeThickness: 5,
-        },
-      ).setOrigin(0, 0)
+      const spriteW = SPRITE_CONFIG.frameWidth * SPRITE_CONFIG.scalePreview
+      const badgeText = this.add
+        .text(
+          GAME_WIDTH / 2 + spriteW / 2 + 8,
+          SPRITE_CENTER_Y - (SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview) / 2,
+          '¡NUEVO!',
+          {
+            fontFamily: '"Jersey 10", cursive',
+            fontSize: '26px',
+            color: '#00ff88',
+            stroke: '#003322',
+            strokeThickness: 5,
+          }
+        )
+        .setOrigin(0, 0)
       this.skinDisplay.add(badgeText)
       this.tweens.add({
-        targets:  badgeText,
-        alpha:    0.2,
+        targets: badgeText,
+        alpha: 0.2,
         duration: 500,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       })
     }
 
@@ -157,7 +155,7 @@ export class SkinSelectScene extends BaseScene {
   }
 
   _drawShareButton(skin) {
-    const SIZE   = 40
+    const SIZE = 40
     const MARGIN = 16
     let sharing = false
     const btn = makeShareButton(
@@ -169,9 +167,9 @@ export class SkinSelectScene extends BaseScene {
         sharing = true
         try {
           const blob = await generateShareImage(this, {
-            name:        skin.nombre,
-            textureKey:  `skin-${skin.spritesheet}`,
-            frame:       0,
+            name: skin.nombre,
+            textureKey: `skin-${skin.spritesheet}`,
+            frame: 0,
             subtitleKey: 'SKIN_COLLECTION',
           })
           await shareImage(blob, buildShareText('SKIN_COLLECTION', skin.nombre))
@@ -181,14 +179,14 @@ export class SkinSelectScene extends BaseScene {
           sharing = false
         }
       },
-      { size: SIZE, depth: 6 },
+      { size: SIZE, depth: 6 }
     )
     this.skinDisplay.add(btn.graphics)
   }
 
   _drawLockedSkin(skin) {
     // Fondo oscuro donde iría el sprite
-    const spriteW = SPRITE_CONFIG.frameWidth  * SPRITE_CONFIG.scalePreview
+    const spriteW = SPRITE_CONFIG.frameWidth * SPRITE_CONFIG.scalePreview
     const spriteH = SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview
     const bg = this.add.graphics()
     bg.fillStyle(0x000000, 0.55)
@@ -199,20 +197,24 @@ export class SkinSelectScene extends BaseScene {
 
     // Nombre del skin — oculto hasta que se desbloquee
     this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, SKIN_NAME_Y, '???', {
-        fontFamily:      '"Jersey 10", cursive',
-        fontSize:        '36px',
-        color:           '#444466',
-        stroke:          '#1a0800',
-        strokeThickness: 6,
-      }).setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, SKIN_NAME_Y, '???', {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '36px',
+          color: '#444466',
+          stroke: '#1a0800',
+          strokeThickness: 6,
+        })
+        .setOrigin(0.5)
     )
 
     // Icono candado
     this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, LOCK_ICON_Y, '🔒', {
-        fontSize: '48px',
-      }).setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, LOCK_ICON_Y, '🔒', {
+          fontSize: '48px',
+        })
+        .setOrigin(0.5)
     )
 
     // Progreso de banderas
@@ -240,22 +242,22 @@ export class SkinSelectScene extends BaseScene {
 
     const stepRequired = required - prevThreshold
     const currentTotal = characterRewardService.getCount(this.character.id)
-    const currentStep  = Math.max(0, Math.min(currentTotal - prevThreshold, stepRequired))
+    const currentStep = Math.max(0, Math.min(currentTotal - prevThreshold, stepRequired))
 
     const POLE_W = 3
     const POLE_H = 26
     const FLAG_W = 16
     const FLAG_H = 11
-    const GAP    = 14
-    const UNIT   = POLE_W + FLAG_W + GAP
+    const GAP = 14
+    const UNIT = POLE_W + FLAG_W + GAP
     const totalW = stepRequired * UNIT - GAP
     const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
-    const baseY  = COMO_TEXT_Y + 18   // ligeramente más abajo
+    const baseY = COMO_TEXT_Y + 18 // ligeramente más abajo
 
     const g = this.add.graphics()
 
     for (let i = 0; i < stepRequired; i++) {
-      const x      = startX + i * UNIT
+      const x = startX + i * UNIT
       const filled = i < currentStep
 
       // Palo
@@ -278,28 +280,31 @@ export class SkinSelectScene extends BaseScene {
     // Contador "X / Y" debajo
     const counterColor = currentStep >= stepRequired ? '#ffd700' : '#aaaacc'
     this.skinDisplay.add(
-      this.add.text(GAME_WIDTH / 2, baseY + POLE_H + 20, `${currentStep} / ${stepRequired} banderas`, {
-        fontFamily:      '"Jersey 10", cursive',
-        fontSize:        '32px',
-        color:           counterColor,
-        stroke:          '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, baseY + POLE_H + 20, `${currentStep} / ${stepRequired} banderas`, {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '32px',
+          color: counterColor,
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     )
   }
 
   _drawDots() {
-    const skins    = this.character.skins
+    const skins = this.character.skins
     if (skins.length <= 1) return
 
     const dotSpacing = 16
-    const totalW     = (skins.length - 1) * dotSpacing
-    const startX     = GAME_WIDTH / 2 - totalW / 2
-    const dotsY      = SPRITE_CENTER_Y + SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview / 2 + 20
+    const totalW = (skins.length - 1) * dotSpacing
+    const startX = GAME_WIDTH / 2 - totalW / 2
+    const dotsY =
+      SPRITE_CENTER_Y + (SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview) / 2 + 20
 
     skins.forEach((_, i) => {
       const isActive = i === this.skinIndex
-      const dot      = this.add.graphics()
+      const dot = this.add.graphics()
       dot.fillStyle(isActive ? COLORS.GOLD : 0x444466, 1)
       const size = isActive ? 5 : 3
       dot.fillRect(startX + i * dotSpacing - size / 2, dotsY - size / 2, size, size)
@@ -312,61 +317,65 @@ export class SkinSelectScene extends BaseScene {
   drawNavArrows() {
     if (this.character.skins.length <= 1) return
 
-    this.leftArrow = this.add.image(40, SPRITE_CENTER_Y, 'btn-nav-left')
-      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
+    this.leftArrow = this.add
+      .image(40, SPRITE_CENTER_Y, 'btn-nav-left')
+      .setOrigin(0.5)
+      .setScale(2)
+      .setInteractive({ useHandCursor: true })
 
-    this.rightArrow = this.add.image(GAME_WIDTH - 40, SPRITE_CENTER_Y, 'btn-nav-right')
-      .setOrigin(0.5).setScale(2).setInteractive({ useHandCursor: true })
+    this.rightArrow = this.add
+      .image(GAME_WIDTH - 40, SPRITE_CENTER_Y, 'btn-nav-right')
+      .setOrigin(0.5)
+      .setScale(2)
+      .setInteractive({ useHandCursor: true })
 
-    this.leftArrow.on('pointerdown',  () => { this.leftArrow.setTexture('btn-nav-left-press'); this.navigate(-1) })
-    this.leftArrow.on('pointerup',    () => this.leftArrow.setTexture('btn-nav-left'))
-    this.leftArrow.on('pointerout',   () => this.leftArrow.setTexture('btn-nav-left'))
-    this.rightArrow.on('pointerdown', () => { this.rightArrow.setTexture('btn-nav-right-press'); this.navigate(1) })
-    this.rightArrow.on('pointerup',   () => this.rightArrow.setTexture('btn-nav-right'))
-    this.rightArrow.on('pointerout',  () => this.rightArrow.setTexture('btn-nav-right'))
+    this.leftArrow.on('pointerdown', () => {
+      this.leftArrow.setTexture('btn-nav-left-press')
+      this.navigate(-1)
+    })
+    this.leftArrow.on('pointerup', () => this.leftArrow.setTexture('btn-nav-left'))
+    this.leftArrow.on('pointerout', () => this.leftArrow.setTexture('btn-nav-left'))
+    this.rightArrow.on('pointerdown', () => {
+      this.rightArrow.setTexture('btn-nav-right-press')
+      this.navigate(1)
+    })
+    this.rightArrow.on('pointerup', () => this.rightArrow.setTexture('btn-nav-right'))
+    this.rightArrow.on('pointerout', () => this.rightArrow.setTexture('btn-nav-right'))
 
-    this.input.keyboard.on('keydown-LEFT',  () => this.navigate(-1))
+    this.input.keyboard.on('keydown-LEFT', () => this.navigate(-1))
     this.input.keyboard.on('keydown-RIGHT', () => this.navigate(1))
   }
 
   navigate(direction) {
-    this.skinIndex = Phaser.Math.Wrap(
-      this.skinIndex + direction,
-      0,
-      this.character.skins.length,
-    )
+    this.skinIndex = Phaser.Math.Wrap(this.skinIndex + direction, 0, this.character.skins.length)
     this.drawCurrentSkin()
   }
 
   // ── Botones de acción ────────────────────────────────────────
 
   drawActionButtons() {
-    const centerX  = GAME_WIDTH / 2
-    const gap      = 20
-    const totalW   = BTN_W * 2 + gap
+    const centerX = GAME_WIDTH / 2
+    const gap = 20
+    const totalW = BTN_W * 2 + gap
     const leftBtnX = centerX - totalW / 2
     const rightBtnX = leftBtnX + BTN_W + gap
 
-    makeNavButton(
-      this,
-      leftBtnX, BTN_TOP,
-      BTN_W, BTN_H,
-      'VOLVER',
-      () => this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective, selectedIndex: this.selectedIndex }),
+    makeNavButton(this, leftBtnX, BTN_TOP, BTN_W, BTN_H, 'VOLVER', () =>
+      this.scene.start(SCENES.CHARACTER_SELECT, {
+        perspective: this.perspective,
+        selectedIndex: this.selectedIndex,
+      })
     )
 
-    makeNavButton(
-      this,
-      rightBtnX, BTN_TOP,
-      BTN_W, BTN_H,
-      'JUGAR',
-      () => this.startGame(),
-    )
+    makeNavButton(this, rightBtnX, BTN_TOP, BTN_W, BTN_H, 'JUGAR', () => this.startGame())
 
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
-    this.input.keyboard.on('keydown-ESC',   () => {
-      this.scene.start(SCENES.CHARACTER_SELECT, { perspective: this.perspective, selectedIndex: this.selectedIndex })
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.scene.start(SCENES.CHARACTER_SELECT, {
+        perspective: this.perspective,
+        selectedIndex: this.selectedIndex,
+      })
     })
   }
 
@@ -382,9 +391,9 @@ export class SkinSelectScene extends BaseScene {
     skinService.setActiveSkin(this.character.id, skin.spritesheet)
 
     this.scene.start(SCENES.GAME, {
-      character:   this.character,
+      character: this.character,
       perspective: this.perspective,
-      skin:        skin.spritesheet,
+      skin: skin.spritesheet,
     })
   }
 }

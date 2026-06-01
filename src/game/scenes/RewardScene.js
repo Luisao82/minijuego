@@ -14,27 +14,28 @@ import { buildShareText } from '../config/shareConfig'
 // Panel casi a pantalla completa en altura
 const PANEL_W = 560
 const PANEL_H = 700
-const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2)   // 232
-const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2)  // 34
+const PANEL_X = Math.round((GAME_WIDTH - PANEL_W) / 2) // 232
+const PANEL_Y = Math.round((GAME_HEIGHT - PANEL_H) / 2) // 34
 const CENTER_X = GAME_WIDTH / 2
 // Imagen del premio: ocupa casi todo el alto disponible entre cabecera y botones
 const IMG_SIZE = 380
 
 // Colores del confeti
-const CONFETTI_COLORS = [0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b]
+const CONFETTI_COLORS = [
+  0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b,
+]
 
 export class RewardScene extends BaseScene {
-
   constructor() {
     super(SCENES.REWARD)
   }
 
   init(data) {
     super.init(data)
-    this.reward        = data.reward || null
+    this.reward = data.reward || null
     this.characterData = data.character || null
-    this.newMapPiece   = data.newMapPiece || null
-    this.canPlay       = false
+    this.newMapPiece = data.newMapPiece || null
+    this.canPlay = false
 
     // Detectar si es la primera vez antes de guardar
     const previousCount = this.reward?.id ? rewardStorage.getCount(this.reward.id) : 1
@@ -65,8 +66,8 @@ export class RewardScene extends BaseScene {
   }
 
   _checkSkinUnlocks() {
-    const char     = this.characterData
-    const skins    = char.skins ?? []
+    const char = this.characterData
+    const skins = char.skins ?? []
     const newSkins = []
     for (const skin of skins) {
       if (skin.flags === null || skin.flags === undefined) continue
@@ -110,8 +111,9 @@ export class RewardScene extends BaseScene {
       this._setObjsAlpha(this._phase2Objs, 0)
 
       // Entrada: solo animar fase 1
-      this._playEntrance(this._phase1Objs, () => { this.canPlay = true })
-
+      this._playEntrance(this._phase1Objs, () => {
+        this.canPlay = true
+      })
     } else {
       // Sin trozo de mapa: ir directo al premio
       this._beginCapture()
@@ -119,21 +121,24 @@ export class RewardScene extends BaseScene {
       this._phase2Objs = this._endCapture()
 
       if (this.isFirstWin) this.spawnConfetti()
-      this._playEntrance(this._phase2Objs, () => { this.canPlay = true })
+      this._playEntrance(this._phase2Objs, () => {
+        this.canPlay = true
+      })
     }
 
     this.setupInput()
   }
 
   _setObjsAlpha(objs, alpha) {
-    objs.forEach(o => { if (o.setAlpha) o.setAlpha(alpha) })
+    objs.forEach((o) => {
+      if (o.setAlpha) o.setAlpha(alpha)
+    })
   }
 
   // ── Fondo ──────────────────────────────────────────────────────
 
   _drawBackground() {
-    this.add.image(CENTER_X, GAME_HEIGHT / 2, 'bg-game')
-      .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
+    this.add.image(CENTER_X, GAME_HEIGHT / 2, 'bg-game').setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
 
     const overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.72)
@@ -157,23 +162,27 @@ export class RewardScene extends BaseScene {
     bg.fillRect(PANEL_X, PANEL_Y, PANEL_W, 56)
 
     // Título
-    this.add.text(CENTER_X, PANEL_Y + 30, '¡TROZO DEL MAPA!', {
-      fontFamily:      '"Press Start 2P", monospace',
-      fontSize:        '18px',
-      color:           '#aaff00',
-      stroke:          '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, PANEL_Y + 30, '¡TROZO DEL MAPA!', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '18px',
+        color: '#aaff00',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
 
     // Subtítulo
-    this.add.text(CENTER_X, PANEL_Y + 78, '¡Has desbloqueado una pieza\ndel mapa de Sevilla!', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '28px',
-      color:           '#ffffff',
-      stroke:          '#000000',
-      strokeThickness: 2,
-      align:           'center',
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, PANEL_Y + 78, '¡Has desbloqueado una pieza\ndel mapa de Sevilla!', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '28px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 2,
+        align: 'center',
+      })
+      .setOrigin(0.5)
 
     // Separador
     const sep = this.add.graphics()
@@ -187,21 +196,25 @@ export class RewardScene extends BaseScene {
 
     // Progreso
     const unlocked = this._getMapUnlockedCount()
-    this.add.text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 26, `Piezas conseguidas: ${unlocked} / 15`, {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '28px',
-      color:           '#aaff00',
-      stroke:          '#000000',
-      strokeThickness: 2,
-      align:           'center',
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 26, `Piezas conseguidas: ${unlocked} / 15`, {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '28px',
+        color: '#aaff00',
+        stroke: '#000000',
+        strokeThickness: 2,
+        align: 'center',
+      })
+      .setOrigin(0.5)
 
-    this.add.text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 58, '¡Descúbrela en el mapa de Sevilla!', {
-      fontFamily: 'monospace',
-      fontSize:   '12px',
-      color:      '#88cc00',
-      align:      'center',
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 58, '¡Descúbrela en el mapa de Sevilla!', {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#88cc00',
+        align: 'center',
+      })
+      .setOrigin(0.5)
 
     // Botón OK centrado
     const btnH = 58
@@ -210,10 +223,14 @@ export class RewardScene extends BaseScene {
     makeNavButton(
       this,
       CENTER_X - btnW / 2,
-      btnY, btnW, btnH,
+      btnY,
+      btnW,
+      btnH,
       '¡A VER EL PREMIO!',
-      () => { if (this.canPlay) this._showPrizePhase() },
-      { depth: 6 },
+      () => {
+        if (this.canPlay) this._showPrizePhase()
+      },
+      { depth: 6 }
     )
   }
 
@@ -222,11 +239,8 @@ export class RewardScene extends BaseScene {
     // newMapPiece = "piece-{row}-{col}" → textura "map-piece-{row}-{col}"
     const textureKey = `map-${this.newMapPiece}`
 
-    if (this.textures.exists(textureKey) &&
-        this.textures.get(textureKey).key !== '__MISSING') {
-      this.add.image(cx, cy, textureKey)
-        .setDisplaySize(size, size)
-        .setOrigin(0.5)
+    if (this.textures.exists(textureKey) && this.textures.get(textureKey).key !== '__MISSING') {
+      this.add.image(cx, cy, textureKey).setDisplaySize(size, size).setOrigin(0.5)
     } else {
       // Fallback gráfico
       const g = this.add.graphics()
@@ -234,13 +248,15 @@ export class RewardScene extends BaseScene {
       g.fillRect(cx - half, cy - half, size, size)
       g.lineStyle(3, 0x88ff00, 1)
       g.strokeRect(cx - half, cy - half, size, size)
-      this.add.text(cx, cy, '?', {
-        fontFamily:      '"Press Start 2P", monospace',
-        fontSize:        '60px',
-        color:           '#aaff00',
-        stroke:          '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5)
+      this.add
+        .text(cx, cy, '?', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '60px',
+          color: '#aaff00',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     }
 
     // Marco decorativo verde lima alrededor de la imagen
@@ -253,7 +269,7 @@ export class RewardScene extends BaseScene {
 
   _getMapUnlockedCount() {
     try {
-      const raw   = localStorage.getItem('cucana_map')
+      const raw = localStorage.getItem('cucana_map')
       const state = raw ? JSON.parse(raw) : { unlocked: [] }
       return state.unlocked.length
     } catch (_) {
@@ -278,22 +294,26 @@ export class RewardScene extends BaseScene {
     g.fillRect(PANEL_X, PANEL_Y, PANEL_W, 56)
 
     // Título principal
-    this.add.text(CENTER_X, PANEL_Y + 30, '¡ENHORABUENA!', {
-      fontFamily:      '"Press Start 2P", monospace',
-      fontSize:        '22px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, PANEL_Y + 30, '¡ENHORABUENA!', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '22px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
 
     // Subtítulo
-    this.add.text(CENTER_X, PANEL_Y + 88, 'has conseguido...', {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '28px',
-      color:           '#ffffff',
-      stroke:          '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, PANEL_Y + 88, 'has conseguido...', {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '28px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5)
 
     // Separador
     const sepG = this.add.graphics()
@@ -306,15 +326,17 @@ export class RewardScene extends BaseScene {
 
     // Nombre del premio
     const nombre = this.reward?.nombre || '¡Premio misterioso!'
-    this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 22, nombre, {
-      fontFamily:      '"Press Start 2P", monospace',
-      fontSize:        '16px',
-      color:           '#ffd700',
-      stroke:          '#000000',
-      strokeThickness: 3,
-      align:           'center',
-      wordWrap:        { width: PANEL_W - 60 },
-    }).setOrigin(0.5)
+    this.add
+      .text(CENTER_X, imgCY + IMG_SIZE / 2 + 22, nombre, {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '16px',
+        color: '#ffd700',
+        stroke: '#000000',
+        strokeThickness: 3,
+        align: 'center',
+        wordWrap: { width: PANEL_W - 60 },
+      })
+      .setOrigin(0.5)
 
     // Botón compartir (esquina superior derecha del panel)
     if (this.reward?.id) {
@@ -323,73 +345,90 @@ export class RewardScene extends BaseScene {
 
     // Descripción opcional
     if (this.reward?.descripcion) {
-      this.add.text(CENTER_X, imgCY + IMG_SIZE / 2 + 48, this.reward.descripcion, {
-        fontFamily: 'monospace',
-        fontSize:   '10px',
-        color:      '#cccccc',
-        align:      'center',
-        wordWrap:   { width: PANEL_W - 80 },
-      }).setOrigin(0.5)
+      this.add
+        .text(CENTER_X, imgCY + IMG_SIZE / 2 + 48, this.reward.descripcion, {
+          fontFamily: 'monospace',
+          fontSize: '10px',
+          color: '#cccccc',
+          align: 'center',
+          wordWrap: { width: PANEL_W - 80 },
+        })
+        .setOrigin(0.5)
     }
 
     // Botones
     const btnH = 58
     const btnW = 240
-    const gap  = 16
+    const gap = 16
     const btnY = PANEL_Y + PANEL_H - btnH - 20
 
     makeNavButton(
       this,
       CENTER_X - btnW - gap / 2,
-      btnY, btnW, btnH,
+      btnY,
+      btnW,
+      btnH,
       'VOLVER A JUGAR',
-      () => { if (this.canPlay) this.playAgain() },
-      { depth: 6 },
+      () => {
+        if (this.canPlay) this.playAgain()
+      },
+      { depth: 6 }
     )
 
     makeNavButton(
       this,
       CENTER_X + gap / 2,
-      btnY, btnW, btnH,
+      btnY,
+      btnW,
+      btnH,
       'VER PREMIOS',
-      () => { if (this.canPlay) this.viewCollection() },
-      { depth: 6 },
+      () => {
+        if (this.canPlay) this.viewCollection()
+      },
+      { depth: 6 }
     )
   }
 
   _addShareButton(subtitleKey) {
-    const SIZE   = 40
+    const SIZE = 40
     const MARGIN = 10
     const x = PANEL_X + PANEL_W - SIZE - MARGIN
     const y = PANEL_Y + MARGIN
 
     let sharing = false
-    makeShareButton(this, x, y, async () => {
-      if (sharing || !this.canPlay) return
-      sharing = true
-      try {
-        const blob = await generateShareImage(this, {
-          name:        this.reward.nombre,
-          textureKey:  this.reward.id,
-          subtitleKey,
-        })
-        await shareImage(blob, buildShareText(subtitleKey, this.reward.nombre))
-      } catch (err) {
-        console.error('[share] error:', err)
-      } finally {
-        sharing = false
-      }
-    }, { size: SIZE, depth: 7 })
+    makeShareButton(
+      this,
+      x,
+      y,
+      async () => {
+        if (sharing || !this.canPlay) return
+        sharing = true
+        try {
+          const blob = await generateShareImage(this, {
+            name: this.reward.nombre,
+            textureKey: this.reward.id,
+            subtitleKey,
+          })
+          await shareImage(blob, buildShareText(subtitleKey, this.reward.nombre))
+        } catch (err) {
+          console.error('[share] error:', err)
+        } finally {
+          sharing = false
+        }
+      },
+      { size: SIZE, depth: 7 }
+    )
   }
 
   _drawRewardImage(cx, cy) {
     const half = IMG_SIZE / 2
 
-    if (this.reward && this.textures.exists(this.reward.id) &&
-        this.textures.get(this.reward.id).key !== '__MISSING') {
-      this.add.image(cx, cy, this.reward.id)
-        .setDisplaySize(IMG_SIZE, IMG_SIZE)
-        .setOrigin(0.5)
+    if (
+      this.reward &&
+      this.textures.exists(this.reward.id) &&
+      this.textures.get(this.reward.id).key !== '__MISSING'
+    ) {
+      this.add.image(cx, cy, this.reward.id).setDisplaySize(IMG_SIZE, IMG_SIZE).setOrigin(0.5)
     } else {
       const g = this.add.graphics()
       g.fillStyle(0x2a2a4a, 1)
@@ -400,13 +439,15 @@ export class RewardScene extends BaseScene {
       for (let i = 0; i < IMG_SIZE; i += 20) {
         g.strokeRect(cx - half + i / 2, cy - half + i / 2, IMG_SIZE - i, IMG_SIZE - i)
       }
-      this.add.text(cx, cy, '?', {
-        fontFamily:      '"Press Start 2P", monospace',
-        fontSize:        '60px',
-        color:           '#ffd700',
-        stroke:          '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5)
+      this.add
+        .text(cx, cy, '?', {
+          fontFamily: '"Press Start 2P", monospace',
+          fontSize: '60px',
+          color: '#ffd700',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
     }
 
     this._drawStars(cx, cy, half)
@@ -426,33 +467,36 @@ export class RewardScene extends BaseScene {
     this._starRefs = []
 
     positions.forEach((pos, i) => {
-      const star = this.add.text(pos.x, pos.y, '★', {
-        fontFamily: 'monospace',
-        fontSize:   '16px',
-        color:      '#ffd700',
-      }).setOrigin(0.5).setAlpha(0)
+      const star = this.add
+        .text(pos.x, pos.y, '★', {
+          fontFamily: 'monospace',
+          fontSize: '16px',
+          color: '#ffd700',
+        })
+        .setOrigin(0.5)
+        .setAlpha(0)
 
       this._starRefs.push({ star, i })
 
       if (!this.newMapPiece) {
         // Flujo de una fase: animar entrada + pulso
         this.tweens.add({
-          targets:  star,
-          alpha:    1,
-          scaleX:   { from: 0.5, to: 1 },
-          scaleY:   { from: 0.5, to: 1 },
-          delay:    400 + i * 120,
+          targets: star,
+          alpha: 1,
+          scaleX: { from: 0.5, to: 1 },
+          scaleY: { from: 0.5, to: 1 },
+          delay: 400 + i * 120,
           duration: 300,
-          ease:     'Back.easeOut',
+          ease: 'Back.easeOut',
         })
         this.tweens.add({
-          targets:  star,
-          alpha:    { from: 1, to: 0.4 },
-          delay:    800 + i * 120,
+          targets: star,
+          alpha: { from: 1, to: 0.4 },
+          delay: 800 + i * 120,
           duration: 700,
-          yoyo:     true,
-          repeat:   -1,
-          ease:     'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
         })
       }
     })
@@ -463,22 +507,22 @@ export class RewardScene extends BaseScene {
     if (!this._starRefs) return
     this._starRefs.forEach(({ star, i }) => {
       this.tweens.add({
-        targets:  star,
-        alpha:    1,
-        scaleX:   { from: 0.5, to: 1 },
-        scaleY:   { from: 0.5, to: 1 },
-        delay:    i * 100,
+        targets: star,
+        alpha: 1,
+        scaleX: { from: 0.5, to: 1 },
+        scaleY: { from: 0.5, to: 1 },
+        delay: i * 100,
         duration: 280,
-        ease:     'Back.easeOut',
+        ease: 'Back.easeOut',
       })
       this.tweens.add({
-        targets:  star,
-        alpha:    { from: 1, to: 0.4 },
-        delay:    300 + i * 100,
+        targets: star,
+        alpha: { from: 1, to: 0.4 },
+        delay: 300 + i * 100,
         duration: 700,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       })
     })
   }
@@ -489,22 +533,22 @@ export class RewardScene extends BaseScene {
     this.canPlay = false
 
     this.tweens.add({
-      targets:  this._phase1Objs,
-      alpha:    0,
+      targets: this._phase1Objs,
+      alpha: 0,
       duration: 250,
-      ease:     'Quad.easeIn',
+      ease: 'Quad.easeIn',
       onComplete: () => {
-        this._phase1Objs.forEach(o => o.setVisible && o.setVisible(false))
+        this._phase1Objs.forEach((o) => o.setVisible && o.setVisible(false))
 
         // Separar estrellas del resto para animarlas independientemente
-        const starSet  = new Set((this._starRefs ?? []).map(r => r.star))
-        const nonStars = this._phase2Objs.filter(o => !starSet.has(o))
+        const starSet = new Set((this._starRefs ?? []).map((r) => r.star))
+        const nonStars = this._phase2Objs.filter((o) => !starSet.has(o))
 
         this.tweens.add({
-          targets:  nonStars,
-          alpha:    1,
+          targets: nonStars,
+          alpha: 1,
           duration: 300,
-          ease:     'Quad.easeOut',
+          ease: 'Quad.easeOut',
           onComplete: () => {
             this._activateStars()
             if (this.isFirstWin) this.spawnConfetti()
@@ -520,11 +564,11 @@ export class RewardScene extends BaseScene {
   spawnConfetti() {
     const count = 70
     for (let i = 0; i < count; i++) {
-      const color    = Phaser.Utils.Array.GetRandom(CONFETTI_COLORS)
-      const size     = Phaser.Math.Between(4, 10)
-      const startX   = Phaser.Math.Between(PANEL_X + 10, PANEL_X + PANEL_W - 10)
-      const endX     = startX + Phaser.Math.Between(-100, 100)
-      const delay    = Phaser.Math.Between(0, 1200)
+      const color = Phaser.Utils.Array.GetRandom(CONFETTI_COLORS)
+      const size = Phaser.Math.Between(4, 10)
+      const startX = Phaser.Math.Between(PANEL_X + 10, PANEL_X + PANEL_W - 10)
+      const endX = startX + Phaser.Math.Between(-100, 100)
+      const delay = Phaser.Math.Between(0, 1200)
       const duration = Phaser.Math.Between(1200, 2800)
 
       const g = this.add.graphics()
@@ -559,12 +603,14 @@ export class RewardScene extends BaseScene {
 
   _playEntrance(objs, onDone) {
     // Resetear alpha de los objetos de la fase y animar entrada
-    objs.forEach(o => { if (o.setAlpha) o.setAlpha(0) })
+    objs.forEach((o) => {
+      if (o.setAlpha) o.setAlpha(0)
+    })
     this.tweens.add({
-      targets:  objs,
-      alpha:    1,
+      targets: objs,
+      alpha: 1,
       duration: 380,
-      ease:     'Quad.easeOut',
+      ease: 'Quad.easeOut',
       onComplete: onDone,
     })
   }
@@ -583,18 +629,18 @@ export class RewardScene extends BaseScene {
     if (this.newPerspUnlocks?.length > 0) {
       this.scene.start(SCENES.PERSPECTIVE_UNLOCK, {
         unlockedPerspectives: this.newPerspUnlocks,
-        character:            this.characterData,
-        nextUnlocks:          this.newUnlocks,
-        nextScene:            finalScene,
+        character: this.characterData,
+        nextUnlocks: this.newUnlocks,
+        nextScene: finalScene,
       })
     } else if (this.newUnlocks?.length > 0) {
       this.scene.start(SCENES.CHARACTER_UNLOCK, {
         unlockedCharacters: this.newUnlocks,
-        character:          this.characterData,
+        character: this.characterData,
       })
     } else if (this.newSkinUnlocks?.length > 0) {
       this.scene.start(SCENES.SKIN_UNLOCK, {
-        newSkins:  this.newSkinUnlocks,
+        newSkins: this.newSkinUnlocks,
         character: this.characterData,
       })
     } else if (finalScene === SCENES.GAME) {

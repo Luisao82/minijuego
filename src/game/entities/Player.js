@@ -10,68 +10,89 @@ import { COLORS } from '../config/gameConfig'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 
 export const PLAYER_STATE = {
-  NORMAL:        'normal',         // De pie en el palo
-  JUMPING:       'jumping',        // Saltando sin bandera
-  JUMPING_FLAG:  'jumping-flag',   // Saltando con bandera
-  FLAG:          'flag',           // En el palo con bandera
-  FALLING:       'falling',        // Cayendo sin bandera
-  FALLING_FLAG:  'falling-flag',   // Cayendo con bandera
+  NORMAL: 'normal', // De pie en el palo
+  JUMPING: 'jumping', // Saltando sin bandera
+  JUMPING_FLAG: 'jumping-flag', // Saltando con bandera
+  FLAG: 'flag', // En el palo con bandera
+  FALLING: 'falling', // Cayendo sin bandera
+  FALLING_FLAG: 'falling-flag', // Cayendo con bandera
 }
 
 export class Player {
-
-  constructor(scene, x, y, characterData = null, scale = SPRITE_CONFIG.scale, parent = null, spriteKey = null) {
-    this._scene         = scene
-    this._x             = x
-    this._y             = y
+  constructor(
+    scene,
+    x,
+    y,
+    characterData = null,
+    scale = SPRITE_CONFIG.scale,
+    parent = null,
+    spriteKey = null
+  ) {
+    this._scene = scene
+    this._x = x
+    this._y = y
     this._characterData = characterData
-    this._state         = PLAYER_STATE.NORMAL
+    this._state = PLAYER_STATE.NORMAL
 
     // Determinar qué spritesheet usar.
     // spriteKey tiene prioridad (skin seleccionado), luego el del personaje, luego default.
-    const id          = characterData?.id
-    const charKey     = id ? `sprite-${id}` : null
+    const id = characterData?.id
+    const charKey = id ? `sprite-${id}` : null
     const resolvedKey = spriteKey && scene.textures.exists(spriteKey) ? spriteKey : charKey
-    const key         = (resolvedKey && scene.textures.exists(resolvedKey))
-      ? resolvedKey
-      : scene.textures.exists('sprite-default') ? 'sprite-default' : null
+    const key =
+      resolvedKey && scene.textures.exists(resolvedKey)
+        ? resolvedKey
+        : scene.textures.exists('sprite-default')
+          ? 'sprite-default'
+          : null
 
     if (key) {
-      this._sprite   = scene.add.sprite(x, y + 4, key, SPRITE_FRAMES.STAND)
+      this._sprite = scene.add
+        .sprite(x, y + 4, key, SPRITE_FRAMES.STAND)
         .setOrigin(0.5, 1)
         .setScale(scale)
       if (parent) parent.add(this._sprite)
       this._graphics = null
     } else {
       // Sin ningún spritesheet disponible — fallback pixel art
-      this._sprite   = null
+      this._sprite = null
       this._graphics = scene.add.graphics()
       if (parent) parent.add(this._graphics)
     }
 
     // Estado de animación walk
-    this._animTimer  = 0
+    this._animTimer = 0
     this._animToggle = false
 
     // Celebración
-    this._celebTimer    = null
-    this._celebGraphics = null   // solo en fallback pixel art
-    this._celebFrame    = 0
+    this._celebTimer = null
+    this._celebGraphics = null // solo en fallback pixel art
+    this._celebFrame = 0
 
     this.redraw()
   }
 
   // ── Posición ────────────────────────────────────────────────
 
-  get x() { return this._x }
-  set x(v) { this._x = v }
+  get x() {
+    return this._x
+  }
+  set x(v) {
+    this._x = v
+  }
 
-  get y() { return this._y }
-  set y(v) { this._y = v }
+  get y() {
+    return this._y
+  }
+  set y(v) {
+    this._y = v
+  }
 
   // ── Estado visual ───────────────────────────────────────────
 
-  get state() { return this._state }
+  get state() {
+    return this._state
+  }
 
   setJumping(isJumping, hasFlag = false) {
     if (isJumping) {
@@ -83,10 +104,15 @@ export class Player {
   }
 
   setFlag(hasFlag) {
-    const jumping = this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG
+    const jumping =
+      this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG
     this._state = jumping
-      ? (hasFlag ? PLAYER_STATE.JUMPING_FLAG : PLAYER_STATE.JUMPING)
-      : (hasFlag ? PLAYER_STATE.FLAG : PLAYER_STATE.NORMAL)
+      ? hasFlag
+        ? PLAYER_STATE.JUMPING_FLAG
+        : PLAYER_STATE.JUMPING
+      : hasFlag
+        ? PLAYER_STATE.FLAG
+        : PLAYER_STATE.NORMAL
     this._syncFrame()
   }
 
@@ -99,12 +125,24 @@ export class Player {
   _syncFrame() {
     if (!this._sprite) return
     switch (this._state) {
-      case PLAYER_STATE.JUMPING:      this._sprite.setFrame(SPRITE_FRAMES.JUMP);       break
-      case PLAYER_STATE.JUMPING_FLAG: this._sprite.setFrame(SPRITE_FRAMES.JUMP_FLAG);  break
-      case PLAYER_STATE.FLAG:         this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG); break
-      case PLAYER_STATE.FALLING:      this._sprite.setFrame(SPRITE_FRAMES.FALL);       break
-      case PLAYER_STATE.FALLING_FLAG: this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG); break
-      default:                        this._sprite.setFrame(SPRITE_FRAMES.STAND);      break
+      case PLAYER_STATE.JUMPING:
+        this._sprite.setFrame(SPRITE_FRAMES.JUMP)
+        break
+      case PLAYER_STATE.JUMPING_FLAG:
+        this._sprite.setFrame(SPRITE_FRAMES.JUMP_FLAG)
+        break
+      case PLAYER_STATE.FLAG:
+        this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG)
+        break
+      case PLAYER_STATE.FALLING:
+        this._sprite.setFrame(SPRITE_FRAMES.FALL)
+        break
+      case PLAYER_STATE.FALLING_FLAG:
+        this._sprite.setFrame(SPRITE_FRAMES.STAND_FLAG)
+        break
+      default:
+        this._sprite.setFrame(SPRITE_FRAMES.STAND)
+        break
     }
   }
 
@@ -117,7 +155,7 @@ export class Player {
     }
 
     // Fallback pixel art
-    const g  = this._graphics
+    const g = this._graphics
     const px = this._x
     const py = this._y
 
@@ -135,19 +173,21 @@ export class Player {
   // Anima entre STAND y WALK según la velocidad de movimiento.
   updateAnimation(dt, speed) {
     if (!this._sprite) return
-    if (this._state === PLAYER_STATE.JUMPING      || this._state === PLAYER_STATE.JUMPING_FLAG) return
-    if (this._state === PLAYER_STATE.FALLING      || this._state === PLAYER_STATE.FALLING_FLAG) return
+    if (this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG) return
+    if (this._state === PLAYER_STATE.FALLING || this._state === PLAYER_STATE.FALLING_FLAG) return
 
     const SPEED_THRESHOLD = 15
     const INTERVAL_FACTOR = 18
-    const MIN_INTERVAL    = 0.15
+    const MIN_INTERVAL = 0.15
 
-    const baseFrame = this._state === PLAYER_STATE.FLAG ? SPRITE_FRAMES.STAND_FLAG : SPRITE_FRAMES.STAND
-    const walkFrame = this._state === PLAYER_STATE.FLAG ? SPRITE_FRAMES.STAND_FLAG : SPRITE_FRAMES.WALK
+    const baseFrame =
+      this._state === PLAYER_STATE.FLAG ? SPRITE_FRAMES.STAND_FLAG : SPRITE_FRAMES.STAND
+    const walkFrame =
+      this._state === PLAYER_STATE.FLAG ? SPRITE_FRAMES.STAND_FLAG : SPRITE_FRAMES.WALK
 
     if (speed < SPEED_THRESHOLD) {
       this._animToggle = false
-      this._animTimer  = 0
+      this._animTimer = 0
       this._sprite.setFrame(baseFrame)
       return
     }
@@ -189,7 +229,7 @@ export class Player {
     }
 
     // Fallback pixel art
-    const g  = this._scene.add.graphics()
+    const g = this._scene.add.graphics()
     const cx = this._x
     g.fillStyle(0x3d2510, 1)
     g.fillRect(cx - 6, waterY - 16, 10, 4)
@@ -208,7 +248,7 @@ export class Player {
 
       this._celebToggle = false
       this._celebTimer = this._scene.time.addEvent({
-        delay:    350,
+        delay: 350,
         callback: () => {
           this._celebToggle = !this._celebToggle
           this._sprite.setFrame(this._celebToggle ? SPRITE_FRAMES.CELEB_B : SPRITE_FRAMES.CELEB_A)
@@ -217,12 +257,12 @@ export class Player {
       })
     } else {
       // Fallback pixel art
-      this._celebFrame    = 0
+      this._celebFrame = 0
       this._celebGraphics = this._scene.add.graphics()
       this._drawCelebFrame(waterY)
 
       this._celebTimer = this._scene.time.addEvent({
-        delay:    350,
+        delay: 350,
         callback: () => {
           this._celebFrame = 1 - this._celebFrame
           this._drawCelebFrame(waterY)
@@ -293,7 +333,7 @@ export class Player {
         // Pose de susto/vuelo: ambos brazos abiertos
         g.fillStyle(0xf0bb78, 1)
         g.fillRect(px - 19, py - 22, 12, 5)
-        g.fillRect(px + 7,  py - 22, 12, 5)
+        g.fillRect(px + 7, py - 22, 12, 5)
         break
 
       case PLAYER_STATE.FLAG:
@@ -309,14 +349,14 @@ export class Player {
       default:
         g.fillStyle(0xf0bb78, 1)
         g.fillRect(px - 12, py - 20, 5, 12)
-        g.fillRect(px + 7,  py - 20, 5, 12)
+        g.fillRect(px + 7, py - 20, 5, 12)
     }
   }
 
   _drawCelebFrame(waterY) {
-    const g    = this._celebGraphics
-    const cx   = this._x
-    const wy   = waterY
+    const g = this._celebGraphics
+    const cx = this._x
+    const wy = waterY
     const wave = this._celebFrame === 0 ? -2 : 2
 
     g.clear()
@@ -334,7 +374,7 @@ export class Player {
 
     g.fillStyle(COLORS.WHITE, 1)
     if (this._celebFrame === 0) {
-      g.fillRect(cx + wave + 2,  wy - 45, 14, 10)
+      g.fillRect(cx + wave + 2, wy - 45, 14, 10)
     } else {
       g.fillRect(cx + wave - 16, wy - 45, 14, 10)
     }

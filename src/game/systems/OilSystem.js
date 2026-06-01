@@ -7,7 +7,6 @@
 import { OIL } from '../config/gameConfig'
 
 export class OilSystem {
-
   constructor() {
     this.zones = new Array(OIL.NUM_ZONES).fill(100)
     this._load()
@@ -44,7 +43,9 @@ export class OilSystem {
   // Resetear al 100% (cuando se coge la bandera)
   reset() {
     this.zones.fill(100)
-    try { sessionStorage.removeItem('cucana_oil') } catch(_) {}
+    try {
+      sessionStorage.removeItem('cucana_oil')
+    } catch (_) {}
   }
 
   _zoneIndex(progressRatio) {
@@ -52,13 +53,15 @@ export class OilSystem {
   }
 
   _save() {
-    try { sessionStorage.setItem('cucana_oil', JSON.stringify(this.zones)) } catch(_) {}
+    try {
+      sessionStorage.setItem('cucana_oil', JSON.stringify(this.zones))
+    } catch (_) {}
   }
 
   _load() {
     try {
       const raw = sessionStorage.getItem('cucana_oil')
       if (raw) this.zones = JSON.parse(raw)
-    } catch(_) {}
+    } catch (_) {}
   }
 }

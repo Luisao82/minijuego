@@ -1,7 +1,7 @@
 # Créditos — La Cucaña Trianera
 
 Documento canónico de créditos y licencias de terceros utilizadas en la
-aplicación. La pantalla *Créditos* dentro del juego refleja este mismo
+aplicación. La pantalla _Créditos_ dentro del juego refleja este mismo
 contenido.
 
 ---
@@ -19,13 +19,13 @@ contenido.
 
 ## Motor y herramientas
 
-| Componente | Versión | Licencia | Enlace |
-|------------|---------|----------|--------|
-| Phaser 3 | 3.90.0 | MIT | <https://phaser.io> |
-| Vite | 6.3.1 | MIT | <https://vitejs.dev> |
-| Capacitor (iOS / Android) | 8.x | MIT | <https://capacitorjs.com> |
-| Sentry (Browser SDK) | 10.x | MIT (cliente) | <https://sentry.io> |
-| Terser | 5.x | BSD-2-Clause | <https://terser.org> |
+| Componente                | Versión | Licencia      | Enlace                    |
+| ------------------------- | ------- | ------------- | ------------------------- |
+| Phaser 3                  | 3.90.0  | MIT           | <https://phaser.io>       |
+| Vite                      | 6.3.1   | MIT           | <https://vitejs.dev>      |
+| Capacitor (iOS / Android) | 8.x     | MIT           | <https://capacitorjs.com> |
+| Sentry (Browser SDK)      | 10.x    | MIT (cliente) | <https://sentry.io>       |
+| Terser                    | 5.x     | BSD-2-Clause  | <https://terser.org>      |
 
 Todas las dependencias del proyecto y sus licencias se pueden consultar
 ejecutando `npm ls --all` o revisando `package.json` y `package-lock.json`.
@@ -38,10 +38,10 @@ Ambas se cargan desde Google Fonts y se distribuyen bajo la **SIL Open Font
 License 1.1 (OFL)**, que permite uso libre incluyendo proyectos comerciales
 siempre que se reconozca la autoría.
 
-| Fuente | Autor | Licencia | Enlace |
-|--------|-------|----------|--------|
-| Jersey 10 | Sarah Cadigan-Fried | OFL 1.1 | <https://fonts.google.com/specimen/Jersey+10> |
-| Press Start 2P | Codeman38 (Cody Boisclair) | OFL 1.1 | <https://fonts.google.com/specimen/Press+Start+2P> |
+| Fuente         | Autor                      | Licencia | Enlace                                             |
+| -------------- | -------------------------- | -------- | -------------------------------------------------- |
+| Jersey 10      | Sarah Cadigan-Fried        | OFL 1.1  | <https://fonts.google.com/specimen/Jersey+10>      |
+| Press Start 2P | Codeman38 (Cody Boisclair) | OFL 1.1  | <https://fonts.google.com/specimen/Press+Start+2P> |
 
 Texto completo de la OFL: <https://openfontlicense.org/>
 
@@ -52,7 +52,7 @@ Texto completo de la OFL: <https://openfontlicense.org/>
 ### Efectos de sonido (SFX)
 
 Todos los efectos de sonido del juego son **creaciones originales** del autor,
-generados con [jsfxr](https://sfxr.me/) (versión web del generador *sfxr* de
+generados con [jsfxr](https://sfxr.me/) (versión web del generador _sfxr_ de
 DrPetter). Las muestras generadas con jsfxr son de **dominio público / CC0**,
 y al haberse creado específicamente para este proyecto, forman parte de los
 assets propietarios del juego.
@@ -75,7 +75,7 @@ Lista de efectos:
 **⚠️ Música del menú principal — pendiente de autorización**
 
 La música que suena en el menú principal es una adaptación a MIDI/BeepBox de
-una sevillana del repertorio popular interpretada por *Cantores de Híspalis*.
+una sevillana del repertorio popular interpretada por _Cantores de Híspalis_.
 La composición original tiene **derechos de autor** y, por tanto, el uso de
 esta adaptación queda **pendiente de obtener autorización expresa de los
 titulares de los derechos** antes de cualquier publicación comercial en App

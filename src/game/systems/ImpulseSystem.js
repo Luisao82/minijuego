@@ -2,7 +2,6 @@
 // Gestiona el movimiento de la barra, aceleración, reset y resultado
 
 export class ImpulseSystem {
-
   constructor(powerBar) {
     this.bar = powerBar
   }

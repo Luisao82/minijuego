@@ -1,5 +1,17 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, POLE, MOVEMENT, CONTROL_PANEL, BOAT, JUMP, OIL, PHASE1 } from '../config/gameConfig'
+import {
+  SCENES,
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  COLORS,
+  POLE,
+  MOVEMENT,
+  CONTROL_PANEL,
+  BOAT,
+  JUMP,
+  OIL,
+  PHASE1,
+} from '../config/gameConfig'
 import { mapService } from '../services/MapService'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -22,7 +34,6 @@ import { weightedRandom } from '../utils/math'
 import { getGameOverMessage } from '../config/gameOverMessages'
 
 export class GameScene extends BaseScene {
-
   constructor() {
     super(SCENES.GAME)
   }
@@ -31,50 +42,50 @@ export class GameScene extends BaseScene {
     super.init(data)
     this.characterData = data.character || null
 
-    const skinSpritesheet = data.skin
-      ?? (this.characterData ? skinService.getActiveSkin(this.characterData) : null)
+    const skinSpritesheet =
+      data.skin ?? (this.characterData ? skinService.getActiveSkin(this.characterData) : null)
     this.skinKey = skinSpritesheet ? `sprite-${skinSpritesheet}` : null
 
-    this.phase         = null
+    this.phase = null
     this.impulseResult = null
 
     const perspId = data.perspective?.id ?? getStoredPerspective()
-    this.perspective = perspectiveUnlockService.getById(perspId)
-      ?? perspectiveUnlockService.getById('triana')
+    this.perspective =
+      perspectiveUnlockService.getById(perspId) ?? perspectiveUnlockService.getById('triana')
 
-    this.poleY  = GAME_HEIGHT * POLE.Y_FACTOR
+    this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60
 
     // Movimiento
     this.distanceTraveled = 0
-    this.maxDistance      = 0
-    this.initialSpeed     = 0
-    this.runDuration      = 0
-    this.runElapsed       = 0
+    this.maxDistance = 0
+    this.initialSpeed = 0
+    this.runDuration = 0
+    this.runElapsed = 0
 
     // Bandera y salto
-    this.hasFlag   = false
+    this.hasFlag = false
     this.hasJumped = false
     this.flagGraphics = null
 
     // Equilibrio — refs necesarias para updateRunning
-    this.balanceBar    = null
+    this.balanceBar = null
     this.balanceSystem = null
 
     // Grasa
-    this.oilSystem    = null
-    this.oilOverlay   = null
+    this.oilSystem = null
+    this.oilOverlay = null
     this.oilIndicator = null
 
     // Sistemas y componentes extraídos
-    this.jumpSystem  = null
-    this.fallSystem  = null
-    this.powerBarUI  = null
-    this.balanceUI   = null
+    this.jumpSystem = null
+    this.fallSystem = null
+    this.powerBarUI = null
+    this.balanceUI = null
 
     // Estado de resultado y UI
-    this.canRestart             = false
-    this.collectionBtnBounds    = null
+    this.canRestart = false
+    this.collectionBtnBounds = null
     this._capturedGreasePercent = null
   }
 
@@ -85,7 +96,7 @@ export class GameScene extends BaseScene {
     const spritesheetName = this.skinKey.replace('sprite-', '')
     this.load.setPath('assets')
     this.load.spritesheet(this.skinKey, `sprites/characters/spritesheet/${spritesheetName}.png`, {
-      frameWidth:  SPRITE_CONFIG.frameWidth,
+      frameWidth: SPRITE_CONFIG.frameWidth,
       frameHeight: SPRITE_CONFIG.frameHeight,
     })
     this.load.once(`filecomplete-spritesheet-${this.skinKey}`, () => {
@@ -101,12 +112,20 @@ export class GameScene extends BaseScene {
     this._setupGameWorld()
     this.drawPole()
 
-    this.oilSystem  = new OilSystem()
+    this.oilSystem = new OilSystem()
     this.oilOverlay = this.add.graphics()
     this.gameWorld.add(this.oilOverlay)
     this._drawOilOverlay()
 
-    this.player     = new Player(this, POLE.START_X, this.poleY - 4, this.characterData, SPRITE_CONFIG.scale, this.gameWorld, this.skinKey)
+    this.player = new Player(
+      this,
+      POLE.START_X,
+      this.poleY - 4,
+      this.characterData,
+      SPRITE_CONFIG.scale,
+      this.gameWorld,
+      this.skinKey
+    )
     this.fallSystem = new FallSystem(this, this.gameWorld)
 
     this.createControlPanel()
@@ -119,8 +138,8 @@ export class GameScene extends BaseScene {
     const S = this.perspective.scale
     this.gameWorld = this.add.container(0, 0)
     if (this.perspective.flipX) {
-      this.gameWorld.x      = GAME_WIDTH / 2 * (1 + S)
-      this.gameWorld.y      = this.poleY * (1 - S) + this.perspective.yOffset
+      this.gameWorld.x = (GAME_WIDTH / 2) * (1 + S)
+      this.gameWorld.y = this.poleY * (1 - S) + this.perspective.yOffset
       this.gameWorld.scaleX = -S
       this.gameWorld.scaleY = S
     }
@@ -131,11 +150,11 @@ export class GameScene extends BaseScene {
   // ========================================
 
   startPhase1() {
-    const weight       = this.characterData?.stats?.peso || 5
-    this.powerBar      = new PowerBar(weight)
+    const weight = this.characterData?.stats?.peso || 5
+    this.powerBar = new PowerBar(weight)
     this.impulseSystem = new ImpulseSystem(this.powerBar)
-    this.phase         = 'impulse'
-    this.powerBarUI    = new PowerBarUI(this, this.powerBar, this.characterData)
+    this.phase = 'impulse'
+    this.powerBarUI = new PowerBarUI(this, this.powerBar, this.characterData)
     this.powerBarUI.create()
   }
 
@@ -154,35 +173,39 @@ export class GameScene extends BaseScene {
   }
 
   _showMaxPowerText() {
-    const startY  = CONTROL_PANEL.Y - 10
+    const startY = CONTROL_PANEL.Y - 10
     const targetY = 390
-    const cx      = GAME_WIDTH / 2
+    const cx = GAME_WIDTH / 2
 
-    const txt = this.add.text(cx, startY, '¡MAX POWER!', {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize:   '28px',
-      color:      '#aaff00',
-      stroke:     '#000000',
-      strokeThickness: 4,
-      shadow:     { offsetX: 2, offsetY: 2, color: '#006600', blur: 0, fill: true },
-    }).setOrigin(0.5).setAlpha(0).setDepth(50)
+    const txt = this.add
+      .text(cx, startY, '¡MAX POWER!', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '28px',
+        color: '#aaff00',
+        stroke: '#000000',
+        strokeThickness: 4,
+        shadow: { offsetX: 2, offsetY: 2, color: '#006600', blur: 0, fill: true },
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+      .setDepth(50)
 
     // Sube y aparece
     this.tweens.add({
-      targets:  txt,
-      y:        targetY,
-      alpha:    1,
+      targets: txt,
+      y: targetY,
+      alpha: 1,
       duration: 520,
-      ease:     'Cubic.easeOut',
+      ease: 'Cubic.easeOut',
       onComplete: () => {
         // Pausa visible
         this.time.delayedCall(1200, () => {
           // Desvanece
           this.tweens.add({
-            targets:  txt,
-            alpha:    0,
+            targets: txt,
+            alpha: 0,
             duration: 350,
-            ease:     'Quad.easeIn',
+            ease: 'Quad.easeIn',
             onComplete: () => txt.destroy(),
           })
         })
@@ -199,33 +222,34 @@ export class GameScene extends BaseScene {
     this.powerBarUI = null
     this.phase = 'running'
 
-    const impulse    = this.impulseResult.impulseValue
+    const impulse = this.impulseResult.impulseValue
     const poleLength = POLE.START_X - POLE.END_X
 
     if (impulse <= 0.01) {
-      this.maxDistance      = 0
+      this.maxDistance = 0
       this.distanceTraveled = 0
       this._fall()
       return
     }
 
-    this.maxDistance  = impulse * poleLength
-    this.runDuration  = MOVEMENT.MIN_RUN_DURATION + impulse * (MOVEMENT.MAX_RUN_DURATION - MOVEMENT.MIN_RUN_DURATION)
-    this.initialSpeed = 2 * this.maxDistance / this.runDuration
-    this.runElapsed   = 0
+    this.maxDistance = impulse * poleLength
+    this.runDuration =
+      MOVEMENT.MIN_RUN_DURATION + impulse * (MOVEMENT.MAX_RUN_DURATION - MOVEMENT.MIN_RUN_DURATION)
+    this.initialSpeed = (2 * this.maxDistance) / this.runDuration
+    this.runElapsed = 0
     this.distanceTraveled = 0
 
-    const equilibrio   = this.characterData?.stats?.equilibrio || 5
-    this.balanceBar    = new BalanceBar(equilibrio)
+    const equilibrio = this.characterData?.stats?.equilibrio || 5
+    this.balanceBar = new BalanceBar(equilibrio)
     this.balanceSystem = new BalanceSystem(this.balanceBar)
-    this.balanceUI     = new BalanceUI(this, this.balanceBar, this.balanceSystem)
+    this.balanceUI = new BalanceUI(this, this.balanceBar, this.balanceSystem)
     this.balanceUI.create()
   }
 
   updateRunning(delta) {
     const dt = delta / 1000
 
-    const poleLength    = POLE.START_X - POLE.END_X
+    const poleLength = POLE.START_X - POLE.END_X
     const progressRatio = Math.max(0, Math.min(1, this.distanceTraveled / poleLength))
     this.oilSystem.update(dt, progressRatio)
     this._drawOilOverlay()
@@ -269,13 +293,13 @@ export class GameScene extends BaseScene {
     const t = this.runElapsed
     const T = this.runDuration
     this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
-    this.player.x         = POLE.START_X - this.distanceTraveled
+    this.player.x = POLE.START_X - this.distanceTraveled
 
     const currentSpeed = T > 0 ? Math.max(0, this.initialSpeed * (1 - t / T)) : 0
     this.player.updateAnimation(dt, currentSpeed)
 
     if (!this.hasFlag && this._checkFlagCollision()) {
-      this.player.x         = POLE.END_X
+      this.player.x = POLE.END_X
       this.distanceTraveled = POLE.START_X - POLE.END_X
       this.player.redraw()
       this._grabFlag()
@@ -288,8 +312,8 @@ export class GameScene extends BaseScene {
   onBalanceLost() {
     this.sound.play('sfx-hit', { volume: 0.8 })
     this.balanceUI?.destroy()
-    this.balanceUI     = null
-    this.balanceBar    = null
+    this.balanceUI = null
+    this.balanceBar = null
     this.balanceSystem = null
     this._fall()
   }
@@ -300,21 +324,21 @@ export class GameScene extends BaseScene {
 
   startJump() {
     this.balanceUI?.destroy()
-    this.balanceUI     = null
-    this.balanceBar    = null
+    this.balanceUI = null
+    this.balanceBar = null
     this.balanceSystem = null
 
-    this.hasJumped  = true
-    this.phase      = 'jumping'
+    this.hasJumped = true
+    this.phase = 'jumping'
 
     this.jumpSystem = new JumpSystem()
     this.jumpSystem.start({
-      playerX:      this.player.x,
-      playerY:      this.player.y,
-      runElapsed:   this.runElapsed,
-      runDuration:  this.runDuration,
+      playerX: this.player.x,
+      playerY: this.player.y,
+      runElapsed: this.runElapsed,
+      runDuration: this.runDuration,
       initialSpeed: this.initialSpeed,
-      waterY:       this.waterY,
+      waterY: this.waterY,
       jumpDistance: this.characterData?.stats?.jump ?? JUMP.EXTRA_DISTANCE,
     })
 
@@ -360,13 +384,13 @@ export class GameScene extends BaseScene {
   // ========================================
 
   _checkFlagCollision() {
-    const charTop    = this.player.y - 36
+    const charTop = this.player.y - 36
     const charBottom = this.player.y + 4
-    const charLeft   = this.player.x - 12
+    const charLeft = this.player.x - 12
 
-    const flagTop    = this.poleY - 28
+    const flagTop = this.poleY - 28
     const flagBottom = this.poleY + 2
-    const flagRight  = POLE.END_X + POLE.FLAG_GRAB_RANGE
+    const flagRight = POLE.END_X + POLE.FLAG_GRAB_RANGE
 
     return charLeft <= flagRight && charTop < flagBottom && charBottom > flagTop
   }
@@ -376,8 +400,8 @@ export class GameScene extends BaseScene {
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
     this.balanceUI?.destroy()
-    this.balanceUI     = null
-    this.balanceBar    = null
+    this.balanceUI = null
+    this.balanceBar = null
     this.balanceSystem = null
     this._capturedGreasePercent = this.oilSystem.getTotalGrease()
     this.oilSystem.reset()
@@ -408,11 +432,13 @@ export class GameScene extends BaseScene {
   _playWaterSounds() {
     if (this.hasFlag) {
       // Aplausos: esperamos 300ms a que el chapuzón suene y luego palmadas escalonadas
-      ;[300, 520, 730, 930, 1120, 1300, 1480, 1660, 1840, 2020, 2210, 2420, 2650, 2900].forEach(delay => {
-        this.time.delayedCall(delay, () => {
-          this.sound.play('sfx-win', { volume: 0.65 })
-        })
-      })
+      ;[300, 520, 730, 930, 1120, 1300, 1480, 1660, 1840, 2020, 2210, 2420, 2650, 2900].forEach(
+        (delay) => {
+          this.time.delayedCall(delay, () => {
+            this.sound.play('sfx-win', { volume: 0.65 })
+          })
+        }
+      )
     } else {
       // Esperamos 350ms a que el chapuzón baje antes de soltar el oooohh
       this.time.delayedCall(350, () => {
@@ -429,28 +455,28 @@ export class GameScene extends BaseScene {
     this.phase = 'done'
 
     gameStatsService.addRecord({
-      timestamp:     new Date().toISOString(),
-      characterId:   this.characterData?.id ?? 'unknown',
-      skinKey:       this.skinKey,
+      timestamp: new Date().toISOString(),
+      characterId: this.characterData?.id ?? 'unknown',
+      skinKey: this.skinKey,
       perspectiveId: this.perspective?.id ?? 'triana',
-      success:       false,
-      rewardId:      null,
+      success: false,
+      rewardId: null,
       greasePercent: this.oilSystem.getTotalGrease(),
-      polePercent:   Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
-      impulseValue:  this.impulseResult?.impulseValue ?? null,
-      durationSecs:  Math.round(this.runElapsed * 100) / 100,
-      hasJumped:     this.hasJumped,
+      polePercent: Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
+      impulseValue: this.impulseResult?.impulseValue ?? null,
+      durationSecs: Math.round(this.runElapsed * 100) / 100,
+      hasJumped: this.hasJumped,
     })
 
-    const poleLength  = POLE.START_X - POLE.END_X
+    const poleLength = POLE.START_X - POLE.END_X
     const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
 
     const { expression, phrase, color: exprColor } = getGameOverMessage(distPercent)
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
-    const panelW  = 440
-    const panelH  = 260
+    const panelW = 440
+    const panelH = 260
 
     const g = this.add.graphics()
     g.fillStyle(COLORS.DARK_BG, 0.88)
@@ -461,36 +487,42 @@ export class GameScene extends BaseScene {
     g.strokeRect(centerX - panelW / 2 + 3, centerY - panelH / 2 + 3, panelW - 6, panelH - 6)
 
     // Expresión grande (tipografía redonda Jersey 10)
-    this.add.text(centerX, centerY - 85, expression, {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '44px',
-      color:           exprColor,
-      stroke:          '#000000',
-      strokeThickness: 5,
-      align:           'center',
-    }).setOrigin(0.5)
+    this.add
+      .text(centerX, centerY - 85, expression, {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '44px',
+        color: exprColor,
+        stroke: '#000000',
+        strokeThickness: 5,
+        align: 'center',
+      })
+      .setOrigin(0.5)
 
     // Frase complementaria
-    this.add.text(centerX, centerY - 22, phrase, {
-      fontFamily:      '"Jersey 10", cursive',
-      fontSize:        '28px',
-      color:           exprColor,
-      stroke:          '#000000',
-      strokeThickness: 3,
-      align:           'center',
-      wordWrap:        { width: panelW - 50 },
-    }).setOrigin(0.5)
+    this.add
+      .text(centerX, centerY - 22, phrase, {
+        fontFamily: '"Jersey 10", cursive',
+        fontSize: '28px',
+        color: exprColor,
+        stroke: '#000000',
+        strokeThickness: 3,
+        align: 'center',
+        wordWrap: { width: panelW - 50 },
+      })
+      .setOrigin(0.5)
 
     this.time.delayedCall(1000, () => {
       this.canRestart = true
 
-      const restartText = this.add.text(centerX, centerY + 32, 'PULSA PARA REINTENTAR', {
-        fontFamily:      '"Jersey 10", cursive',
-        fontSize:        '22px',
-        color:           '#ffffff',
-        stroke:          '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5)
+      const restartText = this.add
+        .text(centerX, centerY + 32, 'PULSA PARA REINTENTAR', {
+          fontFamily: '"Jersey 10", cursive',
+          fontSize: '22px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5)
       this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
 
       const btnW = 220
@@ -498,10 +530,8 @@ export class GameScene extends BaseScene {
       const btnX = centerX - btnW / 2
       const btnY = centerY + 58
 
-      this.collectionBtnBounds = makeNavButton(
-        this, btnX, btnY, btnW, btnH,
-        'VER PREMIOS',
-        () => this.scene.start(SCENES.COLLECTION, { character: this.characterData }),
+      this.collectionBtnBounds = makeNavButton(this, btnX, btnY, btnW, btnH, 'VER PREMIOS', () =>
+        this.scene.start(SCENES.COLLECTION, { character: this.characterData })
       )
     })
   }
@@ -516,22 +546,22 @@ export class GameScene extends BaseScene {
   }
 
   startRewardScreen() {
-    this.phase  = 'done'
+    this.phase = 'done'
     const rewards = this.cache.json.get('rewards') || []
-    const reward  = weightedRandom(rewards, 'probabilidad')
+    const reward = weightedRandom(rewards, 'probabilidad')
 
     gameStatsService.addRecord({
-      timestamp:     new Date().toISOString(),
-      characterId:   this.characterData?.id ?? 'unknown',
-      skinKey:       this.skinKey,
+      timestamp: new Date().toISOString(),
+      characterId: this.characterData?.id ?? 'unknown',
+      skinKey: this.skinKey,
       perspectiveId: this.perspective?.id ?? 'triana',
-      success:       true,
-      rewardId:      reward?.id ?? null,
+      success: true,
+      rewardId: reward?.id ?? null,
       greasePercent: this._capturedGreasePercent ?? 0,
-      polePercent:   Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
-      impulseValue:  this.impulseResult?.impulseValue ?? null,
-      durationSecs:  Math.round(this.runElapsed * 100) / 100,
-      hasJumped:     this.hasJumped,
+      polePercent: Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
+      impulseValue: this.impulseResult?.impulseValue ?? null,
+      durationSecs: Math.round(this.runElapsed * 100) / 100,
+      hasJumped: this.hasJumped,
     })
 
     const newMapPiece = this.hasPerfectImpulse ? mapService.unlockRandom() : null
@@ -545,10 +575,12 @@ export class GameScene extends BaseScene {
 
   setupInput() {
     this.input.on('pointerdown', (pointer) => this.handleTap(pointer))
-    this.input.keyboard.on('keydown-SPACE', (event) => { if (!event.repeat) this.handleTap(null) })
-    this.input.keyboard.on('keydown-ESC',   () => this.scene.start(SCENES.MENU))
+    this.input.keyboard.on('keydown-SPACE', (event) => {
+      if (!event.repeat) this.handleTap(null)
+    })
+    this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
 
-    this.input.keyboard.on('keydown-LEFT',  (e) => {
+    this.input.keyboard.on('keydown-LEFT', (e) => {
       if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
       this.balanceUI.pressLeft()
     })
@@ -556,8 +588,12 @@ export class GameScene extends BaseScene {
       if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
       this.balanceUI.pressRight()
     })
-    this.input.keyboard.on('keyup-LEFT',  () => { this.balanceUI?.releaseLeft() })
-    this.input.keyboard.on('keyup-RIGHT', () => { this.balanceUI?.releaseRight() })
+    this.input.keyboard.on('keyup-LEFT', () => {
+      this.balanceUI?.releaseLeft()
+    })
+    this.input.keyboard.on('keyup-RIGHT', () => {
+      this.balanceUI?.releaseRight()
+    })
   }
 
   handleTap(pointer) {
@@ -567,8 +603,12 @@ export class GameScene extends BaseScene {
       if (pointer && pointer.y >= CONTROL_PANEL.Y) return
       this.startJump()
     } else if (this.phase === 'done' && this.canRestart) {
-      if (pointer && this.collectionBtnBounds &&
-          Phaser.Geom.Rectangle.Contains(this.collectionBtnBounds, pointer.x, pointer.y)) return
+      if (
+        pointer &&
+        this.collectionBtnBounds &&
+        Phaser.Geom.Rectangle.Contains(this.collectionBtnBounds, pointer.x, pointer.y)
+      )
+        return
       this.scene.restart({ character: this.characterData, perspective: this.perspective })
     }
   }
@@ -594,7 +634,8 @@ export class GameScene extends BaseScene {
   }
 
   drawSimpleBackground() {
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, this.perspective.backgroundKey)
+    this.add
+      .image(GAME_WIDTH / 2, GAME_HEIGHT / 2, this.perspective.backgroundKey)
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
   }
 
@@ -623,7 +664,8 @@ export class GameScene extends BaseScene {
 
     const boatCenterX = BOAT.RIGHT_X - BOAT.DISPLAY_WIDTH / 2
     const boatCenterY = this.poleY + BOAT.DISPLAY_HEIGHT * (0.15 - BOAT.DECK_Y_RATIO)
-    const boat = this.add.image(boatCenterX, boatCenterY, 'boat')
+    const boat = this.add
+      .image(boatCenterX, boatCenterY, 'boat')
       .setDisplaySize(BOAT.DISPLAY_WIDTH, BOAT.DISPLAY_HEIGHT)
     this.gameWorld.add(boat)
   }
@@ -642,17 +684,19 @@ export class GameScene extends BaseScene {
     const charName = this.characterData?.name || 'JUGADOR'
     this.add.text(16, 6, charName, {
       fontFamily: '"Jersey 10", cursive',
-      fontSize:   '28px',
-      color:      '#ffd700',
-      stroke:     '#000000',
+      fontSize: '28px',
+      color: '#ffd700',
+      stroke: '#000000',
       strokeThickness: 3,
     })
 
-    this.add.text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', {
-      fontFamily: 'monospace',
-      fontSize:   '10px',
-      color:      '#666666',
-    }).setOrigin(1, 0)
+    this.add
+      .text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#666666',
+      })
+      .setOrigin(1, 0)
 
     this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())
