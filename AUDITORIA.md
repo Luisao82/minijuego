@@ -2,6 +2,7 @@
 
 **Fecha:** 2026-04-16  
 **Versión auditada:** 0.6.0  
+**Última revisión:** 2026-05-31 (v1.1.0)  
 **Tipo:** Seguridad + Producción + Calidad de código
 
 ---
@@ -32,10 +33,13 @@
 - ~~3 archivos `*_old.png` innecesarios (~40MB extra en repo).~~
 - **Implementado:** 30MB → 6.5MB (78% de reducción). Borrados 8 ficheros `_old`/duplicados (~7MB). 23 PNGs convertidos a WebP con `cwebp` (fondos, premios, tutorial, preview social): ahorro medio del 90-95% por imagen. Referencias actualizadas en `PreloadScene.js`, `rewards.json` e `index.html`.
 
-### [ ] 5. Sin cabeceras de seguridad HTTP
-- No hay Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, ni HSTS configurados.
-- Google Fonts cargado sin SRI (Subresource Integrity).
-- **Fix:** Añadir `vercel.json` con headers de seguridad + SRI a Google Fonts.
+### [x] 5. Sin cabeceras de seguridad HTTP ✅ _completado 2026-05-31_
+- ~~No hay Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, ni HSTS configurados.~~
+- ~~Google Fonts cargado sin SRI (Subresource Integrity).~~
+- **Implementado** (branch `audit/http-headers`):
+  - `vercel.json` con CSP estricta (`default-src 'self'`, sin `'unsafe-inline'` en `script-src`, whitelist específico de Sentry en `connect-src`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, HSTS con preload, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denegando cámara/micro/geo/pago/USB/FLoC, y caché específico para `/sw.js` e `/assets/fonts/*`.
+  - **Fuentes self-hosted** en lugar de SRI: Jersey 10 y Press Start 2P descargadas de Google Fonts y servidas localmente desde `public/assets/fonts/` con `@font-face` en `public/style.css`. Evita la fragilidad del SRI sobre el CSS de Google Fonts (que cambia sin aviso) y mejora el funcionamiento offline.
+  - Script inline del service worker extraído a `public/register-sw.js` para que CSP no necesite `'unsafe-inline'` en `script-src`.
 
 ### [ ] 6. Sin CI/CD ni pipeline de despliegue
 - No hay GitHub Actions, ni tests automáticos, ni verificación pre-deploy.
@@ -53,13 +57,18 @@
 
 ## HALLAZGOS MENORES (recomendaciones)
 
-### [ ] 9. Sin analytics ni monitorización
-- No hay tracking de errores, métricas de uso, ni monitorización en producción.
-- Recomendación: Sentry (errores) + analytics básico (uso, abandono).
+### [~] 9. Sin analytics ni monitorización (parcialmente resuelto) ✅ _Sentry: 2026-04-17_
+- ~~No hay tracking de errores, métricas de uso, ni monitorización en producción.~~
+- **Sentry (errores):** Resuelto en #3. `@sentry/browser` activo en producción vía `VITE_SENTRY_DSN`.
+- **Pendiente:** Analytics de uso/abandono. Decisión aplazada — `PRIVACY.md` declara que no se recogen datos, por lo que añadir analytics requeriría revisar la política.
 
-### [ ] 10. Accesibilidad limitada
-- Keyboard parcial (SPACE, flechas, ESC), pero sin ARIA labels, sin `prefers-reduced-motion`, sin soporte screen reader.
-- Recomendación: Añadir ARIA al canvas, respetar `prefers-reduced-motion`.
+### [x] 10. Accesibilidad limitada ✅ _completado 2026-05-31_
+- ~~Keyboard parcial (SPACE, flechas, ESC), pero sin ARIA labels, sin `prefers-reduced-motion`, sin soporte screen reader.~~
+- **Implementado** (branch `audit/finalize-pending`):
+  - `index.html`: `role="application"` y `aria-label` descriptivo en `#game-container`.
+  - Helper `src/game/utils/accessibility.js` con `prefersReducedMotion()`.
+  - `BaseScene.prefersReducedMotion` (getter) disponible para todas las escenas.
+  - Aplicado en `SkinMarquee`: con el flag activo los sprites quedan estáticos (sin desplazamiento lateral ni alternancia STAND/WALK). Resto de tweens del juego son funcionales y se mantienen sin cambios.
 
 ### [x] 11. GameScene es demasiado grande (895 líneas) ✅ _completado 2026-04-18_
 - ~~Actúa como "god object". Lógica de UI, input, salto, caída, todo mezclado.~~
@@ -77,13 +86,13 @@
 - 25+ instancias de `this.add.text()` con estilos repetidos.
 - Recomendación: Crear un `TextFactory` o constantes de estilos compartidas.
 
-### [ ] 14. `.DS_Store` en el repositorio
-- 19 archivos `.DS_Store` trackeados (ya ignorados para futuro).
-- Fix: `git rm --cached **/.DS_Store`.
+### [x] 14. `.DS_Store` en el repositorio ✅ _completado 2026-05-27_
+- ~~19 archivos `.DS_Store` trackeados (ya ignorados para futuro).~~
+- **Implementado:** `.DS_Store` añadido a `.gitignore` y archivos eliminados del índice. `git ls-files | grep ds_store` no devuelve resultados.
 
-### [ ] 15. Licencia incorrecta
-- `LICENSE` dice "Phaser Studio Inc (2025)" — viene del template, no del proyecto.
-- Fix: Actualizar con los datos correctos del proyecto.
+### [x] 15. Licencia incorrecta ✅ _completado 2026-05-28_
+- ~~`LICENSE` dice "Phaser Studio Inc (2025)" — viene del template, no del proyecto.~~
+- **Implementado:** `LICENSE` reescrita como licencia propietaria de Luisao (Copyright 2026). `package.json` apunta a "SEE LICENSE IN LICENSE".
 
 ---
 

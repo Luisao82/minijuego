@@ -1,4 +1,5 @@
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
+import { prefersReducedMotion } from '../utils/accessibility'
 
 // ============================================================
 // SkinMarquee — Fila infinita de skins desplazándose lateralmente
@@ -88,10 +89,18 @@ export function createSkinMarquee(scene, {
 
   // Animación de caminar: cada sprite tiene su propio timer con jitter
   // para que no parezcan robots sincronizados.
+  // Con prefers-reduced-motion: se omite la animación STAND ↔ WALK y los
+  // sprites se quedan en STAND. El desplazamiento lateral también se anula
+  // (ver `update` más abajo).
+  const reduceMotion = prefersReducedMotion()
   const frameTimers = []
   sprites.forEach((s, i) => {
-    let frame = i % 2 === 0 ? SPRITE_FRAMES.STAND : SPRITE_FRAMES.WALK
-    s.setFrame(frame)
+    const startFrame = reduceMotion
+      ? SPRITE_FRAMES.STAND
+      : (i % 2 === 0 ? SPRITE_FRAMES.STAND : SPRITE_FRAMES.WALK)
+    s.setFrame(startFrame)
+    if (reduceMotion) return
+    let frame = startFrame
     const timer = scene.time.addEvent({
       delay:    FRAME_DELAY + Math.floor(Math.random() * FRAME_JITTER),
       loop:     true,
@@ -104,7 +113,9 @@ export function createSkinMarquee(scene, {
   })
 
   // Update: mueve y reposiciona sprites cuando salen por un extremo.
+  // Con prefers-reduced-motion el marquee queda estático (sin desplazamiento).
   const update = (_time, deltaMs) => {
+    if (reduceMotion) return
     const dx = speed * direction * (deltaMs / 1000)
     for (const s of sprites) {
       s.x += dx

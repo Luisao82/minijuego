@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import * as Sentry from '@sentry/browser'
+import { prefersReducedMotion } from '../utils/accessibility'
 
 // Clase base para todas las escenas del juego.
 // Gestiona automáticamente:
@@ -9,6 +10,13 @@ import * as Sentry from '@sentry/browser'
 //   • Hook _onShutdown() para limpieza específica de cada subclase
 
 export class BaseScene extends Scene {
+
+  // Flag de accesibilidad: true si el SO del usuario tiene "Reducir movimiento"
+  // activado. Las escenas con animaciones decorativas (marquees, parpadeos,
+  // partículas) deben comprobarlo y omitir/acortar dichas animaciones.
+  get prefersReducedMotion() {
+    return prefersReducedMotion()
+  }
 
   // Las subclases que sobreescriban init() deben llamar a super.init(data)
   // al principio para garantizar el registro del shutdown y el breadcrumb.
