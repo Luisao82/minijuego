@@ -74,11 +74,38 @@
 
 ## HALLAZGOS MENORES (recomendaciones)
 
-### [~] 9. Sin analytics ni monitorización (parcialmente resuelto) ✅ _Sentry: 2026-04-17_
+### [x] 9. Sin analytics ni monitorización — decisión deliberada ✅ _cerrado 2026-06-11_
 
 - ~~No hay tracking de errores, métricas de uso, ni monitorización en producción.~~
-- **Sentry (errores):** Resuelto en #3. `@sentry/browser` activo en producción vía `VITE_SENTRY_DSN`.
-- **Pendiente:** Analytics de uso/abandono. Decisión aplazada — `PRIVACY.md` declara que no se recogen datos, por lo que añadir analytics requeriría revisar la política.
+- **Monitorización de errores (error tracking) — implementado en #3.** `@sentry/browser` activo en
+  producción vía `VITE_SENTRY_DSN`. `window.onerror` y `window.onunhandledrejection` cubiertos por
+  el handler global de Sentry. Source maps `hidden` activados en `vite/config.prod.mjs` para que los
+  reports de Sentry lleguen con línea/columna del código fuente. Breadcrumb de navegación de escena
+  en `BaseScene` para reconstruir el camino del usuario hasta el crash.
+- **Analytics de uso de producto — descartado para la versión inicial. Aplazado a post-publicación.**
+  - **Por qué no se añade ahora:**
+    1. **Falta la pregunta concreta.** Analytics es una herramienta para responder preguntas
+       específicas ("¿dónde abandonan los jugadores?", "¿qué fase frustra más?"). Esas preguntas
+       todavía no existen en bruto — surgirán al ver comportamiento real tras publicar.
+    2. **Sentry ya cubre el escenario crítico** ("está rota la app en producción y no me entero"),
+       que es lo que de verdad bloquea publicar. La parte "cómo lo usan" no es bloqueante.
+    3. **Coherencia con `PRIVACY.md`.** El documento declara que no se recogen datos. Añadir
+       analytics ahora obligaría a actualizarlo y justificar el cambio. Mejor mantener esa promesa
+       en la versión inicial y revisarla con un caso de uso concreto si surge.
+  - **Opciones consideradas y por qué se descartan en esta versión:**
+    - **Plausible / Umami / Vercel Analytics** (privacy-friendly, sin cookies, no requieren
+      consentimiento RGPD). Excelentes candidatos cuando haya pregunta concreta; no aportan valor
+      sin esa pregunta y añaden complejidad operativa (otra dep, otra cuenta, otro dashboard).
+    - **Google Analytics / Mixpanel / PostHog** (analytics tradicional con identificadores).
+      Descartado: requeriría consentimiento explícito, banner de cookies, actualización profunda de
+      `PRIVACY.md`. Desproporcionado para un juego pequeño hecho con cariño.
+  - **Criterio para retomarlo:** cuando, tras publicar, aparezca una pregunta concreta sobre uso
+    real que solo pueda responder un evento medido (ej. "¿qué porcentaje de jugadores completa la
+    fase 2?"). En ese momento la decisión correcta será **Plausible o Vercel Analytics** (orden de
+    preferencia), con eventos personalizados acotados a la pregunta — no instrumentación generalista.
+  - **Cambios en `PRIVACY.md` que requeriría:** mencionar el proveedor elegido, declarar que no se
+    almacenan IPs ni identificadores persistentes, indicar el dominio del recolector (`plausible.io`
+    o `vercel.com`) en CSP `connect-src`. Migración estimada: ~30 minutos.
 
 ### [x] 10. Accesibilidad limitada ✅ _completado 2026-05-31_
 
