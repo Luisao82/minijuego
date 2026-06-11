@@ -48,27 +48,6 @@ export const SCENES = {
   LICENSES: 'LicensesScene',
 }
 
-// Configuración de texto pixel art (temporal hasta tener bitmap fonts)
-export const PIXEL_FONT = {
-  fontFamily: '"Press Start 2P", monospace',
-  fontSize: '16px',
-  color: '#ffffff',
-  stroke: '#000000',
-  strokeThickness: 4,
-}
-
-export const PIXEL_FONT_TITLE = {
-  ...PIXEL_FONT,
-  fontSize: '32px',
-  strokeThickness: 6,
-}
-
-export const PIXEL_FONT_SMALL = {
-  ...PIXEL_FONT,
-  fontSize: '10px',
-  strokeThickness: 2,
-}
-
 // Panel de control inferior (1/5 de la pantalla)
 export const CONTROL_PANEL = {
   HEIGHT: Math.round(GAME_HEIGHT / 5), // ~154px
