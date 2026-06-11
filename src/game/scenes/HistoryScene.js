@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { headingStyle, mutedStyle } from '../config/textStyles'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
 import { HISTORY_BLOCKS, HISTORY_END_TEXT } from '../config/historyContent'
@@ -169,13 +171,9 @@ export class HistoryScene extends BaseScene {
   createHistImageLayer() {
     this.histImg = null
     this.histImgPlaceholder = this.add.graphics().setDepth(1)
+    // Label de imagen placeholder (sin stroke, color tierra)
     this.histImgLabel = this.add
-      .text(IMG_CX, IMG_CY, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#7a6030',
-        align: 'center',
-      })
+      .text(IMG_CX, IMG_CY, '', { ...headingStyle(22, '#7a6030', 0), align: 'center' })
       .setOrigin(0.5)
       .setDepth(2)
       .setVisible(false)
@@ -217,24 +215,19 @@ export class HistoryScene extends BaseScene {
   // =====================================================
 
   createTextObjects() {
+    // Override de stroke '#000000' por contraste con el panel del diálogo.
     this.blockTitleObj = this.add
       .text(DLG_X + FACE_W + 16, DLG_Y + Math.round(TITLE_H / 2) + 3, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#ffd700',
+        ...headingStyle(22, COLOR_GOLD, 3),
         stroke: '#000000',
-        strokeThickness: 3,
       })
       .setOrigin(0, 0.5)
       .setDepth(4)
 
     this.dialogText = this.add
       .text(TEXT_X, TEXT_Y, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '34px',
-        color: '#f0d99a',
+        ...headingStyle(34, '#f0d99a', 2),
         stroke: '#000000',
-        strokeThickness: 2,
         wordWrap: { width: TEXT_W },
         lineSpacing: 4,
       })
@@ -250,11 +243,7 @@ export class HistoryScene extends BaseScene {
     const y = DLG_Y + DLG_H - 14
 
     this.continueInd = this.add
-      .text(x, y, '▼', {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#ffd700',
-      })
+      .text(x, y, '▼', mutedStyle(16, COLOR_GOLD))
       .setOrigin(0.5)
       .setDepth(5)
       .setVisible(false)
