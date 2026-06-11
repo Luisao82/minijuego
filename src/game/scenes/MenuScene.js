@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_GOLD_LIGHT, COLOR_ORANGE } from '../config/fonts'
+import { headingStyle, titleStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
@@ -81,38 +83,18 @@ export class MenuScene extends BaseScene {
     // "La Cucaña" — empieza fuera de pantalla arriba
     this.titleText = this.add
       .text(CENTER_X, -120, 'La Cucaña', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '110px',
-        color: '#ff6b35',
-        stroke: '#1a0a00',
-        strokeThickness: 10,
+        ...titleStyle(110, COLOR_ORANGE, 10),
         letterSpacing: 4,
-        shadow: {
-          offsetX: 4,
-          offsetY: 4,
-          color: '#000000',
-          blur: 0,
-          fill: true,
-        },
       })
       .setOrigin(0.5)
       .setAlpha(0)
 
     // "de Triana" — empieza muy pequeño (viene desde el fondo)
+    // Override de shadow: offsetX/Y = 3 (más sutil que el patrón base 4)
     this.subText = this.add
       .text(CENTER_X, SUB_Y, 'de Triana', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '58px',
-        color: '#ffd647',
-        stroke: '#1a0a00',
-        strokeThickness: 7,
-        shadow: {
-          offsetX: 3,
-          offsetY: 3,
-          color: '#000000',
-          blur: 0,
-          fill: true,
-        },
+        ...titleStyle(58, COLOR_GOLD_LIGHT, 7),
+        shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true },
       })
       .setOrigin(0.5)
       .setScale(0)
@@ -186,13 +168,12 @@ export class MenuScene extends BaseScene {
   }
 
   drawStartPrompt() {
+    // Override de stroke: '#000000' en lugar de PIXEL_STROKE_DARK
+    // — conservado para no introducir diferencia visual en el piloto.
     this.startText = this.add
       .text(GAME_WIDTH / 2, SUB_Y + 100, 'PULSA PARA EMPEZAR', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#ffffff',
+        ...headingStyle(22, '#ffffff', 4),
         stroke: '#000000',
-        strokeThickness: 4,
       })
       .setOrigin(0.5)
       .setAlpha(0)
@@ -216,14 +197,12 @@ export class MenuScene extends BaseScene {
     // 4 botones inferiores equidistantes: HISTORIA · RÉCORDS · TUTORIAL · INFO
     this.drawBottomButtons()
 
-    // Versión — se actualiza automáticamente desde package.json
+    // Versión — se actualiza automáticamente desde package.json.
+    // Override de stroke: '#000000' en lugar de PIXEL_STROKE_DARK (idem startText).
     this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT - 22, `v${version}`, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '16px',
-        color: '#ffd700',
+        ...uiLabelStyle(16, COLOR_GOLD, 3),
         stroke: '#000000',
-        strokeThickness: 3,
       })
       .setOrigin(0.5)
       .setDepth(2)
