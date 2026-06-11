@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
 
@@ -98,14 +100,12 @@ export class PerspectiveUnlockScene extends BaseScene {
   }
 
   _drawBanner() {
+    // Override de stroke '#000000' por contraste con el panel oscuro.
     this.contentContainer.add(
       this.add
         .text(CENTER_X, PANEL_Y + 30, '¡NUEVA VISTA DESBLOQUEADA!', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '12px',
-          color: '#ffd700',
+          ...uiLabelStyle(12, COLOR_GOLD, 4),
           stroke: '#000000',
-          strokeThickness: 4,
         })
         .setOrigin(0.5)
     )
@@ -153,11 +153,7 @@ export class PerspectiveUnlockScene extends BaseScene {
 
     positions.forEach((pos, i) => {
       const star = this.add
-        .text(pos.x, pos.y, '★', {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#ffd700',
-        })
+        .text(pos.x, pos.y, '★', mutedStyle(18, COLOR_GOLD))
         .setOrigin(0.5)
         .setAlpha(0)
 
@@ -190,24 +186,15 @@ export class PerspectiveUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, labelY, persp.label, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '22px',
-          color: '#ffd700',
+          ...uiLabelStyle(22, COLOR_GOLD, 4),
           stroke: '#000000',
-          strokeThickness: 4,
           letterSpacing: 6,
         })
         .setOrigin(0.5)
     )
 
     this.contentContainer.add(
-      this.add
-        .text(CENTER_X, labelY + 38, 'Vista desbloqueada', {
-          fontFamily: 'monospace',
-          fontSize: '12px',
-          color: '#aaaaaa',
-        })
-        .setOrigin(0.5)
+      this.add.text(CENTER_X, labelY + 38, 'Vista desbloqueada', mutedStyle(12)).setOrigin(0.5)
     )
   }
 

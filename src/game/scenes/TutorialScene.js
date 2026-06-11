@@ -1,5 +1,6 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { headingStyle, mutedStyle } from '../config/textStyles'
 import { Narrator } from '../components/Narrator'
 import { makeNavButton } from '../components/NavButton'
 import { launchEasterEgg } from '../utils/easterEgg'
@@ -205,24 +206,19 @@ export class TutorialScene extends BaseScene {
   // =====================================================
 
   createTextObjects() {
+    // Override de stroke '#000000' (vs PIXEL_STROKE_DARK) sobre el panel cian del diálogo.
     this.blockTitleObj = this.add
       .text(DLG_X + FACE_W + 16, DLG_Y + Math.round(TITLE_H / 2) + 3, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#00ccff',
+        ...headingStyle(22, '#00ccff', 3),
         stroke: '#000000',
-        strokeThickness: 3,
       })
       .setOrigin(0, 0.5)
       .setDepth(4)
 
     this.dialogText = this.add
       .text(TEXT_X, TEXT_Y, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '34px',
-        color: '#e8f4ff',
+        ...headingStyle(34, '#e8f4ff', 2),
         stroke: '#000000',
-        strokeThickness: 2,
         wordWrap: { width: TEXT_W },
         lineSpacing: 4,
       })
@@ -238,11 +234,7 @@ export class TutorialScene extends BaseScene {
     const y = DLG_Y + DLG_H - 14
 
     this.continueInd = this.add
-      .text(x, y, '▼', {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#00ccff',
-      })
+      .text(x, y, '▼', mutedStyle(16, '#00ccff'))
       .setOrigin(0.5)
       .setDepth(5)
       .setVisible(false)

@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
@@ -123,11 +125,8 @@ export class ViewSelectScene extends BaseScene {
       container.add(
         this.add
           .text(CARD_W / 2, IMG_H / 2 + 30, hint, {
-            fontFamily: '"Jersey 10", cursive',
-            fontSize: '22px',
-            color: '#ccccee',
+            ...headingStyle(22, '#ccccee', 3),
             stroke: '#000000',
-            strokeThickness: 3,
             align: 'center',
             wordWrap: { width: CARD_W - 24 },
           })
@@ -152,11 +151,7 @@ export class ViewSelectScene extends BaseScene {
     container.add(
       this.add
         .text(CARD_W / 2, IMG_H + LABEL_H / 2, cfg.label, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '38px',
-          color: labelColor,
-          stroke: '#1a0a00',
-          strokeThickness: 5,
+          ...headingStyle(38, labelColor, 5),
           letterSpacing: 4,
         })
         .setOrigin(0.5)
@@ -254,9 +249,7 @@ export class ViewSelectScene extends BaseScene {
     this.detailContainer.add(
       this.add
         .text(GAME_WIDTH / 2, panelY + panelH / 2, hint, {
-          fontFamily: 'monospace',
-          fontSize: '12px',
-          color: '#888888',
+          ...mutedStyle(12, '#888888'),
           align: 'center',
           lineSpacing: 6,
         })
@@ -308,15 +301,12 @@ export class ViewSelectScene extends BaseScene {
   drawConfirmButton() {
     const btnY = BAND_Y + BAND_H + 40 // Y=600, igual que CharacterSelectScene
 
+    // Override de stroke '#1a0800' (marrón cálido) — idem CharacterSelectScene.
     this.confirmText = this.add
       .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR VISTA', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '52px',
-        color: '#ffd700',
+        ...titleStyle(52, COLOR_GOLD, 8),
         stroke: '#1a0800',
-        strokeThickness: 8,
         letterSpacing: 12,
-        shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })

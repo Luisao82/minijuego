@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { headingStyle } from '../config/textStyles'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { makeNavButton } from '../components/NavButton'
@@ -88,15 +90,12 @@ export class SkinSelectScene extends BaseScene {
   }
 
   _drawUnlockedSkin(skin) {
-    // Nombre del skin
+    // Nombre del skin — override de stroke '#1a0800' (marrón cálido).
     this.skinDisplay.add(
       this.add
         .text(GAME_WIDTH / 2, SKIN_NAME_Y, skin.nombre, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '36px',
-          color: '#ffd700',
+          ...headingStyle(36, COLOR_GOLD, 6),
           stroke: '#1a0800',
-          strokeThickness: 6,
         })
         .setOrigin(0.5)
     )
@@ -122,17 +121,15 @@ export class SkinSelectScene extends BaseScene {
     // Badge ¡NUEVO! si este skin se acaba de desbloquear
     if (this.justUnlocked.includes(skin.spritesheet)) {
       const spriteW = SPRITE_CONFIG.frameWidth * SPRITE_CONFIG.scalePreview
+      // Override de stroke '#003322' (verde oscuro acorde al badge verde).
       const badgeText = this.add
         .text(
           GAME_WIDTH / 2 + spriteW / 2 + 8,
           SPRITE_CENTER_Y - (SPRITE_CONFIG.frameHeight * SPRITE_CONFIG.scalePreview) / 2,
           '¡NUEVO!',
           {
-            fontFamily: '"Jersey 10", cursive',
-            fontSize: '26px',
-            color: '#00ff88',
+            ...headingStyle(26, '#00ff88', 5),
             stroke: '#003322',
-            strokeThickness: 5,
           }
         )
         .setOrigin(0, 0)
@@ -195,15 +192,12 @@ export class SkinSelectScene extends BaseScene {
     bg.strokeRect(GAME_WIDTH / 2 - spriteW / 2, SPRITE_CENTER_Y - spriteH / 2, spriteW, spriteH)
     this.skinDisplay.add(bg)
 
-    // Nombre del skin — oculto hasta que se desbloquee
+    // Nombre del skin — oculto hasta que se desbloquee. Stroke '#1a0800' (cálido).
     this.skinDisplay.add(
       this.add
         .text(GAME_WIDTH / 2, SKIN_NAME_Y, '???', {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '36px',
-          color: '#444466',
+          ...headingStyle(36, '#444466', 6),
           stroke: '#1a0800',
-          strokeThickness: 6,
         })
         .setOrigin(0.5)
     )
@@ -277,16 +271,13 @@ export class SkinSelectScene extends BaseScene {
 
     this.skinDisplay.add(g)
 
-    // Contador "X / Y" debajo
+    // Contador "X / Y" debajo — override de stroke '#000000'.
     const counterColor = currentStep >= stepRequired ? '#ffd700' : '#aaaacc'
     this.skinDisplay.add(
       this.add
         .text(GAME_WIDTH / 2, baseY + POLE_H + 20, `${currentStep} / ${stepRequired} banderas`, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '32px',
-          color: counterColor,
+          ...headingStyle(32, counterColor, 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
     )

@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
@@ -177,14 +179,12 @@ export class CharacterSelectScene extends BaseScene {
     g.strokeRect(panelX, panelY, panelW, panelH)
     this.detailContainer.add(g)
 
+    // Override de stroke '#000000' por contraste con el panel oscuro.
     this.detailContainer.add(
       this.add
         .text(GAME_WIDTH / 2, panelY + panelH / 2, text, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '22px',
-          color,
+          ...headingStyle(22, color, 4),
           stroke: '#000000',
-          strokeThickness: 4,
           align: 'center',
           wordWrap: { width: panelW - 48 },
         })
@@ -213,11 +213,12 @@ export class CharacterSelectScene extends BaseScene {
     this.updateDots()
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT - 15, '◀ ▶  ELEGIR     ESPACIO  SELECCIONAR', {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: '#555577',
-      })
+      .text(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT - 15,
+        '◀ ▶  ELEGIR     ESPACIO  SELECCIONAR',
+        mutedStyle(10, '#555577')
+      )
       .setOrigin(0.5)
   }
 
@@ -261,15 +262,12 @@ export class CharacterSelectScene extends BaseScene {
     flagsG.lineStyle(1, 0xcccccc, 0.8)
     flagsG.strokeRect(rfx - 17, btnY - flagSize + 2, 14, 10)
 
+    // Override de stroke '#1a0800' (marrón ligeramente más cálido que el de marca).
     this.playText = this.add
       .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '52px',
-        color: '#ffd700',
+        ...titleStyle(52, COLOR_GOLD, 8),
         stroke: '#1a0800',
-        strokeThickness: 8,
         letterSpacing: 12,
-        shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
