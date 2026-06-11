@@ -1,5 +1,6 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, PIXEL_FONT } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { uiLabelStyle } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
@@ -107,12 +108,11 @@ export class PreloadScene extends BaseScene {
       .setCrop(0, 0, 1025, 0) // empieza completamente oculta
 
     // 3 — Indicador de carga pequeño en la parte inferior
+    // Override de stroke '#000000' (vs PIXEL_STROKE_DARK).
     this._loadingText = this.add
       .text(cx, GAME_HEIGHT - 18, 'CARGANDO...', {
-        ...PIXEL_FONT,
-        fontSize: '10px',
-        color: '#aaaaaa',
-        strokeThickness: 2,
+        ...uiLabelStyle(10, '#aaaaaa', 2),
+        stroke: '#000000',
       })
       .setOrigin(0.5)
   }

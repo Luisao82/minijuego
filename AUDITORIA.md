@@ -130,12 +130,12 @@
 - ~~Errores en producción serán imposibles de depurar sin source maps.~~
 - **Implementado:** `sourcemap: 'hidden'` activado en `vite/config.prod.mjs`. Los `.map` se generan pero no se enlazan públicamente en el bundle.
 
-### [~] 13. Duplicación de estilos de texto — fase 1 ✅ _piloto: 2026-06-11_
+### [x] 13. Duplicación de estilos de texto ✅ _completado 2026-06-11_
 
 - ~~25+ instancias de `this.add.text()` con estilos repetidos.~~ (Auditoría original
   subestimó el problema: el escaneo real encontró **102** declaraciones de
   `fontFamily` repartidas en 20+ archivos.)
-- **Fase 1 implementada** (rama `feat/text-factory`):
+- **Fase 1 — piloto** (rama `feat/text-factory`):
   - **Layer 1 — `src/game/config/fonts.js`** (foundations): decisiones de marca
     centralizadas (`FONT_BRAND`, `FONT_UI`, `FONT_SYS`), receta `PIXEL_SHADOW`
     congelada, `PIXEL_STROKE_DARK` y paleta semántica (`COLOR_GOLD`,
@@ -143,28 +143,32 @@
   - **Layer 2 — `src/game/config/textStyles.js`** (helpers de uso): seis funciones
     role-based — `titleStyle`, `headingStyle`, `uiLabelStyle`, `uiLabelLight`,
     `mutedStyle`, `warningStyle`. Devuelven el blob `style` para
-    `scene.add.text()` y soportan spread+override para matices puntuales.
-  - **Piloto `MenuScene`** migrado a los helpers: 4 textos refactorizados,
-    `-33 / +12 = -21 líneas netas`. Comportamiento visual idéntico verificado en
-    preview deploy de Vercel antes del merge a `main`. Desviaciones legítimas
-    respecto a la marca (`stroke: '#000000'` en lugar de `PIXEL_STROKE_DARK` en
-    el prompt y la versión; `shadow` con `offsetX/Y: 3` en el subtítulo) ahora
-    están **explícitas como overrides** — antes eran ruido silencioso.
-- **Fase 2 pendiente** (no bloqueante para publicación):
-  - Migrar las ~98 declaraciones restantes en 15 escenas / componentes
-    (`RewardScene`, `CollectionScene`, `StatsScene`, `LicensesScene`,
-    `GameScene`, `*UnlockScene`, `*SelectScene`, `MapScene`, `TutorialScene`,
-    `HistoryScene`, `CreditsScene`, `CharacterCard`, `RewardCard`,
-    `OilIndicator`, `PowerBarUI`).
-  - Patrón a aplicar: por cada `this.add.text(...)` con `fontFamily` literal,
-    importar el helper correspondiente y usar `spread + override` para
-    matices específicos (el piloto deja la pauta).
-  - Tras la migración completa: ejecutar un grep `fontFamily:` por `src/` y
-    confirmar que el único hit legítimo es `BaseScene._label()` (que usa
-    `monospace` por defecto para el helper de debug y queda fuera de marca).
-  - Decisión diferida para una pasada de **normalización de marca** posterior:
-    ¿unificamos los strokes `#000000` a `PIXEL_STROKE_DARK`? ¿uniformizamos la
-    sombra a `4,4`? Esos cambios sí alteran píxeles — requieren revisión visual.
+    `scene.add.text()`, aceptan `fontSize` como número o string (`'26px'`) y
+    soportan spread+override para matices puntuales.
+  - **`MenuScene`** migrado como piloto: 4 textos refactorizados, `-21 líneas`.
+- **Fase 2 — migración completa** (rama `feat/text-factory-phase2`):
+  - Migradas **15 escenas + 6 componentes + 1 util**: `MenuScene` (piloto previo),
+    `RewardScene`, `CollectionScene`, `StatsScene`, `LicensesScene`,
+    `GameScene`, `CreditsScene`, `MapScene`, `TutorialScene`, `HistoryScene`,
+    `CharacterSelectScene`, `SkinSelectScene`, `ViewSelectScene`,
+    `PerspectiveUnlockScene`, `SkinUnlockScene`, `CharacterUnlockScene`,
+    `PreloadScene`, `BalanceDebugPanel`, `CharacterCard`, `NavButton`,
+    `OilIndicator`, `PowerBarUI`, `RewardCard`, `backgroundUtils`.
+  - **Limpieza de gameConfig**: eliminado el sistema previo `PIXEL_FONT`,
+    `PIXEL_FONT_TITLE`, `PIXEL_FONT_SMALL` (solo `PreloadScene` lo usaba).
+  - **Verificación final**: grep `fontFamily:` por `src/` solo devuelve hits en
+    `textStyles.js` (los propios helpers) y `BaseScene._label()` (helper genérico
+    documentado con `monospace`). Ningún literal de marca fuera del config.
+  - **Volumen total fase 2**: 25 archivos modificados, **+202 / −510 = 308 líneas
+    netas eliminadas**. Comportamiento visual preservado: desviaciones del
+    estándar de marca (`stroke '#000000'` en lugar de `PIXEL_STROKE_DARK`,
+    sombras `3,3` puntuales) ahora son **overrides explícitos**, no ruido
+    silencioso.
+- **Decisión diferida para una pasada futura de normalización de marca**:
+  ¿unificamos los strokes `#000000` a `PIXEL_STROKE_DARK`? ¿uniformizamos la
+  sombra a `4,4`? Esos cambios sí alteran píxeles — requieren revisión visual.
+  Con el sistema actual la decisión es **una sola edición en `fonts.js`** que
+  se propaga; antes era inviable.
 
 ### [x] 14. `.DS_Store` en el repositorio ✅ _completado 2026-05-27_
 
