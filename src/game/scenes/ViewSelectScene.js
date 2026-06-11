@@ -31,6 +31,11 @@ export class ViewSelectScene extends BaseScene {
     this.perspectives = perspectiveUnlockService.getAll()
     this.selectedIndex = this._storedIndex()
     this.isScrolling = false
+    // Reset del estado del swipe: Phaser reusa la instancia de la escena entre
+    // navegaciones; sin esto, un `swipeStartX` antiguo podía colarse desde la
+    // sesión anterior y disparar una navegación fantasma del carrusel al
+    // volver a esta escena. Mismo bug que en CharacterSelectScene.
+    this.swipeStartX = undefined
 
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
     drawSceneHeader(this, GAME_WIDTH / 2, 55, 'ELIGE TU VISTA', 280)
@@ -345,7 +350,16 @@ export class ViewSelectScene extends BaseScene {
     this.input.keyboard.on('keydown-SPACE', () => this._goToCharacterSelect())
     this.input.keyboard.on('keydown-ENTER', () => this._goToCharacterSelect())
 
+    // Swipe horizontal — acotado a la banda vertical del carrusel.
+    // Sin la cota Y, el pointerdown del botón 'SELECCIONAR VISTA' (debajo del
+    // carrusel) se cuela como inicio de swipe y, combinado con la transición
+    // de escena, puede provocar una navegación fantasma al volver a esta escena.
+    const swipeYMin = CARDS_Y
+    const swipeYMax = CARDS_Y + CARD_H
+    const isInSwipeBand = (pointer) => pointer.y >= swipeYMin && pointer.y <= swipeYMax
+
     this.input.on('pointerdown', (pointer) => {
+      if (!isInSwipeBand(pointer)) return
       this.swipeStartX = pointer.x
     })
     this.input.on('pointerup', (pointer) => {
