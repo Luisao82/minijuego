@@ -3,6 +3,7 @@
 // Toda la lógica visual de la ficha (imagen, nombre, stats, estado seleccionado) está aquí.
 
 import { COLORS } from '../config/gameConfig'
+import { headingStyle, mutedStyle } from '../config/textStyles'
 
 const STAT_COLORS = {
   peso: 0xe74c3c,
@@ -140,14 +141,13 @@ export function createCharacterCard(
   }
 
   // ── Nombre (superpuesto sobre la imagen) ──────────────────────
+  // Override: stroke '#000000' grueso para legibilidad sobre la imagen.
   const nameColor = isPlayable ? '#ffd700' : '#555555'
   const nameLabel = isLocked ? '???' : char.name
   container.add(
     scene.add
       .text(CARD_WIDTH / 2, IMG_Y + IMG_H - 10, nameLabel, {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: nameColor,
+        ...mutedStyle(16, nameColor),
         stroke: '#000000',
         strokeThickness: 5,
         align: 'center',
@@ -165,15 +165,13 @@ export function createCharacterCard(
       statRowH: STAT_ROW_H,
     })
   } else {
-    // Personaje bloqueado: hint de desbloqueo
+    // Personaje bloqueado: hint de desbloqueo.
+    // Override de stroke '#000000' por contraste con el card oscuro.
     container.add(
       scene.add
         .text(CARD_WIDTH / 2, STATS_Y + 14, 'BLOQUEADO', {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '22px',
-          color: '#555577',
+          ...headingStyle(22, '#555577', 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
     )
@@ -181,11 +179,8 @@ export function createCharacterCard(
       container.add(
         scene.add
           .text(CARD_WIDTH / 2, STATS_Y + 48, hint, {
-            fontFamily: '"Jersey 10", cursive',
-            fontSize: '20px',
-            color: '#aaaacc',
+            ...headingStyle(20, '#aaaacc', 2),
             stroke: '#000000',
-            strokeThickness: 2,
             align: 'center',
             wordWrap: { width: CARD_WIDTH - 20 },
           })
@@ -209,13 +204,11 @@ function _drawStats(scene, container, stats, { statsY, statsX, barWidth, barHeig
     const rowY = statsY + i * statRowH
     const segY = rowY + Math.round((statRowH - barHeight) / 2)
 
-    // Etiqueta de la estadística
+    // Etiqueta de la estadística (Jersey 10 plano, sin stroke)
     container.add(
       scene.add
         .text(statsX, rowY + statRowH / 2, STAT_NAMES[key] ?? key, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '20px',
-          color: '#dddddd',
+          ...headingStyle(20, '#dddddd', 0),
         })
         .setOrigin(0, 0.5)
     )

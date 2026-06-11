@@ -3,6 +3,8 @@
 // Fondo dorado sólido + texto oscuro = máximo contraste en móvil
 // ============================================================
 
+import { headingStyle } from '../config/textStyles'
+
 const FILL_NORMAL = 0xd4a520 // dorado ámbar sólido
 const FILL_HOVER = 0xffcc00 // dorado más vivo al hover/tap
 const BORDER_DARK = 0x5c2d00 // borde marrón oscuro para definición
@@ -69,14 +71,13 @@ export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
 
   drawNormal()
 
-  // Texto negro sobre dorado: contraste WCAG AAA (ratio ~7:1)
+  // Texto negro sobre dorado: contraste WCAG AAA (ratio ~7:1).
+  // Override de stroke '#000000' en lugar de PIXEL_STROKE_DARK
+  // — efecto deliberadamente más nítido sobre el fondo dorado vivo.
   scene.add
     .text(x + w / 2, y + h / 2, label, {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize,
-      color: '#1a0800',
+      ...headingStyle(fontSize, '#1a0800', 1),
       stroke: '#000000',
-      strokeThickness: 1,
     })
     .setOrigin(0.5)
     .setDepth(depth + 1)

@@ -40,7 +40,8 @@ const SHAPE_H = SHAPE.length * PIXEL // 52 px
 const BOX = 135
 const PAD = 6
 
-const FONT_PX = '"Jersey 10", cursive'
+import { COLOR_GOLD } from '../config/fonts'
+import { headingStyle } from '../config/textStyles'
 
 // ─── Factory ─────────────────────────────────────────────────────────────────
 
@@ -57,25 +58,13 @@ export function createOilIndicator(scene, x, y) {
   _drawBox(gBox)
   _drawShape(gShape, iconX, iconY)
 
-  const labelTitle = scene.add
-    .text(BOX / 2, PAD, 'GRASA', {
-      fontFamily: FONT_PX,
-      fontSize: '25px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 3,
-    })
-    .setOrigin(0.5, 0)
+  // Override de stroke '#000000' en lugar de PIXEL_STROKE_DARK
+  // — más contraste sobre el panel del HUD.
+  const hudGold = { ...headingStyle(25, COLOR_GOLD, 3), stroke: '#000000' }
 
-  const labelPct = scene.add
-    .text(BOX / 2, iconY + SHAPE_H + 2, '100%', {
-      fontFamily: FONT_PX,
-      fontSize: '25px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 3,
-    })
-    .setOrigin(0.5, 0)
+  const labelTitle = scene.add.text(BOX / 2, PAD, 'GRASA', hudGold).setOrigin(0.5, 0)
+
+  const labelPct = scene.add.text(BOX / 2, iconY + SHAPE_H + 2, '100%', hudGold).setOrigin(0.5, 0)
 
   container.add([gBox, gShape, gFill, labelTitle, labelPct])
 

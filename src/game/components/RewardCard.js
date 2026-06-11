@@ -3,6 +3,7 @@
 // Toda la lógica visual (imagen, nombre, contador, hover, interacción) está aquí.
 
 import { COLORS } from '../config/gameConfig'
+import { mutedStyle, uiLabelStyle } from '../config/textStyles'
 
 /**
  * Crea una ficha de premio y la devuelve como Container.
@@ -52,13 +53,12 @@ export function createRewardCard(scene, reward, count, layout) {
   container.add(g)
 
   // ── Nombre (oculto con ??? si no se ha ganado) ────────────────
+  // Override de stroke '#000000' por nitidez del label sobre la card.
   const displayName = earned ? reward.nombre : '???'
   container.add(
     scene.add
       .text(CARD_W / 2, 14, displayName, {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: earned ? '#ffd700' : '#444455',
+        ...mutedStyle(10, earned ? '#ffd700' : '#444455'),
         stroke: '#000000',
         strokeThickness: earned ? 2 : 1,
         align: 'center',
@@ -89,11 +89,7 @@ export function createRewardCard(scene, reward, count, layout) {
 
     container.add(
       scene.add
-        .text(imgCX, imgCY, '?', {
-          fontFamily: 'monospace',
-          fontSize: '36px',
-          color: earned ? '#ffd700' : '#2a2a3a',
-        })
+        .text(imgCX, imgCY, '?', mutedStyle(36, earned ? '#ffd700' : '#2a2a3a'))
         .setOrigin(0.5)
     )
   }
@@ -105,14 +101,13 @@ export function createRewardCard(scene, reward, count, layout) {
   container.add(sep)
 
   // ── Contador (parte inferior) ─────────────────────────────────
+  // Override de stroke '#000000' (vs PIXEL_STROKE_DARK) para mantener el
+  // mismo aspecto visual que antes del refactor.
   container.add(
     scene.add
       .text(CARD_W / 2, CARD_H - 22, `x${count}`, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '13px',
-        color: earned ? '#ffd700' : '#2a2a3a',
+        ...uiLabelStyle(13, earned ? '#ffd700' : '#2a2a3a', earned ? 3 : 1),
         stroke: '#000000',
-        strokeThickness: earned ? 3 : 1,
       })
       .setOrigin(0.5)
   )
