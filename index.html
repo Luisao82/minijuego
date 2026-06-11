@@ -10,6 +10,26 @@
       href="/assets/store/icons/favicon/favicon-16.png"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <!-- Precarga de fuentes pixel art: las pide el navegador en paralelo a `index.html`
+         para que estén disponibles antes de que Phaser pinte la primera escena.
+         Sin esto, la primera carga del juego rasteriza los textos con la fuente
+         fallback (`cursive` / `monospace` del sistema) y se queda así hasta navegar
+         a otra escena. Phaser/canvas no redibuja al llegar la fuente — al contrario
+         que el HTML normal. Combinado con `await document.fonts.ready` en main.js. -->
+    <link
+      rel="preload"
+      href="/assets/fonts/jersey10.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/fonts/press-start-2p.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
     <link rel="stylesheet" href="/style.css" />
     <title>La Cucaña Trianera</title>
 
