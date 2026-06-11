@@ -12,6 +12,8 @@ import {
   OIL,
   PHASE1,
 } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_REWARD } from '../config/fonts'
+import { headingStyle, mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { mapService } from '../services/MapService'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -177,13 +179,11 @@ export class GameScene extends BaseScene {
     const targetY = 390
     const cx = GAME_WIDTH / 2
 
+    // Override de stroke '#000000' y shadow verde de glow (no es el patrón base).
     const txt = this.add
       .text(cx, startY, '¡MAX POWER!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '28px',
-        color: '#aaff00',
+        ...uiLabelStyle(28, COLOR_REWARD, 4),
         stroke: '#000000',
-        strokeThickness: 4,
         shadow: { offsetX: 2, offsetY: 2, color: '#006600', blur: 0, fill: true },
       })
       .setOrigin(0.5)
@@ -486,14 +486,11 @@ export class GameScene extends BaseScene {
     g.lineStyle(1, COLORS.GOLD, 0.2)
     g.strokeRect(centerX - panelW / 2 + 3, centerY - panelH / 2 + 3, panelW - 6, panelH - 6)
 
-    // Expresión grande (tipografía redonda Jersey 10)
+    // Expresión grande (tipografía redonda Jersey 10) — override de stroke '#000000'.
     this.add
       .text(centerX, centerY - 85, expression, {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '44px',
-        color: exprColor,
+        ...headingStyle(44, exprColor, 5),
         stroke: '#000000',
-        strokeThickness: 5,
         align: 'center',
       })
       .setOrigin(0.5)
@@ -501,11 +498,8 @@ export class GameScene extends BaseScene {
     // Frase complementaria
     this.add
       .text(centerX, centerY - 22, phrase, {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '28px',
-        color: exprColor,
+        ...headingStyle(28, exprColor, 3),
         stroke: '#000000',
-        strokeThickness: 3,
         align: 'center',
         wordWrap: { width: panelW - 50 },
       })
@@ -516,11 +510,8 @@ export class GameScene extends BaseScene {
 
       const restartText = this.add
         .text(centerX, centerY + 32, 'PULSA PARA REINTENTAR', {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '22px',
-          color: '#ffffff',
+          ...headingStyle(22, '#ffffff', 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
       this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
@@ -682,21 +673,9 @@ export class GameScene extends BaseScene {
     g.fillRect(0, 40, GAME_WIDTH, 2)
 
     const charName = this.characterData?.name || 'JUGADOR'
-    this.add.text(16, 6, charName, {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '28px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 3,
-    })
+    this.add.text(16, 6, charName, { ...headingStyle(28, COLOR_GOLD, 3), stroke: '#000000' })
 
-    this.add
-      .text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: '#666666',
-      })
-      .setOrigin(1, 0)
+    this.add.text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', mutedStyle(10, '#666666')).setOrigin(1, 0)
 
     this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())

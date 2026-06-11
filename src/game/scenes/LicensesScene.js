@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_GOLD_LIGHT, COLOR_ORANGE } from '../config/fonts'
+import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { version } from '../../../package.json'
 
@@ -16,32 +18,17 @@ const PANEL_H = GAME_HEIGHT - PANEL_Y - M
 const COL_LEFT_X = PANEL_X + 36
 const COL_RIGHT_X = PANEL_X + Math.round(PANEL_W / 2) + 18
 
-const SECTION_HEADER = {
-  fontFamily: '"Press Start 2P", monospace',
-  fontSize: '14px',
-  color: '#ffd700',
-  stroke: '#000000',
-  strokeThickness: 3,
-}
+// Override de stroke '#000000' (vs PIXEL_STROKE_DARK) en todos estos estilos.
+const SECTION_HEADER = { ...uiLabelStyle(14, COLOR_GOLD, 3), stroke: '#000000' }
 
 const ENTRY_LINE = {
-  fontFamily: '"Jersey 10", cursive',
-  fontSize: '24px',
-  color: '#f0d99a',
+  ...headingStyle(24, '#f0d99a', 2),
   stroke: '#000000',
-  strokeThickness: 2,
   lineSpacing: 2,
 }
 
-const ENTRY_MUTED = {
-  ...ENTRY_LINE,
-  color: '#c0b89a',
-}
-
-const ENTRY_WARNING = {
-  ...ENTRY_LINE,
-  color: '#ff9b6b',
-}
+const ENTRY_MUTED = { ...ENTRY_LINE, color: '#c0b89a' }
+const ENTRY_WARNING = { ...ENTRY_LINE, color: '#ff9b6b' }
 
 export class LicensesScene extends BaseScene {
   constructor() {
@@ -70,23 +57,15 @@ export class LicensesScene extends BaseScene {
 
   drawHeader() {
     this.add
-      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '40px',
-        color: '#ff6b35',
-        stroke: '#1a0a00',
-        strokeThickness: 5,
-      })
+      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', headingStyle(40, COLOR_ORANGE, 5))
       .setOrigin(0.5, 0)
       .setDepth(3)
 
+    // Override de stroke '#000000'.
     this.add
       .text(GAME_WIDTH / 2, 72, 'FICHA TÉCNICA', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '18px',
-        color: '#ffd700',
+        ...uiLabelStyle(18, COLOR_GOLD, 4),
         stroke: '#000000',
-        strokeThickness: 4,
         letterSpacing: 4,
       })
       .setOrigin(0.5, 0)
@@ -202,24 +181,15 @@ export class LicensesScene extends BaseScene {
         GAME_WIDTH / 2,
         footerY,
         `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
-        {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '10px',
-          color: '#ffd700',
-          stroke: '#000000',
-          strokeThickness: 3,
-        }
+        { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
       )
       .setOrigin(0.5, 0)
       .setDepth(3)
 
     this.add
       .text(GAME_WIDTH / 2, footerY + 26, 'https://luisao82.vercel.app', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#ffd647',
+        ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
         stroke: '#000000',
-        strokeThickness: 2,
       })
       .setOrigin(0.5, 0)
       .setDepth(3)

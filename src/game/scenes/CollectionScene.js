@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { rewardStorage } from '../services/RewardStorageService'
 import { makeNavButton } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
@@ -71,11 +73,7 @@ export class CollectionScene extends BaseScene {
 
     if (this.rewards.length === 0) {
       this.add
-        .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Sin premios disponibles', {
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          color: '#888888',
-        })
+        .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Sin premios disponibles', mutedStyle(14, '#888888'))
         .setOrigin(0.5)
       return
     }
@@ -291,11 +289,8 @@ export class CollectionScene extends BaseScene {
     toDestroy.push(
       this.add
         .text(CX, PY + 27, reward.nombre, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '16px',
-          color: '#ffd700',
+          ...uiLabelStyle(16, COLOR_GOLD, 4),
           stroke: '#000000',
-          strokeThickness: 4,
           align: 'center',
           wordWrap: { width: PW - 40 },
         })
@@ -326,13 +321,7 @@ export class CollectionScene extends BaseScene {
       toDestroy.push(imgG)
       toDestroy.push(
         this.add
-          .text(CX, imgCY, '?', {
-            fontFamily: '"Press Start 2P", monospace',
-            fontSize: '64px',
-            color: '#ffd700',
-            stroke: '#000000',
-            strokeThickness: 3,
-          })
+          .text(CX, imgCY, '?', { ...uiLabelStyle(64, COLOR_GOLD, 3), stroke: '#000000' })
           .setOrigin(0.5)
           .setDepth(12)
       )
@@ -341,11 +330,8 @@ export class CollectionScene extends BaseScene {
     toDestroy.push(
       this.add
         .text(CX, imgCY + IMG_BIG / 2 + 30, `x${count} conseguido${count !== 1 ? 's' : ''}`, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '16px',
-          color: '#ffd700',
+          ...uiLabelStyle(16, COLOR_GOLD, 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
         .setDepth(12)
@@ -356,9 +342,7 @@ export class CollectionScene extends BaseScene {
       toDestroy.push(
         this.add
           .text(CX, imgCY + IMG_BIG / 2 + 56, reward.descripcion, {
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            color: '#cccccc',
+            ...mutedStyle(10, '#cccccc'),
             align: 'center',
             wordWrap: { width: PW - 80 },
           })
@@ -375,11 +359,7 @@ export class CollectionScene extends BaseScene {
     ]
     starPositions.forEach((pos, i) => {
       const star = this.add
-        .text(pos.x, pos.y, '★', {
-          fontFamily: 'monospace',
-          fontSize: '16px',
-          color: '#ffd700',
-        })
+        .text(pos.x, pos.y, '★', mutedStyle(16, COLOR_GOLD))
         .setOrigin(0.5)
         .setAlpha(0)
         .setDepth(12)
@@ -406,11 +386,7 @@ export class CollectionScene extends BaseScene {
 
     toDestroy.push(
       this.add
-        .text(CX, PY + PH - 22, 'Toca para cerrar', {
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          color: '#888899',
-        })
+        .text(CX, PY + PH - 22, 'Toca para cerrar', mutedStyle(10, '#888899'))
         .setOrigin(0.5)
         .setDepth(12)
     )

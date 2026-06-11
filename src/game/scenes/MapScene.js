@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { mutedStyle, uiLabelLight, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { mapService } from '../services/MapService'
@@ -99,13 +101,7 @@ export class MapScene extends BaseScene {
       g.fillRect(x, y, TILE, TILE)
       g.lineStyle(2, COLORS.GOLD, 0.5)
       g.strokeRect(x, y, TILE, TILE)
-      this.add
-        .text(x + TILE / 2, y + TILE / 2, '?', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '24px',
-          color: '#ffd700',
-        })
-        .setOrigin(0.5)
+      this.add.text(x + TILE / 2, y + TILE / 2, '?', uiLabelLight(24, COLOR_GOLD)).setOrigin(0.5)
     }
   }
 
@@ -382,15 +378,12 @@ export class MapScene extends BaseScene {
     // Intercepta clicks dentro del panel para no cerrarlo
     panel.setInteractive(new Phaser.Geom.Rectangle(PX, PY, PW, PH), Phaser.Geom.Rectangle.Contains)
 
-    // Título
+    // Título — override de stroke '#000000'.
     m(
       this.add
         .text(CX, PY + 26, point.title || '', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '20px',
-          color: '#ffd700',
+          ...uiLabelStyle(20, COLOR_GOLD, 3),
           stroke: '#000000',
-          strokeThickness: 3,
           align: 'center',
           wordWrap: { width: PW - 40 },
         })
@@ -427,23 +420,17 @@ export class MapScene extends BaseScene {
       ig.strokeRect(PX + Math.round(PW * 0.01), imgY, imgMaxW, imgH)
       m(
         this.add
-          .text(CX, imgY + imgH / 2, '?', {
-            fontFamily: '"Press Start 2P", monospace',
-            fontSize: '48px',
-            color: '#444466',
-          })
+          .text(CX, imgY + imgH / 2, '?', uiLabelLight(48, '#444466'))
           .setOrigin(0.5)
           .setDepth(D + 2)
       )
     }
 
-    // Texto descriptivo
+    // Texto descriptivo — override: monospace con stroke (no es el patrón habitual).
     m(
       this.add
         .text(CX, imgY + imgH + 12, point.text || '', {
-          fontFamily: 'monospace',
-          fontSize: '20px',
-          color: '#ffd700',
+          ...mutedStyle(20, COLOR_GOLD),
           stroke: '#000000',
           strokeThickness: 3,
           align: 'center',
@@ -456,11 +443,7 @@ export class MapScene extends BaseScene {
     // Hint cierre
     m(
       this.add
-        .text(CX, PY + PH - 18, 'Toca fuera para cerrar', {
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          color: '#555566',
-        })
+        .text(CX, PY + PH - 18, 'Toca fuera para cerrar', mutedStyle(10, '#555566'))
         .setOrigin(0.5)
         .setDepth(D + 2)
     )

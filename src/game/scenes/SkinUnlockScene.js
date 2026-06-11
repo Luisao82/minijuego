@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { mutedStyle, uiLabelLight, uiLabelStyle } from '../config/textStyles'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { makeNavButton } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
@@ -120,11 +122,8 @@ export class SkinUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, PANEL_Y + 30, '¡NUEVO SKIN!', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '16px',
-          color: '#ffd700',
+          ...uiLabelStyle(16, COLOR_GOLD, 4),
           stroke: '#000000',
-          strokeThickness: 4,
         })
         .setOrigin(0.5)
     )
@@ -165,11 +164,7 @@ export class SkinUnlockScene extends BaseScene {
       this.skinSprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
     } else {
       this.skinSprite = this.add
-        .text(CENTER_X, spriteCY, '?', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '60px',
-          color: '#ffd700',
-        })
+        .text(CENTER_X, spriteCY, '?', uiLabelLight(60, COLOR_GOLD))
         .setOrigin(0.5)
         .setScale(0)
     }
@@ -192,11 +187,7 @@ export class SkinUnlockScene extends BaseScene {
 
     positions.forEach((pos, i) => {
       const star = this.add
-        .text(pos.x, pos.y, '★', {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#ffd700',
-        })
+        .text(pos.x, pos.y, '★', mutedStyle(18, COLOR_GOLD))
         .setOrigin(0.5)
         .setAlpha(0)
 
@@ -231,11 +222,7 @@ export class SkinUnlockScene extends BaseScene {
     if (this.character) {
       this.contentContainer.add(
         this.add
-          .text(CENTER_X, nameY, this.character.name, {
-            fontFamily: 'monospace',
-            fontSize: '11px',
-            color: '#888888',
-          })
+          .text(CENTER_X, nameY, this.character.name, mutedStyle(11, '#888888'))
           .setOrigin(0.5)
       )
     }
@@ -244,11 +231,8 @@ export class SkinUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, nameY + 20, skin.nombre, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '14px',
-          color: '#ffd700',
+          ...uiLabelStyle(14, COLOR_GOLD, 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
     )

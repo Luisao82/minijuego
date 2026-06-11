@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_REWARD } from '../config/fonts'
+import { headingStyle, mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -161,25 +163,19 @@ export class RewardScene extends BaseScene {
     bg.fillStyle(0x88ff00, 0.12)
     bg.fillRect(PANEL_X, PANEL_Y, PANEL_W, 56)
 
-    // Título
+    // Título — override de stroke '#000000'.
     this.add
       .text(CENTER_X, PANEL_Y + 30, '¡TROZO DEL MAPA!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '18px',
-        color: '#aaff00',
+        ...uiLabelStyle(18, COLOR_REWARD, 4),
         stroke: '#000000',
-        strokeThickness: 4,
       })
       .setOrigin(0.5)
 
     // Subtítulo
     this.add
       .text(CENTER_X, PANEL_Y + 78, '¡Has desbloqueado una pieza\ndel mapa de Sevilla!', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '28px',
-        color: '#ffffff',
+        ...headingStyle(28, '#ffffff', 2),
         stroke: '#000000',
-        strokeThickness: 2,
         align: 'center',
       })
       .setOrigin(0.5)
@@ -198,20 +194,15 @@ export class RewardScene extends BaseScene {
     const unlocked = this._getMapUnlockedCount()
     this.add
       .text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 26, `Piezas conseguidas: ${unlocked} / 15`, {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '28px',
-        color: '#aaff00',
+        ...headingStyle(28, COLOR_REWARD, 2),
         stroke: '#000000',
-        strokeThickness: 2,
         align: 'center',
       })
       .setOrigin(0.5)
 
     this.add
       .text(CENTER_X, imgCY + MAP_IMG_SIZE / 2 + 58, '¡Descúbrela en el mapa de Sevilla!', {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: '#88cc00',
+        ...mutedStyle(12, '#88cc00'),
         align: 'center',
       })
       .setOrigin(0.5)
@@ -249,13 +240,7 @@ export class RewardScene extends BaseScene {
       g.lineStyle(3, 0x88ff00, 1)
       g.strokeRect(cx - half, cy - half, size, size)
       this.add
-        .text(cx, cy, '?', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '60px',
-          color: '#aaff00',
-          stroke: '#000000',
-          strokeThickness: 3,
-        })
+        .text(cx, cy, '?', { ...uiLabelStyle(60, COLOR_REWARD, 3), stroke: '#000000' })
         .setOrigin(0.5)
     }
 
@@ -296,22 +281,16 @@ export class RewardScene extends BaseScene {
     // Título principal
     this.add
       .text(CENTER_X, PANEL_Y + 30, '¡ENHORABUENA!', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '22px',
-        color: '#ffd700',
+        ...uiLabelStyle(22, COLOR_GOLD, 4),
         stroke: '#000000',
-        strokeThickness: 4,
       })
       .setOrigin(0.5)
 
     // Subtítulo
     this.add
       .text(CENTER_X, PANEL_Y + 88, 'has conseguido...', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '28px',
-        color: '#ffffff',
+        ...headingStyle(28, '#ffffff', 2),
         stroke: '#000000',
-        strokeThickness: 2,
       })
       .setOrigin(0.5)
 
@@ -328,11 +307,8 @@ export class RewardScene extends BaseScene {
     const nombre = this.reward?.nombre || '¡Premio misterioso!'
     this.add
       .text(CENTER_X, imgCY + IMG_SIZE / 2 + 22, nombre, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '16px',
-        color: '#ffd700',
+        ...uiLabelStyle(16, COLOR_GOLD, 3),
         stroke: '#000000',
-        strokeThickness: 3,
         align: 'center',
         wordWrap: { width: PANEL_W - 60 },
       })
@@ -347,9 +323,7 @@ export class RewardScene extends BaseScene {
     if (this.reward?.descripcion) {
       this.add
         .text(CENTER_X, imgCY + IMG_SIZE / 2 + 48, this.reward.descripcion, {
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          color: '#cccccc',
+          ...mutedStyle(10, '#cccccc'),
           align: 'center',
           wordWrap: { width: PANEL_W - 80 },
         })
@@ -440,13 +414,7 @@ export class RewardScene extends BaseScene {
         g.strokeRect(cx - half + i / 2, cy - half + i / 2, IMG_SIZE - i, IMG_SIZE - i)
       }
       this.add
-        .text(cx, cy, '?', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '60px',
-          color: '#ffd700',
-          stroke: '#000000',
-          strokeThickness: 3,
-        })
+        .text(cx, cy, '?', { ...uiLabelStyle(60, COLOR_GOLD, 3), stroke: '#000000' })
         .setOrigin(0.5)
     }
 
@@ -468,11 +436,7 @@ export class RewardScene extends BaseScene {
 
     positions.forEach((pos, i) => {
       const star = this.add
-        .text(pos.x, pos.y, '★', {
-          fontFamily: 'monospace',
-          fontSize: '16px',
-          color: '#ffd700',
-        })
+        .text(pos.x, pos.y, '★', mutedStyle(16, COLOR_GOLD))
         .setOrigin(0.5)
         .setAlpha(0)
 

@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_MUTED } from '../config/fonts'
+import { headingStyle, uiLabelLight } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { gameStatsService } from '../services/GameStatsService'
@@ -37,25 +39,11 @@ const ROW_H_REWARDS = 68
 const IMG_SIZE_REWARD = 60
 
 // ── Tipografía pixel art ──────────────────────────────────────
-const F_SECTION = {
-  fontFamily: '"Jersey 10", cursive',
-  fontSize: '44px',
-  color: '#ffd700',
-  stroke: '#000000',
-  strokeThickness: 5,
-}
-const F_LABEL = {
-  fontFamily: '"Press Start 2P", monospace',
-  fontSize: '16px',
-  color: '#aaaaaa',
-}
-const F_VALUE = {
-  fontFamily: '"Jersey 10", cursive',
-  fontSize: '32px',
-  color: '#ffd700',
-  stroke: '#000000',
-  strokeThickness: 4,
-}
+// Estilos locales adaptados desde los helpers de `config/textStyles.js`.
+// Override de stroke '#000000' (vs PIXEL_STROKE_DARK) por nitidez del HUD.
+const F_SECTION = { ...headingStyle(44, COLOR_GOLD, 5), stroke: '#000000' }
+const F_LABEL = uiLabelLight(16, COLOR_MUTED)
+const F_VALUE = { ...headingStyle(32, COLOR_GOLD, 4), stroke: '#000000' }
 
 export class StatsScene extends BaseScene {
   constructor() {
@@ -230,11 +218,10 @@ export class StatsScene extends BaseScene {
       g.strokeRect(x - BLOCK_W / 2, blockY, BLOCK_W, blockH)
 
       // — Número de posición dentro del bloque —
+      // Override de stroke ARGB '#00000055' (sombra translúcida ligera).
       this.add
         .text(x, blockY + blockH / 2, `${rank}`, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '16px',
-          color: textColor,
+          ...uiLabelLight(16, textColor),
           stroke: '#00000055',
           strokeThickness: 1,
         })
@@ -295,11 +282,8 @@ export class StatsScene extends BaseScene {
       this.add.text(labelX, imgY - 12, rewardName, F_VALUE).setOrigin(0, 0.5)
       this.add
         .text(labelX, imgY + 14, `x${count}`, {
-          fontFamily: '"Jersey 10", cursive',
-          fontSize: '28px',
-          color: '#ffffff',
+          ...headingStyle(28, '#ffffff', 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0, 0.5)
     })
