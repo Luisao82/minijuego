@@ -1,4 +1,5 @@
 import { PHASE1, GAME_WIDTH, CONTROL_PANEL, COLORS } from '../config/gameConfig'
+import { headingStyle } from '../config/textStyles'
 
 // Componente UI de la Fase 1 — Barra de impulso
 // Gestiona su propio ciclo de vida: create → update → destroy
@@ -27,24 +28,20 @@ export class PowerBarUI {
     this._cursor = this._scene.add.graphics()
     this._elements.push(this._cursor)
 
+    // Override de stroke '#000000' en lugar de PIXEL_STROKE_DARK
+    // — más contraste sobre el HUD inferior.
     this._passText = this._scene.add
       .text(centerX, barY - 18, '', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '26px',
-        color: '#ffffff',
+        ...headingStyle(26, '#ffffff', 3),
         stroke: '#000000',
-        strokeThickness: 3,
       })
       .setOrigin(0.5)
     this._elements.push(this._passText)
 
     const instrText = this._scene.add
       .text(centerX, barY + HEIGHT + 22, '¡PULSA PARA DETENER!', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '28px',
-        color: '#ffffff',
+        ...headingStyle(28, '#ffffff', 3),
         stroke: '#000000',
-        strokeThickness: 3,
       })
       .setOrigin(0.5)
     this._elements.push(instrText)

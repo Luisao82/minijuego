@@ -2,6 +2,8 @@
 // Elimina la duplicación de drawBackground() y drawHeader() en CharacterSelectScene y CollectionScene.
 
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { titleStyle } from '../config/textStyles'
 
 /**
  * Dibuja la franja oscura central + overlays + líneas doradas.
@@ -80,14 +82,10 @@ export function drawSceneHeader(scene, cx, headerY, title, halfWidth) {
   corners.lineBetween(right, bot, right - cLen, bot)
   corners.lineBetween(right, bot, right, bot - cLen)
 
-  // Texto del título
+  // Texto del título — override de shadow `3,3` (más sutil que el `4,4` base).
   scene.add
     .text(cx, headerY, title, {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: '42px',
-      color: '#ffd700',
-      stroke: '#1a0a00',
-      strokeThickness: 6,
+      ...titleStyle(42, COLOR_GOLD, 6),
       letterSpacing: 6,
       shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true },
     })

@@ -20,12 +20,18 @@ import {
 //
 // El spread + override permite afinar matices puntuales (letterSpacing,
 // align, lineSpacing...) sin perder la receta base.
+//
+// `fontSize` admite tanto número (se convierte a "Npx") como string con la
+// unidad ya incluida ('26px') — mismo comportamiento que el `fontSize` de
+// Phaser TextStyle.
+
+const px = (size) => (typeof size === 'number' ? `${size}px` : size)
 
 // Título de marca: Jersey 10 + stroke grueso + sombra dura pixel.
 // Para títulos principales / pantalla.
 export const titleStyle = (fontSize, color, strokeThickness = 8) => ({
   fontFamily: FONT_BRAND,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
   stroke: PIXEL_STROKE_DARK,
   strokeThickness,
@@ -36,7 +42,7 @@ export const titleStyle = (fontSize, color, strokeThickness = 8) => ({
 // Para títulos secundarios o headers de sección.
 export const headingStyle = (fontSize, color, strokeThickness = 2) => ({
   fontFamily: FONT_BRAND,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
   stroke: PIXEL_STROKE_DARK,
   strokeThickness,
@@ -46,7 +52,7 @@ export const headingStyle = (fontSize, color, strokeThickness = 2) => ({
 // Color dorado por defecto. Para premios, stats, badges, achievements.
 export const uiLabelStyle = (fontSize, color = COLOR_GOLD, strokeThickness = 4) => ({
   fontFamily: FONT_UI,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
   stroke: PIXEL_STROKE_DARK,
   strokeThickness,
@@ -56,7 +62,7 @@ export const uiLabelStyle = (fontSize, color = COLOR_GOLD, strokeThickness = 4) 
 // Para texto de UI limpio (sin tratamiento retro fuerte).
 export const uiLabelLight = (fontSize, color = '#ffffff') => ({
   fontFamily: FONT_UI,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
 })
 
@@ -64,7 +70,7 @@ export const uiLabelLight = (fontSize, color = '#ffffff') => ({
 // Para descripciones, hints, copyright.
 export const mutedStyle = (fontSize, color = COLOR_MUTED) => ({
   fontFamily: FONT_SYS,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
 })
 
@@ -72,7 +78,7 @@ export const mutedStyle = (fontSize, color = COLOR_MUTED) => ({
 // Para advertencias visibles (ej. música pendiente de autorización).
 export const warningStyle = (fontSize, color = COLOR_GOLD) => ({
   fontFamily: FONT_UI,
-  fontSize: `${fontSize}px`,
+  fontSize: px(fontSize),
   color,
   stroke: PIXEL_STROKE_DARK,
   strokeThickness: 4,

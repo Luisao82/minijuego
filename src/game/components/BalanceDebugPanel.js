@@ -3,6 +3,7 @@
 // Se instancia y destruye junto con la fase de equilibrio en GameScene.
 
 import { BALANCE, GAME_WIDTH } from '../config/gameConfig'
+import { mutedStyle } from '../config/textStyles'
 
 const W = 240
 const H = 320
@@ -33,11 +34,7 @@ export class BalanceDebugPanel {
     this._drawBackground()
 
     this.titleText = scene.add
-      .text(X + W / 2, Y + PAD, '[ BALANCE DEBUG ]', {
-        fontFamily: 'monospace',
-        fontSize: '9px',
-        color: COL_ACCENT,
-      })
+      .text(X + W / 2, Y + PAD, '[ BALANCE DEBUG ]', mutedStyle(9, COL_ACCENT))
       .setOrigin(0.5, 0)
       .setDepth(DEPTH + 1)
 
@@ -47,9 +44,7 @@ export class BalanceDebugPanel {
     // Texto de datos
     this.dataText = scene.add
       .text(X + PAD, Y + 62, '', {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: COL_VALUE,
+        ...mutedStyle(10, COL_VALUE),
         lineSpacing: 3,
       })
       .setDepth(DEPTH + 1)
