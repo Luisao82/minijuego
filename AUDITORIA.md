@@ -46,10 +46,14 @@
   - **Fuentes self-hosted** en lugar de SRI: Jersey 10 y Press Start 2P descargadas de Google Fonts y servidas localmente desde `public/assets/fonts/` con `@font-face` en `public/style.css`. Evita la fragilidad del SRI sobre el CSS de Google Fonts (que cambia sin aviso) y mejora el funcionamiento offline.
   - Script inline del service worker extraído a `public/register-sw.js` para que CSP no necesite `'unsafe-inline'` en `script-src`.
 
-### [ ] 6. Sin CI/CD ni pipeline de despliegue
+### [x] 6. Sin CI/CD ni pipeline de despliegue ✅ _completado 2026-06-11_
 
-- No hay GitHub Actions, ni tests automáticos, ni verificación pre-deploy.
-- **Fix:** Crear workflow básico: lint → build → deploy.
+- ~~No hay GitHub Actions, ni tests automáticos, ni verificación pre-deploy.~~
+- **Implementado** (rama `audit/finalize-pending` para el workflow, `audit/close-ci-cd` para el cierre documental):
+  - **CI** — `.github/workflows/ci.yml` corre en cada PR contra `main` y en cada push a `main`. Ubuntu latest, Node 24 (paridad con Vercel), `actions/checkout@v4`, `actions/setup-node@v4` con cache de npm, `npm ci` (lockfile-pinned), y los steps `npm run lint`, `npm run format:check`, `npm run build` ordenados del más barato al más caro. Tiempo medio ~35 s con cache caliente. Tests pendientes de añadirse al pipeline cuando se cierre el #7.
+  - **Branch Protection en `main`** — Ruleset "Protect main" en modo `Active` sin bypass list. Reglas: `Restrict deletions`, `Require linear history` (solo rebase/squash), `Require a pull request before merging` (0 approvals, `Require conversation resolution`), `Require status checks to pass` con `validate` como check obligatorio y "branches up to date" activo, `Block force pushes`. Verificado en vivo: un push directo a `main` es rechazado con `GH013: Repository rule violations`.
+  - **CD — Modelo A (deliberado)** — Vercel mantiene su integración nativa con GitHub y sigue `main` directamente. Como Branch Protection garantiza que a `main` solo entra código que pasó CI, en la práctica Vercel solo despliega bundles validados. Se elige A frente a B (Actions despliega con `vercel deploy --prod`) porque conserva los preview deploys automáticos por PR y evita gestionar un token de Vercel adicional. Si en el futuro aparecen divergencias entre la build de CI y la de Vercel, migrar a B es un cambio aislado.
+  - **Flujo de trabajo documentado:** rama de feature → push → PR contra `main` → CI corre sobre la rama del PR + Vercel preview deploy en paralelo → ambas verdes → merge (rebase para PRs con commits estructurados, squash para los exploratorios) → CI re-corre sobre `main` como red de seguridad → Vercel deploya a producción.
 
 ### [ ] 7. Sin tests
 
