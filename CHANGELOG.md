@@ -7,6 +7,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.1] — 2026-06-11
+
+Cierre de la auditoría técnica pre-publicación (12 de 13 items de `AUDITORIA.md`,
+solo quedan los tests #7) y tanda de fixes de pulido visual y de UX.
+
 ### Added
 
 - **Accesibilidad — `prefers-reduced-motion`:**
@@ -17,11 +22,30 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **Cabeceras de seguridad HTTP (`vercel.json`):** Content-Security-Policy estricta (`default-src 'self'`, sin `'unsafe-inline'` en scripts), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security` con preload, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denegando cámara/micro/geo/pago/USB/FLoC. Cabeceras específicas para `/sw.js` (no-cache) y `/assets/fonts/*` (immutable, 1 año).
 - **Fuentes self-hosted (`public/assets/fonts/`):** Jersey 10 y Press Start 2P descargadas localmente desde Google Fonts y servidas con `@font-face` en `public/style.css`. Funcionan offline, sin dependencia externa, sin riesgos de SRI.
 - **`public/register-sw.js`:** script de registro del service worker extraído del `index.html` inline para permitir CSP estricta sin `'unsafe-inline'` en `script-src`.
+- **ESLint 10 + Prettier 3:** flat config por capas (`eslint.config.js`) alineada con las normas de CLAUDE.md, `.prettierrc.json` + `.prettierignore`, scripts `lint`/`lint:fix`/`format`/`format:check` en `package.json`, y configuración de workspace de VS Code (`.vscode/extensions.json` + `settings.json` con formatOnSave).
+- **CI con GitHub Actions (`.github/workflows/ci.yml`):** corre `lint → format:check → build` en cada PR contra `main` y cada push a `main` (Node 24, cache de npm, ~35 s). **Branch Protection** activa en `main`: sin pushes directos, PR obligatoria, check `validate` requerido, historial lineal, force-push y borrado bloqueados.
+- **Sistema de estilos de texto en dos capas:** `config/fonts.js` (foundations de marca: familias, sombra pixel congelada, paleta semántica) + `config/textStyles.js` (seis helpers role-based: `titleStyle`, `headingStyle`, `uiLabelStyle`, `uiLabelLight`, `mutedStyle`, `warningStyle`).
+- **Precarga de fuentes:** `<link rel="preload">` de los dos TTF en `index.html` + `await document.fonts.ready` en `src/main.js` antes de arrancar Phaser.
+
+### Changed
+
+- **Reformat masivo con Prettier** de los 79 archivos bajo su dominio (commit aislado, sin cambios de comportamiento).
+- **Migración completa al sistema de textStyles:** 15 escenas + 6 componentes + 1 util (~102 declaraciones de `fontFamily` literales reducidas a 0 fuera del config). 308 líneas netas eliminadas. Desviaciones del estándar de marca ahora explícitas como overrides.
+- **`AUDITORIA.md`** actualizada: items #5, #6, #8, #9 (aplazado deliberadamente), #10, #13, #14 y #15 cerrados con su justificación.
 
 ### Removed
 
 - Referencias a `https://fonts.googleapis.com` y `https://fonts.gstatic.com` en `index.html` (preconnect + stylesheet).
 - Script inline de registro del service worker en `index.html`.
+- Constantes legacy `PIXEL_FONT`, `PIXEL_FONT_TITLE`, `PIXEL_FONT_SMALL` de `gameConfig.js` (sustituidas por los helpers de `textStyles.js`).
+
+### Fixed
+
+- **Tipografía en la primera carga:** el juego mostraba la fuente fallback del sistema en la primera visita (canvas no redibuja al llegar la fuente). Resuelto con preload + `document.fonts.ready`.
+- **Flechas del zoom del mapa:** las flechas de arriba y abajo estaban visualmente intercambiadas (▲/▼ invertidas). La navegación funcionaba, la imagen no.
+- **`triana.webp` distorsionada:** la imagen del premio era 594×420 pero la UI asume arte cuadrado. Ahora 594×594 con padding transparente centrado verticalmente.
+- **`vaso.webp` actualizada:** nueva ilustración del premio (500×500, 42,5 KB).
+- **Navegación fantasma del carrusel:** al volver de `SkinSelectScene` a `CharacterSelectScene` (o al re-entrar en `ViewSelectScene`), el carrusel avanzaba una posición solo segun dónde hubieras pulsado en la pantalla anterior. Causa: estado de swipe (`swipeStartX`) obsoleto que sobrevivía a la transición de escena (Phaser reusa instancias) + handler de swipe sin acotar verticalmente. Resuelto con reset en `init()`/`create()` y acotando el gesto a la banda del carrusel.
 
 ## [1.1.0] — 2026-05-28
 

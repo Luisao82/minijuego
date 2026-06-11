@@ -435,12 +435,14 @@ Para editar cualquier texto del juego basta con abrir el archivo de contenido co
 
 ### Estrategia de versiones
 
-| Versión | Objetivo                                            |
-| ------- | --------------------------------------------------- |
-| v0.1    | Jugabilidad funcionando — gráficos simples          |
-| v0.2    | Personajes con sprites pixel art definidos          |
-| v0.3    | Fondo pixel art integrado + animaciones pulidas     |
-| v1.0    | Versión completa con arte final y balanceo ajustado |
+| Versión | Objetivo                                                                                                                                                                                                    |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v0.1    | Jugabilidad funcionando — gráficos simples                                                                                                                                                                  |
+| v0.2    | Personajes con sprites pixel art definidos                                                                                                                                                                  |
+| v0.3    | Fondo pixel art integrado + animaciones pulidas                                                                                                                                                             |
+| v1.0    | Versión completa con arte final y balanceo ajustado                                                                                                                                                         |
+| v1.1    | Pantalla de créditos del desarrollador + botón INFO + bloque legal                                                                                                                                          |
+| v1.1.1  | Auditoría técnica cerrada (CI/CD, linting, seguridad HTTP, sistema de estilos de texto) + fixes de pulido (tipografía primera carga, flechas del mapa, assets de premios, navegación fantasma del carrusel) |
 
 ---
 
