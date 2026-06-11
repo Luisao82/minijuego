@@ -216,7 +216,13 @@ export class MapScene extends BaseScene {
       g.strokeRect(lx + 8, ly - 20, 20, 22)
     }
 
-    // Flechas de navegación
+    // Flechas de navegación.
+    // Phaser rota en sentido horario con ángulos positivos. La textura base
+    // `btn-nav-left` apunta a la izquierda (◀), así que:
+    //   +90° → arriba (▲)
+    //   −90° → abajo (▼)
+    //     0° → izquierda (◀)
+    //   180° → derecha (▶, usa textura propia `btn-nav-right` a 0°)
     this.addZoomArrow(
       track,
       row - 1,
@@ -224,7 +230,7 @@ export class MapScene extends BaseScene {
       ZOOM_CX,
       ZOOM_CY - ZOOM_HALF - ARROW_GAP,
       'btn-nav-left',
-      -90,
+      90,
       row > 0
     )
     this.addZoomArrow(
@@ -234,7 +240,7 @@ export class MapScene extends BaseScene {
       ZOOM_CX,
       ZOOM_CY + ZOOM_HALF + ARROW_GAP,
       'btn-nav-left',
-      90,
+      -90,
       row < ROWS - 1
     )
     this.addZoomArrow(
