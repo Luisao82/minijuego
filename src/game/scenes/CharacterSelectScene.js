@@ -53,6 +53,13 @@ export class CharacterSelectScene extends BaseScene {
     super.init(data)
     this.perspective = data?.perspective ?? null
     this.selectedIndex = data?.selectedIndex ?? 0
+    // Reset del estado del swipe: Phaser reusa la instancia de la escena entre
+    // navegaciones, así que sin esto un valor antiguo de `swipeStartX` podía
+    // colarse desde la sesión anterior (cuando el usuario pulsaba 'SELECCIONAR'
+    // y la transición ocurría antes del pointerup global). Al volver desde
+    // SkinSelectScene, el pointerup del botón 'VOLVER' calculaba un diff con
+    // ese valor obsoleto y disparaba una navegación fantasma del carrusel.
+    this.swipeStartX = undefined
   }
 
   create() {
@@ -306,7 +313,16 @@ export class CharacterSelectScene extends BaseScene {
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
 
+    // Swipe horizontal — acotado a la banda vertical del carrusel.
+    // Sin la cota Y, el pointerdown del botón 'SELECCIONAR' (debajo del carrusel)
+    // se cuela como inicio de swipe y, combinado con la transición de escena,
+    // puede provocar una navegación fantasma al volver desde SkinSelectScene.
+    const swipeYMin = CARDS_Y
+    const swipeYMax = CARDS_Y + CARD_HEIGHT
+    const isInSwipeBand = (pointer) => pointer.y >= swipeYMin && pointer.y <= swipeYMax
+
     this.input.on('pointerdown', (pointer) => {
+      if (!isInSwipeBand(pointer)) return
       this.swipeStartX = pointer.x
     })
     this.input.on('pointerup', (pointer) => {
