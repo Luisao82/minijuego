@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig'
+import { COLOR_GOLD, COLOR_GOLD_LIGHT, COLOR_ORANGE } from '../config/fonts'
+import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { createSkinMarquee } from '../components/SkinMarquee'
 import { CHARACTERS } from '../config/characters'
@@ -114,23 +116,15 @@ export class CreditsScene extends BaseScene {
 
   drawHeader() {
     this.add
-      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '40px',
-        color: '#ff6b35',
-        stroke: '#1a0a00',
-        strokeThickness: 5,
-      })
+      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', headingStyle(40, COLOR_ORANGE, 5))
       .setOrigin(0.5, 0)
       .setDepth(3)
 
+    // Override de stroke '#000000'.
     this.add
       .text(GAME_WIDTH / 2, 72, 'CRÉDITOS', {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '18px',
-        color: '#ffd700',
+        ...uiLabelStyle(18, COLOR_GOLD, 4),
         stroke: '#000000',
-        strokeThickness: 4,
         letterSpacing: 4,
       })
       .setOrigin(0.5, 0)
@@ -227,21 +221,12 @@ export class CreditsScene extends BaseScene {
   // ── Banner "LUISAO_DEV" encima de la cara (texto neón) ───
 
   drawBanner() {
+    // Press Start 2P + stroke marca + sombra `3,3` (vs `4,4` estándar de titleStyle).
     this.add
       .text(GAME_WIDTH / 2, BANNER_Y, BANNER_TEXT, {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '38px',
-        color: '#ffd700',
-        stroke: '#1a0a00',
-        strokeThickness: 5,
+        ...uiLabelStyle(38, COLOR_GOLD, 5),
         letterSpacing: 4,
-        shadow: {
-          offsetX: 3,
-          offsetY: 3,
-          color: '#000000',
-          blur: 0,
-          fill: true,
-        },
+        shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true },
       })
       .setOrigin(0.5, 0.5)
       .setDepth(3)
@@ -277,18 +262,12 @@ export class CreditsScene extends BaseScene {
   drawMessage() {
     const cx = GAME_WIDTH / 2
 
-    const style = {
-      fontFamily: '"Jersey 10", cursive',
-      fontSize: MESSAGE_FONT,
-      color: '#ffd647',
-      stroke: '#000000',
-      strokeThickness: 3,
-      align: 'center',
-    }
-
+    // Override de stroke '#000000'.
     this.add
       .text(cx, MESSAGE_TOP_Y, MESSAGE_LINES.join('\n'), {
-        ...style,
+        ...headingStyle(MESSAGE_FONT, COLOR_GOLD_LIGHT, 3),
+        stroke: '#000000',
+        align: 'center',
         lineSpacing: MESSAGE_LINE_GAP,
       })
       .setOrigin(0.5, 0)
@@ -305,24 +284,15 @@ export class CreditsScene extends BaseScene {
         GAME_WIDTH / 2,
         footerY,
         `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
-        {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '10px',
-          color: '#ffd700',
-          stroke: '#000000',
-          strokeThickness: 3,
-        }
+        { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
       )
       .setOrigin(0.5, 0)
       .setDepth(3)
 
     const url = this.add
       .text(GAME_WIDTH / 2, footerY + 24, 'https://luisao82.vercel.app', {
-        fontFamily: '"Jersey 10", cursive',
-        fontSize: '22px',
-        color: '#ffd647',
+        ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
         stroke: '#000000',
-        strokeThickness: 2,
       })
       .setOrigin(0.5, 0)
       .setDepth(3)

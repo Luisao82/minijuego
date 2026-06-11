@@ -1,5 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { COLOR_GOLD } from '../config/fonts'
+import { mutedStyle, uiLabelLight, uiLabelStyle } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { makeNavButton } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
@@ -113,11 +115,8 @@ export class CharacterUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, PANEL_Y + 30, '¡NUEVO PERSONAJE!', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '16px',
-          color: '#ffd700',
+          ...uiLabelStyle(16, COLOR_GOLD, 4),
           stroke: '#000000',
-          strokeThickness: 4,
         })
         .setOrigin(0.5)
     )
@@ -149,11 +148,7 @@ export class CharacterUnlockScene extends BaseScene {
       this.contentContainer.add(placeholderG)
 
       this.charSprite = this.add
-        .text(CENTER_X, spriteY, '?', {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '80px',
-          color: '#ffd700',
-        })
+        .text(CENTER_X, spriteY, '?', uiLabelLight(80, COLOR_GOLD))
         .setOrigin(0.5)
         .setScale(0)
     }
@@ -174,11 +169,7 @@ export class CharacterUnlockScene extends BaseScene {
 
     positions.forEach((pos, i) => {
       const star = this.add
-        .text(pos.x, pos.y, '★', {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#ffd700',
-        })
+        .text(pos.x, pos.y, '★', mutedStyle(18, COLOR_GOLD))
         .setOrigin(0.5)
         .setAlpha(0)
 
@@ -212,11 +203,8 @@ export class CharacterUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, infoY, char.name, {
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '14px',
-          color: '#ffd700',
+          ...uiLabelStyle(14, COLOR_GOLD, 3),
           stroke: '#000000',
-          strokeThickness: 3,
         })
         .setOrigin(0.5)
     )
@@ -225,9 +213,7 @@ export class CharacterUnlockScene extends BaseScene {
     this.contentContainer.add(
       this.add
         .text(CENTER_X, infoY + 30, char.description, {
-          fontFamily: 'monospace',
-          fontSize: '11px',
-          color: '#bbbbbb',
+          ...mutedStyle(11, '#bbbbbb'),
           align: 'center',
           lineSpacing: 4,
           wordWrap: { width: PANEL_W - 60 },
@@ -252,11 +238,7 @@ export class CharacterUnlockScene extends BaseScene {
       const color = STAT_COLORS[key] ?? 0xffffff
 
       this.contentContainer.add(
-        this.add.text(startX, sy, STAT_NAMES[key] ?? key, {
-          fontFamily: 'monospace',
-          fontSize: '9px',
-          color: '#999999',
-        })
+        this.add.text(startX, sy, STAT_NAMES[key] ?? key, mutedStyle(9, '#999999'))
       )
 
       const barG = this.add.graphics()
