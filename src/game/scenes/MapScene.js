@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
-import { mutedStyle, uiLabelLight, uiLabelStyle } from '../config/textStyles'
+import { headingStyle, mutedStyle, uiLabelLight, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { mapService } from '../services/MapService'
@@ -58,7 +58,46 @@ export class MapScene extends BaseScene {
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
     drawSceneHeader(this, GAME_WIDTH / 2, 40, 'MAPA DE SEVILLA', 240)
     this.drawMap()
+    if (mapService.getUnlocked().length === 0) this.drawEmptyHint()
     this.drawButtons()
+  }
+
+  // ── Pista cuando aún no hay ninguna pieza ─────────────────────
+  // Panel centrado sobre la cuadrícula explicando cómo se consiguen
+  // las piezas. Mismo estilo de texto que los diálogos de Historia
+  // y Tutorial (Jersey 10 + stroke negro).
+
+  drawEmptyHint() {
+    const panelW = GRID_W + 120
+    const panelH = 200
+    const cx = GAME_WIDTH / 2
+    const cy = MAP_Y + GRID_H / 2
+    const px = cx - panelW / 2
+    const py = cy - panelH / 2
+
+    const g = this.add.graphics().setDepth(10)
+    g.fillStyle(0x000000, 0.85)
+    g.fillRect(px, py, panelW, panelH)
+    g.lineStyle(2, COLORS.GOLD, 0.9)
+    g.strokeRect(px, py, panelW, panelH)
+    g.lineStyle(1, COLORS.GOLD, 0.3)
+    g.strokeRect(px + 4, py + 4, panelW - 8, panelH - 8)
+
+    this.add
+      .text(
+        cx,
+        cy,
+        'Para conseguir las piezas del mapa,\ndebes conseguir la bandera\ncon el MAX POWER de impulso.',
+        {
+          ...headingStyle(32, '#f0d99a', 2),
+          stroke: '#000000',
+          align: 'center',
+          lineSpacing: 8,
+          wordWrap: { width: panelW - 48 },
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(11)
   }
 
   // ── Vista general ─────────────────────────────────────────────
