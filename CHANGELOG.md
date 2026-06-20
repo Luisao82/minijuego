@@ -7,6 +7,34 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.4] — 2026-06-20
+
+Recalibrado profundo de dificultad. En equilibrio, las inversiones cuestan
+más, el damping reduce la inercia y la grasa amplifica dos cosas a la vez
+(drift máximo y crecimiento por cruce). En impulso, la barra arranca y acelera
+más rápido, y la diferencia entre personajes ligeros y pesados se duplica.
+
+### Changed
+
+- **Fase 1 (Impulso) — más rápido y con mayor diferencia por personaje:**
+  - `PHASE1.BASE_SPEED` 0.20 → 0.30
+  - `PHASE1.BASE_ACCELERATION` 0.15 → 0.25
+  - `PHASE1.WEIGHT_FACTOR` 0.10 → 0.20 (la diferencia entre Retro y Agüela se duplica: ahora la Agüela es realmente difícil de parar en MAX POWER)
+- **Fase 2 (Equilibrio) — cursor más nervioso, más castigo en los cruces:**
+  - `BALANCE.DRIFT_GROWTH_PER_CROSS` 0.06 → 0.18 (cada inversión castiga 3× más; antes hacía falta acumular 15 cruces para llegar al techo, ahora 5)
+  - `BALANCE.DAMPING` 0.10 → 0.40 (la velocity decae 4× más rápido; hay que pulsar más a menudo)
+  - `BALANCE.INPUT_FORCE` 5.5 → 6.5 (para mantener el invariante de control)
+- **Sistema de grasa — amplifica dos cosas, no solo una:**
+  - `OIL.DRIFT_MULTIPLIER` 1.3 → 1.6 (drift máximo con grasa al 100% pasa de ×2.3 a ×2.6)
+  - Nuevo `OIL.GROWTH_MULTIPLIER` = 1.5: el crecimiento de fuerza por cruce escala con la grasa (×2.5 con grasa al 100%)
+- **API interna:** `BalanceSystem.update()` ahora recibe `greaseRatio` (0..1) en lugar de `oilMultiplier`. Aplica internamente los dos factores de `OIL`. `OilSystem` expone `getGreaseRatio()` para esta nueva ruta y conserva `getDriftMultiplier()` para `BalanceUI` y otros consumidores.
+
+Garantía de control: `INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 2.6 = 3.12 ✓`. Margen sin grasa **5.30**, con grasa al 100% **3.38** — pero ahora el reto real es que cada cruce con grasa cuesta 2.5× más, así que aunque haya margen, el cursor acelera más rápido de lo que el jugador puede frenar si no anticipa.
+
+### Added
+
+- **Tests** (5 nuevos en `OilSystem.test.js` y `BalanceSystem.test.js`): cobertura de `getGreaseRatio`, comportamiento de la nueva API y verificación del growth factor con grasa máxima. Suite: 166/166.
+
 ## [1.1.3] — 2026-06-20
 
 Recalibrado fino de la grasa: con palo grasiento ahora cuesta de verdad coger

@@ -26,9 +26,17 @@ export class OilSystem {
     return this.zones[this._zoneIndex(progressRatio)]
   }
 
-  // Multiplicador de drift para la zona actual (0 sin grasa → OIL.DRIFT_MULTIPLIER al 100%)
+  // Ratio normalizado de grasa de la zona actual (0 sin grasa → 1 al 100%).
+  // BalanceSystem lo consume y aplica internamente los multiplicadores de
+  // OIL (DRIFT_MULTIPLIER y GROWTH_MULTIPLIER) según necesite.
+  getGreaseRatio(progressRatio) {
+    return this.getZoneGrease(progressRatio) / 100
+  }
+
+  // Multiplicador de drift para la zona actual (0 sin grasa → OIL.DRIFT_MULTIPLIER al 100%).
+  // Conservado por compatibilidad con consumidores que solo quieran el valor final.
   getDriftMultiplier(progressRatio) {
-    return (this.getZoneGrease(progressRatio) / 100) * OIL.DRIFT_MULTIPLIER
+    return this.getGreaseRatio(progressRatio) * OIL.DRIFT_MULTIPLIER
   }
 
   // % total de grasa en todo el palo (media de todas las zonas)

@@ -57,7 +57,7 @@ describe('BalanceSystem', () => {
   })
 
   describe('aceite amplifica la fuerza del drift', () => {
-    it('con oilMultiplier alto el cursor se desvía más rápido (sin input)', () => {
+    it('con greaseRatio alto el cursor se desvía más rápido (sin input)', () => {
       // BalanceSystem arranca con driftDirection ±1 aleatorio. Para comparar
       // sin que la randomización falsee el resultado, las dos instancias se
       // crean con la misma posición inicial y dirección forzada al mismo lado.
@@ -71,10 +71,33 @@ describe('BalanceSystem', () => {
       sysB.driftDirection = 1
 
       for (let i = 0; i < 30; i++) {
-        sysA.update(DT, 0, 0) // sin aceite
-        sysB.update(DT, 0, 0.5) // con aceite
+        sysA.update(DT, 0, 0) // palo limpio (ratio 0)
+        sysB.update(DT, 0, 0.5) // palo a media grasa (ratio 0.5)
       }
       expect(Math.abs(b.position)).toBeGreaterThan(Math.abs(a.position))
+    })
+
+    it('con greaseRatio alto cada cruce del centro castiga más el drift', () => {
+      // Para aislar el efecto del growthFactor, forzamos a mano una inversión
+      // de signo de velocity (que es lo que dispara el crecimiento del drift)
+      // y comparamos cuánto creció la fuerza en cada sistema.
+      // Equilibrio = 3 para que maxDrift > DRIFT_MIN (con 10 el techo coincide
+      // con el suelo y driftForce nunca podría subir).
+      const seco = new BalanceBar(3)
+      const grasa = new BalanceBar(3)
+      const sSeco = new BalanceSystem(seco)
+      const sGrasa = new BalanceSystem(grasa)
+      sSeco.driftDirection = 1
+      sGrasa.driftDirection = 1
+
+      // Forzamos velocity opuesta a driftDirection → primer update dispara
+      // el cruce y crece driftForce con el growthFactor aplicado.
+      seco.velocity = -0.5
+      grasa.velocity = -0.5
+      sSeco.update(DT, 0, 0) // palo limpio
+      sGrasa.update(DT, 0, 1) // palo a tope de grasa
+
+      expect(sGrasa.driftForce).toBeGreaterThan(sSeco.driftForce)
     })
   })
 

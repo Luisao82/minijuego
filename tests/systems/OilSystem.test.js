@@ -53,6 +53,25 @@ describe('OilSystem', () => {
     })
   })
 
+  describe('getGreaseRatio', () => {
+    it('arranca en 1.0 (palo al 100% de grasa)', () => {
+      const sys = new OilSystem()
+      expect(sys.getGreaseRatio(0)).toBe(1)
+    })
+
+    it('baja a 0 cuando la zona está completamente desgastada', () => {
+      const sys = new OilSystem()
+      sys.update(100, 0)
+      expect(sys.getGreaseRatio(0)).toBe(0)
+    })
+
+    it('escala linealmente con la grasa de la zona', () => {
+      const sys = new OilSystem()
+      sys.update(50 / OIL.WEAR_RATE, 0) // reduce a 50%
+      expect(sys.getGreaseRatio(0)).toBeCloseTo(0.5)
+    })
+  })
+
   describe('getDriftMultiplier', () => {
     it('al 100% de grasa devuelve OIL.DRIFT_MULTIPLIER', () => {
       const sys = new OilSystem()

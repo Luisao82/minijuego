@@ -255,9 +255,11 @@ export class GameScene extends BaseScene {
     this._drawOilOverlay()
 
     if (this.balanceBar) {
-      const oilMult = this.oilSystem.getDriftMultiplier(progressRatio)
-      this.balanceSystem.update(dt, this.balanceUI?.getInputDirection() ?? 0, oilMult)
-      this.balanceUI?.update(oilMult)
+      const greaseRatio = this.oilSystem.getGreaseRatio(progressRatio)
+      this.balanceSystem.update(dt, this.balanceUI?.getInputDirection() ?? 0, greaseRatio)
+      // BalanceUI sigue recibiendo el multiplicador final para la visualización
+      // (no necesita conocer la mecánica interna del growth factor).
+      this.balanceUI?.update(this.oilSystem.getDriftMultiplier(progressRatio))
 
       if (this.balanceSystem.isFailed()) {
         this.onBalanceLost()

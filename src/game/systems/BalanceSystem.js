@@ -11,7 +11,7 @@
 //   equilibrio 10 → DRIFT_MIN más bajo → más tiempo antes de llegar al máximo → más fácil
 //   equilibrio  0 → DRIFT_MAX más alto → drift más agresivo desde antes → más difícil
 
-import { BALANCE } from '../config/gameConfig'
+import { BALANCE, OIL } from '../config/gameConfig'
 
 export class BalanceSystem {
   constructor(balanceBar) {
@@ -29,18 +29,29 @@ export class BalanceSystem {
     this.driftDirection = Math.random() < 0.5 ? 1 : -1
   }
 
-  // oilMultiplier: proporcionado por OilSystem (0 = sin grasa, hasta OIL.DRIFT_MULTIPLIER)
-  update(dt, inputDirection, oilMultiplier = 0) {
+  // greaseRatio: proporcionado por OilSystem (0 = sin grasa, 1 = al 100%).
+  //   Aplica DOS amplificaciones a la vez:
+  //     - DRIFT_MULTIPLIER: la fuerza máxima del drift sube.
+  //     - GROWTH_MULTIPLIER: cada cruce del centro castiga más fuerte.
+  //   Con grasa al 100% el cursor se vuelve agresivo de verdad; con palo
+  //   limpio el sistema vuelve al comportamiento base.
+  update(dt, inputDirection, greaseRatio = 0) {
     if (this.bar.failed) return
 
     this.elapsed += dt
+
+    const driftFactor = 1 + greaseRatio * OIL.DRIFT_MULTIPLIER
+    const growthFactor = 1 + greaseRatio * OIL.GROWTH_MULTIPLIER
 
     // El drift sigue el signo de la velocidad actual: amplifica la inercia existente.
     // Cuando la velocidad cambia de signo (el cursor invierte dirección), la fuerza crece.
     const velSign = Math.sign(this.bar.velocity)
     if (velSign !== 0) {
       if (velSign !== this.driftDirection) {
-        this.driftForce = Math.min(this.maxDrift, this.driftForce + BALANCE.DRIFT_GROWTH_PER_CROSS)
+        this.driftForce = Math.min(
+          this.maxDrift,
+          this.driftForce + BALANCE.DRIFT_GROWTH_PER_CROSS * growthFactor
+        )
       }
       this.driftDirection = velSign
     }
@@ -48,7 +59,7 @@ export class BalanceSystem {
     // Consumir el flag de cruce de centro (ya no se usa, pero evita acumulación interna)
     this.bar.crossedCenter()
 
-    const driftAccel = this.driftDirection * this.driftForce * (1 + oilMultiplier)
+    const driftAccel = this.driftDirection * this.driftForce * driftFactor
 
     this.bar.setDriftAcceleration(driftAccel)
     this.bar.setInputDirection(inputDirection)
