@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.2] — 2026-06-20
+
+Pulido pre-publicación: pista contextual en el mapa, suite de tests completa y
+recalibrado de dificultad de las dos fases para que la grasa y el MAX POWER
+exijan más al jugador.
+
 ### Added
 
 - **Pista en el mapa vacío:** cuando aún no se ha desbloqueado ninguna pieza, la vista general del mapa de Sevilla muestra un panel centrado explicando cómo conseguirlas ("Para conseguir las piezas del mapa, debes conseguir la bandera con el MAX POWER de impulso"). Mismo estilo de texto que los diálogos de Historia y Tutorial.
