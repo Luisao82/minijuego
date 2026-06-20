@@ -208,31 +208,45 @@ export class PerspectiveUnlockScene extends BaseScene {
     this.buttonContainer = this.add.container(0, 0)
     this.buttonContainer.setAlpha(0)
 
+    // makeNavButton dibuja directamente en la escena, no en un container.
+    // Capturamos los objetos creados y los movemos al buttonContainer para
+    // que `destroy()` los limpie al pasar a la siguiente perspectiva. Sin
+    // esto, los botones del paso anterior quedan colgando.
+    const collect = (fn) => {
+      const before = this.children.list.length
+      fn()
+      this.children.list.slice(before).forEach((o) => this.buttonContainer.add(o))
+    }
+
     if (isLast) {
-      makeNavButton(
-        this,
-        CENTER_X - 120,
-        btnY,
-        240,
-        btnH,
-        'CONTINUAR ▶',
-        () => {
-          if (this.canInteract) this._proceed()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - 120,
+          btnY,
+          240,
+          btnH,
+          'CONTINUAR ▶',
+          () => {
+            if (this.canInteract) this._proceed()
+          },
+          { depth: 6 }
+        )
       )
     } else {
-      makeNavButton(
-        this,
-        CENTER_X - 120,
-        btnY,
-        240,
-        btnH,
-        'SIGUIENTE ▶',
-        () => {
-          if (this.canInteract) this._nextPerspective()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - 120,
+          btnY,
+          240,
+          btnH,
+          'SIGUIENTE ▶',
+          () => {
+            if (this.canInteract) this._nextPerspective()
+          },
+          { depth: 6 }
+        )
       )
     }
   }
