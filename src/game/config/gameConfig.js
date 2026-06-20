@@ -123,11 +123,15 @@ export const BALANCE = {
   DRIFT_GROWTH_PER_CROSS: 0.06, // Incremento de fuerza por cada cruce del centro (dificultad orgánica)
 
   // Fuerza del input del jugador.
-  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 1.8 = 2.16
-  // Margen de control sin grasa: 5.0 - 1.2  = 3.80
-  // Margen de control con grasa: 5.0 - 2.16 = 2.84
-  // El "drop" entre sin y con grasa pasa de -0.6 (antes) a -0.96 → la grasa castiga ~60% más.
-  INPUT_FORCE: 5.0,
+  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 2.3 = 2.76
+  // Margen de control sin grasa: 5.5 - 1.2  = 4.30
+  // Margen de control con grasa: 5.5 - 2.76 = 2.74
+  // Drop dry→oily de -1.56 (vs -0.96 antes). El contraste entre palo limpio y
+  // palo grasiento es ahora muy notable: con grasa al máximo cuesta de verdad,
+  // con palo limpio se "respira". Esto materializa el loop emergente del
+  // sistema de zonas: el jugador siente que rebajar la grasa es la ruta a
+  // ganar, lo que añade durabilidad a la sesión.
+  INPUT_FORCE: 5.5,
 
   DAMPING: 0.1, // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
   VELOCITY_CAP: 5, // Velocidad máxima absoluta del cursor (u/s) — evita acumulación descontrolada
@@ -150,7 +154,7 @@ export const BALANCE = {
 export const OIL = {
   NUM_ZONES: 30, // Zonas en que se divide el palo
   WEAR_RATE: 12, // % de grasa desgastado por segundo en la zona activa
-  DRIFT_MULTIPLIER: 0.8, // Multiplicador máximo del drift al 100% de grasa (drift × 1.8 como máximo)
+  DRIFT_MULTIPLIER: 1.3, // Multiplicador máximo del drift al 100% de grasa (drift × 2.3 como máximo)
   OVERLAY_ALPHA: 0.55, // Opacidad máxima del overlay oscuro sobre el palo
 }
 
