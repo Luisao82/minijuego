@@ -65,7 +65,7 @@ export const PHASE1 = {
   BASE_ACCELERATION: 0.25, // Aceleración base por segundo
   WEIGHT_FACTOR: 0.2, // Aceleración extra por punto de peso — refuerza la diferencia entre personajes
   MAX_PASSES: 5, // Máximo de pasadas antes de que se acabe el tiempo
-  PERFECT_IMPULSE_MIN: 0.98, // Umbral mínimo para considerar el impulso "perfecto" (oportunidad de trozo de mapa). 0.98 = últimos 2% de la barra → ventana ~8 px sobre los 400 px totales.
+  PERFECT_IMPULSE_MIN: 0.99, // Umbral mínimo para considerar el impulso "perfecto" (oportunidad de trozo de mapa). 0.99 = último 1% de la barra → ventana ~4 px sobre los 400 px totales.
   PASS_SPEED_INCREASE: 0.1, // Incremento de velocidad base por pasada completada
   ZONES: {
     RED: { start: 0, end: 0.4 },

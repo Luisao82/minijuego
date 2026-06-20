@@ -446,7 +446,7 @@ Para editar cualquier texto del juego basta con abrir el archivo de contenido co
 | v1.1.2  | Tests Vitest (157), pista en el mapa vacío y recalibrado de dificultad (impulso más rápido, grasa más castigadora)                                                                                          |
 | v1.1.3  | Curva de desbloqueos rebalanceada + hint dinámico "te faltan X premios" + grasa con contraste mucho mayor (palo grasiento muy castigador, palo limpio liberador)                                            |
 | v1.1.4  | Recalibrado profundo: cruces más castigadores en equilibrio, damping ×4, grasa amplifica drift + growth, impulso más rápido con mayor influencia del peso del personaje                                     |
-| v1.1.5  | MAX POWER más exigente: ventana del último 5% al último 2% de la barra de impulso (PERFECT_IMPULSE_MIN 0.95 → 0.98)                                                                                         |
+| v1.1.5  | MAX POWER mucho más exigente: ventana del último 5% al último 1% de la barra de impulso (PERFECT_IMPULSE_MIN 0.95 → 0.99)                                                                                   |
 
 ---
 
