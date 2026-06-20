@@ -55,10 +55,40 @@
   - **CD — Modelo A (deliberado)** — Vercel mantiene su integración nativa con GitHub y sigue `main` directamente. Como Branch Protection garantiza que a `main` solo entra código que pasó CI, en la práctica Vercel solo despliega bundles validados. Se elige A frente a B (Actions despliega con `vercel deploy --prod`) porque conserva los preview deploys automáticos por PR y evita gestionar un token de Vercel adicional. Si en el futuro aparecen divergencias entre la build de CI y la de Vercel, migrar a B es un cambio aislado.
   - **Flujo de trabajo documentado:** rama de feature → push → PR contra `main` → CI corre sobre la rama del PR + Vercel preview deploy en paralelo → ambas verdes → merge (rebase para PRs con commits estructurados, squash para los exploratorios) → CI re-corre sobre `main` como red de seguridad → Vercel deploya a producción.
 
-### [ ] 7. Sin tests
+### [x] 7. Sin tests ✅ _completado 2026-06-11_
 
-- Cero tests. Ni framework de test configurado.
-- **Fix:** Añadir Vitest. Empezar por services (`GameStatsService`, `UnlockService`, `SkinService`) y systems (`BalanceSystem`, `ImpulseSystem`).
+- ~~Cero tests. Ni framework de test configurado.~~
+- **Implementado** (rama `feat/vitest-tests`):
+  - **Vitest 4 + happy-dom** instalados como devDependencies. `vitest.config.mjs` con
+    `environment: 'happy-dom'` (proporciona `localStorage`/`sessionStorage`/`window`
+    en memoria, más rápido que jsdom), `globals: true` para no repetir imports de
+    `describe`/`it`/`expect`, y `clearMocks` + `restoreMocks` para evitar
+    contaminación cruzada entre tests.
+  - **Scripts en `package.json`:** `test` (run único, para CI) y `test:watch`
+    (modo interactivo para desarrollo).
+  - **Suite de 157 tests en 13 archivos** sobre los servicios y sistemas puros
+    del juego: `weightedRandom`, `UnlockService`, `MapService`, `SkinService`,
+    `PerspectiveUnlockService`, `CharacterRewardService`, `RewardStorageService`,
+    `GameStatsService`, `StatsCalculator`, `ImpulseSystem`, `BalanceSystem`,
+    `JumpSystem`, `OilSystem`. Cubre estado inicial, transiciones, persistencia
+    en `localStorage`/`sessionStorage`, robustez ante JSON corrupto y
+    aislamiento entre instancias. Tiempo: ~1.3 s puro de tests + setup.
+  - **`eslint.config.js`** ampliado con una capa para `tests/` que reconoce los
+    globales de Vitest (`describe`, `it`, `expect`, `vi`, `beforeEach`...).
+  - **CI workflow** (`ci.yml`) ampliado con el step `npm test` justo antes del
+    build, de modo que un test rojo bloquea automáticamente el PR vía Branch
+    Protection. Sin tocar la configuración de Vercel ni la Branch Protection
+    rule: el check requerido sigue siendo `validate`, ahora más estricto.
+  - **Decisión de cobertura — "test what hurts when it breaks":** se cubren los
+    servicios de persistencia (donde un bug pierde el progreso del jugador) y
+    los sistemas de cálculo del juego (donde un bug rompe la jugabilidad). No
+    se cubren escenas de Phaser, componentes visuales, tweens ni audio: el
+    valor que aportan es visual, y las regresiones visuales se cazan mejor con
+    el preview de Vercel que con un mock de canvas. La regla es "¿podría
+    calcular esto en un papel sin abrir el navegador?"; si sí, hay test.
+- **Pendiente (no bloqueante):** ampliar a `FallSystem` si en algún momento se
+  saca su lógica de partículas a una función pura; tests de integración a
+  nivel de escena cuando aparezcan herramientas decentes para Phaser 3.
 
 ### [x] 8. Sin linting ni formatting ✅ _completado 2026-05-31_
 

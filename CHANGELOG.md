@@ -10,6 +10,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Added
 
 - **Pista en el mapa vacío:** cuando aún no se ha desbloqueado ninguna pieza, la vista general del mapa de Sevilla muestra un panel centrado explicando cómo conseguirlas ("Para conseguir las piezas del mapa, debes conseguir la bandera con el MAX POWER de impulso"). Mismo estilo de texto que los diálogos de Historia y Tutorial.
+- **Tests automatizados con Vitest (#7 cierre auditoría):** suite de 157 tests en 13 archivos sobre los servicios de persistencia (`UnlockService`, `MapService`, `SkinService`, `PerspectiveUnlockService`, `CharacterRewardService`, `RewardStorageService`, `GameStatsService`) y los sistemas puros del juego (`StatsCalculator`, `ImpulseSystem`, `BalanceSystem`, `JumpSystem`, `OilSystem`) más `weightedRandom`. `vitest.config.mjs` con `happy-dom` + `globals`. Scripts `npm test` (CI) y `npm test:watch` (desarrollo). Step `Test` añadido al workflow de CI, bloqueando merges en caso de regresión.
 
 ## [1.1.1] — 2026-06-11
 

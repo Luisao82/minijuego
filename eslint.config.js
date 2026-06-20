@@ -36,6 +36,24 @@ export default [
       globals: { ...globals.node },
     },
   },
+  {
+    // Tests con Vitest: `describe`, `it`, `expect`, `vi`, `beforeEach`...
+    // expuestos como globales por `globals: true` en vitest.config.mjs.
+    files: ['tests/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
+    },
+  },
   prettierConfig,
   {
     ignores: [
