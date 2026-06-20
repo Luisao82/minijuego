@@ -294,48 +294,65 @@ export class CharacterUnlockScene extends BaseScene {
     this.buttonContainer = this.add.container(0, 0)
     this.buttonContainer.setAlpha(0)
 
+    // makeNavButton dibuja directamente en la escena, no en un container.
+    // Capturamos los objetos creados durante cada llamada y los movemos al
+    // buttonContainer para que `destroy()` los limpie cuando se pasa al
+    // siguiente personaje. Sin esto, los botones del paso anterior quedan
+    // colgando y se solapan visualmente.
+    const collect = (fn) => {
+      const before = this.children.list.length
+      fn()
+      this.children.list.slice(before).forEach((o) => this.buttonContainer.add(o))
+    }
+
     if (isLast) {
       // Último (o único) desbloqueo: mostrar opciones finales
       const btnW = 220
       const gap = 16
 
-      makeNavButton(
-        this,
-        CENTER_X - btnW - gap / 2,
-        btnY,
-        btnW,
-        btnH,
-        'ELEGIR PERSONAJE',
-        () => {
-          if (this.canInteract) this.goToCharacterSelect()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - btnW - gap / 2,
+          btnY,
+          btnW,
+          btnH,
+          'ELEGIR PERSONAJE',
+          () => {
+            if (this.canInteract) this.goToCharacterSelect()
+          },
+          { depth: 6 }
+        )
       )
-      makeNavButton(
-        this,
-        CENTER_X + gap / 2,
-        btnY,
-        btnW,
-        btnH,
-        'VOLVER A JUGAR',
-        () => {
-          if (this.canInteract) this.playAgain()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X + gap / 2,
+          btnY,
+          btnW,
+          btnH,
+          'VOLVER A JUGAR',
+          () => {
+            if (this.canInteract) this.playAgain()
+          },
+          { depth: 6 }
+        )
       )
     } else {
       // Hay más personajes por revelar
-      makeNavButton(
-        this,
-        CENTER_X - 120,
-        btnY,
-        240,
-        btnH,
-        'SIGUIENTE ▶',
-        () => {
-          if (this.canInteract) this.nextCharacter()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - 120,
+          btnY,
+          240,
+          btnH,
+          'SIGUIENTE ▶',
+          () => {
+            if (this.canInteract) this.nextCharacter()
+          },
+          { depth: 6 }
+        )
       )
     }
   }

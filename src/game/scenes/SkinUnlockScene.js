@@ -278,46 +278,64 @@ export class SkinUnlockScene extends BaseScene {
     this.buttonContainer = this.add.container(0, 0)
     this.buttonContainer.setAlpha(0)
 
+    // makeNavButton dibuja directamente en la escena, no en un container.
+    // Para que `destroy()` del buttonContainer también borre los botones al
+    // pasar al siguiente skin, capturamos los objetos añadidos durante la
+    // llamada y los movemos al container. Sin esto, los botones de la
+    // iteración anterior quedan colgando y se solapan visualmente con los
+    // nuevos (caso típico: Cuñaos, que desbloquean dos skins a la vez).
+    const collect = (fn) => {
+      const before = this.children.list.length
+      fn()
+      this.children.list.slice(before).forEach((o) => this.buttonContainer.add(o))
+    }
+
     if (isLast) {
       const btnW = 220
       const gap = 16
 
-      makeNavButton(
-        this,
-        CENTER_X - btnW - gap / 2,
-        btnY,
-        btnW,
-        btnH,
-        'ELEGIR SKIN',
-        () => {
-          if (this.canInteract) this.goToSkinSelect()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - btnW - gap / 2,
+          btnY,
+          btnW,
+          btnH,
+          'ELEGIR SKIN',
+          () => {
+            if (this.canInteract) this.goToSkinSelect()
+          },
+          { depth: 6 }
+        )
       )
-      makeNavButton(
-        this,
-        CENTER_X + gap / 2,
-        btnY,
-        btnW,
-        btnH,
-        'VOLVER A JUGAR',
-        () => {
-          if (this.canInteract) this.playAgain()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X + gap / 2,
+          btnY,
+          btnW,
+          btnH,
+          'VOLVER A JUGAR',
+          () => {
+            if (this.canInteract) this.playAgain()
+          },
+          { depth: 6 }
+        )
       )
     } else {
-      makeNavButton(
-        this,
-        CENTER_X - 120,
-        btnY,
-        240,
-        btnH,
-        'SIGUIENTE ▶',
-        () => {
-          if (this.canInteract) this.nextSkin()
-        },
-        { depth: 6 }
+      collect(() =>
+        makeNavButton(
+          this,
+          CENTER_X - 120,
+          btnY,
+          240,
+          btnH,
+          'SIGUIENTE ▶',
+          () => {
+            if (this.canInteract) this.nextSkin()
+          },
+          { depth: 6 }
+        )
       )
     }
   }

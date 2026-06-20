@@ -14,6 +14,10 @@ la bandera, y con palo limpio se "respira". Materializa el loop emergente que
 ya tenía el sistema de zonas: el jugador siente que rebajar la grasa es la
 ruta a ganar, lo que añade durabilidad a la sesión.
 
+### Fixed
+
+- **Botones fantasma en las escenas de desbloqueo en cadena (`SkinUnlockScene`, `CharacterUnlockScene`, `PerspectiveUnlockScene`):** al desbloquear varios elementos de golpe (caso típico: los Cuñaos desbloquean Rafi-pelicula + Fali-pelicula a 3 banderas), el segundo y siguientes paneles mostraban los botones del anterior solapados sobre los nuevos. Causa: las tres escenas creaban un `buttonContainer` vacío y llamaban a `makeNavButton`, que dibuja sus gráficos directamente en la escena, no en el container. Al pasar al siguiente elemento, `buttonContainer.destroy()` solo destruía un container vacío y los botones anteriores quedaban colgando. Solución: capturar `this.children.list.length` antes y después de cada llamada y mover los nuevos hijos al container, mismo patrón ya usado por `MapScene` para los botones del zoom modal.
+
 ### Changed
 
 - **Balance — Fase 2 (Equilibrio) — contraste palo limpio vs grasiento mucho mayor:** `OIL.DRIFT_MULTIPLIER` 0.8 → 1.3 (drift máximo con grasa al 100% pasa de ×1.8 a ×2.3) y `BALANCE.INPUT_FORCE` 5.0 → 5.5. El invariante de control sigue garantizado: `INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 2.3 = 2.76`. Margen sin grasa pasa de 3.80 a **4.30**; margen con grasa al 100% pasa de 2.84 a **2.74**. El "drop" entre seco y grasiento crece de -0.96 a -1.56, ~60% más castigo. Con grasa al máximo cuesta de verdad ganar, con palo limpio el cursor se controla con facilidad — el jugador asocia "rebajar grasa = ganar".
