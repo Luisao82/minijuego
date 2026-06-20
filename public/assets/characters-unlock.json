@@ -3,8 +3,8 @@
     "characterId": "abuela",
     "condition": {
       "type": "specific_reward",
-      "rewardId": "reward_vajilla",
-      "hint": "Consigue la Vajilla de La Cartuja"
+      "rewardId": "reward_wendolin",
+      "hint": "Consigue La Wendolin"
     }
   },
   {

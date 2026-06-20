@@ -18,6 +18,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   - `guiri` 10 → 10 (estable, fase de aprendizaje)
   - `cunaos` 15 → 22 (muralla del medio, hito de progreso real)
   - `retro` 20 → 45 (endgame de 2-3 semanas para casuales enganchados)
+  - `abuela` premio específico: `reward_vajilla` → `reward_wendolin` (La Wendolin)
 - **Perspectiva Sevilla:** 3 → 8 premios. Pasa de "venía casi por defecto" a "te lo has ganado".
 - **Curva de skins por personaje:** primer skin alternativo se siente como un regalo rápido, último como endgame.
   - Trianero: `5, 10, 15, 20` → `3, 8, 15, 25`
