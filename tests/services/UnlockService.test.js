@@ -143,6 +143,49 @@ describe('UnlockService', () => {
     })
   })
 
+  describe('getProgressHint', () => {
+    beforeEach(() => {
+      service.setConditions([
+        {
+          characterId: 'chaval',
+          condition: { type: 'total_rewards', count: 10, hint: 'Consigue 10 premios' },
+        },
+        {
+          characterId: 'abuela',
+          condition: {
+            type: 'specific_reward',
+            rewardId: 'reward_vajilla',
+            hint: 'Consigue la Vajilla de La Cartuja',
+          },
+        },
+      ])
+    })
+
+    it('devuelve null para personajes sin condición registrada', () => {
+      expect(service.getProgressHint('desconocido', makeFakeRewardStorage())).toBeNull()
+    })
+
+    it('devuelve hint estático para condiciones specific_reward', () => {
+      const storage = makeFakeRewardStorage()
+      expect(service.getProgressHint('abuela', storage)).toBe('Consigue la Vajilla de La Cartuja')
+    })
+
+    it('devuelve "Te faltan N premios" calculado para total_rewards', () => {
+      const storage = makeFakeRewardStorage({ a: 4 }) // total = 4, faltan 6
+      expect(service.getProgressHint('chaval', storage)).toBe('Te faltan 6 premios')
+    })
+
+    it('usa singular cuando falta exactamente 1 premio', () => {
+      const storage = makeFakeRewardStorage({ a: 9 })
+      expect(service.getProgressHint('chaval', storage)).toBe('Te faltan 1 premio')
+    })
+
+    it('clamp a 0 cuando el jugador ya tiene más que el umbral', () => {
+      const storage = makeFakeRewardStorage({ a: 50 })
+      expect(service.getProgressHint('chaval', storage)).toBe('Te faltan 0 premios')
+    })
+  })
+
   describe('clear', () => {
     it('borra los desbloqueos persistidos manteniendo los defaults', () => {
       service.saveUnlocks(['abuela', 'pescador'])

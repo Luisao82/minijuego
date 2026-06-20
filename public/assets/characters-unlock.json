@@ -11,8 +11,8 @@
     "characterId": "chaval",
     "condition": {
       "type": "total_rewards",
-      "count": 5,
-      "hint": "Consigue 5 premios en total"
+      "count": 3,
+      "hint": "Consigue 3 premios en total"
     }
   },
   {
@@ -27,16 +27,16 @@
     "characterId": "cunaos",
     "condition": {
       "type": "total_rewards",
-      "count": 15,
-      "hint": "Consigue 15 premios en total"
+      "count": 22,
+      "hint": "Consigue 22 premios en total"
     }
   },
   {
     "characterId": "retro01",
     "condition": {
       "type": "total_rewards",
-      "count": 20,
-      "hint": "Consigue 20 premios en total"
+      "count": 45,
+      "hint": "Consigue 45 premios en total"
     }
   }
 ]
