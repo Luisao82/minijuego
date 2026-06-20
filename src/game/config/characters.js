@@ -15,10 +15,10 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'trianero', nombre: 'Trianero', flags: null },
-      { spritesheet: 'nazareno', nombre: 'Nazareno', flags: 5 },
-      { spritesheet: 'feriante', nombre: 'Feriante', flags: 10 },
+      { spritesheet: 'nazareno', nombre: 'Nazareno', flags: 3 },
+      { spritesheet: 'feriante', nombre: 'Feriante', flags: 8 },
       { spritesheet: 'costalero', nombre: 'Costalero', flags: 15 },
-      { spritesheet: 'armao', nombre: 'Armao', flags: 20 },
+      { spritesheet: 'armao', nombre: 'Armao', flags: 25 },
     ],
   },
   {
@@ -30,8 +30,8 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'trianera', nombre: 'Trianera', flags: null },
-      { spritesheet: 'nazarena', nombre: 'Nazarena', flags: 5 },
-      { spritesheet: 'mantilla', nombre: 'Mantilla', flags: 10 },
+      { spritesheet: 'nazarena', nombre: 'Nazarena', flags: 3 },
+      { spritesheet: 'mantilla', nombre: 'Mantilla', flags: 8 },
       { spritesheet: 'flamenca', nombre: 'Flamenca', flags: 15 },
     ],
   },
@@ -44,8 +44,8 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'abuela', nombre: 'Omaita', flags: null },
-      { spritesheet: 'antonia', nombre: 'Antonia', flags: 5 },
-      { spritesheet: 'paco', nombre: 'Paco', flags: 10 },
+      { spritesheet: 'antonia', nombre: 'Antonia', flags: 4 },
+      { spritesheet: 'paco', nombre: 'Paco', flags: 12 },
     ],
   },
   {
@@ -77,10 +77,10 @@ export const CHARACTERS = [
     skins: [
       { spritesheet: 'rafi', nombre: 'Rafi', flags: null },
       { spritesheet: 'fali', nombre: 'Fali', flags: null },
-      { spritesheet: 'rafi-pelicula', nombre: 'El mundo es suyo ...', flags: 5 },
-      { spritesheet: 'fali-pelicula', nombre: '...y es suyo', flags: 5 },
-      { spritesheet: 'rafi-equipo', nombre: 'Manquepierda', flags: 10 },
-      { spritesheet: 'fali-equipo', nombre: 'Hasta la muerte', flags: 10 },
+      { spritesheet: 'rafi-pelicula', nombre: 'El mundo es suyo ...', flags: 3 },
+      { spritesheet: 'fali-pelicula', nombre: '...y es suyo', flags: 3 },
+      { spritesheet: 'rafi-equipo', nombre: 'Manquepierda', flags: 9 },
+      { spritesheet: 'fali-equipo', nombre: 'Hasta la muerte', flags: 9 },
     ],
   },
   {
@@ -92,8 +92,8 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'retro02', nombre: 'Mario', flags: null },
-      { spritesheet: 'retro01', nombre: 'Abu Simbel', flags: 5 },
-      { spritesheet: 'retro03', nombre: 'Dan', flags: 10 },
+      { spritesheet: 'retro01', nombre: 'Abu Simbel', flags: 3 },
+      { spritesheet: 'retro03', nombre: 'Dan', flags: 9 },
     ],
   },
   {

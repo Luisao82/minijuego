@@ -7,7 +7,24 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-## [1.1.2] — 2026-06-20
+### Added
+
+- **Hint dinámico de progreso en personajes bloqueados:** las cards y el panel de detalle de `CharacterSelectScene` muestran "Te faltan X premios" en lugar del hint estático cuando el desbloqueo es por `total_rewards`. Para `specific_reward` se conserva el texto del JSON (ej. "Consigue la Vajilla de La Cartuja"). Nuevo método `unlockService.getProgressHint(characterId, rewardStorage)` cubierto con 5 tests adicionales.
+
+### Changed
+
+- **Curva de personajes (Curva A "onboarding cariñoso"):** primer desbloqueo más rápido para enganchar, salto fuerte a mitad, endgame a largo plazo.
+  - `chaval` 5 → 3 premios (primer hit en ~7-10 partidas con 30-40% de winrate)
+  - `guiri` 10 → 10 (estable, fase de aprendizaje)
+  - `cunaos` 15 → 22 (muralla del medio, hito de progreso real)
+  - `retro` 20 → 45 (endgame de 2-3 semanas para casuales enganchados)
+- **Perspectiva Sevilla:** 3 → 8 premios. Pasa de "venía casi por defecto" a "te lo has ganado".
+- **Curva de skins por personaje:** primer skin alternativo se siente como un regalo rápido, último como endgame.
+  - Trianero: `5, 10, 15, 20` → `3, 8, 15, 25`
+  - Flamenca: `5, 10, 15` → `3, 8, 15`
+  - Agüela: `5, 10` → `4, 12`
+  - Cuñaos: `5, 5, 10, 10` → `3, 3, 9, 9`
+  - Retro: `5, 10` → `3, 9`
 
 Pulido pre-publicación: pista contextual en el mapa, suite de tests completa y
 recalibrado de dificultad de las dos fases para que la grasa y el MAX POWER

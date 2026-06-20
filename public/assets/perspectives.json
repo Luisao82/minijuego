@@ -16,8 +16,8 @@
     "yOffset": -20,
     "condition": {
       "type": "total_rewards",
-      "count": 3,
-      "hint": "Consigue 3 premios en total"
+      "count": 8,
+      "hint": "Consigue 8 premios en total"
     }
   }
 ]

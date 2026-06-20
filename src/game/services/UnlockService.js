@@ -139,6 +139,23 @@ export function createUnlockService() {
       return entry?.condition?.hint ?? null
     },
 
+    // Devuelve un hint dinámico con progreso para personajes bloqueados por
+    // total_rewards (ej. "Te faltan 4 premios"). Para specific_reward o sin
+    // condición devuelve el hint estático del JSON.
+    //
+    // rewardStorage: cualquier objeto con getAll() → { [id]: count }
+    getProgressHint(characterId, rewardStorage) {
+      const entry = conditions.find((e) => e.characterId === characterId)
+      const cond = entry?.condition
+      if (!cond) return null
+      if (cond.type === 'total_rewards') {
+        const total = this.getTotalRewards(rewardStorage)
+        const missing = Math.max(0, cond.count - total)
+        return `Te faltan ${missing} ${missing === 1 ? 'premio' : 'premios'}`
+      }
+      return cond.hint ?? null
+    },
+
     // Elimina todos los desbloqueos (útil para testing o reset)
     clear() {
       try {

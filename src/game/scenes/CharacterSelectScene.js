@@ -6,6 +6,7 @@ import { CHARACTERS } from '../config/characters'
 import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { unlockService } from '../services/UnlockService'
+import { rewardStorage } from '../services/RewardStorageService'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_WIDTH = 240
@@ -101,7 +102,9 @@ export class CharacterSelectScene extends BaseScene {
     this.characters.forEach((char, i) => {
       const isSelected = i === this.selectedIndex
       const isLocked = !unlockService.isUnlocked(char.id)
-      const hint = isLocked ? unlockService.getHint(char.id) : null
+      // Hint dinámico: "Te faltan X premios" para total_rewards, hint estático
+      // del JSON para specific_reward (ej. "Consigue la Vajilla de La Cartuja").
+      const hint = isLocked ? unlockService.getProgressHint(char.id, rewardStorage) : null
       const container = createCharacterCard(this, char, isSelected, CARD_LAYOUT, isLocked, hint)
       container.y = CARDS_Y
       this.carouselContainer.add(container)
@@ -168,7 +171,7 @@ export class CharacterSelectScene extends BaseScene {
 
     const isLocked = !unlockService.isUnlocked(char.id)
     const text = isLocked
-      ? (unlockService.getHint(char.id) ?? 'Personaje bloqueado')
+      ? (unlockService.getProgressHint(char.id, rewardStorage) ?? 'Personaje bloqueado')
       : char.description
     const color = isLocked ? '#555577' : '#ffd700'
 
