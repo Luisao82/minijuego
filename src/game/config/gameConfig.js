@@ -61,9 +61,9 @@ export const CONTROL_PANEL = {
 
 // Configuración de la Fase 1 — Impulso ("La carrera")
 export const PHASE1 = {
-  BASE_SPEED: 0.2, // Velocidad inicial de la barra (pos/seg)
-  BASE_ACCELERATION: 0.15, // Aceleración base por segundo
-  WEIGHT_FACTOR: 0.1, // Aceleración extra por punto de peso
+  BASE_SPEED: 0.3, // Velocidad inicial de la barra (pos/seg)
+  BASE_ACCELERATION: 0.25, // Aceleración base por segundo
+  WEIGHT_FACTOR: 0.2, // Aceleración extra por punto de peso — refuerza la diferencia entre personajes
   MAX_PASSES: 5, // Máximo de pasadas antes de que se acabe el tiempo
   PERFECT_IMPULSE_MIN: 0.95, // Umbral mínimo para considerar el impulso "perfecto" (oportunidad de trozo de mapa)
   PASS_SPEED_INCREASE: 0.1, // Incremento de velocidad base por pasada completada
@@ -120,20 +120,20 @@ export const BALANCE = {
   // Fuerza del drift según stat de equilibrio del personaje
   DRIFT_MIN: 0.3, // Fuerza inicial del drift (empieza suave)
   DRIFT_MAX: 1.2, // Fuerza máxima alcanzable del drift (con equilibrio 0)
-  DRIFT_GROWTH_PER_CROSS: 0.06, // Incremento de fuerza por cada cruce del centro (dificultad orgánica)
+  DRIFT_GROWTH_PER_CROSS: 0.18, // Incremento de fuerza por cada cruce del centro — sube agresivo
 
   // Fuerza del input del jugador.
-  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 2.3 = 2.76
-  // Margen de control sin grasa: 5.5 - 1.2  = 4.30
-  // Margen de control con grasa: 5.5 - 2.76 = 2.74
-  // Drop dry→oily de -1.56 (vs -0.96 antes). El contraste entre palo limpio y
-  // palo grasiento es ahora muy notable: con grasa al máximo cuesta de verdad,
-  // con palo limpio se "respira". Esto materializa el loop emergente del
-  // sistema de zonas: el jugador siente que rebajar la grasa es la ruta a
-  // ganar, lo que añade durabilidad a la sesión.
-  INPUT_FORCE: 5.5,
+  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 2.6 = 3.12
+  // Margen de control sin grasa: 6.5 - 1.2   = 5.30
+  // Margen de control con grasa: 6.5 - 3.12  = 3.38
+  // Pero el margen ya no lo cuenta todo: ahora cada inversión cuesta más
+  // (DRIFT_GROWTH triplicado), la velocity decae más rápido (DAMPING ×4) y
+  // los cruces con grasa escalan vía OIL.GROWTH_MULTIPLIER. Resultado:
+  // con palo grasiento el cursor se siente "vivo" y exige foco constante;
+  // con palo limpio se controla con facilidad — palo limpio = recompensa.
+  INPUT_FORCE: 6.5,
 
-  DAMPING: 0.1, // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
+  DAMPING: 0.4, // Amortiguamiento de velocity — más alto = menos inercia, hay que pulsar más a menudo
   VELOCITY_CAP: 5, // Velocidad máxima absoluta del cursor (u/s) — evita acumulación descontrolada
 
   // Límites según stat de equilibrio del personaje
@@ -148,13 +148,17 @@ export const BALANCE = {
 }
 
 // Configuración del sistema de grasa del palo
-// La grasa amplifica el drift en la fase de equilibrio
-//   100% grasa → drift * (1 + DRIFT_MULTIPLIER) → máxima dificultad
-//     0% grasa → drift * 1                       → comportamiento base
+// La grasa amplifica DOS cosas a la vez en la fase de equilibrio:
+//   1. La fuerza máxima del drift (DRIFT_MULTIPLIER) — el cursor se va con más fuerza.
+//   2. El incremento de fuerza por cruce (GROWTH_MULTIPLIER) — cada inversión castiga más.
+// Con grasa al 100% el drift sube rápido y se vuelve incontrolable casi sin
+// que el jugador lo note. Con palo limpio, ambos multiplicadores son 0 y el
+// sistema se siente "domesticable".
 export const OIL = {
   NUM_ZONES: 30, // Zonas en que se divide el palo
   WEAR_RATE: 12, // % de grasa desgastado por segundo en la zona activa
-  DRIFT_MULTIPLIER: 1.3, // Multiplicador máximo del drift al 100% de grasa (drift × 2.3 como máximo)
+  DRIFT_MULTIPLIER: 1.6, // Multiplicador máximo del drift al 100% de grasa (drift × 2.6 como máximo)
+  GROWTH_MULTIPLIER: 1.5, // Multiplicador máximo del crecimiento por cruce al 100% de grasa
   OVERLAY_ALPHA: 0.55, // Opacidad máxima del overlay oscuro sobre el palo
 }
 
