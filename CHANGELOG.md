@@ -7,6 +7,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.5] — 2026-06-20
+
+Ajuste fino: el MAX POWER se hace más raro a propósito. Con la calibración de
+v1.1.4 (barra más rápida) la ventana del 5% sentía demasiado generosa. Ahora
+la ventana es del 2% — un evento de skill real.
+
+### Changed
+
+- **MAX POWER más exigente:** `PHASE1.PERFECT_IMPULSE_MIN` 0.95 → 0.98. La ventana de "impulso perfecto" pasa del último 5% al último 2% de la barra (sobre 400 px totales: ~8 px de ventana en lugar de ~20). Sigue siendo el único camino para conseguir un trozo de mapa.
+
 ## [1.1.4] — 2026-06-20
 
 Recalibrado profundo de dificultad. En equilibrio, las inversiones cuestan
