@@ -61,8 +61,8 @@ export const CONTROL_PANEL = {
 
 // Configuración de la Fase 1 — Impulso ("La carrera")
 export const PHASE1 = {
-  BASE_SPEED: 0.15, // Velocidad inicial de la barra (pos/seg)
-  BASE_ACCELERATION: 0.1, // Aceleración base por segundo
+  BASE_SPEED: 0.2, // Velocidad inicial de la barra (pos/seg)
+  BASE_ACCELERATION: 0.15, // Aceleración base por segundo
   WEIGHT_FACTOR: 0.1, // Aceleración extra por punto de peso
   MAX_PASSES: 5, // Máximo de pasadas antes de que se acabe el tiempo
   PERFECT_IMPULSE_MIN: 0.95, // Umbral mínimo para considerar el impulso "perfecto" (oportunidad de trozo de mapa)
@@ -122,11 +122,12 @@ export const BALANCE = {
   DRIFT_MAX: 1.2, // Fuerza máxima alcanzable del drift (con equilibrio 0)
   DRIFT_GROWTH_PER_CROSS: 0.06, // Incremento de fuerza por cada cruce del centro (dificultad orgánica)
 
-  // Fuerza del input del jugador
-  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 1.5 = 1.8
-  // Margen de control: 2.5 - 1.8 = 0.7
-  // Acel máx combinada: 2.5 + 1.8 = 4.3 u/s² → tarda ~1.2s en llegar al cap (antes 0.5s)
-  INPUT_FORCE: 4.5,
+  // Fuerza del input del jugador.
+  // GARANTÍA: INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 1.2 × 1.8 = 2.16
+  // Margen de control sin grasa: 5.0 - 1.2  = 3.80
+  // Margen de control con grasa: 5.0 - 2.16 = 2.84
+  // El "drop" entre sin y con grasa pasa de -0.6 (antes) a -0.96 → la grasa castiga ~60% más.
+  INPUT_FORCE: 5.0,
 
   DAMPING: 0.1, // Amortiguamiento de velocity — bajo = más inercia, la velocity acumulada dura más
   VELOCITY_CAP: 5, // Velocidad máxima absoluta del cursor (u/s) — evita acumulación descontrolada
@@ -149,7 +150,7 @@ export const BALANCE = {
 export const OIL = {
   NUM_ZONES: 30, // Zonas en que se divide el palo
   WEAR_RATE: 12, // % de grasa desgastado por segundo en la zona activa
-  DRIFT_MULTIPLIER: 0.5, // Multiplicador máximo del drift al 100% de grasa (drift × 1.5 como máximo)
+  DRIFT_MULTIPLIER: 0.8, // Multiplicador máximo del drift al 100% de grasa (drift × 1.8 como máximo)
   OVERLAY_ALPHA: 0.55, // Opacidad máxima del overlay oscuro sobre el palo
 }
 

@@ -12,6 +12,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **Pista en el mapa vacío:** cuando aún no se ha desbloqueado ninguna pieza, la vista general del mapa de Sevilla muestra un panel centrado explicando cómo conseguirlas ("Para conseguir las piezas del mapa, debes conseguir la bandera con el MAX POWER de impulso"). Mismo estilo de texto que los diálogos de Historia y Tutorial.
 - **Tests automatizados con Vitest (#7 cierre auditoría):** suite de 157 tests en 13 archivos sobre los servicios de persistencia (`UnlockService`, `MapService`, `SkinService`, `PerspectiveUnlockService`, `CharacterRewardService`, `RewardStorageService`, `GameStatsService`) y los sistemas puros del juego (`StatsCalculator`, `ImpulseSystem`, `BalanceSystem`, `JumpSystem`, `OilSystem`) más `weightedRandom`. `vitest.config.mjs` con `happy-dom` + `globals`. Scripts `npm test` (CI) y `npm test:watch` (desarrollo). Step `Test` añadido al workflow de CI, bloqueando merges en caso de regresión.
 
+### Changed
+
+- **Balance — Fase 1 (Impulso) más exigente:** `PHASE1.BASE_SPEED` 0.15 → 0.20 y `PHASE1.BASE_ACCELERATION` 0.10 → 0.15. La barra de poder arranca un 33% más rápida y acelera un 50% más, dejando menos tiempo de reacción para clavar el MAX POWER sin alterar la sensación general.
+- **Balance — Fase 2 (Equilibrio) con grasa más castigadora:** `OIL.DRIFT_MULTIPLIER` 0.5 → 0.8 (el drift máximo con grasa al 100% pasa de ×1.5 a ×1.8) y `BALANCE.INPUT_FORCE` 4.5 → 5.0. Mantiene el invariante de control `INPUT_FORCE > DRIFT_MAX × (1 + OIL.DRIFT_MULTIPLIER) = 2.16`. El "drop" de margen entre palo seco y palo grasiento pasa de -0.6 a -0.96 (~60% más castigo de la grasa) sin volver el juego invencible: con grasa al 100% el margen efectivo es 2.84, similar a los 2.7 anteriores.
+
 ## [1.1.1] — 2026-06-11
 
 Cierre de la auditoría técnica pre-publicación (12 de 13 items de `AUDITORIA.md`,
