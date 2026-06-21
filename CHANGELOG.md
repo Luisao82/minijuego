@@ -7,6 +7,22 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.6] — 2026-06-20
+
+Aplicar una curva no lineal a la grasa para que el tramo 100%-70% castigue
+mucho y el tramo 30%-0% se sienta casi limpio. Justo lo que pide la sensación
+de "el primer tercio del palo se domestica rápido, las zonas finales siguen
+siendo brutales hasta que las gastes".
+
+### Changed
+
+- **Curva no-lineal de grasa:** nuevo `OIL.CURVE_POWER` = 2 (cuadrática). El `greaseRatio` (0..1) se eleva al cuadrado antes de aplicar `DRIFT_MULTIPLIER` y `GROWTH_MULTIPLIER`. Con grasa al 100%, los factores quedan iguales que en v1.1.5 (2.6/2.5); pero a 90% el driftFactor baja de 2.44 a 2.30, a 70% baja de 2.12 a 1.78, y a 30% baja de 1.48 a 1.14. La sensación: clavar la bandera con palo virgen sigue siendo brutal, pero gastar el palo a 30-50% se nota mucho. Recompensa progresiva real por jugar y desgastar zonas.
+
+### Notas técnicas
+
+- La grasa **ya se aplicaba por segmento** (30 zonas a lo largo del palo) — la novedad de v1.1.6 es solo la curva. El `greaseRatio` que recibe `BalanceSystem` sigue siendo el de la zona donde está el personaje en ese frame, no la media global.
+- Test añadido en `BalanceSystem.test.js`: verifica que con curva cuadrática, el growth de cruce a 100% de grasa es **más del doble** que a 50% (con lineal era exactamente el doble). Suite: 167/167.
+
 ## [1.1.5] — 2026-06-20
 
 Ajuste fino: el MAX POWER se hace mucho más raro a propósito. Con la

@@ -77,6 +77,30 @@ describe('BalanceSystem', () => {
       expect(Math.abs(b.position)).toBeGreaterThan(Math.abs(a.position))
     })
 
+    it('la curva CURVE_POWER es no-lineal: ratio 0.5 castiga MUCHO menos que ratio 1.0', () => {
+      // Con curva lineal (power=1), el growthFactor a ratio 0.5 sería 1.75
+      // y a ratio 1.0 sería 2.5 → razón 1.43x.
+      // Con curva cuadrática (power=2), el growthFactor a ratio 0.5 es 1.375
+      // y a ratio 1.0 es 2.5 → razón 1.82x.
+      // El test exige que la razón sea > 1.7x: imposible con lineal, holgado
+      // con cuadrática. Si subiéramos CURVE_POWER a 3 sería aún más extremo.
+      const a = new BalanceBar(3)
+      const b = new BalanceBar(3)
+      const sysA = new BalanceSystem(a) // ratio 0.5
+      const sysB = new BalanceSystem(b) // ratio 1.0
+      sysA.driftDirection = 1
+      sysB.driftDirection = 1
+      a.velocity = -0.5
+      b.velocity = -0.5
+      sysA.update(DT, 0, 0.5)
+      sysB.update(DT, 0, 1.0)
+
+      const growthA = sysA.driftForce - 0.3 // crecimiento puro (DRIFT_MIN = 0.3)
+      const growthB = sysB.driftForce - 0.3
+
+      expect(growthB).toBeGreaterThan(growthA * 1.7)
+    })
+
     it('con greaseRatio alto cada cruce del centro castiga más el drift', () => {
       // Para aislar el efecto del growthFactor, forzamos a mano una inversión
       // de signo de velocity (que es lo que dispara el crecimiento del drift)

@@ -30,18 +30,21 @@ export class BalanceSystem {
   }
 
   // greaseRatio: proporcionado por OilSystem (0 = sin grasa, 1 = al 100%).
-  //   Aplica DOS amplificaciones a la vez:
+  //   Aplica DOS amplificaciones a la vez sobre una curva no lineal:
   //     - DRIFT_MULTIPLIER: la fuerza máxima del drift sube.
   //     - GROWTH_MULTIPLIER: cada cruce del centro castiga más fuerte.
   //   Con grasa al 100% el cursor se vuelve agresivo de verdad; con palo
-  //   limpio el sistema vuelve al comportamiento base.
+  //   limpio el sistema vuelve al comportamiento base. La curva (OIL.CURVE_POWER)
+  //   hace que el tramo 100%-70% castigue mucho y el tramo 30%-0% se sienta
+  //   casi limpio — recompensa progresiva al gastar el palo zona a zona.
   update(dt, inputDirection, greaseRatio = 0) {
     if (this.bar.failed) return
 
     this.elapsed += dt
 
-    const driftFactor = 1 + greaseRatio * OIL.DRIFT_MULTIPLIER
-    const growthFactor = 1 + greaseRatio * OIL.GROWTH_MULTIPLIER
+    const curvedGrease = Math.pow(greaseRatio, OIL.CURVE_POWER)
+    const driftFactor = 1 + curvedGrease * OIL.DRIFT_MULTIPLIER
+    const growthFactor = 1 + curvedGrease * OIL.GROWTH_MULTIPLIER
 
     // El drift sigue el signo de la velocidad actual: amplifica la inercia existente.
     // Cuando la velocidad cambia de signo (el cursor invierte dirección), la fuerza crece.
