@@ -7,6 +7,21 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.7] — 2026-06-20
+
+Dos cambios pequeños pero notables: la curva de grasa pasa a cúbica (casi
+toda la dificultad se concentra entre 100% y 80%) y se quita el icono `▶`
+de los botones de las escenas de desbloqueo (los usuarios lo leían como
+"play").
+
+### Changed
+
+- **Curva de grasa cúbica:** `OIL.CURVE_POWER` 2 → 3. La diferencia entre 100% y 80% de grasa se hace mucho más dramática: a 80% el driftFactor pasa de 2.02 a 1.82; a 70% de 1.78 a 1.55; a 50% de 1.40 a 1.20. El techo a 100% sigue intacto (2.60). El alivio se concentra en el primer cuarto de gasto del palo — el resto se siente "casi limpio".
+
+### Fixed
+
+- **Botones de desbloqueo sin icono `▶`:** los labels `'SIGUIENTE ▶'` y `'CONTINUAR ▶'` de `CharacterUnlockScene`, `SkinUnlockScene` y `PerspectiveUnlockScene` pasan a `'SIGUIENTE'` y `'CONTINUAR'`. Los usuarios estaban interpretando el triángulo como un icono de "play" más que como una flecha direccional.
+
 ## [1.1.6] — 2026-06-20
 
 Aplicar una curva no lineal a la grasa para que el tramo 100%-70% castigue

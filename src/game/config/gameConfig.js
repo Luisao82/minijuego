@@ -168,7 +168,7 @@ export const OIL = {
   WEAR_RATE: 12, // % de grasa desgastado por segundo en la zona activa
   DRIFT_MULTIPLIER: 1.6, // Multiplicador máximo del drift al 100% de grasa (drift × 2.6 como máximo)
   GROWTH_MULTIPLIER: 1.5, // Multiplicador máximo del crecimiento por cruce al 100% de grasa
-  CURVE_POWER: 2, // Exponente aplicado a greaseRatio antes de los multiplicadores (1 = lineal, 2 = cuadrática)
+  CURVE_POWER: 3, // Exponente aplicado a greaseRatio (1 = lineal, 2 = cuadrática, 3 = cúbica — el tramo 100-80% concentra casi toda la dificultad)
   OVERLAY_ALPHA: 0.55, // Opacidad máxima del overlay oscuro sobre el palo
 }
 
