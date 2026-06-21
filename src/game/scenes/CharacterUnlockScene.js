@@ -347,7 +347,7 @@ export class CharacterUnlockScene extends BaseScene {
           btnY,
           240,
           btnH,
-          'SIGUIENTE ▶',
+          'SIGUIENTE',
           () => {
             if (this.canInteract) this.nextCharacter()
           },
