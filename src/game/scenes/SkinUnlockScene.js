@@ -330,7 +330,7 @@ export class SkinUnlockScene extends BaseScene {
           btnY,
           240,
           btnH,
-          'SIGUIENTE ▶',
+          'SIGUIENTE',
           () => {
             if (this.canInteract) this.nextSkin()
           },

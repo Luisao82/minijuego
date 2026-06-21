@@ -226,7 +226,7 @@ export class PerspectiveUnlockScene extends BaseScene {
           btnY,
           240,
           btnH,
-          'CONTINUAR ▶',
+          'CONTINUAR',
           () => {
             if (this.canInteract) this._proceed()
           },
@@ -241,7 +241,7 @@ export class PerspectiveUnlockScene extends BaseScene {
           btnY,
           240,
           btnH,
-          'SIGUIENTE ▶',
+          'SIGUIENTE',
           () => {
             if (this.canInteract) this._nextPerspective()
           },
