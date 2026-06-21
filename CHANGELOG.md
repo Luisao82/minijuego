@@ -22,6 +22,7 @@ usuarios lo leían como "play").
 ### Changed
 
 - **Curva de grasa cúbica:** `OIL.CURVE_POWER` 2 → 3. La diferencia entre 100% y 80% de grasa se hace mucho más dramática: a 80% el driftFactor pasa de 2.02 a 1.82; a 70% de 1.78 a 1.55; a 50% de 1.40 a 1.20. El techo a 100% sigue intacto (2.60). El alivio se concentra en el primer cuarto de gasto del palo — el resto se siente "casi limpio".
+- **MAX POWER más asequible:** `PHASE1.PERFECT_IMPULSE_MIN` 0.99 → 0.97. La ventana del "impulso perfecto" pasa del último 1% al último 3% de la barra (sobre 400 px: ~12 px de ventana en lugar de ~4). 0.99 era casi imposible salvo casualidad; 0.97 sigue exigiendo puntería pero deja margen para el skill.
 
 ### Fixed
 
