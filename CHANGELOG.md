@@ -9,10 +9,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [1.1.7] — 2026-06-20
 
-Dos cambios pequeños pero notables: la curva de grasa pasa a cúbica (casi
-toda la dificultad se concentra entre 100% y 80%) y se quita el icono `▶`
-de los botones de las escenas de desbloqueo (los usuarios lo leían como
-"play").
+Tres cambios pequeños pero notables: dos skins nuevos, la curva de grasa
+pasa a cúbica (casi toda la dificultad se concentra entre 100% y 80%) y se
+quita el icono `▶` de los botones de las escenas de desbloqueo (los
+usuarios lo leían como "play").
+
+### Added
+
+- **Skin nuevo "Flamenkini" (La Flamenca):** quinto skin del roster a 25 banderas. Endgame para mains de Flamenca.
+- **Skin nuevo "Larry" (Retro):** cuarto skin a 15 banderas. Sigue la curva 3 → 9 → 15.
 
 ### Changed
 

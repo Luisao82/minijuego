@@ -33,6 +33,7 @@ export const CHARACTERS = [
       { spritesheet: 'nazarena', nombre: 'Nazarena', flags: 3 },
       { spritesheet: 'mantilla', nombre: 'Mantilla', flags: 8 },
       { spritesheet: 'flamenca', nombre: 'Flamenca', flags: 15 },
+      { spritesheet: 'flamenkini', nombre: 'Flamenkini', flags: 25 },
     ],
   },
   {
@@ -94,6 +95,7 @@ export const CHARACTERS = [
       { spritesheet: 'retro02', nombre: 'Mario', flags: null },
       { spritesheet: 'retro01', nombre: 'Abu Simbel', flags: 3 },
       { spritesheet: 'retro03', nombre: 'Dan', flags: 9 },
+      { spritesheet: 'larry', nombre: 'Larry', flags: 15 },
     ],
   },
   {
