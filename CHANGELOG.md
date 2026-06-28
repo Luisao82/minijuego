@@ -7,6 +7,18 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-06-28
+
+Doble contador de progreso por personaje para que las skins futuras no se desbloqueen retroactivamente, y nueva música de intro.
+
+### Added
+
+- **Contador de progreso de skins independiente de las victorias:** cada personaje ahora lleva dos contadores en `CharacterRewardService` — `victorias` (histórico, nunca se topa, alimenta estadísticas/podium) y `skin progress` (se topa en el umbral del último skin configurado). Si en el futuro se añade un skin nuevo con un umbral mayor, el contador retoma la subida desde el tope anterior, exigiendo solo las banderas nuevas desde la actualización en vez de desbloquear instantáneamente con banderas ya acumuladas antes de que el skin existiera.
+
+### Changed
+
+- **Música de la intro:** sustituida `intro.wav` por una nueva pista.
+
 ## [1.1.7] — 2026-06-20
 
 Tres cambios pequeños pero notables: dos skins nuevos, la curva de grasa

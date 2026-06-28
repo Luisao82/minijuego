@@ -48,9 +48,12 @@ export class RewardScene extends BaseScene {
       rewardStorage.addReward(this.reward.id)
     }
 
-    // Trackear el premio con el personaje y detectar skins nuevos
+    // Trackear el premio con el personaje (victorias, nunca se topa) y
+    // avanzar el progreso de skins (se topa al máximo flags configurado)
     if (this.characterData?.id) {
       characterRewardService.addReward(this.characterData.id)
+      const maxFlags = this._getMaxFlags(this.characterData)
+      characterRewardService.incrementSkinProgress(this.characterData.id, maxFlags)
       this.newSkinUnlocks = this._checkSkinUnlocks()
     } else {
       this.newSkinUnlocks = []
@@ -67,14 +70,25 @@ export class RewardScene extends BaseScene {
     this.newPerspUnlocks = newPerspUnlocks
   }
 
+  // Umbral más alto configurado actualmente para un personaje. Recalcularlo
+  // en cada partida (en vez de guardarlo fijo) es lo que permite que un skin
+  // añadido en una futura actualización retome el progreso automáticamente.
+  _getMaxFlags(char) {
+    const thresholds = (char.skins ?? [])
+      .map((s) => s.flags)
+      .filter((f) => f !== null && f !== undefined)
+    return thresholds.length ? Math.max(...thresholds) : 0
+  }
+
   _checkSkinUnlocks() {
     const char = this.characterData
     const skins = char.skins ?? []
+    const progress = characterRewardService.getSkinProgress(char.id, this._getMaxFlags(char))
     const newSkins = []
     for (const skin of skins) {
       if (skin.flags === null || skin.flags === undefined) continue
       if (skinService.isSkinUnlocked(char, skin.spritesheet)) continue
-      if (characterRewardService.getCount(char.id) >= skin.flags) {
+      if (progress >= skin.flags) {
         skinService.unlockSkin(char.id, skin.spritesheet)
         newSkins.push(skin)
       }
