@@ -56,7 +56,10 @@ export const CHARACTERS = [
     sprite: 'char-chaval',
     stats: { peso: 3, equilibrio: 4, altura: 3, edad: 2 },
     available: true,
-    skins: [{ spritesheet: 'chaval', nombre: 'Clásico', flags: null }],
+    skins: [
+      { spritesheet: 'chaval', nombre: 'Clásico', flags: null },
+      { spritesheet: 'gorrita', nombre: 'Gorrita', flags: 5 },
+    ],
   },
   {
     id: 'guiri',
