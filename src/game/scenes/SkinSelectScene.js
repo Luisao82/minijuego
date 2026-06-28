@@ -235,8 +235,11 @@ export class SkinSelectScene extends BaseScene {
     }
 
     const stepRequired = required - prevThreshold
-    const currentTotal = characterRewardService.getCount(this.character.id)
-    const currentStep = Math.max(0, Math.min(currentTotal - prevThreshold, stepRequired))
+    const maxFlags = Math.max(
+      ...this.character.skins.map((s) => s.flags).filter((f) => f !== null && f !== undefined)
+    )
+    const currentProgress = characterRewardService.getSkinProgress(this.character.id, maxFlags)
+    const currentStep = Math.max(0, Math.min(currentProgress - prevThreshold, stepRequired))
 
     const POLE_W = 3
     const POLE_H = 26
