@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Skin nuevo "Gorrita" (Er Chaval):** segundo skin del personaje, a 5 premios. Primer caso de prueba real del contador de progreso de skins introducido en 1.2.0.
+
 ## [1.2.0] — 2026-06-28
 
 Doble contador de progreso por personaje para que las skins futuras no se desbloqueen retroactivamente, y nueva música de intro.
