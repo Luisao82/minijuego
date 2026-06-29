@@ -354,10 +354,7 @@ export class GameScene extends BaseScene {
     this.distanceTraveled = POLE.START_X - this.player.x
 
     if (!this.hasFlag && this._checkFlagCollision()) {
-      this.hasFlag = true
-      this.flagGraphics.setVisible(false)
-      this.player.setFlag(true)
-      this.oilSystem.reset()
+      this._onFlagGrabbed()
     }
 
     if (this.player.y >= this.waterY) {
@@ -397,17 +394,24 @@ export class GameScene extends BaseScene {
     return charLeft <= flagRight && charTop < flagBottom && charBottom > flagTop
   }
 
-  _grabFlag() {
+  // Estado y feedback compartidos al cogerla, salte o no el jugador.
+  // captureGrease solo aplica en la fase de equilibrio (no en salto, donde
+  // la grasa ya no afecta y _capturedGreasePercent no se usa).
+  _onFlagGrabbed({ captureGrease = false } = {}) {
     this.sound.play('sfx-flag', { volume: 1.0 })
     this.hasFlag = true
     this.flagGraphics.setVisible(false)
+    if (captureGrease) this._capturedGreasePercent = this.oilSystem.getTotalGrease()
+    this.oilSystem.reset()
+    this.player.setFlag(true)
+  }
+
+  _grabFlag() {
+    this._onFlagGrabbed({ captureGrease: true })
     this.balanceUI?.destroy()
     this.balanceUI = null
     this.balanceBar = null
     this.balanceSystem = null
-    this._capturedGreasePercent = this.oilSystem.getTotalGrease()
-    this.oilSystem.reset()
-    this.player.setFlag(true)
     this.player.redraw()
     this._fall()
   }

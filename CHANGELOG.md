@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Sonido de bandera ausente al cogerla saltando:** `_grabFlag()` (fase de equilibrio) y el chequeo de colisión dentro de `updateJumping()` (fase de salto) duplicaban la lógica de "coger bandera" por separado; la rama de salto nunca reproducía `sfx-flag`. Se unifica en `_onFlagGrabbed()`, compartido por ambos caminos.
+
 ### Added
 
 - **Skin nuevo "Gorrita" (Er Chaval):** segundo skin del personaje, a 5 premios. Primer caso de prueba real del contador de progreso de skins introducido en 1.2.0.
