@@ -539,10 +539,19 @@ export class GameScene extends BaseScene {
         () => this.scene.start(SCENES.MENU),
         { depth: D + 2, fontSize: '18px' }
       )
-      makeNavButton(this, CX + gap / 2, btnY, btnW, btnH, 'SEGUIR', () => this._closeExitConfirm(), {
-        depth: D + 2,
-        fontSize: '18px',
-      })
+      makeNavButton(
+        this,
+        CX + gap / 2,
+        btnY,
+        btnW,
+        btnH,
+        'SEGUIR',
+        () => this._closeExitConfirm(),
+        {
+          depth: D + 2,
+          fontSize: '18px',
+        }
+      )
     })
   }
 
