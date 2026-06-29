@@ -93,6 +93,7 @@ export class GameScene extends BaseScene {
 
     // Modal de confirmación de salida
     this.exitBtnBounds = null
+    this._exitBtnObjs = null
     this._exitModalOpen = false
     this._exitModalContainer = null
     this._prePauseFase = null
@@ -465,6 +466,11 @@ export class GameScene extends BaseScene {
   // ========================================
 
   _showExitConfirm() {
+    // Bloqueado mientras se muestra el resultado de la partida (game over,
+    // celebración) — esas pantallas ya tienen su propia salida y, si se abre
+    // encima, el modal de confirmación se monta sobre el panel de resultado.
+    const canExit = this.phase === 'impulse' || this.phase === 'running' || this.phase === 'jumping'
+    if (!canExit) return
     if (this._exitModalOpen) return
     this._exitModalOpen = true
     this._prePauseFase = this.phase
@@ -569,6 +575,7 @@ export class GameScene extends BaseScene {
 
   showGameOver() {
     this.phase = 'done'
+    this._disableExitButton()
 
     gameStatsService.addRecord({
       timestamp: new Date().toISOString(),
@@ -671,6 +678,7 @@ export class GameScene extends BaseScene {
 
   showCelebration() {
     this.phase = 'celebrating'
+    this._disableExitButton()
     this.player.startCelebration(this.waterY, () => this.startRewardScreen())
   }
 
@@ -823,6 +831,7 @@ export class GameScene extends BaseScene {
 
     const exitBtnOpts = { depth: 5, fontSize: '20px', paddingX: 16, paddingY: 8 }
     const { w: exitBtnW, h: exitBtnH } = measureNavButtonSize(this, 'SALIR', exitBtnOpts)
+    const exitBtnObjsStart = this.children.list.length
     this.exitBtnBounds = makeNavButton(
       this,
       GAME_WIDTH - exitBtnW - 10,
@@ -833,9 +842,21 @@ export class GameScene extends BaseScene {
       () => this._showExitConfirm(),
       exitBtnOpts
     )
+    this._exitBtnObjs = this.children.list.slice(exitBtnObjsStart)
 
     this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())
+  }
+
+  // Atenúa y desactiva el botón SALIR una vez se muestra el resultado de la
+  // partida — esas pantallas ya tienen su propia salida (CAMBIAR PERSONAJE,
+  // VER PREMIOS, VOLVER A JUGAR...) y dejarlo activo permite abrir el modal
+  // de confirmación encima del panel de resultado.
+  _disableExitButton() {
+    this._exitBtnObjs?.forEach((o) => {
+      o.disableInteractive?.()
+      o.setAlpha?.(0.35)
+    })
   }
 
   // ========================================
