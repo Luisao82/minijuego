@@ -52,9 +52,8 @@ export class ViewSelectScene extends BaseScene {
   // ── Botón INICIO ───────────────────────────────────────────────
 
   drawBackButton() {
-    makeNavButton(this, 16, 16, 220, 70, 'INICIO', () => this.scene.start(SCENES.MENU), {
+    makeNavButton(this, 16, 16, null, null, 'INICIO', () => this.scene.start(SCENES.MENU), {
       depth: 5,
-      fontSize: '30px',
     })
   }
 

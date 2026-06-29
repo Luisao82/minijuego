@@ -21,7 +21,7 @@ import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { skinService } from '../services/SkinService'
 import { Player } from '../entities/Player'
 import { PowerBar } from '../entities/PowerBar'
-import { makeNavButton } from '../components/NavButton'
+import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { BalanceSystem } from '../systems/BalanceSystem'
@@ -524,33 +524,34 @@ export class GameScene extends BaseScene {
         .setOrigin(0.5)
         .setDepth(D + 2)
 
-      const btnW = 170
-      const btnH = 56
       const gap = 16
+      const btnOpts = { depth: D + 2, fontSize: '20px' }
+      const sizeA = measureNavButtonSize(this, 'SÍ, SALIR', btnOpts)
+      const sizeB = measureNavButtonSize(this, 'SEGUIR', btnOpts)
+      const btnH = Math.max(sizeA.h, sizeB.h)
+      const totalW = sizeA.w + sizeB.w + gap
+      const startX = CX - totalW / 2
       const btnY = PY + PH - btnH - 24
 
       makeNavButton(
         this,
-        CX - btnW - gap / 2,
+        startX,
         btnY,
-        btnW,
+        sizeA.w,
         btnH,
         'SÍ, SALIR',
         () => this.scene.start(SCENES.MENU),
-        { depth: D + 2, fontSize: '18px' }
+        btnOpts
       )
       makeNavButton(
         this,
-        CX + gap / 2,
+        startX + sizeA.w + gap,
         btnY,
-        btnW,
+        sizeB.w,
         btnH,
         'SEGUIR',
         () => this._closeExitConfirm(),
-        {
-          depth: D + 2,
-          fontSize: '18px',
-        }
+        btnOpts
       )
     })
   }
@@ -590,7 +591,7 @@ export class GameScene extends BaseScene {
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
-    const panelW = 480
+    const panelW = 540
     const panelH = 260
 
     const g = this.add.graphics()
@@ -631,31 +632,35 @@ export class GameScene extends BaseScene {
         .setOrigin(0.5)
       this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
 
-      const btnW = 220
-      const btnH = 58
       const gap = 14
+      const btnOpts = { fontSize: '18px' }
+      const sizeChange = measureNavButtonSize(this, 'CAMBIAR PERSONAJE', btnOpts)
+      const sizeCollection = measureNavButtonSize(this, 'VER PREMIOS', btnOpts)
+      const btnH = Math.max(sizeChange.h, sizeCollection.h)
+      const totalW = sizeChange.w + sizeCollection.w + gap
+      const startX = centerX - totalW / 2
       const btnY = centerY + 58
 
       this.changeCharacterBtnBounds = makeNavButton(
         this,
-        centerX - btnW - gap / 2,
+        startX,
         btnY,
-        btnW,
+        sizeChange.w,
         btnH,
         'CAMBIAR PERSONAJE',
         () => this.scene.start(SCENES.CHARACTER_SELECT),
-        { fontSize: '14px' }
+        btnOpts
       )
 
       this.collectionBtnBounds = makeNavButton(
         this,
-        centerX + gap / 2,
+        startX + sizeChange.w + gap,
         btnY,
-        btnW,
+        sizeCollection.w,
         btnH,
         'VER PREMIOS',
         () => this.scene.start(SCENES.COLLECTION, { character: this.characterData }),
-        { fontSize: '16px' }
+        btnOpts
       )
     })
   }
@@ -816,17 +821,17 @@ export class GameScene extends BaseScene {
     const charName = this.characterData?.name || 'JUGADOR'
     this.add.text(16, 6, charName, { ...headingStyle(28, COLOR_GOLD, 3), stroke: '#000000' })
 
-    const exitBtnW = 90
-    const exitBtnH = 32
+    const exitBtnOpts = { depth: 5, fontSize: '20px', paddingX: 16, paddingY: 8 }
+    const { w: exitBtnW, h: exitBtnH } = measureNavButtonSize(this, 'SALIR', exitBtnOpts)
     this.exitBtnBounds = makeNavButton(
       this,
-      GAME_WIDTH - exitBtnW - 8,
-      4,
+      GAME_WIDTH - exitBtnW - 10,
+      6,
       exitBtnW,
       exitBtnH,
       'SALIR',
       () => this._showExitConfirm(),
-      { depth: 5, fontSize: '16px' }
+      exitBtnOpts
     )
 
     this.oilIndicator = createOilIndicator(this, 8, 44)

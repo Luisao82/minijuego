@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`NavButton` ahora se auto-dimensiona al texto:** los botones de navegación añadidos en la actualización anterior (INICIO, CAMBIAR VISTA, SALIR, CAMBIAR PERSONAJE/VER PREMIOS, SÍ SALIR/SEGUIR) tenían anchos fijados a mano que no encajaban con cada etiqueta — unos quedaban demasiado grandes y tapaban fondo, otros con texto ilegible o un área de toque demasiado pequeña. `makeNavButton` mide ahora el texto real y calcula su propia caja (con un nuevo helper `measureNavButtonSize`), garantizando que el botón siempre encaje con su etiqueta y mantenga un mínimo de 44px de alto para uso táctil.
+
 ### Added
 
 - **Navegación: botón "INICIO" en `ViewSelectScene`** → vuelve al menú principal.
