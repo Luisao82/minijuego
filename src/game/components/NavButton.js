@@ -11,6 +11,33 @@ const BORDER_DARK = 0x5c2d00 // borde marrón oscuro para definición
 const HIGHLIGHT = 0xffe580 // línea de brillo superior (efecto 3D)
 const SHADOW_LINE = 0x9a7000 // línea de sombra inferior (efecto 3D)
 
+const DEFAULT_PADDING_X = 28
+const DEFAULT_PADDING_Y = 16
+const MIN_TAP_HEIGHT = 44 // mínimo recomendado para objetivos táctiles
+
+/**
+ * Calcula el tamaño que ocupará un NavButton para una etiqueta dada, sin
+ * dibujarlo. Útil para auto-size (w/h null) y para posicionar varios
+ * botones (ej. centrar un par) conociendo su ancho antes de crearlos.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {string} label
+ * @param {{ fontSize?: string, paddingX?: number, paddingY?: number }} [opts]
+ * @returns {{ w: number, h: number }}
+ */
+export function measureNavButtonSize(scene, label, opts = {}) {
+  const fontSize = opts.fontSize ?? '26px'
+  const paddingX = opts.paddingX ?? DEFAULT_PADDING_X
+  const paddingY = opts.paddingY ?? DEFAULT_PADDING_Y
+
+  const probe = scene.add.text(0, 0, label, headingStyle(fontSize, '#1a0800', 1))
+  const w = Math.ceil(probe.width + paddingX * 2)
+  const h = Math.max(Math.ceil(probe.height + paddingY * 2), MIN_TAP_HEIGHT)
+  probe.destroy()
+
+  return { w, h }
+}
+
 /**
  * Crea un botón de navegación estilo "Cartelón de Feria":
  * fondo dorado sólido, texto oscuro, borde marrón, efecto 3D.
@@ -18,17 +45,22 @@ const SHADOW_LINE = 0x9a7000 // línea de sombra inferior (efecto 3D)
  *
  * @param {Phaser.Scene} scene
  * @param {number}  x       - Esquina superior izquierda
- * @param {number}  y       - Esquina superior izquierda
- * @param {number}  w       - Ancho
- * @param {number}  h       - Alto
+ * @param {number|null} w   - Ancho. Si es null, se calcula a partir del texto (auto-size).
+ * @param {number|null} h   - Alto. Si es null, se calcula a partir del texto (auto-size).
  * @param {string}  label   - Texto del botón
  * @param {Function} onPress
- * @param {{ depth?: number, fontSize?: string }} [opts]
+ * @param {{ depth?: number, fontSize?: string, paddingX?: number, paddingY?: number }} [opts]
  * @returns {Phaser.Geom.Rectangle} Bounds (útil para excluir eventos de input)
  */
 export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
   const depth = opts.depth ?? 5
   const fontSize = opts.fontSize ?? '26px'
+
+  if (w === null || w === undefined || h === null || h === undefined) {
+    const size = measureNavButtonSize(scene, label, opts)
+    w = w ?? size.w
+    h = h ?? size.h
+  }
 
   const g = scene.add.graphics().setDepth(depth)
 

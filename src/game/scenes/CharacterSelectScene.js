@@ -88,11 +88,11 @@ export class CharacterSelectScene extends BaseScene {
       this,
       12,
       12,
-      170,
-      44,
+      null,
+      null,
       'CAMBIAR VISTA',
       () => this.scene.start(SCENES.VIEW_SELECT),
-      { depth: 5, fontSize: '17px' }
+      { depth: 5 }
     )
   }
 
