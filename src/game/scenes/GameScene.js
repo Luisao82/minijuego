@@ -88,7 +88,14 @@ export class GameScene extends BaseScene {
     // Estado de resultado y UI
     this.canRestart = false
     this.collectionBtnBounds = null
+    this.changeCharacterBtnBounds = null
     this._capturedGreasePercent = null
+
+    // Modal de confirmación de salida
+    this.exitBtnBounds = null
+    this._exitModalOpen = false
+    this._exitModalContainer = null
+    this._prePauseFase = null
   }
 
   preload() {
@@ -454,6 +461,108 @@ export class GameScene extends BaseScene {
   }
 
   // ========================================
+  // SALIR DE LA PARTIDA
+  // ========================================
+
+  _showExitConfirm() {
+    if (this._exitModalOpen) return
+    this._exitModalOpen = true
+    this._prePauseFase = this.phase
+    this.phase = 'paused'
+
+    const PW = 460
+    const PH = 220
+    const PX = Math.round((GAME_WIDTH - PW) / 2)
+    const PY = Math.round((GAME_HEIGHT - PH) / 2)
+    const CX = GAME_WIDTH / 2
+    const D = 50
+
+    this._exitModalContainer = this.add.container(0, 0)
+    // makeNavButton (y add.*) dibujan directamente en la escena, no en un
+    // container. Capturamos lo creado en cada paso y lo movemos al
+    // container del modal para poder destruirlo todo de una vez al cerrar.
+    const collect = (fn) => {
+      const before = this.children.list.length
+      fn()
+      this.children.list.slice(before).forEach((o) => this._exitModalContainer.add(o))
+    }
+
+    collect(() => {
+      const overlay = this.add.graphics().setDepth(D)
+      overlay.fillStyle(0x000000, 0.65)
+      overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      overlay.setInteractive(
+        new Phaser.Geom.Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT),
+        Phaser.Geom.Rectangle.Contains
+      )
+
+      const panel = this.add.graphics().setDepth(D + 1)
+      panel.fillStyle(0x000000, 0.45)
+      panel.fillRect(PX + 5, PY + 5, PW, PH)
+      panel.fillStyle(COLORS.DARK_BG, 1)
+      panel.fillRect(PX, PY, PW, PH)
+      panel.lineStyle(3, COLORS.GOLD, 1)
+      panel.strokeRect(PX, PY, PW, PH)
+      panel.lineStyle(1, COLORS.GOLD, 0.25)
+      panel.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10)
+
+      this.add
+        .text(CX, PY + 50, '¿SEGURO QUE QUIERES SALIR?', {
+          ...headingStyle(20, COLOR_GOLD, 3),
+          stroke: '#000000',
+          align: 'center',
+          wordWrap: { width: PW - 40 },
+        })
+        .setOrigin(0.5)
+        .setDepth(D + 2)
+
+      this.add
+        .text(CX, PY + 92, 'Perderás la partida en curso', {
+          ...mutedStyle(12, '#cccccc'),
+          align: 'center',
+        })
+        .setOrigin(0.5)
+        .setDepth(D + 2)
+
+      const btnW = 170
+      const btnH = 56
+      const gap = 16
+      const btnY = PY + PH - btnH - 24
+
+      makeNavButton(
+        this,
+        CX - btnW - gap / 2,
+        btnY,
+        btnW,
+        btnH,
+        'SÍ, SALIR',
+        () => this.scene.start(SCENES.MENU),
+        { depth: D + 2, fontSize: '18px' }
+      )
+      makeNavButton(
+        this,
+        CX + gap / 2,
+        btnY,
+        btnW,
+        btnH,
+        'SEGUIR',
+        () => this._closeExitConfirm(),
+        {
+          depth: D + 2,
+          fontSize: '18px',
+        }
+      )
+    })
+  }
+
+  _closeExitConfirm() {
+    this._exitModalContainer?.destroy(true)
+    this._exitModalContainer = null
+    this._exitModalOpen = false
+    this.phase = this._prePauseFase
+  }
+
+  // ========================================
   // GAME OVER
   // ========================================
 
@@ -481,7 +590,7 @@ export class GameScene extends BaseScene {
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
-    const panelW = 440
+    const panelW = 480
     const panelH = 260
 
     const g = this.add.graphics()
@@ -524,11 +633,29 @@ export class GameScene extends BaseScene {
 
       const btnW = 220
       const btnH = 58
-      const btnX = centerX - btnW / 2
+      const gap = 14
       const btnY = centerY + 58
 
-      this.collectionBtnBounds = makeNavButton(this, btnX, btnY, btnW, btnH, 'VER PREMIOS', () =>
-        this.scene.start(SCENES.COLLECTION, { character: this.characterData })
+      this.changeCharacterBtnBounds = makeNavButton(
+        this,
+        centerX - btnW - gap / 2,
+        btnY,
+        btnW,
+        btnH,
+        'CAMBIAR PERSONAJE',
+        () => this.scene.start(SCENES.CHARACTER_SELECT),
+        { fontSize: '14px' }
+      )
+
+      this.collectionBtnBounds = makeNavButton(
+        this,
+        centerX + gap / 2,
+        btnY,
+        btnW,
+        btnH,
+        'VER PREMIOS',
+        () => this.scene.start(SCENES.COLLECTION, { character: this.characterData }),
+        { fontSize: '16px' }
       )
     })
   }
@@ -575,7 +702,7 @@ export class GameScene extends BaseScene {
     this.input.keyboard.on('keydown-SPACE', (event) => {
       if (!event.repeat) this.handleTap(null)
     })
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start(SCENES.MENU))
+    this.input.keyboard.on('keydown-ESC', () => this._showExitConfirm())
 
     this.input.keyboard.on('keydown-LEFT', (e) => {
       if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
@@ -594,6 +721,13 @@ export class GameScene extends BaseScene {
   }
 
   handleTap(pointer) {
+    if (this._exitModalOpen) return
+    if (
+      pointer &&
+      this.exitBtnBounds &&
+      Phaser.Geom.Rectangle.Contains(this.exitBtnBounds, pointer.x, pointer.y)
+    )
+      return
     if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
       this.onBarStopped()
     } else if (this.phase === 'running' && !this.hasJumped) {
@@ -602,8 +736,9 @@ export class GameScene extends BaseScene {
     } else if (this.phase === 'done' && this.canRestart) {
       if (
         pointer &&
-        this.collectionBtnBounds &&
-        Phaser.Geom.Rectangle.Contains(this.collectionBtnBounds, pointer.x, pointer.y)
+        [this.collectionBtnBounds, this.changeCharacterBtnBounds].some(
+          (bounds) => bounds && Phaser.Geom.Rectangle.Contains(bounds, pointer.x, pointer.y)
+        )
       )
         return
       this.scene.restart({ character: this.characterData, perspective: this.perspective })
@@ -681,7 +816,18 @@ export class GameScene extends BaseScene {
     const charName = this.characterData?.name || 'JUGADOR'
     this.add.text(16, 6, charName, { ...headingStyle(28, COLOR_GOLD, 3), stroke: '#000000' })
 
-    this.add.text(GAME_WIDTH - 16, 10, 'ESC: MENÚ', mutedStyle(10, '#666666')).setOrigin(1, 0)
+    const exitBtnW = 90
+    const exitBtnH = 32
+    this.exitBtnBounds = makeNavButton(
+      this,
+      GAME_WIDTH - exitBtnW - 8,
+      4,
+      exitBtnW,
+      exitBtnH,
+      'SALIR',
+      () => this._showExitConfirm(),
+      { depth: 5, fontSize: '16px' }
+    )
 
     this.oilIndicator = createOilIndicator(this, 8, 44)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())

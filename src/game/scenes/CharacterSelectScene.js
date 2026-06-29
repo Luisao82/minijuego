@@ -7,6 +7,7 @@ import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { unlockService } from '../services/UnlockService'
 import { rewardStorage } from '../services/RewardStorageService'
+import { makeNavButton } from '../components/NavButton'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_WIDTH = 240
@@ -73,7 +74,26 @@ export class CharacterSelectScene extends BaseScene {
     this.drawSelectedDetail()
     this.drawNavigation()
     this.drawPlayButton()
+    this.drawBackButton()
     this.setupInput()
+  }
+
+  // ── Botón CAMBIAR VISTA ──────────────────────────────────────
+  // Etiqueta y destino fijos (no "VOLVER"): esta escena se entra tanto desde
+  // ViewSelectScene como desde "CAMBIAR PERSONAJE" en el game over, así que
+  // un botón que dependiera del origen resultaría ambiguo.
+
+  drawBackButton() {
+    makeNavButton(
+      this,
+      12,
+      12,
+      240,
+      58,
+      'CAMBIAR VISTA',
+      () => this.scene.start(SCENES.VIEW_SELECT),
+      { depth: 5, fontSize: '22px' }
+    )
   }
 
   // ── Carrusel ─────────────────────────────────────────────────
