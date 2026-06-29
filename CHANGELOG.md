@@ -7,6 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Navegación: botón "INICIO" en `ViewSelectScene`** → vuelve al menú principal.
+- **Navegación: botón "CAMBIAR VISTA" en `CharacterSelectScene`** → vuelve a `ViewSelectScene`. Sustituye un hipotético "VOLVER", ambiguo porque esta escena se entra tanto desde la selección de vista como desde "Cambiar personaje" en el game over.
+- **Navegación: botón "SALIR" durante la partida (`GameScene`)** → pausa el juego y muestra un modal de confirmación ("¿Seguro que quieres salir?") antes de volver al menú. La tecla `ESC` ahora pasa por el mismo modal en vez de salir directamente.
+- **Botón "CAMBIAR PERSONAJE" en la pantalla de game over** → a la izquierda de "VER PREMIOS", lleva directamente a `CharacterSelectScene` para volver a intentarlo con otro personaje sin pasar por el menú.
+
 ### Fixed
 
 - **Sonido de bandera ausente al cogerla saltando:** `_grabFlag()` (fase de equilibrio) y el chequeo de colisión dentro de `updateJumping()` (fase de salto) duplicaban la lógica de "coger bandera" por separado; la rama de salto nunca reproducía `sfx-flag`. Se unifica en `_onFlagGrabbed()`, compartido por ambos caminos.

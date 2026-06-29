@@ -5,6 +5,7 @@ import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
+import { makeNavButton } from '../components/NavButton'
 
 // ── Dimensiones del carrusel ── igual que CharacterSelectScene ──
 const CARD_W = 280
@@ -44,7 +45,16 @@ export class ViewSelectScene extends BaseScene {
     this.drawSelectedDetail()
     this.drawNavigation()
     this.drawConfirmButton()
+    this.drawBackButton()
     this.setupInput()
+  }
+
+  // ── Botón INICIO ───────────────────────────────────────────────
+
+  drawBackButton() {
+    makeNavButton(this, 12, 12, 170, 58, 'INICIO', () => this.scene.start(SCENES.MENU), {
+      depth: 5,
+    })
   }
 
   // ── Índice inicial desde localStorage ────────────────────────
