@@ -26,7 +26,7 @@ export const CHARACTERS = [
     name: 'LA FLAMENCA',
     description: 'Joven, guapa y alegre.\nCasi nunca pierde el equilibrio.',
     sprite: 'char-flamenca',
-    stats: { peso: 4, equilibrio: 6, altura: 5, edad: 5 },
+    stats: { peso: 4, equilibrio: 4, altura: 5, edad: 5 },
     available: true,
     skins: [
       { spritesheet: 'trianera', nombre: 'Trianera', flags: null },
@@ -41,7 +41,7 @@ export const CHARACTERS = [
     name: 'LA AGÜELA',
     description: 'Veterana de mil velás.\nSabiduría y temple.',
     sprite: 'char-abuela',
-    stats: { peso: 10, equilibrio: 8, altura: 4, edad: 9 },
+    stats: { peso: 10, equilibrio: 6, altura: 4, edad: 9 },
     available: true,
     skins: [
       { spritesheet: 'abuela', nombre: 'Omaita', flags: null },
@@ -54,7 +54,7 @@ export const CHARACTERS = [
     name: 'ER CHAVAL',
     description: 'Joven y ágil.\nSin miedo a nada.',
     sprite: 'char-chaval',
-    stats: { peso: 3, equilibrio: 4, altura: 3, edad: 2 },
+    stats: { peso: 3, equilibrio: 6, altura: 3, edad: 2 },
     available: true,
     skins: [
       { spritesheet: 'chaval', nombre: 'Clásico', flags: null },

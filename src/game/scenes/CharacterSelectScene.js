@@ -1,5 +1,5 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
 import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
@@ -227,7 +227,7 @@ export class CharacterSelectScene extends BaseScene {
   // ── Navegación ───────────────────────────────────────────────
 
   drawNavigation() {
-    const arrowY = CARDS_Y + CARD_HEIGHT / 2
+    const arrowY = CAROUSEL_ARROW_Y
 
     this.leftArrow = this.add
       .image(40, arrowY, 'btn-nav-left')

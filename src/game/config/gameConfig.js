@@ -3,6 +3,11 @@
 export const GAME_WIDTH = 1024
 export const GAME_HEIGHT = 768
 
+// Y compartida para las flechas ◀▶ de los carruseles de selección
+// (ViewSelectScene, CharacterSelectScene, SkinSelectScene) — valor único
+// para que las flechas aparezcan a la misma altura al navegar entre pantallas.
+export const CAROUSEL_ARROW_Y = 340
+
 export const COLORS = {
   // Paleta principal pixel art
   SKY_BLUE: 0x4a90d9,

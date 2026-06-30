@@ -1,5 +1,5 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
 import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
@@ -284,7 +284,7 @@ export class ViewSelectScene extends BaseScene {
   // ── Navegación ◀▶ ────────────────────────────────────────────
 
   drawNavigation() {
-    const arrowY = CARDS_Y + CARD_H / 2 // Y=330, igual que CharacterSelectScene
+    const arrowY = CAROUSEL_ARROW_Y
 
     this.leftArrow = this.add
       .image(40, arrowY, 'btn-nav-left')
