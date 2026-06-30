@@ -5,11 +5,11 @@ import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
-import { makeNavButton } from '../components/NavButton'
+import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 
 // ── Dimensiones del carrusel ── igual que CharacterSelectScene ──
 const CARD_W = 280
-const CARD_H = 360
+const CARD_H = 400
 const CARD_GAP = 40
 const CARD_STEP = CARD_W + CARD_GAP
 const CARDS_Y = 150
@@ -18,7 +18,7 @@ const LABEL_H = CARD_H - IMG_H // 110 px
 
 // Mismos valores que el resto de pantallas de selección
 const BAND_Y = 120
-const BAND_H = 440
+const BAND_H = 500
 
 const VISIBLE_AREA_LEFT = 60
 const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
@@ -52,9 +52,18 @@ export class ViewSelectScene extends BaseScene {
   // ── Botón INICIO ───────────────────────────────────────────────
 
   drawBackButton() {
-    makeNavButton(this, 16, 16, null, null, 'INICIO', () => this.scene.start(SCENES.MENU), {
-      depth: 5,
-    })
+    const opts = { depth: 5 }
+    const { w, h } = measureNavButtonSize(this, 'INICIO', opts)
+    makeNavButton(
+      this,
+      Math.round(GAME_WIDTH / 2 - w / 2),
+      BAND_Y + BAND_H + 110 - Math.round(h / 2),
+      w,
+      h,
+      'INICIO',
+      () => this.scene.start(SCENES.MENU),
+      opts
+    )
   }
 
   // ── Índice inicial desde localStorage ────────────────────────
@@ -314,7 +323,7 @@ export class ViewSelectScene extends BaseScene {
   // ── Botón SELECCIONAR VISTA ───────────────────────────────────
 
   drawConfirmButton() {
-    const btnY = BAND_Y + BAND_H + 40 // Y=600, igual que CharacterSelectScene
+    const btnY = BAND_Y + BAND_H + 30
 
     // Override de stroke '#1a0800' (marrón cálido) — idem CharacterSelectScene.
     this.confirmText = this.add

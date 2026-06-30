@@ -7,7 +7,7 @@ import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { unlockService } from '../services/UnlockService'
 import { rewardStorage } from '../services/RewardStorageService'
-import { makeNavButton } from '../components/NavButton'
+import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_WIDTH = 240
@@ -44,7 +44,7 @@ const VISIBLE_AREA_LEFT = 60
 const VISIBLE_AREA_RIGHT = GAME_WIDTH - 60
 
 const BAND_Y = 120
-const BAND_H = 440
+const BAND_H = 500
 
 export class CharacterSelectScene extends BaseScene {
   constructor() {
@@ -84,15 +84,17 @@ export class CharacterSelectScene extends BaseScene {
   // un botón que dependiera del origen resultaría ambiguo.
 
   drawBackButton() {
+    const opts = { depth: 5 }
+    const { w, h } = measureNavButtonSize(this, 'CAMBIAR VISTA', opts)
     makeNavButton(
       this,
-      12,
-      12,
-      null,
-      null,
+      Math.round(GAME_WIDTH / 2 - w / 2),
+      BAND_Y + BAND_H + 110 - Math.round(h / 2),
+      w,
+      h,
       'CAMBIAR VISTA',
       () => this.scene.start(SCENES.VIEW_SELECT),
-      { depth: 5 }
+      opts
     )
   }
 
@@ -198,9 +200,9 @@ export class CharacterSelectScene extends BaseScene {
     this.detailContainer = this.add.container(0, 0)
 
     const panelW = Math.round(GAME_WIDTH * 0.9)
-    const panelH = 90
+    const panelH = 85
     const panelX = Math.round((GAME_WIDTH - panelW) / 2)
-    const panelY = 640 // justo debajo del botón SELECCIONAR (centro Y=600)
+    const panelY = BAND_Y + BAND_H - 105 // dentro de la banda, con margen al borde inferior
 
     const g = this.add.graphics()
     g.fillStyle(0x0d0d24, 0.82)
@@ -271,7 +273,7 @@ export class CharacterSelectScene extends BaseScene {
   // ── Botón JUGAR ──────────────────────────────────────────────
 
   drawPlayButton() {
-    const btnY = BAND_Y + BAND_H + 40
+    const btnY = BAND_Y + BAND_H + 30
     const flagSize = 18
     const flagSpacing = 160
     const flagsG = this.add.graphics()

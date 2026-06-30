@@ -14,6 +14,7 @@ const SHADOW_LINE = 0x9a7000 // línea de sombra inferior (efecto 3D)
 const DEFAULT_PADDING_X = 28
 const DEFAULT_PADDING_Y = 16
 const MIN_TAP_HEIGHT = 44 // mínimo recomendado para objetivos táctiles
+const LETTER_SPACING = 2 // separación entre letras — mejora la lectura del texto en los botones
 
 /**
  * Calcula el tamaño que ocupará un NavButton para una etiqueta dada, sin
@@ -30,7 +31,10 @@ export function measureNavButtonSize(scene, label, opts = {}) {
   const paddingX = opts.paddingX ?? DEFAULT_PADDING_X
   const paddingY = opts.paddingY ?? DEFAULT_PADDING_Y
 
-  const probe = scene.add.text(0, 0, label, headingStyle(fontSize, '#1a0800', 1))
+  const probe = scene.add.text(0, 0, label, {
+    ...headingStyle(fontSize, '#1a0800', 1),
+    letterSpacing: LETTER_SPACING,
+  })
   const w = Math.ceil(probe.width + paddingX * 2)
   const h = Math.max(Math.ceil(probe.height + paddingY * 2), MIN_TAP_HEIGHT)
   probe.destroy()
@@ -110,6 +114,7 @@ export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
     .text(x + w / 2, y + h / 2, label, {
       ...headingStyle(fontSize, '#1a0800', 1),
       stroke: '#000000',
+      letterSpacing: LETTER_SPACING,
     })
     .setOrigin(0.5)
     .setDepth(depth + 1)

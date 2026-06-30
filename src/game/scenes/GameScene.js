@@ -820,22 +820,30 @@ export class GameScene extends BaseScene {
   // ========================================
 
   createHUD() {
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.DARK_BG, 0.4)
-    g.fillRect(0, 0, GAME_WIDTH, 40)
-    g.fillStyle(COLORS.GOLD, 1)
-    g.fillRect(0, 40, GAME_WIDTH, 2)
-
-    const charName = this.characterData?.name || 'JUGADOR'
-    this.add.text(16, 6, charName, { ...headingStyle(28, COLOR_GOLD, 3), stroke: '#000000' })
-
+    const HUD_MARGIN = 10
     const exitBtnOpts = { depth: 5, fontSize: '24px', paddingX: 16, paddingY: 8 }
     const { w: exitBtnW, h: exitBtnH } = measureNavButtonSize(this, 'SALIR', exitBtnOpts)
+    const HUD_H = exitBtnH + HUD_MARGIN * 2
+
+    const g = this.add.graphics()
+    g.fillStyle(COLORS.DARK_BG, 0.4)
+    g.fillRect(0, 0, GAME_WIDTH, HUD_H)
+    g.fillStyle(COLORS.GOLD, 1)
+    g.fillRect(0, HUD_H, GAME_WIDTH, 2)
+
+    const charName = this.characterData?.name || 'JUGADOR'
+    this.add
+      .text(16, Math.round(HUD_H / 2), charName, {
+        ...headingStyle(36, COLOR_GOLD, 3),
+        stroke: '#000000',
+      })
+      .setOrigin(0, 0.5)
+
     const exitBtnObjsStart = this.children.list.length
     this.exitBtnBounds = makeNavButton(
       this,
-      GAME_WIDTH - exitBtnW - 10,
-      6,
+      GAME_WIDTH - exitBtnW - HUD_MARGIN,
+      HUD_MARGIN,
       exitBtnW,
       exitBtnH,
       'SALIR',
@@ -844,7 +852,7 @@ export class GameScene extends BaseScene {
     )
     this._exitBtnObjs = this.children.list.slice(exitBtnObjsStart)
 
-    this.oilIndicator = createOilIndicator(this, 8, 44)
+    this.oilIndicator = createOilIndicator(this, 8, HUD_H + 12)
     this.oilIndicator.update(this.oilSystem.getTotalGrease())
   }
 
