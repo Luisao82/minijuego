@@ -476,8 +476,8 @@ export class GameScene extends BaseScene {
     this._prePauseFase = this.phase
     this.phase = 'paused'
 
-    const PW = 460
-    const PH = 220
+    const PW = 540
+    const PH = 250
     const PX = Math.round((GAME_WIDTH - PW) / 2)
     const PY = Math.round((GAME_HEIGHT - PH) / 2)
     const CX = GAME_WIDTH / 2
@@ -513,8 +513,8 @@ export class GameScene extends BaseScene {
       panel.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10)
 
       this.add
-        .text(CX, PY + 50, '¿SEGURO QUE QUIERES SALIR?', {
-          ...headingStyle(20, COLOR_GOLD, 3),
+        .text(CX, PY + 58, '¿SEGURO QUE QUIERES SALIR?', {
+          ...headingStyle(26, COLOR_GOLD, 3),
           stroke: '#000000',
           align: 'center',
           wordWrap: { width: PW - 40 },
@@ -523,15 +523,15 @@ export class GameScene extends BaseScene {
         .setDepth(D + 2)
 
       this.add
-        .text(CX, PY + 92, 'Perderás la partida en curso', {
-          ...mutedStyle(12, '#cccccc'),
+        .text(CX, PY + 104, 'Perderás la partida en curso', {
+          ...mutedStyle(16, '#cccccc'),
           align: 'center',
         })
         .setOrigin(0.5)
         .setDepth(D + 2)
 
       const gap = 16
-      const btnOpts = { depth: D + 2, fontSize: '20px' }
+      const btnOpts = { depth: D + 2, fontSize: '26px' }
       const sizeA = measureNavButtonSize(this, 'SÍ, SALIR', btnOpts)
       const sizeB = measureNavButtonSize(this, 'SEGUIR', btnOpts)
       const btnH = Math.max(sizeA.h, sizeB.h)
@@ -598,7 +598,7 @@ export class GameScene extends BaseScene {
 
     const centerX = GAME_WIDTH / 2
     const centerY = CONTROL_PANEL.Y / 2
-    const panelW = 540
+    const panelW = 620
     const panelH = 260
 
     const g = this.add.graphics()
@@ -640,7 +640,7 @@ export class GameScene extends BaseScene {
       this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
 
       const gap = 14
-      const btnOpts = { fontSize: '18px' }
+      const btnOpts = { fontSize: '22px' }
       const sizeChange = measureNavButtonSize(this, 'CAMBIAR PERSONAJE', btnOpts)
       const sizeCollection = measureNavButtonSize(this, 'VER PREMIOS', btnOpts)
       const btnH = Math.max(sizeChange.h, sizeCollection.h)
@@ -829,7 +829,7 @@ export class GameScene extends BaseScene {
     const charName = this.characterData?.name || 'JUGADOR'
     this.add.text(16, 6, charName, { ...headingStyle(28, COLOR_GOLD, 3), stroke: '#000000' })
 
-    const exitBtnOpts = { depth: 5, fontSize: '20px', paddingX: 16, paddingY: 8 }
+    const exitBtnOpts = { depth: 5, fontSize: '24px', paddingX: 16, paddingY: 8 }
     const { w: exitBtnW, h: exitBtnH } = measureNavButtonSize(this, 'SALIR', exitBtnOpts)
     const exitBtnObjsStart = this.children.list.length
     this.exitBtnBounds = makeNavButton(

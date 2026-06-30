@@ -9,6 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Texto ilegible en los botones de salida/game over:** "SALIR" (HUD), el modal de confirmación ("SÍ, SALIR"/"SEGUIR") y "CAMBIAR PERSONAJE"/"VER PREMIOS" usaban fuentes de 18-20px, demasiado pequeñas en pantalla real al escalarse desde la resolución interna del juego. Se suben a 22-26px, en línea con el resto de botones del juego, y se ensanchan los paneles que los contienen para que el auto-size siga encajando sin desbordar.
 - **Botón "SALIR" montaba su modal sobre el panel de game over:** si se pulsaba "SALIR" justo cuando aparecía el mensaje de fallo (o durante la celebración de victoria), el modal de confirmación de salida se abría encima del panel de resultado. Ahora "SALIR" se atenúa y se desactiva en cuanto se muestra el resultado de la partida.
 
 - **`NavButton` ahora se auto-dimensiona al texto:** los botones de navegación añadidos en la actualización anterior (INICIO, CAMBIAR VISTA, SALIR, CAMBIAR PERSONAJE/VER PREMIOS, SÍ SALIR/SEGUIR) tenían anchos fijados a mano que no encajaban con cada etiqueta — unos quedaban demasiado grandes y tapaban fondo, otros con texto ilegible o un área de toque demasiado pequeña. `makeNavButton` mide ahora el texto real y calcula su propia caja (con un nuevo helper `measureNavButtonSize`), garantizando que el botón siempre encaje con su etiqueta y mantenga un mínimo de 44px de alto para uso táctil.
