@@ -1,10 +1,10 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
-import { headingStyle } from '../config/textStyles'
+import { headingStyle, titleStyle } from '../config/textStyles'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
-import { makeNavButton } from '../components/NavButton'
+import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
 import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
@@ -15,17 +15,11 @@ import { characterRewardService } from '../services/CharacterRewardService'
 // ── Constantes de layout ────────────────────────────────────────
 // Mismos valores que CharacterSelectScene para coherencia visual
 const BAND_Y = 120 // igual que CharacterSelectScene
-const BAND_H = 440 // igual que CharacterSelectScene
+const BAND_H = 500 // igual que CharacterSelectScene
 const SKIN_NAME_Y = 185
-const SPRITE_CENTER_Y = 330
-const LOCK_ICON_Y = 290
-const COMO_TEXT_Y = 445
-const BTN_W = 200
-const BTN_H = 56
-// CharacterSelectScene coloca 'SELECCIONAR' centrado en Y=600 (BAND_Y+BAND_H+40).
-// makeNavButton recibe la esquina superior izquierda, así que el centro queda en BTN_TOP + BTN_H/2.
-// Para que el centro coincida con Y=600: BTN_TOP = 600 - 56/2 = 572.
-const BTN_TOP = 572
+const SPRITE_CENTER_Y = 355
+const LOCK_ICON_Y = 315
+const COMO_TEXT_Y = 470
 const FRAME_INTERVAL = 400 // ms entre frame STAND y WALK
 
 const SPRITE_PATH = 'sprites/characters/spritesheet/'
@@ -67,6 +61,30 @@ export class SkinSelectScene extends BaseScene {
     this.drawCurrentSkin()
     this.drawNavArrows()
     this.drawActionButtons()
+    this.drawBackButton()
+  }
+
+  // ── Botón VOLVER ─────────────────────────────────────────────
+  // Alineado con el eje vertical de la cabecera (headerY=55), igual que
+  // CAMBIAR VISTA en CharacterSelectScene e INICIO en ViewSelectScene.
+
+  drawBackButton() {
+    const opts = { depth: 5 }
+    const { w, h } = measureNavButtonSize(this, 'VOLVER', opts)
+    makeNavButton(
+      this,
+      Math.round(GAME_WIDTH / 2 - w / 2),
+      BAND_Y + BAND_H + 110 - Math.round(h / 2),
+      w,
+      h,
+      'VOLVER',
+      () =>
+        this.scene.start(SCENES.CHARACTER_SELECT, {
+          perspective: this.perspective,
+          selectedIndex: this.selectedIndex,
+        }),
+      opts
+    )
   }
 
   // ── Renderizado del skin actual ─────────────────────────────
@@ -348,20 +366,31 @@ export class SkinSelectScene extends BaseScene {
   // ── Botones de acción ────────────────────────────────────────
 
   drawActionButtons() {
-    const centerX = GAME_WIDTH / 2
-    const gap = 20
-    const totalW = BTN_W * 2 + gap
-    const leftBtnX = centerX - totalW / 2
-    const rightBtnX = leftBtnX + BTN_W + gap
+    const btnY = BAND_Y + BAND_H + 30
 
-    makeNavButton(this, leftBtnX, BTN_TOP, BTN_W, BTN_H, 'VOLVER', () =>
-      this.scene.start(SCENES.CHARACTER_SELECT, {
-        perspective: this.perspective,
-        selectedIndex: this.selectedIndex,
+    // Mismo estilo que CharacterSelectScene/ViewSelectScene: texto dorado
+    // pulsante, sin caja — para que todos los "SELECCIONAR" sean idénticos.
+    // Override de stroke '#1a0800' (marrón cálido) — idem esas escenas.
+    this.selectText = this.add
+      .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR', {
+        ...titleStyle(52, COLOR_GOLD, 8),
+        stroke: '#1a0800',
+        letterSpacing: 12,
       })
-    )
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
 
-    makeNavButton(this, rightBtnX, BTN_TOP, BTN_W, BTN_H, 'JUGAR', () => this.startGame())
+    this.selectText.on('pointerdown', () => this.startGame())
+
+    this.tweens.add({
+      targets: this.selectText,
+      scaleX: 1.08,
+      scaleY: 1.08,
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
 
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())

@@ -13,7 +13,7 @@ import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_W = 200
-const CARD_H = 260
+const CARD_H = 300
 const CARD_GAP = 24
 const CARD_STEP = CARD_W + CARD_GAP
 
@@ -25,7 +25,7 @@ const AREA_RIGHT = AREA_LEFT + VISIBLE_COUNT * CARD_W + (VISIBLE_COUNT - 1) * CA
 // CARDS_Y = 200 → centro de cards en Y=330, igual que las flechas de CharacterSelectScene
 const CARDS_Y = 200
 
-const IMG_SIZE = 120
+const IMG_SIZE = 150
 const IMG_Y_LOCAL = Math.round((CARD_H - IMG_SIZE) / 2)
 
 // Layout enviado a RewardCard
@@ -33,7 +33,7 @@ const CARD_LAYOUT = { width: CARD_W, height: CARD_H, imgSize: IMG_SIZE, imgYLoca
 
 // Mismos valores que CharacterSelectScene y SkinSelectScene
 const BAND_Y = 120
-const BAND_H = 440
+const BAND_H = 500
 
 const CONFETTI_COLORS = [
   0xffd700, 0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xff69b4, 0xffeaa7, 0xc0392b,
@@ -206,8 +206,8 @@ export class CollectionScene extends BaseScene {
     const btnH = 58
     const btnW = 240
     const gap = 20
-    // top del botón para que su centro quede en Y=600, igual que CharacterSelectScene
-    const btnY = BAND_Y + BAND_H + 40 - btnH / 2
+    // centrado verticalmente en el espacio entre el fondo semitransparente y el borde inferior
+    const btnY = Math.round((GAME_HEIGHT + BAND_Y + BAND_H) / 2 - btnH / 2)
     const totalW = btnW * 3 + gap * 2
     const startX = Math.round(GAME_WIDTH / 2 - totalW / 2)
 
