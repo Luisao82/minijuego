@@ -1,5 +1,5 @@
 import { BaseScene } from './BaseScene'
-import { SCENES, GAME_WIDTH, COLORS } from '../config/gameConfig'
+import { SCENES, GAME_WIDTH, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
 import { headingStyle, titleStyle } from '../config/textStyles'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
@@ -330,13 +330,13 @@ export class SkinSelectScene extends BaseScene {
     if (this.character.skins.length <= 1) return
 
     this.leftArrow = this.add
-      .image(40, SPRITE_CENTER_Y, 'btn-nav-left')
+      .image(40, CAROUSEL_ARROW_Y, 'btn-nav-left')
       .setOrigin(0.5)
       .setScale(2)
       .setInteractive({ useHandCursor: true })
 
     this.rightArrow = this.add
-      .image(GAME_WIDTH - 40, SPRITE_CENTER_Y, 'btn-nav-right')
+      .image(GAME_WIDTH - 40, CAROUSEL_ARROW_Y, 'btn-nav-right')
       .setOrigin(0.5)
       .setScale(2)
       .setInteractive({ useHandCursor: true })
