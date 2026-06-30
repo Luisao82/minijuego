@@ -77,8 +77,8 @@
 
   {
     "id": "reward_hispalis",
-    "nombre": "Vinilo original de Los cantores de Hispalis",
-    "descripcion": "Este vinilo nos pone a todo el mundo a bailar a bailar. Es un clásico de la música sevillana que no puede faltar en tu colección de premios",
+    "nombre": "Vinilo de Los cantores de Hispalis",
+    "descripcion": "Este vinilo nos pone a todo el mundo a bailar a bailar.",
     "imagen": "premios/hispalis.webp",
     "probabilidad": 0.4
   },
@@ -92,7 +92,7 @@
   {
     "id": "reward_triana",
     "nombre": "Grande Triana",
-    "descripcion": "Gran grupo de Rock Andaluz que nos ha dejado grandes canciones y momentos inolvidables. Este premio es un homenaje a su legado musical y a su influencia en la cultura sevillana",
+    "descripcion": "Este premio es un homenaje a su legado musical y a su influencia en la cultura sevillana",
     "imagen": "premios/triana.webp",
     "probabilidad": 0.4
   }
