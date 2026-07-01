@@ -170,9 +170,11 @@ export class MenuScene extends BaseScene {
   drawStartPrompt() {
     // Override de stroke: '#000000' en lugar de PIXEL_STROKE_DARK
     // — conservado para no introducir diferencia visual en el piloto.
+    // Centrado verticalmente entre el logo (SUB_Y+40) y los botones (GAME_HEIGHT-104)
+    const promptY = Math.round((SUB_Y + 40 + (GAME_HEIGHT - 104)) / 2)
     this.startText = this.add
-      .text(GAME_WIDTH / 2, SUB_Y + 100, 'PULSA PARA EMPEZAR', {
-        ...headingStyle(22, '#ffffff', 4),
+      .text(GAME_WIDTH / 2, promptY, 'PULSA PARA EMPEZAR', {
+        ...headingStyle(32, '#ffffff', 4),
         stroke: '#000000',
       })
       .setOrigin(0.5)
