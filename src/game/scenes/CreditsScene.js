@@ -9,6 +9,7 @@ import { unlockService } from '../services/UnlockService'
 import { skinService } from '../services/SkinService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { version } from '../../../package.json'
+import { DEV_WEB_URL } from '../config/devConfig'
 
 const AMBER = 0xd4a520
 const PANEL_BG = 0x0d0600
@@ -296,7 +297,7 @@ export class CreditsScene extends BaseScene {
     url.on('pointerout', () => url.setColor('#ffd647'))
     url.on('pointerup', () => {
       this.sound.play('sfx-click', { volume: 0.6 })
-      window.open('https://luisao82.vercel.app/', '_blank', 'noopener')
+      window.open(DEV_WEB_URL, '_blank', 'noopener')
     })
   }
 
