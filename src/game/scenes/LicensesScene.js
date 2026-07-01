@@ -4,6 +4,7 @@ import { COLOR_GOLD, COLOR_GOLD_LIGHT, COLOR_ORANGE } from '../config/fonts'
 import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { version } from '../../../package.json'
+import { DEV_WEB_URL } from '../config/devConfig'
 
 const AMBER = 0xd4a520
 const PANEL_BG = 0x0d0600
@@ -174,23 +175,31 @@ export class LicensesScene extends BaseScene {
   }
 
   drawFooter() {
-    const footerY = PANEL_Y + PANEL_H - 64
+    const footerY = PANEL_Y + PANEL_H - 56
+
+    const url = this.add
+      .text(GAME_WIDTH / 2, footerY, 'Visita mi web', {
+        ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
+        stroke: '#000000',
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(3)
+      .setInteractive({ useHandCursor: true })
+
+    url.on('pointerover', () => url.setColor('#ffffff'))
+    url.on('pointerout', () => url.setColor('#ffd647'))
+    url.on('pointerup', () => {
+      this.sound.play('sfx-click', { volume: 0.6 })
+      window.open(DEV_WEB_URL, '_blank', 'noopener')
+    })
 
     this.add
       .text(
         GAME_WIDTH / 2,
-        footerY,
+        footerY + 30,
         `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
         { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
       )
-      .setOrigin(0.5, 0)
-      .setDepth(3)
-
-    this.add
-      .text(GAME_WIDTH / 2, footerY + 26, 'https://luisao82.vercel.app', {
-        ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
-        stroke: '#000000',
-      })
       .setOrigin(0.5, 0)
       .setDepth(3)
   }
