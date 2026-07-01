@@ -297,7 +297,6 @@ export class ViewSelectScene extends BaseScene {
       .setOrigin(0.5)
       .setScale(2)
       .setInteractive({ useHandCursor: true })
-
   }
 
   // ── Botón SELECCIONAR VISTA ───────────────────────────────────
