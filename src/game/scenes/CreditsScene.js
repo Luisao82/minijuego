@@ -51,7 +51,7 @@ const MESSAGE_LINE_GAP = 0
 const MARQUEE_BOTTOM_Y = PANEL_Y + PANEL_H - 70
 
 // "Visita mi web" va entre el texto y el marquee inferior
-const WEB_LINK_Y = MARQUEE_BOTTOM_Y - 58
+const WEB_LINK_Y = MARQUEE_BOTTOM_Y - 92
 
 const MESSAGE_LINES = [
   'Juego desarrollado con todo mi amor y pasión',
@@ -283,7 +283,7 @@ export class CreditsScene extends BaseScene {
   drawWebLink() {
     const url = this.add
       .text(GAME_WIDTH / 2, WEB_LINK_Y, 'Visita mi web', {
-        ...headingStyle(34, COLOR_GOLD_LIGHT, 3),
+        ...headingStyle(44, COLOR_GOLD_LIGHT, 3),
         stroke: '#000000',
       })
       .setOrigin(0.5, 0.5)
