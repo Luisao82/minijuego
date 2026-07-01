@@ -274,25 +274,6 @@ export class CharacterSelectScene extends BaseScene {
 
   drawPlayButton() {
     const btnY = BAND_Y + BAND_H + 30
-    const flagSize = 18
-    const flagSpacing = 160
-    const flagsG = this.add.graphics()
-
-    const lfx = GAME_WIDTH / 2 - flagSpacing
-    flagsG.fillStyle(0x888888, 1)
-    flagsG.fillRect(lfx, btnY - flagSize + 2, 3, flagSize + 6)
-    flagsG.fillStyle(0xffffff, 0.9)
-    flagsG.fillRect(lfx + 3, btnY - flagSize + 2, 14, 10)
-    flagsG.lineStyle(1, 0xcccccc, 0.8)
-    flagsG.strokeRect(lfx + 3, btnY - flagSize + 2, 14, 10)
-
-    const rfx = GAME_WIDTH / 2 + flagSpacing
-    flagsG.fillStyle(0x888888, 1)
-    flagsG.fillRect(rfx - 2, btnY - flagSize + 2, 3, flagSize + 6)
-    flagsG.fillStyle(0xffffff, 0.9)
-    flagsG.fillRect(rfx - 17, btnY - flagSize + 2, 14, 10)
-    flagsG.lineStyle(1, 0xcccccc, 0.8)
-    flagsG.strokeRect(rfx - 17, btnY - flagSize + 2, 14, 10)
 
     // Override de stroke '#1a0800' (marrón ligeramente más cálido que el de marca).
     this.playText = this.add

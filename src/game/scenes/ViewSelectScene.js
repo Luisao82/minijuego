@@ -297,27 +297,6 @@ export class ViewSelectScene extends BaseScene {
       .setOrigin(0.5)
       .setScale(2)
       .setInteractive({ useHandCursor: true })
-
-    this.dotsContainer = this.add.container(GAME_WIDTH / 2, CARDS_Y + CARD_H + 66)
-    this._updateDots()
-  }
-
-  _updateDots() {
-    this.dotsContainer.removeAll(true)
-    const total = this.perspectives.length
-    if (total <= 1) return
-
-    const dotSpacing = 16
-    const startX = -((total - 1) * dotSpacing) / 2
-
-    this.perspectives.forEach((_, i) => {
-      const isActive = i === this.selectedIndex
-      const dot = this.add.graphics()
-      dot.fillStyle(isActive ? COLORS.GOLD : 0x444466, 1)
-      const size = isActive ? 5 : 3
-      dot.fillRect(startX + i * dotSpacing - size / 2, -size / 2, size, size)
-      this.dotsContainer.add(dot)
-    })
   }
 
   // ── Botón SELECCIONAR VISTA ───────────────────────────────────
@@ -399,7 +378,6 @@ export class ViewSelectScene extends BaseScene {
     storePerspective(this.perspectives[this.selectedIndex].id)
     this._buildCards()
     this.drawSelectedDetail()
-    this._updateDots()
   }
 
   // ── Transición ────────────────────────────────────────────────
