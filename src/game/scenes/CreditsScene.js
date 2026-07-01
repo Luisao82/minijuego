@@ -279,18 +279,8 @@ export class CreditsScene extends BaseScene {
   drawFooter() {
     const footerY = PANEL_Y + PANEL_H - 56
 
-    this.add
-      .text(
-        GAME_WIDTH / 2,
-        footerY,
-        `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
-        { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
-      )
-      .setOrigin(0.5, 0)
-      .setDepth(3)
-
     const url = this.add
-      .text(GAME_WIDTH / 2, footerY + 24, 'https://luisao82.vercel.app', {
+      .text(GAME_WIDTH / 2, footerY, 'Visita mi web', {
         ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
         stroke: '#000000',
       })
@@ -304,6 +294,16 @@ export class CreditsScene extends BaseScene {
       this.sound.play('sfx-click', { volume: 0.6 })
       window.open('https://luisao82.vercel.app/', '_blank', 'noopener')
     })
+
+    this.add
+      .text(
+        GAME_WIDTH / 2,
+        footerY + 28,
+        `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
+        { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
+      )
+      .setOrigin(0.5, 0)
+      .setDepth(3)
   }
 
   // ── Botones ──────────────────────────────────────────────
