@@ -38,17 +38,20 @@ const BANNER_Y = MARQUEE_TOP_Y + BANNER_GAP_TOP + BANNER_HEIGHT / 2 // centro ve
 const FACE_TEXTURE_KEY = 'narrator-tutorial'
 const FACE_FRAME_BASE = 0
 const FACE_FRAME_BLINK = 3
-const FACE_SCALE = 6
-const FACE_HEIGHT = 35 * FACE_SCALE // 210
-const FACE_GAP_TOP = 14
+const FACE_SCALE = 4
+const FACE_HEIGHT = 35 * FACE_SCALE // 140
+const FACE_GAP_TOP = 10
 const FACE_CENTER_Y = BANNER_Y + BANNER_HEIGHT / 2 + FACE_GAP_TOP + FACE_HEIGHT / 2
 
 // Texto motivacional: debajo de la cara, mayor tamaño para legibilidad en móvil.
-const MESSAGE_TOP_Y = FACE_CENTER_Y + FACE_HEIGHT / 2 + 12
-const MESSAGE_FONT = '30px'
+const MESSAGE_TOP_Y = FACE_CENTER_Y + FACE_HEIGHT / 2 + 10
+const MESSAGE_FONT = '28px'
 const MESSAGE_LINE_GAP = 0
 
 const MARQUEE_BOTTOM_Y = PANEL_Y + PANEL_H - 70
+
+// "Visita mi web" va entre el texto y el marquee inferior
+const WEB_LINK_Y = MARQUEE_BOTTOM_Y - 58
 
 const MESSAGE_LINES = [
   'Juego desarrollado con todo mi amor y pasión',
@@ -94,6 +97,7 @@ export class CreditsScene extends BaseScene {
     this.drawBanner()
     this.drawDeveloperFace()
     this.drawMessage()
+    this.drawWebLink()
     this.drawFooter()
     this.drawBackButton()
     this.drawDetailsButton()
@@ -274,17 +278,15 @@ export class CreditsScene extends BaseScene {
       .setDepth(3)
   }
 
-  // ── Footer con copyright y URL portfolio ─────────────────
+  // ── Enlace web (encima del marquee inferior) ─────────────
 
-  drawFooter() {
-    const footerY = PANEL_Y + PANEL_H - 56
-
+  drawWebLink() {
     const url = this.add
-      .text(GAME_WIDTH / 2, footerY, 'Visita mi web', {
-        ...headingStyle(22, COLOR_GOLD_LIGHT, 2),
+      .text(GAME_WIDTH / 2, WEB_LINK_Y, 'Visita mi web', {
+        ...headingStyle(34, COLOR_GOLD_LIGHT, 3),
         stroke: '#000000',
       })
-      .setOrigin(0.5, 0)
+      .setOrigin(0.5, 0.5)
       .setDepth(3)
       .setInteractive({ useHandCursor: true })
 
@@ -294,15 +296,21 @@ export class CreditsScene extends BaseScene {
       this.sound.play('sfx-click', { volume: 0.6 })
       window.open('https://luisao82.vercel.app/', '_blank', 'noopener')
     })
+  }
+
+  // ── Footer copyright ──────────────────────────────────────
+
+  drawFooter() {
+    const footerY = PANEL_Y + PANEL_H - 20
 
     this.add
       .text(
         GAME_WIDTH / 2,
-        footerY + 28,
+        footerY,
         `© 2026 Luisao  ·  v${version}  ·  Todos los derechos reservados`,
         { ...uiLabelStyle(10, COLOR_GOLD, 3), stroke: '#000000' }
       )
-      .setOrigin(0.5, 0)
+      .setOrigin(0.5, 1)
       .setDepth(3)
   }
 
