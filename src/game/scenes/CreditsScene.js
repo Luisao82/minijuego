@@ -50,15 +50,17 @@ const MESSAGE_LINE_GAP = 0
 
 const MARQUEE_BOTTOM_Y = PANEL_Y + PANEL_H - 70
 
-// "Visita mi web" va entre el texto y el marquee inferior
-const WEB_LINK_Y = MARQUEE_BOTTOM_Y - 92
-
 const MESSAGE_LINES = [
   'Juego desarrollado con todo mi amor y pasión',
   'que le tengo a mi ciudad y a sus tradiciones.',
   'Todos los personajes han sido tratados',
   'con todo respeto y cariño. Espero haberlo expresado así.',
 ]
+
+// "Visita mi web" centrado verticalmente entre el texto y el marquee inferior
+const MESSAGE_LINE_H = 36 // altura estimada por línea a 28px de fuente
+const MESSAGE_BOTTOM_Y = MESSAGE_TOP_Y + MESSAGE_LINES.length * MESSAGE_LINE_H
+const WEB_LINK_Y = Math.round((MESSAGE_BOTTOM_Y + MARQUEE_BOTTOM_Y) / 2)
 
 export class CreditsScene extends BaseScene {
   constructor() {
@@ -120,7 +122,7 @@ export class CreditsScene extends BaseScene {
 
   drawHeader() {
     this.add
-      .text(GAME_WIDTH / 2, 24, 'La Cucaña Trianera', headingStyle(40, COLOR_ORANGE, 5))
+      .text(GAME_WIDTH / 2, 24, 'La Cucaña de Triana', headingStyle(40, COLOR_ORANGE, 5))
       .setOrigin(0.5, 0)
       .setDepth(3)
 
