@@ -58,7 +58,7 @@ const MESSAGE_LINES = [
 ]
 
 // "Visita mi web" centrado verticalmente entre el texto y el marquee inferior
-const MESSAGE_LINE_H = 36 // altura estimada por línea a 28px de fuente
+const MESSAGE_LINE_H = 28 // Press Start 2P no tiene leading extra — coincide con el font-size
 const MESSAGE_BOTTOM_Y = MESSAGE_TOP_Y + MESSAGE_LINES.length * MESSAGE_LINE_H
 const WEB_LINK_Y = Math.round((MESSAGE_BOTTOM_Y + MARQUEE_BOTTOM_Y) / 2)
 
