@@ -26,7 +26,7 @@ describe('StatsCalculator', () => {
     it('avgPolePercent = 0', () => expect(calc.avgPolePercent()).toBe(0))
     it('consecutiveWins = 0', () => expect(calc.consecutiveWins()).toBe(0))
     it('topSkinsByWins devuelve array vacío', () => expect(calc.topSkinsByWins(3)).toEqual([]))
-    it('bestCharacter devuelve null', () => expect(calc.bestCharacter()).toBeNull())
+    it('bestCharacter devuelve array vacío', () => expect(calc.bestCharacter()).toEqual([]))
   })
 
   describe('contadores básicos', () => {
@@ -146,21 +146,24 @@ describe('StatsCalculator', () => {
   })
 
   describe('bestCharacter', () => {
-    it('devuelve el personaje con mejor winRate', () => {
+    it('devuelve top 3 personajes por victorias absolutas', () => {
       const records = [
-        // trianero: 3 partidas, 1 win → 33%
+        // trianero: 3 partidas, 1 win
         win({ characterId: 'trianero' }),
         loss({ characterId: 'trianero' }),
         loss({ characterId: 'trianero' }),
-        // flamenca: 2 partidas, 2 wins → 100%
+        // flamenca: 2 partidas, 2 wins
         win({ characterId: 'flamenca' }),
         win({ characterId: 'flamenca' }),
+        // aguela: 1 partida, 1 win
+        win({ characterId: 'aguela' }),
       ]
-      const best = new StatsCalculator(records).bestCharacter()
-      expect(best.characterId).toBe('flamenca')
-      expect(best.winRate).toBe(100)
-      expect(best.games).toBe(2)
-      expect(best.wins).toBe(2)
+      const top = new StatsCalculator(records).bestCharacter()
+      expect(top).toHaveLength(3)
+      expect(top[0].characterId).toBe('flamenca')
+      expect(top[0].wins).toBe(2)
+      expect(top[1].wins).toBe(1) // aguela o trianero (desempate por winRate)
+      expect(top[2].wins).toBe(1)
     })
   })
 
@@ -177,7 +180,7 @@ describe('StatsCalculator', () => {
       expect(summary.winRate).toBe(67)
       expect(summary.totalRewards).toBe(2)
       expect(summary.consecutiveWins).toBe(2)
-      expect(summary.bestCharacter.characterId).toBe('flamenca')
+      expect(summary.bestCharacter[0].characterId).toBe('flamenca')
       expect(summary.topRewards[0]).toEqual({ rewardId: 'turron', count: 2 })
       expect(summary.topSkins[0].skinKey).toBe('flamenca')
     })
