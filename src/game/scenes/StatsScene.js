@@ -165,9 +165,7 @@ export class StatsScene extends BaseScene {
     // y justo debajo de la sección GENERAL (título 38 + 5 filas × 38 + gap 12)
     let y = CONTENT_Y + 10 + 38 + 5 * 38 + 12
 
-    this.add
-      .text(COL_L, y, 'MÁS VICTORIAS', { ...F_SECTION, fontSize: '32px' })
-      .setOrigin(0, 0.5)
+    this.add.text(COL_L, y, 'MÁS VICTORIAS', { ...F_SECTION, fontSize: '32px' }).setOrigin(0, 0.5)
     y += 38
 
     const imgSize = 44
@@ -186,9 +184,7 @@ export class StatsScene extends BaseScene {
       const textX = imgX + imgSize / 2 + 10
       const charName = this._getCharacterName(char.characterId)
       this.add.text(textX, imgY, charName, F_STAT_LABEL).setOrigin(0, 0.5)
-      this.add
-        .text(COL_LDIV, imgY, `${char.wins}`, F_VALUE)
-        .setOrigin(1, 0.5)
+      this.add.text(COL_LDIV, imgY, `${char.wins}`, F_VALUE).setOrigin(1, 0.5)
 
       y += rowH
     })
