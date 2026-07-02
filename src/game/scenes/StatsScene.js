@@ -141,7 +141,7 @@ export class StatsScene extends BaseScene {
     let y = CONTENT_Y + 10
 
     this.add.text(COL_L, y, 'GENERAL', F_SECTION).setOrigin(0, 0.5)
-    y += 38
+    y += 42
 
     const rows = [
       ['PARTIDAS', `${summary.totalGames}`],
@@ -155,17 +155,17 @@ export class StatsScene extends BaseScene {
     rows.forEach(([label, value]) => {
       this.add.text(COL_L + 4, y, label, F_STAT_LABEL).setOrigin(0, 0.5)
       this.add.text(COL_LDIV, y, value, F_VALUE).setOrigin(1, 0.5)
-      y += 38
+      y += 42
     })
   }
 
   _drawBestCharacter(topChars) {
     if (!topChars?.length) return
 
-    // y justo debajo de la sección GENERAL (título 38 + 5 filas × 38 + gap 12)
-    let y = CONTENT_Y + 10 + 38 + 5 * 38 + 12
+    // y justo debajo de la sección GENERAL (título 42 + 5 filas × 42 + gap 12)
+    let y = CONTENT_Y + 10 + 42 + 5 * 42 + 12
 
-    this.add.text(COL_L, y, 'MÁS VICTORIAS', { ...F_SECTION, fontSize: '32px' }).setOrigin(0, 0.5)
+    this.add.text(COL_L, y, 'MÁS VICTORIAS', F_SECTION).setOrigin(0, 0.5)
     y += 38
 
     const imgSize = 44
