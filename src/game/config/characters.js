@@ -63,7 +63,7 @@ export const CHARACTERS = [
   },
   {
     id: 'guiri',
-    name: 'El guiri',
+    name: 'EL GUIRI',
     description:
       'Turista despistado, que le gusta las tradiciones "baratas" de Sevillanas\nLe cuesta mantener el equilibrio.',
     sprite: 'char-guiri',
@@ -73,7 +73,7 @@ export const CHARACTERS = [
   },
   {
     id: 'cunaos',
-    name: 'Los cuñaos',
+    name: 'LOS CUÑAOS',
     description: '¿Los tipicos que saben de todo? Pues esos.\nEllos lo hacen mejor y más barato',
     sprite: 'char-cunaos',
     stats: { peso: 4, equilibrio: 2, altura: 4, edad: 6 },
@@ -89,7 +89,7 @@ export const CHARACTERS = [
   },
   {
     id: 'retro01',
-    name: 'Personajes Retro',
+    name: 'PERSONAJES RETRO',
     description: 'Personajes de juegos retro',
     sprite: 'char-retro01',
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
