@@ -74,7 +74,7 @@ export class StatsCalculator {
       .map(([rewardId, count]) => ({ rewardId, count }))
   }
 
-  // Personaje con mejor ratio de victorias — { characterId, games, wins, winRate }
+  // Personaje con más victorias absolutas — { characterId, games, wins, winRate }
   bestCharacter() {
     const map = {}
     this.records.forEach((r) => {
@@ -86,7 +86,7 @@ export class StatsCalculator {
     })
     const sorted = Object.values(map)
       .map((c) => ({ ...c, winRate: Math.round((c.wins / c.games) * 100) }))
-      .sort((a, b) => b.winRate - a.winRate)
+      .sort((a, b) => b.wins - a.wins || b.winRate - a.winRate)
     return sorted[0] || null
   }
 
