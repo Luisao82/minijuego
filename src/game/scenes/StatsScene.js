@@ -90,7 +90,7 @@ export class StatsScene extends BaseScene {
     }
 
     this._drawGeneralStats(summary)
-    this._drawBestCharacter(summary.bestCharacter)
+    this._drawBestCharacter(summary.bestCharacter ?? [])
     this._drawTopSkins(summary.topSkins)
     this._drawTopRewards(summary.topRewards)
   }
@@ -141,7 +141,7 @@ export class StatsScene extends BaseScene {
     let y = CONTENT_Y + 10
 
     this.add.text(COL_L, y, 'GENERAL', F_SECTION).setOrigin(0, 0.5)
-    y += 44
+    y += 38
 
     const rows = [
       ['PARTIDAS', `${summary.totalGames}`],
@@ -155,31 +155,43 @@ export class StatsScene extends BaseScene {
     rows.forEach(([label, value]) => {
       this.add.text(COL_L + 4, y, label, F_STAT_LABEL).setOrigin(0, 0.5)
       this.add.text(COL_LDIV, y, value, F_VALUE).setOrigin(1, 0.5)
-      y += 46
+      y += 38
     })
   }
 
-  _drawBestCharacter(best) {
-    if (!best) return
+  _drawBestCharacter(topChars) {
+    if (!topChars?.length) return
 
-    // y justo debajo de la sección GENERAL (5 filas × 46 + título 44 + gap 16)
-    let y = CONTENT_Y + 10 + 44 + 5 * 46 + 16
+    // y justo debajo de la sección GENERAL (título 38 + 5 filas × 38 + gap 12)
+    let y = CONTENT_Y + 10 + 38 + 5 * 38 + 12
 
-    this.add.text(COL_L, y, 'MEJOR PERSONAJE', F_SECTION).setOrigin(0, 0.5)
-    y += 44
+    this.add
+      .text(COL_L, y, 'MÁS VICTORIAS', { ...F_SECTION, fontSize: '32px' })
+      .setOrigin(0, 0.5)
+    y += 38
 
-    const imgSize = 60
-    const imgX = COL_L + imgSize / 2 + 4
-    const imgY = y + imgSize / 2
-    const imgKey = `char-${best.characterId}`
+    const imgSize = 44
+    const rowH = 48
+    const F_STAT_LABEL = { ...F_LABEL, fontSize: '18px', color: '#ffffff' }
 
-    if (this.textures.exists(imgKey)) {
-      this.add.image(imgX, imgY, imgKey).setDisplaySize(imgSize, imgSize).setOrigin(0.5)
-    }
+    topChars.forEach((char) => {
+      const imgX = COL_L + imgSize / 2 + 4
+      const imgY = y + rowH / 2
+      const imgKey = `char-${char.characterId}`
 
-    const textX = imgX + imgSize / 2 + 12
-    const charName = this._getCharacterName(best.characterId)
-    this.add.text(textX, imgY, charName, F_VALUE).setOrigin(0, 0.5)
+      if (this.textures.exists(imgKey)) {
+        this.add.image(imgX, imgY, imgKey).setDisplaySize(imgSize, imgSize).setOrigin(0.5)
+      }
+
+      const textX = imgX + imgSize / 2 + 10
+      const charName = this._getCharacterName(char.characterId)
+      this.add.text(textX, imgY, charName, F_STAT_LABEL).setOrigin(0, 0.5)
+      this.add
+        .text(COL_LDIV, imgY, `${char.wins}`, F_VALUE)
+        .setOrigin(1, 0.5)
+
+      y += rowH
+    })
   }
 
   // ── Columna derecha — Pódium ──────────────────────────────
