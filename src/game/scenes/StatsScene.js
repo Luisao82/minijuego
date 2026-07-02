@@ -169,7 +169,7 @@ export class StatsScene extends BaseScene {
     y += 38
 
     const imgSize = 44
-    const rowH = 48
+    const rowH = 58
     const F_STAT_LABEL = { ...F_LABEL, fontSize: '18px', color: '#ffffff' }
 
     topChars.forEach((char) => {
