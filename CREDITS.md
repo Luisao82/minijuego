@@ -22,6 +22,7 @@ contenido.
 | Componente                | Versión | Licencia      | Enlace                    |
 | ------------------------- | ------- | ------------- | ------------------------- |
 | Phaser 3                  | 3.90.0  | MIT           | <https://phaser.io>       |
+| three.js                  | 0.185.x | MIT           | <https://threejs.org>     |
 | Vite                      | 6.3.1   | MIT           | <https://vitejs.dev>      |
 | Capacitor (iOS / Android) | 8.x     | MIT           | <https://capacitorjs.com> |
 | Sentry (Browser SDK)      | 10.x    | MIT (cliente) | <https://sentry.io>       |

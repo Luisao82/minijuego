@@ -55,6 +55,12 @@ export class GameScene extends BaseScene {
     this.perspective =
       perspectiveUnlockService.getById(perspId) ?? perspectiveUnlockService.getById('triana')
 
+    // La vista 3D tiene su propia escena (primera persona con three.js).
+    // Se detecta aquí para que cualquier punto de entrada a GameScene
+    // (selección, reintentos, premios...) redirija sin duplicar lógica.
+    this._redirectTo3D = this.perspective?.id === '3d'
+    this._initData = data
+
     this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60
 
@@ -118,6 +124,11 @@ export class GameScene extends BaseScene {
   }
 
   create() {
+    if (this._redirectTo3D) {
+      this.scene.start(SCENES.GAME_3D, this._initData)
+      return
+    }
+
     this.drawSimpleBackground()
     this._setupGameWorld()
     this.drawPole()

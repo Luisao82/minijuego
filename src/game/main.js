@@ -8,6 +8,7 @@ import { ViewSelectScene } from './scenes/ViewSelectScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
 import { SkinSelectScene } from './scenes/SkinSelectScene'
 import { GameScene } from './scenes/GameScene'
+import { Game3DScene } from './scenes/Game3DScene'
 import { RewardScene } from './scenes/RewardScene'
 import { CharacterUnlockScene } from './scenes/CharacterUnlockScene'
 import { PerspectiveUnlockScene } from './scenes/PerspectiveUnlockScene'
@@ -42,6 +43,7 @@ const config = {
     CharacterSelectScene,
     SkinSelectScene,
     GameScene,
+    Game3DScene,
     RewardScene,
     CharacterUnlockScene,
     PerspectiveUnlockScene,

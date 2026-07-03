@@ -53,16 +53,29 @@ Cada personaje tiene estadísticas que afectan a la partida:
 - Sprites dibujados a mano en baja resolución (16x16 o 32x32 px)
 - Animaciones de movimiento, equilibrio y caída al agua
 
+### Vistas del escenario
+
+El jugador elige la perspectiva de la partida en la pantalla **Elige tu vista**:
+
+- **Triana** — vista lateral clásica desde la orilla de Triana (disponible desde el inicio).
+- **Sevilla** — vista lateral espejada desde la orilla de Sevilla (se desbloquea con 8 premios).
+- **3D** — vista en **primera persona** estilo retro-Doom, renderizada con three.js a baja
+  resolución con filtrado NEAREST para respetar el pixel art. El jugador recorre el palo
+  sobre el Guadalquivir con el caserío de Triana a la izquierda, la orilla de Sevilla a la
+  derecha y el Puente de Triana al fondo. Mismas mecánicas que las vistas 2D: impulso,
+  equilibrio con los botones rojo/azul, grasa, salto, bandera, premios y estadísticas.
+
 ---
 
 ## Stack tecnológico
 
-| Tecnología                 | Uso                                       |
-| -------------------------- | ----------------------------------------- |
-| **Phaser 3**               | Motor del juego (v3.90.0)                 |
-| **Vite**                   | Bundler y servidor de desarrollo (v6.3.1) |
-| **JavaScript**             | Lenguaje base                             |
-| **LibreSprite / Aseprite** | Creación de sprites y pixel art           |
+| Tecnología                 | Uso                                                    |
+| -------------------------- | ------------------------------------------------------ |
+| **Phaser 3**               | Motor del juego (v3.90.0)                              |
+| **three.js**               | Renderizado de la vista 3D en primera persona (v0.185) |
+| **Vite**                   | Bundler y servidor de desarrollo (v6.3.1)              |
+| **JavaScript**             | Lenguaje base                                          |
+| **LibreSprite / Aseprite** | Creación de sprites y pixel art                        |
 
 ---
 

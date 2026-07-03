@@ -19,5 +19,13 @@
       "count": 8,
       "hint": "Consigue 8 premios en total"
     }
+  },
+  {
+    "id": "3d",
+    "label": "3D",
+    "backgroundKey": "bg-menu",
+    "direction": "rtl",
+    "scale": 1.0,
+    "yOffset": 0
   }
 ]

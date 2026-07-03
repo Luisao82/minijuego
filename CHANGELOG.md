@@ -7,8 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-07-03
+
+### Added
+
+- **Vista "3D" en primera persona (`Game3DScene`):** nueva perspectiva seleccionable en `ViewSelectScene` (siempre desbloqueada). Renderizado con three.js a baja resolución estilo Doom, volcado sobre una `CanvasTexture` de Phaser con filtrado NEAREST para respetar el pixel art. El mundo recrea el Guadalquivir con el caserío de Triana a la izquierda, la orilla de Sevilla a la derecha y el Puente de Triana frontal al fondo (`frontal-rio.webp`, nuevo), con los fondos recortados por su línea de agua y los cielos unificados. La partida es idéntica al resto de vistas: Fase 1 de impulso (barra de poder) y Fase 2 de equilibrio con los botones rojo/azul del panel de control original (`PowerBarUI`, `BalanceUI`, `ImpulseSystem`, `BalanceSystem`, `OilSystem`), con salto, bandera, grasa, estadísticas y premios integrados. `GameScene` redirige automáticamente a la escena 3D cuando la perspectiva almacenada es `3d`.
+- Dependencia nueva: `three` (motor de renderizado 3D de la vista en primera persona). Añadida a la ficha técnica (`LicensesScene`), `CREDITS.md` y `README.md`.
+
 ### Fixed
 
+- **El service worker corrompía el arranque en desarrollo:** `register-sw.js` registraba el SW también con el servidor Vite, y su estrategia cache-first para JS servía módulos desactualizados tras cada cambio de código — el grafo de módulos quedaba incoherente y el juego podía arrancar roto (p. ej. directamente en la ficha técnica). Ahora, en desarrollo (puerto no estándar), no se registra y además desregistra y limpia las cachés de cualquier SW previo; en producción el comportamiento no cambia.
+- **HMR de Vite roto según el hostname:** el servidor de desarrollo escuchaba solo en `127.0.0.1`, así que entrando por `localhost` el websocket de HMR fallaba y el navegador no recibía los cambios. Ahora escucha en todas las interfaces (`host: true`).
 - **Texto ilegible en los botones de salida/game over:** "SALIR" (HUD), el modal de confirmación ("SÍ, SALIR"/"SEGUIR") y "CAMBIAR PERSONAJE"/"VER PREMIOS" usaban fuentes de 18-20px, demasiado pequeñas en pantalla real al escalarse desde la resolución interna del juego. Se suben a 22-26px, en línea con el resto de botones del juego, y se ensanchan los paneles que los contienen para que el auto-size siga encajando sin desbordar.
 - **Botón "SALIR" montaba su modal sobre el panel de game over:** si se pulsaba "SALIR" justo cuando aparecía el mensaje de fallo (o durante la celebración de victoria), el modal de confirmación de salida se abría encima del panel de resultado. Ahora "SALIR" se atenúa y se desactiva en cuanto se muestra el resultado de la partida.
 
