@@ -222,9 +222,10 @@ const JUMP_SUCCESS_WINDOW_MS = 300 // valor inicial: 300ms
 
 ---
 
-## 👁️ Selector de perspectiva (Triana / Sevilla)
+## 👁️ Selector de perspectiva (Triana / Sevilla / 3D)
 
-Antes de elegir personaje, el jugador puede escoger desde qué orilla ver la cucaña.
+Antes de elegir personaje, el jugador puede escoger desde qué orilla ver la cucaña,
+o jugar en primera persona con la vista 3D.
 
 ### Flujo de pantallas actualizado
 
@@ -261,6 +262,33 @@ const SEVILLA_Y_OFFSET = -30 // px hacia arriba (negativo = sube)
   - **Sevilla** → thumbnail de `fondo_b.png`
 - La ficha de la perspectiva guardada aparece pre-seleccionada
 - Al elegir → guarda en `localStorage` → pasa a `CharacterSelectScene`
+
+### Vista 3D — Primera persona (`Game3DScene`)
+
+Tercera perspectiva, siempre desbloqueada, definida como una entrada más de
+`perspectives.json` (id `3d`, thumbnail de `fondoIntro.webp`).
+
+- **Render:** three.js a baja resolución (1024/4 × 768/4) volcado en una
+  `CanvasTexture` de Phaser con filtrado NEAREST — el mundo 3D respeta el
+  pixel art y el HUD original se dibuja encima sin cambios.
+- **Escenario:** río Guadalquivir con oleaje, caserío de Triana a la izquierda
+  (`fondo_b`), orilla de Sevilla a la derecha (`fondo_a`), Puente de Triana
+  frontal al fondo (`frontal-rio.webp`) y la barcaza paseando. Los fondos 2D se
+  recortan por su línea de agua y sus cielos se unifican al azul común para que
+  el horizonte sea continuo.
+- **Mecánicas idénticas a las vistas 2D**, reutilizando los mismos sistemas:
+  Fase 1 impulso (`PowerBar`/`ImpulseSystem`/`PowerBarUI`), Fase 2 equilibrio con
+  los botones rojo/azul (`BalanceBar`/`BalanceSystem`/`BalanceUI`), grasa por zonas
+  (`OilSystem`), salto con tap, bandera, premios, trozos de mapa y estadísticas
+  (`perspectiveId: '3d'`).
+- **Cámara:** la inclinación (roll) ES la barra de equilibrio — la posición del
+  cursor se mapea a la inclinación de la cámara; al fallar, animación de caída
+  al agua en primera persona.
+- **Enrutado:** `GameScene` redirige a `Game3DScene` en `create()` cuando la
+  perspectiva almacenada es `3d`, así reintentos y "volver a jugar" funcionan
+  desde cualquier punto de entrada sin duplicar lógica.
+- **Constantes:** bloque `GAME3D` en `gameConfig.js` (longitud del palo en
+  metros, alturas, colores muestreados de los fondos, recortes de línea de agua).
 
 ---
 

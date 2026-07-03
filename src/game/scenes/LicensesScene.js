@@ -117,6 +117,7 @@ export class LicensesScene extends BaseScene {
 
     y = this._section(COL_LEFT_X, y, 'MOTOR Y LIBRERÍAS')
     y = this._entry(COL_LEFT_X, y, 'Phaser 3   ·   MIT')
+    y = this._entry(COL_LEFT_X, y, 'three.js   ·   MIT')
     y = this._entry(COL_LEFT_X, y, 'Vite   ·   MIT')
     y = this._entry(COL_LEFT_X, y, 'Capacitor   ·   MIT')
     y = this._entry(COL_LEFT_X, y, 'Sentry SDK   ·   MIT')

@@ -219,6 +219,7 @@ export class PreloadScene extends BaseScene {
     this.load.image('bg-game', 'backgrounds/fondo_a.webp')
     this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.webp')
     this.load.image('bg-history', 'backgrounds/fondoHistory.webp')
+    this.load.image('bg-3d-frontal', 'backgrounds/frontal-rio.webp')
 
     // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
     this.load.spritesheet('narrator-history', 'sprites/narrators/narrator_history.png', {
