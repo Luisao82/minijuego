@@ -23,9 +23,6 @@ export const GAME3D = {
   // las orillas se recortan ahí para que el caserío apoye justo donde empieza el agua 3D
   BANK_WATERLINE_TRIANA: 0.354, // fondo_b — caserío de Triana
   BANK_WATERLINE_SEVILLA: 0.362, // fondo_a — orilla de Sevilla
-  // frontal-rio.webp se recorta justo bajo la base de las columnas del puente,
-  // así las columnas llegan enteras hasta el agua del plano 3D
-  FRONTAL_CROP: 0.66,
 
   // Geometría y animación del escenario (World3D)
   WORLD: {
@@ -46,8 +43,49 @@ export const GAME3D = {
     BANK_Z: -40, // Desplazamiento de las orillas hacia el fondo (m)
     BANK_WIDTH: 320, // Ancho del plano de cada orilla (m)
     BANK_REPEAT_X: 3, // Repeticiones horizontales de la textura de orilla
-    BRIDGE_WIDTH: 150, // Ancho del plano del Puente de Triana (m)
-    BRIDGE_Z: -170, // Distancia del puente (m)
+    // Puente de Triana (frontal-rio.webp). El tablero es la continuación de las
+    // orillas laterales: el plano se achata a la altura real del tablero (~11 m
+    // sobre el agua) en vez de respetar el aspect de la imagen — la decimación
+    // del render estilo Doom absorbe la compresión vertical sin artefactos.
+    // Las medidas SRC_* son píxeles sobre la imagen de 1024×1024.
+    BRIDGE: {
+      WIDTH: 160, // Ancho del plano (m) — los extremos mueren dentro de las orillas (±62)
+      HEIGHT: 11.5, // Altura del plano (m): barandilla ~10 m, base del tablero ~6 m
+      Z: -170, // Distancia del puente (m)
+      SRC_Y0: 390, // Techo de la banda mostrada (farolas y edificios del fondo)
+      SRC_Y1: 665, // Línea de agua de la imagen (base de las columnas)
+      // El puente tiene 4 columnas: 2 en el agua (ya en la imagen) y 2 pegadas
+      // a tierra — estas últimas se clonan del pilar derecho del agua y se
+      // estampan en los extremos, a la altura de las orillas laterales.
+      PILLAR_SRC: { X: 723, Y: 505, W: 121, H: 160 }, // Pilar del agua usado como fuente
+      LAND_PILLAR_DST_X: [55, 849], // Destinos x del clon (px) — caen sobre las orillas (±62 m)
+    },
+    // Torre Sevilla — plano propio detrás del puente, con proporción esbelta
+    // (el plano comprime la banda en horizontal) y el remate dibujado encima
+    // del asset, que la trae cortada en plano.
+    TOWER: {
+      WIDTH: 18, // Ancho del plano (m)
+      HEIGHT: 46, // Alto del plano (m)
+      X: -48, // A la izquierda del puente, como en la ribera real
+      Y_BASE: 5, // Base del plano (m) — queda oculta tras el tablero del puente
+      Z: -178, // Un poco por detrás del puente
+      SRC_X0: 55,
+      SRC_X1: 190,
+      SRC_Y0: 150, // Deja aire para el remate dibujado (CAP)
+      SRC_Y1: 470, // La base del fuste desaparece tras el tablero
+      // Remate pixel art: bloques centrados apilados sobre el tope del fuste
+      // [x0, x1, alto] de abajo arriba, en px de imagen; colores del propio fuste
+      CAP: {
+        Y: 194, // Tope actual del fuste en la imagen
+        BLOCKS: [
+          [124, 182, 12],
+          [130, 176, 12],
+          [146, 160, 10],
+        ],
+        FILL: '#7d5f5e', // Tono claro del fuste
+        SHADE: '#523b41', // Sombra del lado izquierdo
+      },
+    },
     POLE_RADIUS: 0.12, // Grosor del palo (m)
     FLAG: {
       MAST_HEIGHT: 1.5,

@@ -1,6 +1,6 @@
 import { COLORS } from '../config/gameConfig'
 import { GAME3D, RENDER_WIDTH, RENDER_HEIGHT } from '../config/game3dConfig'
-import { replaceColor } from './textureUtils'
+import { replaceColor, stampRegion, drawTowerCap } from './textureUtils'
 
 // Escenario 3D de la vista en primera persona: el Guadalquivir con el caserío
 // de Triana a la izquierda, la orilla de Sevilla a la derecha, el Puente de
@@ -130,31 +130,52 @@ export class World3D {
     this._scene.add(mesh)
   }
 
-  // Puente de Triana frontal (frontal-rio.webp), recortado justo bajo la base
-  // de las columnas para que lleguen enteras al agua. El agua del dibujo está
-  // pintada del mismo color que el plano 3D (incluida la vista a través de
-  // los arcos), de modo que el río continúa sin corte hasta el puente.
+  // Puente de Triana frontal (frontal-rio.webp) en dos planos:
+  //   1. La banda del tablero y los arcos, achatada a la altura real del
+  //      tablero para que sea la continuación de las orillas laterales. El
+  //      agua del dibujo está pintada del mismo color que el plano 3D
+  //      (incluida la vista a través de los arcos), así el río continúa sin
+  //      corte hasta el puente. A la imagen se le estampan dos clones del
+  //      pilar del agua en los extremos: las 4 columnas del puente real
+  //      (2 en el agua + 2 pegadas a tierra).
+  //   2. La Torre Sevilla en plano propio detrás del puente, esbelta y con
+  //      el remate dibujado (el asset la trae cortada en plano).
   _buildBridge() {
     const THREE = this._THREE
     const W = GAME3D.WORLD
-    const tex = this._makeTex(
-      replaceColor(
-        this._textures.get('bg-3d-frontal').getSourceImage(),
-        GAME3D.SKY_COLOR_FRONTAL,
-        GAME3D.SKY_COLOR,
-        W.SKY_REPLACE_TOLERANCE_FRONTAL
-      )
-    )
-    tex.offset.y = 1 - GAME3D.FRONTAL_CROP
-    tex.repeat.y = GAME3D.FRONTAL_CROP
+    const { BRIDGE, TOWER } = W
 
-    const bridgeH = Math.round(W.BRIDGE_WIDTH * GAME3D.FRONTAL_CROP)
-    const bridge = new THREE.Mesh(
-      new THREE.PlaneGeometry(W.BRIDGE_WIDTH, bridgeH),
-      new THREE.MeshBasicMaterial({ map: tex, fog: false })
+    const canvas = replaceColor(
+      this._textures.get('bg-3d-frontal').getSourceImage(),
+      GAME3D.SKY_COLOR_FRONTAL,
+      GAME3D.SKY_COLOR,
+      W.SKY_REPLACE_TOLERANCE_FRONTAL
     )
-    bridge.position.set(0, bridgeH / 2, W.BRIDGE_Z)
+    BRIDGE.LAND_PILLAR_DST_X.forEach((dstX) => stampRegion(canvas, BRIDGE.PILLAR_SRC, dstX))
+    drawTowerCap(canvas, TOWER.CAP)
+
+    const iw = canvas.width
+    const ih = canvas.height
+
+    const bridgeTex = this._makeTex(canvas)
+    bridgeTex.offset.set(0, 1 - BRIDGE.SRC_Y1 / ih)
+    bridgeTex.repeat.set(1, (BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0) / ih)
+    const bridge = new THREE.Mesh(
+      new THREE.PlaneGeometry(BRIDGE.WIDTH, BRIDGE.HEIGHT),
+      new THREE.MeshBasicMaterial({ map: bridgeTex, fog: false })
+    )
+    bridge.position.set(0, BRIDGE.HEIGHT / 2, BRIDGE.Z)
     this._scene.add(bridge)
+
+    const towerTex = this._makeTex(canvas)
+    towerTex.offset.set(TOWER.SRC_X0 / iw, 1 - TOWER.SRC_Y1 / ih)
+    towerTex.repeat.set((TOWER.SRC_X1 - TOWER.SRC_X0) / iw, (TOWER.SRC_Y1 - TOWER.SRC_Y0) / ih)
+    const tower = new THREE.Mesh(
+      new THREE.PlaneGeometry(TOWER.WIDTH, TOWER.HEIGHT),
+      new THREE.MeshBasicMaterial({ map: towerTex, fog: false })
+    )
+    tower.position.set(TOWER.X, TOWER.Y_BASE + TOWER.HEIGHT / 2, TOWER.Z)
+    this._scene.add(tower)
   }
 
   // El palo: grosor uniforme y el mismo color plano que en las vistas 2D
