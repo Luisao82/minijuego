@@ -21,6 +21,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **La composición del puente en la vista 3D no cuadraba con las orillas:** el plano del puente respetaba las proporciones de la imagen y quedaba gigante, flotando muy por encima de la línea de tierra de las orillas laterales, con solo 2 columnas visibles y la Torre Sevilla cortada por arriba. Ahora el tablero queda a la altura de las orillas —es su continuación natural— achatando el plano a la altura real del tablero (~11 m; la decimación del render estilo Doom absorbe la compresión sin artefactos). El puente muestra sus 4 columnas como el Puente de Triana real: las 2 del agua ya estaban en el asset y las 2 pegadas a tierra se clonan del propio pilar y se estampan sobre la línea de las orillas (±62 m). La Torre Sevilla pasa a un plano propio detrás del puente, con proporción esbelta y el remate dibujado sobre el asset (que la traía cortada en plano). Constantes nuevas en `GAME3D.WORLD.BRIDGE` y `GAME3D.WORLD.TOWER` (sustituyen a `FRONTAL_CROP`/`BRIDGE_WIDTH`/`BRIDGE_Z`).
 - **La vista 3D no pedía confirmación al salir:** el botón "SALIR" del HUD 3D iba directo al menú perdiendo la partida, y la tecla ESC no funcionaba. Ahora comparte el modal de confirmación ("¿Seguro que quieres salir?") y el comportamiento de las vistas 2D, incluida la desactivación del botón al mostrarse el resultado.
 - **Los aplausos de victoria en 3D eran más cortos que en 2D** (10 palmadas frente a 14): unificados al compartirse `_playWaterSounds`.
 
