@@ -10,6 +10,7 @@ import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
+import { startGame } from '../utils/startGame'
 
 // ── Dimensiones de las fichas ────────────────────────────────
 const CARD_W = 200
@@ -245,7 +246,7 @@ export class CollectionScene extends BaseScene {
       btnH,
       'VOLVER A JUGAR',
       () => {
-        this.scene.start(SCENES.GAME, { character: this.characterData })
+        startGame(this, { character: this.characterData })
       },
       { depth: 3 }
     )

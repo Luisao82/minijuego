@@ -11,6 +11,7 @@ import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
 import { skinService } from '../services/SkinService'
 import { characterRewardService } from '../services/CharacterRewardService'
+import { startGame } from '../utils/startGame'
 
 // ── Constantes de layout ────────────────────────────────────────
 // Mismos valores que CharacterSelectScene para coherencia visual
@@ -413,7 +414,7 @@ export class SkinSelectScene extends BaseScene {
     // Guardar el skin activo seleccionado
     skinService.setActiveSkin(this.character.id, skin.spritesheet)
 
-    this.scene.start(SCENES.GAME, {
+    startGame(this, {
       character: this.character,
       perspective: this.perspective,
       skin: skin.spritesheet,

@@ -4,6 +4,7 @@ import { COLOR_GOLD } from '../config/fonts'
 import { mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
+import { startGame } from '../utils/startGame'
 
 const PANEL_W = 560
 const PANEL_H = 620
@@ -293,7 +294,7 @@ export class PerspectiveUnlockScene extends BaseScene {
 
     // Destino final según nextScene
     if (this.nextScene === SCENES.GAME) {
-      this.scene.start(SCENES.GAME, { character: this.characterData })
+      startGame(this, { character: this.characterData })
     } else if (this.nextScene === SCENES.COLLECTION) {
       this.scene.start(SCENES.COLLECTION, { character: this.characterData })
     } else {

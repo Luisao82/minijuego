@@ -1,108 +1,50 @@
-import { BaseScene } from './BaseScene'
+import { BaseGameScene } from './BaseGameScene'
 import {
   SCENES,
   GAME_WIDTH,
   GAME_HEIGHT,
-  COLORS,
   POLE,
-  MOVEMENT,
-  CONTROL_PANEL,
   BOAT,
   JUMP,
   OIL,
-  PHASE1,
+  COLORS,
 } from '../config/gameConfig'
-import { COLOR_GOLD, COLOR_REWARD } from '../config/fonts'
-import { headingStyle, mutedStyle, uiLabelStyle } from '../config/textStyles'
-import { mapService } from '../services/MapService'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
-import { skinService } from '../services/SkinService'
 import { Player } from '../entities/Player'
-import { PowerBar } from '../entities/PowerBar'
-import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
-import { BalanceBar } from '../entities/BalanceBar'
-import { ImpulseSystem } from '../systems/ImpulseSystem'
-import { BalanceSystem } from '../systems/BalanceSystem'
-import { OilSystem } from '../systems/OilSystem'
 import { JumpSystem } from '../systems/JumpSystem'
 import { FallSystem } from '../systems/FallSystem'
-import { PowerBarUI } from '../components/PowerBarUI'
-import { BalanceUI } from '../components/BalanceUI'
-import { createOilIndicator } from '../components/OilIndicator'
-import { gameStatsService } from '../services/GameStatsService'
-import { weightedRandom } from '../utils/math'
-import { getGameOverMessage } from '../config/gameOverMessages'
+import { OilSystem } from '../systems/OilSystem'
 
-export class GameScene extends BaseScene {
+// Vista lateral 2D de la partida (perspectivas Triana y Sevilla).
+// El flujo de juego vive en BaseGameScene; aquí solo la presentación:
+// fondo según perspectiva, palo, jugador (sprite), grasa sobre el palo,
+// salto/caída con animaciones y celebración.
+
+const WIN_CELEBRATION_DELAY_MS = 600
+const LOSE_HEAD_DELAY_MS = 400
+
+export class GameScene extends BaseGameScene {
   constructor() {
     super(SCENES.GAME)
   }
 
   init(data) {
     super.init(data)
-    this.characterData = data.character || null
-
-    const skinSpritesheet =
-      data.skin ?? (this.characterData ? skinService.getActiveSkin(this.characterData) : null)
-    this.skinKey = skinSpritesheet ? `sprite-${skinSpritesheet}` : null
-
-    this.phase = null
-    this.impulseResult = null
 
     const perspId = data.perspective?.id ?? getStoredPerspective()
     this.perspective =
       perspectiveUnlockService.getById(perspId) ?? perspectiveUnlockService.getById('triana')
 
-    // La vista 3D tiene su propia escena (primera persona con three.js).
-    // Se detecta aquí para que cualquier punto de entrada a GameScene
-    // (selección, reintentos, premios...) redirija sin duplicar lógica.
-    this._redirectTo3D = this.perspective?.id === '3d'
-    this._initData = data
-
     this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60
 
-    // Movimiento
-    this.distanceTraveled = 0
-    this.maxDistance = 0
-    this.initialSpeed = 0
-    this.runDuration = 0
-    this.runElapsed = 0
-
-    // Bandera y salto
-    this.hasFlag = false
-    this.hasJumped = false
     this.flagGraphics = null
-
-    // Equilibrio — refs necesarias para updateRunning
-    this.balanceBar = null
-    this.balanceSystem = null
-
-    // Grasa
-    this.oilSystem = null
     this.oilOverlay = null
-    this.oilIndicator = null
-
-    // Sistemas y componentes extraídos
     this.jumpSystem = null
     this.fallSystem = null
-    this.powerBarUI = null
-    this.balanceUI = null
-
-    // Estado de resultado y UI
-    this.canRestart = false
-    this.collectionBtnBounds = null
-    this.changeCharacterBtnBounds = null
-    this._capturedGreasePercent = null
-
-    // Modal de confirmación de salida
-    this.exitBtnBounds = null
-    this._exitBtnObjs = null
-    this._exitModalOpen = false
-    this._exitModalContainer = null
-    this._prePauseFase = null
+    this.player = null
   }
 
   preload() {
@@ -124,11 +66,6 @@ export class GameScene extends BaseScene {
   }
 
   create() {
-    if (this._redirectTo3D) {
-      this.scene.start(SCENES.GAME_3D, this._initData)
-      return
-    }
-
     this.drawSimpleBackground()
     this._setupGameWorld()
     this.drawPole()
@@ -167,198 +104,58 @@ export class GameScene extends BaseScene {
   }
 
   // ========================================
-  // FASE 1 — Barra de impulso
+  // HOOKS DEL FLUJO COMPARTIDO
   // ========================================
 
-  startPhase1() {
-    const weight = this.characterData?.stats?.peso || 5
-    this.powerBar = new PowerBar(weight)
-    this.impulseSystem = new ImpulseSystem(this.powerBar)
-    this.phase = 'impulse'
-    this.powerBarUI = new PowerBarUI(this, this.powerBar, this.characterData)
-    this.powerBarUI.create()
+  getPoleLength() {
+    return POLE.LENGTH
   }
 
-  onBarStopped() {
-    this.impulseResult = this.impulseSystem.isActive()
-      ? this.impulseSystem.stop()
-      : this.impulseSystem.getResult()
-
-    this.hasPerfectImpulse = this.impulseResult.impulseValue >= PHASE1.PERFECT_IMPULSE_MIN
-    if (this.hasPerfectImpulse) {
-      this.sound.play('sfx-maxpower', { volume: 0.7 })
-      this._showMaxPowerText()
-    }
-
-    this.startRunning()
+  getPerspectiveId() {
+    return this.perspective?.id ?? 'triana'
   }
 
-  _showMaxPowerText() {
-    const startY = CONTROL_PANEL.Y - 10
-    const targetY = 390
-    const cx = GAME_WIDTH / 2
-
-    // Override de stroke '#000000' y shadow verde de glow (no es el patrón base).
-    const txt = this.add
-      .text(cx, startY, '¡MAX POWER!', {
-        ...uiLabelStyle(28, COLOR_REWARD, 4),
-        stroke: '#000000',
-        shadow: { offsetX: 2, offsetY: 2, color: '#006600', blur: 0, fill: true },
-      })
-      .setOrigin(0.5)
-      .setAlpha(0)
-      .setDepth(50)
-
-    // Sube y aparece
-    this.tweens.add({
-      targets: txt,
-      y: targetY,
-      alpha: 1,
-      duration: 520,
-      ease: 'Cubic.easeOut',
-      onComplete: () => {
-        // Pausa visible
-        this.time.delayedCall(1200, () => {
-          // Desvanece
-          this.tweens.add({
-            targets: txt,
-            alpha: 0,
-            duration: 350,
-            ease: 'Quad.easeIn',
-            onComplete: () => txt.destroy(),
-          })
-        })
-      },
-    })
+  getRestartData() {
+    return { character: this.characterData, perspective: this.perspective }
   }
 
-  // ========================================
-  // MOVIMIENTO DEL PERSONAJE
-  // ========================================
-
-  startRunning() {
-    this.powerBarUI?.destroy()
-    this.powerBarUI = null
-    this.phase = 'running'
-
-    const impulse = this.impulseResult.impulseValue
-    const poleLength = POLE.START_X - POLE.END_X
-
-    if (impulse <= 0.01) {
-      this.maxDistance = 0
-      this.distanceTraveled = 0
-      this._fall()
-      return
-    }
-
-    this.maxDistance = impulse * poleLength
-    this.runDuration =
-      MOVEMENT.MIN_RUN_DURATION + impulse * (MOVEMENT.MAX_RUN_DURATION - MOVEMENT.MIN_RUN_DURATION)
-    this.initialSpeed = (2 * this.maxDistance) / this.runDuration
-    this.runElapsed = 0
-    this.distanceTraveled = 0
-
-    const equilibrio = this.characterData?.stats?.equilibrio || 5
-    this.balanceBar = new BalanceBar(equilibrio)
-    this.balanceSystem = new BalanceSystem(this.balanceBar)
-    this.balanceUI = new BalanceUI(this, this.balanceBar, this.balanceSystem)
-    this.balanceUI.create()
-  }
-
-  updateRunning(delta) {
-    const dt = delta / 1000
-
-    const poleLength = POLE.START_X - POLE.END_X
-    const progressRatio = Math.max(0, Math.min(1, this.distanceTraveled / poleLength))
-    this.oilSystem.update(dt, progressRatio)
+  onOilChanged() {
     this._drawOilOverlay()
+  }
 
-    if (this.balanceBar) {
-      const greaseRatio = this.oilSystem.getGreaseRatio(progressRatio)
-      this.balanceSystem.update(dt, this.balanceUI?.getInputDirection() ?? 0, greaseRatio)
-      // BalanceUI sigue recibiendo el multiplicador final para la visualización
-      // (no necesita conocer la mecánica interna del growth factor).
-      this.balanceUI?.update(this.oilSystem.getDriftMultiplier(progressRatio))
-
-      if (this.balanceSystem.isFailed()) {
-        this.onBalanceLost()
-        return
-      }
-    }
-
-    if (this.runElapsed >= this.runDuration) return
-
-    this.runElapsed += dt
-
-    if (this.runElapsed >= this.runDuration) {
-      this.player.x = POLE.START_X - this.maxDistance
-      this.distanceTraveled = this.maxDistance
-
-      if (this.player.x < POLE.END_X) {
-        this.player.x = POLE.END_X
-        this.distanceTraveled = POLE.START_X - POLE.END_X
-      }
-
-      this.player.updateAnimation(dt, 0)
-
-      if (!this.hasFlag && this._checkFlagCollision()) {
-        this.player.redraw()
-        this._grabFlag()
-        return
-      }
-
-      this.player.redraw()
-      return
-    }
-
-    const t = this.runElapsed
-    const T = this.runDuration
-    this.distanceTraveled = this.initialSpeed * t * (1 - t / (2 * T))
+  onRunProgress(dt) {
     this.player.x = POLE.START_X - this.distanceTraveled
-
-    const currentSpeed = T > 0 ? Math.max(0, this.initialSpeed * (1 - t / T)) : 0
-    this.player.updateAnimation(dt, currentSpeed)
-
-    if (!this.hasFlag && this._checkFlagCollision()) {
-      this.player.x = POLE.END_X
-      this.distanceTraveled = POLE.START_X - POLE.END_X
-      this.player.redraw()
-      this._grabFlag()
-      return
-    }
-
+    this.player.updateAnimation(dt, this.runSystem.currentSpeed)
     this.player.redraw()
   }
 
-  onBalanceLost() {
-    this.sound.play('sfx-hit', { volume: 0.8 })
-    this.balanceUI?.destroy()
-    this.balanceUI = null
-    this.balanceBar = null
-    this.balanceSystem = null
-    this._fall()
+  isFlagReached() {
+    return this._checkFlagCollision()
+  }
+
+  snapToFlag() {
+    this.player.x = POLE.END_X
+    this.player.redraw()
+  }
+
+  onFlagTaken() {
+    this.flagGraphics.setVisible(false)
+    this.player.setFlag(true)
+    this.player.redraw()
   }
 
   // ========================================
   // SALTO
   // ========================================
 
-  startJump() {
-    this.balanceUI?.destroy()
-    this.balanceUI = null
-    this.balanceBar = null
-    this.balanceSystem = null
-
-    this.hasJumped = true
-    this.phase = 'jumping'
-
+  onJumpStart() {
     this.jumpSystem = new JumpSystem()
     this.jumpSystem.start({
       playerX: this.player.x,
       playerY: this.player.y,
-      runElapsed: this.runElapsed,
-      runDuration: this.runDuration,
-      initialSpeed: this.initialSpeed,
+      runElapsed: this.runSystem.elapsed,
+      runDuration: this.runSystem.duration,
+      initialSpeed: this.runSystem.initialSpeed,
       waterY: this.waterY,
       jumpDistance: this.characterData?.stats?.jump ?? JUMP.EXTRA_DISTANCE,
     })
@@ -366,8 +163,8 @@ export class GameScene extends BaseScene {
     this.player.setJumping(true, this.hasFlag)
   }
 
-  updateJumping(delta) {
-    const { x, y } = this.jumpSystem.update(delta / 1000)
+  updateJumping(dt) {
+    const { x, y } = this.jumpSystem.update(dt)
     this.player.x = x
     this.player.y = y
     this.distanceTraveled = POLE.START_X - this.player.x
@@ -380,17 +177,7 @@ export class GameScene extends BaseScene {
       this.player.y = this.waterY
       this.player.setVisible(false)
       this.fallSystem.splash(this.player.x, this.waterY)
-      this._playWaterSounds()
-
-      if (this.hasFlag) {
-        this.time.delayedCall(600, () => this.showCelebration())
-      } else {
-        this.time.delayedCall(400, () => {
-          this.player.showHead(this.waterY)
-          this.showGameOver()
-        })
-      }
-      this.phase = 'splash_done'
+      this._waterOutcome()
       return
     }
 
@@ -413,360 +200,29 @@ export class GameScene extends BaseScene {
     return charLeft <= flagRight && charTop < flagBottom && charBottom > flagTop
   }
 
-  // Estado y feedback compartidos al cogerla, salte o no el jugador.
-  // captureGrease solo aplica en la fase de equilibrio (no en salto, donde
-  // la grasa ya no afecta y _capturedGreasePercent no se usa).
-  _onFlagGrabbed({ captureGrease = false } = {}) {
-    this.sound.play('sfx-flag', { volume: 1.0 })
-    this.hasFlag = true
-    this.flagGraphics.setVisible(false)
-    if (captureGrease) this._capturedGreasePercent = this.oilSystem.getTotalGrease()
-    this.oilSystem.reset()
-    this.player.setFlag(true)
-  }
-
-  _grabFlag() {
-    this._onFlagGrabbed({ captureGrease: true })
-    this.balanceUI?.destroy()
-    this.balanceUI = null
-    this.balanceBar = null
-    this.balanceSystem = null
-    this.player.redraw()
-    this._fall()
-  }
-
   // ========================================
-  // CAÍDA AL AGUA
+  // CAÍDA, CELEBRACIÓN Y RESULTADO
   // ========================================
 
-  _fall() {
-    this.phase = 'falling'
-    this.fallSystem.fall(this.player, this.waterY, () => {
-      this._playWaterSounds()
-      if (this.hasFlag) {
-        this.time.delayedCall(600, () => this.showCelebration())
-      } else {
-        this.time.delayedCall(400, () => {
-          this.player.showHead(this.waterY)
-          this.showGameOver()
-        })
-      }
+  onFallStart() {
+    this.fallSystem.fall(this.player, this.waterY, () => this._waterOutcome())
+  }
+
+  _afterSplashWin() {
+    this.time.delayedCall(WIN_CELEBRATION_DELAY_MS, () => this.showCelebration())
+  }
+
+  _afterSplashLose() {
+    this.time.delayedCall(LOSE_HEAD_DELAY_MS, () => {
+      this.player.showHead(this.waterY)
+      this.showGameOver()
     })
   }
-
-  _playWaterSounds() {
-    if (this.hasFlag) {
-      // Aplausos: esperamos 300ms a que el chapuzón suene y luego palmadas escalonadas
-      ;[300, 520, 730, 930, 1120, 1300, 1480, 1660, 1840, 2020, 2210, 2420, 2650, 2900].forEach(
-        (delay) => {
-          this.time.delayedCall(delay, () => {
-            this.sound.play('sfx-win', { volume: 0.65 })
-          })
-        }
-      )
-    } else {
-      // Esperamos 350ms a que el chapuzón baje antes de soltar el oooohh
-      this.time.delayedCall(350, () => {
-        this.sound.play('sfx-fail', { volume: 1.0 })
-      })
-    }
-  }
-
-  // ========================================
-  // SALIR DE LA PARTIDA
-  // ========================================
-
-  _showExitConfirm() {
-    // Bloqueado mientras se muestra el resultado de la partida (game over,
-    // celebración) — esas pantallas ya tienen su propia salida y, si se abre
-    // encima, el modal de confirmación se monta sobre el panel de resultado.
-    const canExit = this.phase === 'impulse' || this.phase === 'running' || this.phase === 'jumping'
-    if (!canExit) return
-    if (this._exitModalOpen) return
-    this._exitModalOpen = true
-    this._prePauseFase = this.phase
-    this.phase = 'paused'
-
-    const PW = 540
-    const PH = 250
-    const PX = Math.round((GAME_WIDTH - PW) / 2)
-    const PY = Math.round((GAME_HEIGHT - PH) / 2)
-    const CX = GAME_WIDTH / 2
-    const D = 50
-
-    this._exitModalContainer = this.add.container(0, 0)
-    // makeNavButton (y add.*) dibujan directamente en la escena, no en un
-    // container. Capturamos lo creado en cada paso y lo movemos al
-    // container del modal para poder destruirlo todo de una vez al cerrar.
-    const collect = (fn) => {
-      const before = this.children.list.length
-      fn()
-      this.children.list.slice(before).forEach((o) => this._exitModalContainer.add(o))
-    }
-
-    collect(() => {
-      const overlay = this.add.graphics().setDepth(D)
-      overlay.fillStyle(0x000000, 0.65)
-      overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
-      overlay.setInteractive(
-        new Phaser.Geom.Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT),
-        Phaser.Geom.Rectangle.Contains
-      )
-
-      const panel = this.add.graphics().setDepth(D + 1)
-      panel.fillStyle(0x000000, 0.45)
-      panel.fillRect(PX + 5, PY + 5, PW, PH)
-      panel.fillStyle(COLORS.DARK_BG, 1)
-      panel.fillRect(PX, PY, PW, PH)
-      panel.lineStyle(3, COLORS.GOLD, 1)
-      panel.strokeRect(PX, PY, PW, PH)
-      panel.lineStyle(1, COLORS.GOLD, 0.25)
-      panel.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10)
-
-      this.add
-        .text(CX, PY + 58, '¿SEGURO QUE QUIERES SALIR?', {
-          ...headingStyle(26, COLOR_GOLD, 3),
-          stroke: '#000000',
-          align: 'center',
-          wordWrap: { width: PW - 40 },
-        })
-        .setOrigin(0.5)
-        .setDepth(D + 2)
-
-      this.add
-        .text(CX, PY + 104, 'Perderás la partida en curso', {
-          ...mutedStyle(16, '#cccccc'),
-          align: 'center',
-        })
-        .setOrigin(0.5)
-        .setDepth(D + 2)
-
-      const gap = 16
-      const btnOpts = { depth: D + 2, fontSize: '26px' }
-      const sizeA = measureNavButtonSize(this, 'SÍ, SALIR', btnOpts)
-      const sizeB = measureNavButtonSize(this, 'SEGUIR', btnOpts)
-      const btnH = Math.max(sizeA.h, sizeB.h)
-      const totalW = sizeA.w + sizeB.w + gap
-      const startX = CX - totalW / 2
-      const btnY = PY + PH - btnH - 24
-
-      makeNavButton(
-        this,
-        startX,
-        btnY,
-        sizeA.w,
-        btnH,
-        'SÍ, SALIR',
-        () => this.scene.start(SCENES.MENU),
-        btnOpts
-      )
-      makeNavButton(
-        this,
-        startX + sizeA.w + gap,
-        btnY,
-        sizeB.w,
-        btnH,
-        'SEGUIR',
-        () => this._closeExitConfirm(),
-        btnOpts
-      )
-    })
-  }
-
-  _closeExitConfirm() {
-    this._exitModalContainer?.destroy(true)
-    this._exitModalContainer = null
-    this._exitModalOpen = false
-    this.phase = this._prePauseFase
-  }
-
-  // ========================================
-  // GAME OVER
-  // ========================================
-
-  showGameOver() {
-    this.phase = 'done'
-    this._disableExitButton()
-
-    gameStatsService.addRecord({
-      timestamp: new Date().toISOString(),
-      characterId: this.characterData?.id ?? 'unknown',
-      skinKey: this.skinKey,
-      perspectiveId: this.perspective?.id ?? 'triana',
-      success: false,
-      rewardId: null,
-      greasePercent: this.oilSystem.getTotalGrease(),
-      polePercent: Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
-      impulseValue: this.impulseResult?.impulseValue ?? null,
-      durationSecs: Math.round(this.runElapsed * 100) / 100,
-      hasJumped: this.hasJumped,
-    })
-
-    const poleLength = POLE.START_X - POLE.END_X
-    const distPercent = Math.round((this.distanceTraveled / poleLength) * 100)
-
-    const { expression, phrase, color: exprColor } = getGameOverMessage(distPercent)
-
-    const centerX = GAME_WIDTH / 2
-    const centerY = CONTROL_PANEL.Y / 2
-    const panelW = 620
-    const panelH = 260
-
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.DARK_BG, 0.88)
-    g.fillRect(centerX - panelW / 2, centerY - panelH / 2, panelW, panelH)
-    g.lineStyle(2, COLORS.GOLD, 0.8)
-    g.strokeRect(centerX - panelW / 2, centerY - panelH / 2, panelW, panelH)
-    g.lineStyle(1, COLORS.GOLD, 0.2)
-    g.strokeRect(centerX - panelW / 2 + 3, centerY - panelH / 2 + 3, panelW - 6, panelH - 6)
-
-    // Expresión grande (tipografía redonda Jersey 10) — override de stroke '#000000'.
-    this.add
-      .text(centerX, centerY - 85, expression, {
-        ...headingStyle(44, exprColor, 5),
-        stroke: '#000000',
-        align: 'center',
-      })
-      .setOrigin(0.5)
-
-    // Frase complementaria
-    this.add
-      .text(centerX, centerY - 22, phrase, {
-        ...headingStyle(28, exprColor, 3),
-        stroke: '#000000',
-        align: 'center',
-        wordWrap: { width: panelW - 50 },
-      })
-      .setOrigin(0.5)
-
-    this.time.delayedCall(1000, () => {
-      this.canRestart = true
-
-      const restartText = this.add
-        .text(centerX, centerY + 32, 'PULSA PARA REINTENTAR', {
-          ...headingStyle(22, '#ffffff', 3),
-          stroke: '#000000',
-        })
-        .setOrigin(0.5)
-      this.tweens.add({ targets: restartText, alpha: 0.3, duration: 500, yoyo: true, repeat: -1 })
-
-      const gap = 14
-      const btnOpts = { fontSize: '22px' }
-      const sizeChange = measureNavButtonSize(this, 'CAMBIAR PERSONAJE', btnOpts)
-      const sizeCollection = measureNavButtonSize(this, 'VER PREMIOS', btnOpts)
-      const btnH = Math.max(sizeChange.h, sizeCollection.h)
-      const totalW = sizeChange.w + sizeCollection.w + gap
-      const startX = centerX - totalW / 2
-      const btnY = centerY + 58
-
-      this.changeCharacterBtnBounds = makeNavButton(
-        this,
-        startX,
-        btnY,
-        sizeChange.w,
-        btnH,
-        'CAMBIAR PERSONAJE',
-        () => this.scene.start(SCENES.CHARACTER_SELECT),
-        btnOpts
-      )
-
-      this.collectionBtnBounds = makeNavButton(
-        this,
-        startX + sizeChange.w + gap,
-        btnY,
-        sizeCollection.w,
-        btnH,
-        'VER PREMIOS',
-        () => this.scene.start(SCENES.COLLECTION, { character: this.characterData }),
-        btnOpts
-      )
-    })
-  }
-
-  // ========================================
-  // CELEBRACIÓN
-  // ========================================
 
   showCelebration() {
     this.phase = 'celebrating'
     this._disableExitButton()
     this.player.startCelebration(this.waterY, () => this.startRewardScreen())
-  }
-
-  startRewardScreen() {
-    this.phase = 'done'
-    const rewards = this.cache.json.get('rewards') || []
-    const reward = weightedRandom(rewards, 'probabilidad')
-
-    gameStatsService.addRecord({
-      timestamp: new Date().toISOString(),
-      characterId: this.characterData?.id ?? 'unknown',
-      skinKey: this.skinKey,
-      perspectiveId: this.perspective?.id ?? 'triana',
-      success: true,
-      rewardId: reward?.id ?? null,
-      greasePercent: this._capturedGreasePercent ?? 0,
-      polePercent: Math.round((this.distanceTraveled / POLE.LENGTH) * 10000) / 100,
-      impulseValue: this.impulseResult?.impulseValue ?? null,
-      durationSecs: Math.round(this.runElapsed * 100) / 100,
-      hasJumped: this.hasJumped,
-    })
-
-    const newMapPiece = this.hasPerfectImpulse ? mapService.unlockRandom() : null
-
-    this.scene.start(SCENES.REWARD, { reward, character: this.characterData, newMapPiece })
-  }
-
-  // ========================================
-  // INPUT
-  // ========================================
-
-  setupInput() {
-    this.input.on('pointerdown', (pointer) => this.handleTap(pointer))
-    this.input.keyboard.on('keydown-SPACE', (event) => {
-      if (!event.repeat) this.handleTap(null)
-    })
-    this.input.keyboard.on('keydown-ESC', () => this._showExitConfirm())
-
-    this.input.keyboard.on('keydown-LEFT', (e) => {
-      if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
-      this.balanceUI.pressLeft()
-    })
-    this.input.keyboard.on('keydown-RIGHT', (e) => {
-      if (e.repeat || this.phase !== 'running' || !this.balanceUI) return
-      this.balanceUI.pressRight()
-    })
-    this.input.keyboard.on('keyup-LEFT', () => {
-      this.balanceUI?.releaseLeft()
-    })
-    this.input.keyboard.on('keyup-RIGHT', () => {
-      this.balanceUI?.releaseRight()
-    })
-  }
-
-  handleTap(pointer) {
-    if (this._exitModalOpen) return
-    if (
-      pointer &&
-      this.exitBtnBounds &&
-      Phaser.Geom.Rectangle.Contains(this.exitBtnBounds, pointer.x, pointer.y)
-    )
-      return
-    if (this.phase === 'impulse' && this.impulseSystem.isActive()) {
-      this.onBarStopped()
-    } else if (this.phase === 'running' && !this.hasJumped) {
-      if (pointer && pointer.y >= CONTROL_PANEL.Y) return
-      this.startJump()
-    } else if (this.phase === 'done' && this.canRestart) {
-      if (
-        pointer &&
-        [this.collectionBtnBounds, this.changeCharacterBtnBounds].some(
-          (bounds) => bounds && Phaser.Geom.Rectangle.Contains(bounds, pointer.x, pointer.y)
-        )
-      )
-        return
-      this.scene.restart({ character: this.characterData, perspective: this.perspective })
-    }
   }
 
   // ========================================
@@ -795,12 +251,6 @@ export class GameScene extends BaseScene {
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
   }
 
-  createControlPanel() {
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.BLACK, 0.8)
-    g.fillRect(0, CONTROL_PANEL.Y, GAME_WIDTH, CONTROL_PANEL.HEIGHT)
-  }
-
   drawPole() {
     const g = this.add.graphics()
     this.gameWorld.add(g)
@@ -826,78 +276,8 @@ export class GameScene extends BaseScene {
     this.gameWorld.add(boat)
   }
 
-  // ========================================
-  // HUD
-  // ========================================
-
-  createHUD() {
-    const HUD_MARGIN = 10
-    const exitBtnOpts = { depth: 5, fontSize: '24px', paddingX: 16, paddingY: 8 }
-    const { w: exitBtnW, h: exitBtnH } = measureNavButtonSize(this, 'SALIR', exitBtnOpts)
-    const HUD_H = exitBtnH + HUD_MARGIN * 2
-
-    const g = this.add.graphics()
-    g.fillStyle(COLORS.DARK_BG, 0.4)
-    g.fillRect(0, 0, GAME_WIDTH, HUD_H)
-    g.fillStyle(COLORS.GOLD, 1)
-    g.fillRect(0, HUD_H, GAME_WIDTH, 2)
-
-    const charName = this.characterData?.name || 'JUGADOR'
-    this.add
-      .text(16, Math.round(HUD_H / 2), charName, {
-        ...headingStyle(36, COLOR_GOLD, 3),
-        stroke: '#000000',
-      })
-      .setOrigin(0, 0.5)
-
-    const exitBtnObjsStart = this.children.list.length
-    this.exitBtnBounds = makeNavButton(
-      this,
-      GAME_WIDTH - exitBtnW - HUD_MARGIN,
-      HUD_MARGIN,
-      exitBtnW,
-      exitBtnH,
-      'SALIR',
-      () => this._showExitConfirm(),
-      exitBtnOpts
-    )
-    this._exitBtnObjs = this.children.list.slice(exitBtnObjsStart)
-
-    this.oilIndicator = createOilIndicator(this, 8, HUD_H + 12)
-    this.oilIndicator.update(this.oilSystem.getTotalGrease())
-  }
-
-  // Atenúa y desactiva el botón SALIR una vez se muestra el resultado de la
-  // partida — esas pantallas ya tienen su propia salida (CAMBIAR PERSONAJE,
-  // VER PREMIOS, VOLVER A JUGAR...) y dejarlo activo permite abrir el modal
-  // de confirmación encima del panel de resultado.
-  _disableExitButton() {
-    this._exitBtnObjs?.forEach((o) => {
-      o.disableInteractive?.()
-      o.setAlpha?.(0.35)
-    })
-  }
-
-  // ========================================
-  // UPDATE
-  // ========================================
-
-  update(time, delta) {
-    if (this.phase === 'impulse') {
-      this.impulseSystem.update(delta / 1000)
-      this.powerBarUI?.update()
-      if (this.powerBar.finished) this.onBarStopped()
-    }
-
-    if (this.phase === 'running') this.updateRunning(delta)
-    if (this.phase === 'jumping') this.updateJumping(delta)
-
-    this.oilIndicator?.update(this.oilSystem.getTotalGrease())
-  }
-
   _onShutdown() {
-    this.powerBarUI?.destroy()
-    this.balanceUI?.destroy()
+    super._onShutdown()
     this.player?.destroy()
   }
 }

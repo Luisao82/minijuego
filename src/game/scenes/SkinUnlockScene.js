@@ -8,6 +8,7 @@ import { makeShareButton } from '../components/ShareButton'
 import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
+import { startGame } from '../utils/startGame'
 
 // Dimensiones del panel — igual que CharacterUnlockScene
 const PANEL_W = 560
@@ -378,6 +379,6 @@ export class SkinUnlockScene extends BaseScene {
   }
 
   playAgain() {
-    this.scene.start(SCENES.GAME, { character: this.character })
+    startGame(this, { character: this.character })
   }
 }

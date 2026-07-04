@@ -6,6 +6,7 @@ import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { characterRewardService } from '../services/CharacterRewardService'
+import { startGame } from '../utils/startGame'
 import { skinService } from '../services/SkinService'
 import { makeNavButton } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
@@ -622,7 +623,7 @@ export class RewardScene extends BaseScene {
         character: this.characterData,
       })
     } else if (finalScene === SCENES.GAME) {
-      this.scene.start(SCENES.GAME, { character: this.characterData })
+      startGame(this, { character: this.characterData })
     } else {
       this.scene.start(finalScene, { character: this.characterData })
     }
