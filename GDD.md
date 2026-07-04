@@ -284,11 +284,17 @@ Tercera perspectiva, siempre desbloqueada, definida como una entrada más de
 - **Cámara:** la inclinación (roll) ES la barra de equilibrio — la posición del
   cursor se mapea a la inclinación de la cámara; al fallar, animación de caída
   al agua en primera persona.
-- **Enrutado:** `GameScene` redirige a `Game3DScene` en `create()` cuando la
-  perspectiva almacenada es `3d`, así reintentos y "volver a jugar" funcionan
-  desde cualquier punto de entrada sin duplicar lógica.
-- **Constantes:** bloque `GAME3D` en `gameConfig.js` (longitud del palo en
-  metros, alturas, colores muestreados de los fondos, recortes de línea de agua).
+- **Enrutado:** el helper `startGame(scene, data)` (`utils/startGame.js`) es el
+  punto único de entrada a la partida: elige `GameScene` o `Game3DScene` según
+  la perspectiva guardada, desde cualquier pantalla (selección, reintentos,
+  premios...).
+- **Arquitectura:** el flujo de la partida vive en `BaseGameScene` (común a 2D
+  y 3D); la escena 3D solo orquesta la presentación con los módulos de
+  `render3d/`: `World3D` (escenario three.js, cargado con `import()` dinámico),
+  `CameraController` (mapeo fase→cámara, puro y testeado) y `textureUtils`.
+- **Constantes:** objeto `GAME3D` en `config/game3dConfig.js` (longitud del palo
+  en metros, alturas, cámara, salto, caída, colores muestreados de los fondos,
+  recortes de línea de agua).
 
 ---
 
@@ -382,6 +388,7 @@ El fondo es una **imagen estática en pixel art** creada manualmente. Representa
 src/game/
 ├── config/               # Constantes, datos y contenido estático
 │   ├── gameConfig.js         — Dimensiones, física, colores, nombres de escenas
+│   ├── game3dConfig.js       — Constantes de la vista 3D en primera persona
 │   ├── characters.js         — Definición de personajes y skins
 │   ├── spriteConfig.js       — Frames y escala del spritesheet
 │   ├── perspectiveConfig.js  — Configuración de vistas (Triana / Sevilla)

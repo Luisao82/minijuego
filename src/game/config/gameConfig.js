@@ -191,29 +191,3 @@ export const MOVEMENT = {
   FALL_DURATION: 350, // Duración de la caída al agua (ms)
   RESULT_DISPLAY_MS: 1500, // Tiempo mostrando resultado antes de que el personaje corra
 }
-
-// Configuración de la vista 3D en primera persona (estilo Doom)
-// El mundo 3D se mide en metros; el palo equivale al POLE.LENGTH en píxeles
-// de las vistas 2D. Se renderiza a baja resolución y se escala con NEAREST
-// para respetar la estética pixel art del resto del juego.
-export const GAME3D = {
-  RENDER_SCALE: 4, // Divisor de resolución interna (1024/4 × 768/4 = 256×192)
-  POLE_LENGTH: 40, // Longitud del palo en metros
-  POLE_Y: 1.05, // Altura del palo sobre el agua (m)
-  EYE_HEIGHT: 0.85, // Altura de los ojos sobre el palo (m)
-  MAX_ROLL: 0.55, // Inclinación máxima de la cámara (rad) cuando la barra de equilibrio llega al límite
-  FLAG_GRAB_RANGE: 1.1, // Distancia (m) a la bandera para considerarla cogida
-  SKY_COLOR: 0x46a7f6, // Cielo muestreado de fondo_b (Triana) y frontal-rio (puente)
-  SKY_COLOR_SEVILLA: 0x7dc4f5, // Cielo original de fondo_a (más claro) — se sustituye por SKY_COLOR en la textura 3D
-  SKY_COLOR_FRONTAL: 0x64a7f0, // Cielo original de frontal-rio.webp — se sustituye por SKY_COLOR en la textura 3D
-  // Fracción de cada fondo por encima de su línea de agua (medida sobre la imagen):
-  // las orillas se recortan ahí para que el caserío apoye justo donde empieza el agua 3D
-  BANK_WATERLINE_TRIANA: 0.354, // fondo_b — caserío de Triana
-  BANK_WATERLINE_SEVILLA: 0.362, // fondo_a — orilla de Sevilla
-  // frontal-rio.webp se recorta justo bajo la base de las columnas del puente (65%),
-  // así las columnas llegan enteras hasta el agua del plano 3D
-  FRONTAL_CROP: 0.66,
-  WATER_COLOR: 0x4882c3, // Agua muestreada de fondo_a y fondo_b (idéntica en ambas)
-  FOG_NEAR: 90,
-  FOG_FAR: 220,
-}

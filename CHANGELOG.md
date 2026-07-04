@@ -7,6 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Refactor Clean Architecture de las escenas de juego:** el flujo compartido de la partida (fases, input, HUD, panel de control, modal de salida, estadísticas, game over y premio) se extrae a `BaseGameScene`; `GameScene` (2D) y `Game3DScene` quedan como capas de presentación que implementan hooks. Se elimina la duplicación (~500 líneas) que la vista 3D introdujo al copiar el flujo de `GameScene`.
+- **Nueva `RunSystem`:** la física de la carrera (deceleración lineal tras el impulso) sale de las escenas a un sistema puro y testeado, como `BalanceSystem`/`JumpSystem`. Ambas vistas la reutilizan (px en 2D, metros en 3D).
+- **`JumpSystem` parametrizable:** acepta `gravity`/`vy0` opcionales, y la vista 3D reutiliza el mismo sistema balístico del salto 2D (en metros) en lugar de una física propia duplicada.
+- **La parte 3D se separa en módulos (`src/game/render3d/`):** `World3D` (escenario three.js), `CameraController` (mapeo fase→cámara, puro y testeado) y `textureUtils` (sustitución de color de cielos). `Game3DScene` pasa de 841 a ~220 líneas y solo orquesta.
+- **three.js se carga con `import()` dinámico:** su chunk (~700 kB) solo se descarga al entrar en la vista 3D; el bundle inicial baja de ~950 kB a ~240 kB.
+- **Constantes 3D centralizadas en `config/game3dConfig.js`:** todos los números mágicos de la escena 3D (cámara, mundo, salto, caída, chapuzón) pasan a bloques nombrados del objeto `GAME3D`.
+- **Componentes UI compartidos:** el modal de confirmación de salida (`ExitConfirmModal`) y el panel de game over (`GameOverPanel`) se extraen como componentes reutilizados por ambas vistas.
+- **Punto de entrada único a la partida (`startGame`):** todas las pantallas que lanzan una partida pasan por un helper que elige `GameScene` o `Game3DScene` según la perspectiva guardada; se elimina el doble arranque por redirect que hacía `GameScene`.
+- Tests nuevos: `RunSystem` y `CameraController` (185 tests en total).
+
+### Fixed
+
+- **La vista 3D no pedía confirmación al salir:** el botón "SALIR" del HUD 3D iba directo al menú perdiendo la partida, y la tecla ESC no funcionaba. Ahora comparte el modal de confirmación ("¿Seguro que quieres salir?") y el comportamiento de las vistas 2D, incluida la desactivación del botón al mostrarse el resultado.
+- **Los aplausos de victoria en 3D eran más cortos que en 2D** (10 palmadas frente a 14): unificados al compartirse `_playWaterSounds`.
+
 ## [1.3.0] — 2026-07-03
 
 ### Added

@@ -8,6 +8,7 @@ import { makeShareButton } from '../components/ShareButton'
 import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
+import { startGame } from '../utils/startGame'
 
 // Dimensiones del panel de ficha
 const PANEL_W = 560
@@ -397,6 +398,6 @@ export class CharacterUnlockScene extends BaseScene {
   }
 
   playAgain() {
-    this.scene.start(SCENES.GAME, { character: this.characterData })
+    startGame(this, { character: this.characterData })
   }
 }
