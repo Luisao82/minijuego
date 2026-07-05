@@ -72,6 +72,11 @@ export class World3D {
 
   // Agua del Guadalquivir con oleaje por vértices. Material sin iluminación
   // para que el color coincida exactamente con el agua de los fondos 2D.
+  // fog:false — el agua no se funde con el cielo al horizonte: si no, en la
+  // distancia del puente se ve una banda celeste entre las orillas y el
+  // agua cercana (el color se mezcla con SKY_COLOR por la niebla activa
+  // de la escena). Sin niebla en el agua, el río mantiene su tono desde
+  // el palo hasta el puente y la unión con las orillas queda limpia.
   _buildWater() {
     const THREE = this._THREE
     const W = GAME3D.WORLD
@@ -81,7 +86,10 @@ export class World3D {
       W.WATER_SEGMENTS,
       W.WATER_SEGMENTS
     )
-    const water = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: GAME3D.WATER_COLOR }))
+    const water = new THREE.Mesh(
+      geo,
+      new THREE.MeshBasicMaterial({ color: GAME3D.WATER_COLOR, fog: false })
+    )
     water.rotation.x = -Math.PI / 2
     this._scene.add(water)
     this._waterPos = geo.attributes.position
