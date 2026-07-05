@@ -58,7 +58,7 @@ export const GAME3D = {
     BRIDGE: {
       WIDTH: 129, // Ancho del plano (m). Con SRC_X0..SRC_X1 = borde a borde de la imagen, los pilares de tierra (px ~30 y ~1512) caen a ±62 m ≈ BANK_X — justo sobre la línea de las orillas
       Y_DECK: 15, // Altura del tablero (m). Puente de Triana real ~9 m; aquí sube un poco para que quede por delante de la línea del caserío
-      Z: -100, // Distancia del puente (m). Más cerca que en la iteración anterior: los arcos con círculos y la barandilla se leen sin esfuerzo
+      Z: -160, // Distancia del puente (m). Alejado a propósito para dejar más recorrido de las orillas (Calle Betis a la izquierda) antes de que el puente las corte — da profundidad al escenario. Al respetar el aspecto de la banda, el puente se ve algo más pequeño pero sigue siendo perfectamente reconocible.
       IMG_WIDTH: 1542, // Ancho del asset (px) — sirve para derivar el aspecto exacto
       SRC_Y0: 200, // Techo de la banda visible — incluye el remate de la torre
       SRC_Y1: 661, // Línea de agua del asset (base de las 4 columnas)
