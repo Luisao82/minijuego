@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-07-05
+
 ### Changed
 
 - **Refactor Clean Architecture de las escenas de juego:** el flujo compartido de la partida (fases, input, HUD, panel de control, modal de salida, estadísticas, game over y premio) se extrae a `BaseGameScene`; `GameScene` (2D) y `Game3DScene` quedan como capas de presentación que implementan hooks. Se elimina la duplicación (~500 líneas) que la vista 3D introdujo al copiar el flujo de `GameScene`.
