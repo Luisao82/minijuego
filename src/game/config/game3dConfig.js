@@ -43,6 +43,13 @@ export const GAME3D = {
     BANK_Z: -40, // Desplazamiento de las orillas hacia el fondo (m)
     BANK_WIDTH: 320, // Ancho del plano de cada orilla (m)
     BANK_REPEAT_X: 2, // Repeticiones horizontales de la textura de orilla. Con 2 (antes 3) la textura del caserío se ve 1.5× más grande y encaja mejor con la unión al puente, manteniendo la línea de agua (plano_bottom = 0).
+    // Desplazamiento horizontal (u) de la textura de cada orilla. Sirve para
+    // que el final visual de cada caserío (donde en la vida real muere en el
+    // Puente de Triana) caiga justo delante del plano del puente (BRIDGE.Z).
+    // Valores entre 0 y 1; el signo depende del sentido de rotación de cada
+    // plano (izquierda con rotY=+π/2, derecha con -π/2).
+    BANK_TEX_OFFSET_LEFT: 0.65, // Orilla de Triana (Calle Betis): el final del caserío (casas amarillas + hierba, u≈0.9 en fondo_b) cae sobre BRIDGE.Z
+    BANK_TEX_OFFSET_RIGHT: 0.75, // Orilla de Sevilla (Maestranza): el principio del caserío (hierba + primeras casas, u≈0 en fondo_a) cae sobre BRIDGE.Z
     // Puente de Triana (frontal-rio.webp). El asset (1542×1024) trae todo
     // dibujado: 4 columnas (2 en el agua + 2 en tierra), la barandilla del
     // tablero, los arcos con sus círculos y la torre de la iglesia de Santa

@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Textura de las orillas 3D alineada con el puente:** las orillas se dibujan como planos con la textura del caserío 2D repetida a lo largo del río. Con el offset por defecto, en el punto donde el plano cruza `BRIDGE.Z` aparecía una zona arbitraria del caserío en lugar del final natural de Calle Betis (izquierda) o el principio del Maestranza (derecha). Se añaden `BANK_TEX_OFFSET_LEFT` (0.65) y `BANK_TEX_OFFSET_RIGHT` (0.75) en `game3dConfig.js` para que el "final" visual de cada orilla coincida con el arranque del puente, dando la sensación real de continuidad Triana → Puente → Sevilla.
+
 ## [1.4.0] — 2026-07-05
 
 ### Changed
