@@ -42,7 +42,7 @@ export const GAME3D = {
     BANK_X: 62, // Distancia de cada orilla al centro del río (m)
     BANK_Z: -40, // Desplazamiento de las orillas hacia el fondo (m)
     BANK_WIDTH: 320, // Ancho del plano de cada orilla (m)
-    BANK_REPEAT_X: 3, // Repeticiones horizontales de la textura de orilla
+    BANK_REPEAT_X: 2, // Repeticiones horizontales de la textura de orilla. Con 2 (antes 3) la textura del caserío se ve 1.5× más grande y encaja mejor con la unión al puente, manteniendo la línea de agua (plano_bottom = 0).
     // Puente de Triana (frontal-rio.webp). El asset (1542×1024) trae todo
     // dibujado: 4 columnas (2 en el agua + 2 en tierra), la barandilla del
     // tablero, los arcos con sus círculos y la torre de la iglesia de Santa
@@ -63,6 +63,26 @@ export const GAME3D = {
       SRC_Y0: 200, // Techo de la banda visible — incluye el remate de la torre
       SRC_Y1: 661, // Línea de agua del asset (base de las 4 columnas)
       DECK_SRC_Y: 480, // Fila del tablero en el asset (calibra Y_DECK sobre el plano)
+    },
+    // Torre (iglesia de Santa Ana) — se saca del plano frontal a un plano
+    // propio orientado a la cámara (billboard). Sin esto, al estar off-center
+    // (world x≈-35 m) y con la cámara mirando ligeramente hacia abajo
+    // (PITCH negativo), la proyección introduce una inclinación de ~2° en el
+    // fuste. Su plano se rota cada frame para mirar al jugador, así el fuste
+    // se ve perfectamente vertical desde cualquier punto del palo.
+    //
+    // El área SRC_* se recorta del asset y se estampa en un plano propio.
+    // En el plano del puente, esa misma área se pinta de cielo antes de
+    // subir la textura para no duplicar la torre.
+    TOWER: {
+      SRC_X0: 288, // Recorte del fuste + remate en el asset (con un pequeño margen a cada lado del fuste real x=[296, 402])
+      SRC_X1: 410,
+      SRC_Y0: 195, // Justo por encima del remate del fuste (que empieza a estrecharse en y≈200)
+      SRC_Y1: 468, // Justo antes de que el tablero del puente engorde la silueta
+      X: -35, // Posición horizontal en el mundo — coincide con la que ocupa la torre en el asset
+      // Y se deriva del recorte SRC_Y* + la escala del plano del puente, así
+      // el plano billboard queda perfectamente alineado con el hueco que se
+      // borra en el frontal — no hay Y_BASE aquí.
     },
     POLE_RADIUS: 0.12, // Grosor del palo (m)
     FLAG: {

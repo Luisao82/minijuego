@@ -130,39 +130,71 @@ export class World3D {
     this._scene.add(mesh)
   }
 
-  // Puente de Triana frontal (frontal-rio.webp) en un único plano. El asset
-  // trae ya dibujados: los 4 pilares (2 en el agua + 2 en tierra), la
-  // barandilla del tablero, los arcos con sus círculos y el remate de la
-  // torre asomando por encima del tablero. El agua del dibujo está pintada
-  // del mismo color que el plano 3D (incluida la vista a través de los
-  // arcos), así el río continúa sin corte hasta el puente. El cielo se
-  // unifica al azul común del escenario 3D antes de subir la textura.
+  // Puente de Triana (frontal-rio.webp): plano frontal + torre en plano
+  // billboard aparte. El asset trae ya dibujados los 4 pilares (2 agua + 2
+  // tierra), la barandilla del tablero, los arcos con sus círculos, y el
+  // fuste de la torre asomando por encima del tablero. La torre se saca a
+  // su propio plano orientado a la cámara para que el fuste se vea recto:
+  // al estar off-center (world x≈-35 m) y con la cámara ligeramente
+  // pitcheada hacia abajo, sobre el plano frontal aparecería inclinada por
+  // proyección perspectiva. En el plano del puente su área se pinta de
+  // cielo antes de subir la textura para no duplicar la silueta.
   //
-  // La geometría del plano respeta el aspecto de la banda visible
-  // [SRC_Y0, SRC_Y1] × todo el ancho del asset: HEIGHT se deriva de WIDTH
-  // para que las columnas y los arcos no se deformen. La posición vertical
-  // del centro se calcula para que la fila DECK_SRC_Y del asset caiga
-  // exactamente en Y_DECK en el mundo.
+  // La geometría del plano frontal respeta el aspecto de la banda visible
+  // [SRC_Y0, SRC_Y1] × ancho de la imagen: HEIGHT se deriva de WIDTH para
+  // que las columnas y los arcos no se deformen. La posición vertical del
+  // centro se calcula para que la fila DECK_SRC_Y caiga en Y_DECK.
   _buildBridge() {
     const THREE = this._THREE
     const W = GAME3D.WORLD
-    const { BRIDGE } = W
+    const { BRIDGE, TOWER } = W
 
-    const canvas = replaceColor(
+    // Canvas del asset con el cielo unificado al azul común del escenario 3D
+    const bridgeCanvas = replaceColor(
       this._textures.get('bg-3d-frontal').getSourceImage(),
       GAME3D.SKY_COLOR_FRONTAL,
       GAME3D.SKY_COLOR,
       W.SKY_REPLACE_TOLERANCE_FRONTAL
     )
 
-    const ih = canvas.height
+    // Extraemos la torre del canvas ya unificado, así los píxeles de cielo
+    // del recorte comparten color con el fondo del escenario y no aparece
+    // un halo cuando el plano billboard se ve pegado al hueco del frontal.
+    const towerCanvas = document.createElement('canvas')
+    towerCanvas.width = TOWER.SRC_X1 - TOWER.SRC_X0
+    towerCanvas.height = TOWER.SRC_Y1 - TOWER.SRC_Y0
+    towerCanvas
+      .getContext('2d')
+      .drawImage(
+        bridgeCanvas,
+        TOWER.SRC_X0,
+        TOWER.SRC_Y0,
+        towerCanvas.width,
+        towerCanvas.height,
+        0,
+        0,
+        towerCanvas.width,
+        towerCanvas.height
+      )
+
+    // El plano frontal se queda sin torre — la muestra el plano billboard.
+    const bctx = bridgeCanvas.getContext('2d')
+    bctx.fillStyle = '#' + GAME3D.SKY_COLOR.toString(16).padStart(6, '0')
+    bctx.fillRect(
+      TOWER.SRC_X0,
+      TOWER.SRC_Y0,
+      TOWER.SRC_X1 - TOWER.SRC_X0,
+      TOWER.SRC_Y1 - TOWER.SRC_Y0
+    )
+
+    const ih = bridgeCanvas.height
 
     const bandHeightPx = BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0
     const height = (BRIDGE.WIDTH * bandHeightPx) / BRIDGE.IMG_WIDTH
     const deckFracFromTop = (BRIDGE.DECK_SRC_Y - BRIDGE.SRC_Y0) / bandHeightPx
     const yCenter = BRIDGE.Y_DECK - height * (0.5 - deckFracFromTop)
 
-    const bridgeTex = this._makeTex(canvas)
+    const bridgeTex = this._makeTex(bridgeCanvas)
     bridgeTex.offset.set(0, 1 - BRIDGE.SRC_Y1 / ih)
     bridgeTex.repeat.set(1, bandHeightPx / ih)
     const bridge = new THREE.Mesh(
@@ -170,8 +202,8 @@ export class World3D {
       new THREE.MeshBasicMaterial({
         map: bridgeTex,
         fog: false,
-        // Con esto el puente gana el z-test frente a la superficie coincidente
-        // de las orillas allí donde el plano cruza la ribera (x=±BANK_X).
+        // El puente gana el z-test frente a la superficie coincidente de
+        // las orillas allí donde el plano cruza la ribera (x=±BANK_X).
         polygonOffset: true,
         polygonOffsetFactor: -1,
         polygonOffsetUnits: -1,
@@ -179,6 +211,46 @@ export class World3D {
     )
     bridge.position.set(0, yCenter, BRIDGE.Z)
     this._scene.add(bridge)
+
+    // Plano de la torre — dimensiones derivadas del recorte del asset
+    // manteniendo la misma escala metros/píxel que el puente. Se pinta a
+    // la misma Z para que su tamaño aparente coincida con el hueco que le
+    // hemos dejado en el plano frontal.
+    // La posición vertical del centro se calcula desde SRC_Y* usando la
+    // misma correspondencia píxeles-mundo que el plano del puente, así el
+    // billboard queda perfectamente alineado con el borrado.
+    const perPixel = BRIDGE.WIDTH / BRIDGE.IMG_WIDTH
+    const towerWidth = towerCanvas.width * perPixel
+    const towerHeight = towerCanvas.height * perPixel
+    const bridgePlaneTop = yCenter + height / 2
+    const towerTopY = bridgePlaneTop - (TOWER.SRC_Y0 - BRIDGE.SRC_Y0) * perPixel
+    const towerTex = this._makeTex(towerCanvas)
+    const tower = new THREE.Mesh(
+      new THREE.PlaneGeometry(towerWidth, towerHeight),
+      new THREE.MeshBasicMaterial({
+        map: towerTex,
+        fog: false,
+        transparent: true,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
+      })
+    )
+    tower.position.set(TOWER.X, towerTopY - towerHeight / 2, BRIDGE.Z)
+    this._scene.add(tower)
+    this._tower = tower
+  }
+
+  // Se llama cada frame desde applyCamera para que el plano de la torre
+  // rote alrededor del eje Y y su normal apunte a la cámara. Con esto el
+  // fuste se ve siempre vertical desde cualquier punto del palo, sin la
+  // inclinación de perspectiva que aparecería sobre el plano frontal.
+  _updateTowerBillboard() {
+    if (!this._tower) return
+    const { x, z } = this._tower.position
+    const cx = this._camera.position.x
+    const cz = this._camera.position.z
+    this._tower.rotation.y = Math.atan2(cx - x, cz - z)
   }
 
   // El palo: grosor uniforme y el mismo color plano que en las vistas 2D
@@ -236,6 +308,7 @@ export class World3D {
     this._camera.position.set(x, y, z)
     this._camera.rotation.x = pitch
     this._camera.rotation.z = roll
+    this._updateTowerBillboard()
   }
 
   // Anima el oleaje, la barcaza y la bandera
