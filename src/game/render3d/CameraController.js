@@ -98,9 +98,16 @@ export class CameraController {
       case 'paused':
         break
 
-      // Resultado: la cámara descansa donde cayó, nivelándose despacio
+      // Resultado: la cámara descansa donde cayó, nivelándose despacio y
+      // subiendo un poco por encima del agua. Sin subida, el oleaje del
+      // agua (World3D.update mueve los vértices ±AMP_X+AMP_Y ≈ 0.26 m) queda
+      // por encima del ojo (WATER_EYE_Y=0.15) y las crestas del río cruzan
+      // por delante del horizonte, haciendo aparecer/desaparecer una capa
+      // de cielo detrás del jugador tras el chapuzón.
       default: {
         this._roll *= 1 - Math.min(1, dt * C.LEVEL_OUT_SPEED)
+        this._eyeY += (C.REST_EYE_Y - this._eyeY) * Math.min(1, dt * C.REST_RISE_SPEED)
+        this._pos.y = this._eyeY
         break
       }
     }

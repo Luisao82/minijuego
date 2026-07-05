@@ -7,6 +7,18 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.4.4] — 2026-07-05
+
+### Fixed
+
+- **Capa celeste oscilante detrás del jugador tras el chapuzón en la vista 3D:** al caer al agua, la cámara se quedaba apoyada a `WATER_EYE_Y = 0.15 m` sobre el nivel del río, pero el oleaje del agua (`World3D.update` mueve los vértices con `WAVE.AMP_X + WAVE.AMP_Y ≈ 0.26 m` de amplitud) subía por encima del ojo y las crestas cruzaban por delante del horizonte, dejando ver/tapar el cielo por detrás y produciendo un "sube y baja" celeste durante el game over. Nuevas constantes `CAMERA.REST_EYE_Y = 0.55 m` (por encima de la amplitud del oleaje) y `CAMERA.REST_RISE_SPEED = 2/s`: en el default del `CameraController` (fases `splash_done`/`done`), el ojo asciende suavemente al descanso mientras el roll se nivela. Test nuevo en `tests/render3d/CameraController.test.js`.
+
+## [1.4.3] — 2026-07-05
+
+### Changed
+
+- **Niebla apagada en la vista 3D:** en 1.4.2 se quitó la niebla del agua para eliminar la franja celeste, pero las orillas seguían fundiéndose al cielo cerca del puente mientras el puente y el agua se veían nítidos — la unión quedaba rara. Se desactiva también la niebla en el material de las orillas y se retira `scene.fog` de la escena (junto con `FOG_NEAR`/`FOG_FAR` de la config, que ya no se usaban). Puente, orillas y agua se ven nítidos a cualquier distancia dentro del escenario visible; la profundidad la aporta la propia perspectiva (las orillas se hacen más pequeñas al alejarse hacia el puente). La unión orilla ↔ puente queda limpia.
+
 ## [1.4.2] — 2026-07-05
 
 ### Fixed
