@@ -151,20 +151,44 @@ export class World3D {
       GAME3D.SKY_COLOR,
       W.SKY_REPLACE_TOLERANCE_FRONTAL
     )
-    BRIDGE.LAND_PILLAR_DST_X.forEach((dstX) => stampRegion(canvas, BRIDGE.PILLAR_SRC, dstX))
-    drawTowerCap(canvas, TOWER.CAP)
 
     const iw = canvas.width
     const ih = canvas.height
+
+    // Los pilares de tierra se estampan en el plano del puente (px) para que
+    // queden a ±LAND_PILLAR_WORLD_X metros del centro. La banda del puente
+    // (SRC_Y=[SRC_Y0, SRC_Y1]) no se solapa con la de la torre (SRC_Y=[SRC_Y0, SRC_Y1]
+    // del bloque TOWER), así que el mismo canvas sirve para ambos planos.
+    const stampCenter = (worldX) => Math.round(((worldX + BRIDGE.WIDTH / 2) / BRIDGE.WIDTH) * iw)
+    ;[-BRIDGE.LAND_PILLAR_WORLD_X, BRIDGE.LAND_PILLAR_WORLD_X].forEach((worldX) => {
+      const cx = stampCenter(worldX)
+      stampRegion(canvas, BRIDGE.PILLAR_SRC, cx - BRIDGE.PILLAR_SRC.W / 2)
+    })
+    drawTowerCap(canvas, TOWER.CAP)
+
+    // El tablero cae dentro del plano a esta fracción desde arriba. Con eso,
+    // yCenter se elige para que la fila del tablero en la imagen se
+    // proyecte exactamente sobre Y_DECK en el mundo (que es la altura del
+    // horizonte de las orillas laterales).
+    const deckFracFromTop = (BRIDGE.DECK_SRC_Y - BRIDGE.SRC_Y0) / (BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0)
+    const yCenter = BRIDGE.Y_DECK - BRIDGE.HEIGHT * (0.5 - deckFracFromTop)
 
     const bridgeTex = this._makeTex(canvas)
     bridgeTex.offset.set(0, 1 - BRIDGE.SRC_Y1 / ih)
     bridgeTex.repeat.set(1, (BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0) / ih)
     const bridge = new THREE.Mesh(
       new THREE.PlaneGeometry(BRIDGE.WIDTH, BRIDGE.HEIGHT),
-      new THREE.MeshBasicMaterial({ map: bridgeTex, fog: false })
+      new THREE.MeshBasicMaterial({
+        map: bridgeTex,
+        fog: false,
+        // Con esto el puente gana el z-test frente a la superficie coincidente
+        // de las orillas allí donde el plano cruza la ribera (x=±BANK_X).
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
+      })
     )
-    bridge.position.set(0, BRIDGE.HEIGHT / 2, BRIDGE.Z)
+    bridge.position.set(0, yCenter, BRIDGE.Z)
     this._scene.add(bridge)
 
     const towerTex = this._makeTex(canvas)
@@ -172,7 +196,13 @@ export class World3D {
     towerTex.repeat.set((TOWER.SRC_X1 - TOWER.SRC_X0) / iw, (TOWER.SRC_Y1 - TOWER.SRC_Y0) / ih)
     const tower = new THREE.Mesh(
       new THREE.PlaneGeometry(TOWER.WIDTH, TOWER.HEIGHT),
-      new THREE.MeshBasicMaterial({ map: towerTex, fog: false })
+      new THREE.MeshBasicMaterial({
+        map: towerTex,
+        fog: false,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+      })
     )
     tower.position.set(TOWER.X, TOWER.Y_BASE + TOWER.HEIGHT / 2, TOWER.Z)
     this._scene.add(tower)
