@@ -1,7 +1,7 @@
 {
   "name": "cucana-trianera",
   "description": "Minijuego retro pixel art inspirado en la Cucaña de Triana.",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "type": "module",
   "private": true,
   "author": "Luisao <luisaodeben@gmail.com>",

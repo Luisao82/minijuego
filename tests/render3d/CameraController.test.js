@@ -95,6 +95,22 @@ describe('CameraController', () => {
       const later = Math.abs(cam.update(0.2, { ...baseState, phase: 'splash_done' }).roll)
       expect(later).toBeLessThan(tilted)
     })
+
+    it('sube el ojo por encima del oleaje para que no cruce el horizonte', () => {
+      const cam = new CameraController()
+      cam.update(0.016, baseState)
+      cam.startFall()
+      let pose
+      for (let i = 0; i < 100; i++) {
+        pose = cam.update(0.05, { ...baseState, phase: 'falling' })
+        if (pose.hitWater) break
+      }
+      expect(pose.y).toBe(GAME3D.CAMERA.WATER_EYE_Y)
+      for (let i = 0; i < 200; i++) {
+        pose = cam.update(0.05, { ...baseState, phase: 'splash_done' })
+      }
+      expect(pose.y).toBeCloseTo(GAME3D.CAMERA.REST_EYE_Y, 2)
+    })
   })
 
   describe('pausa', () => {

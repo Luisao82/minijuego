@@ -127,6 +127,8 @@ export const GAME3D = {
     BOB_AMP: 0.05,
     BOB_SPEED_CAP: 2, // Tope de velocidad que amplifica el cabeceo
     WATER_EYE_Y: 0.15, // Altura de ojos que se considera "tocar el agua" (m)
+    REST_EYE_Y: 0.55, // Altura de ojos en descanso tras el chapuzón (m). Por encima de WAVE.AMP_X+WAVE.AMP_Y (=0.26) para que las crestas del oleaje no crucen el horizonte y no aparezca una capa de cielo oscilante detrás del jugador.
+    REST_RISE_SPEED: 2, // Velocidad de subida al descanso (1/s)
     LEVEL_OUT_SPEED: 2, // Velocidad de nivelado del roll tras el chapuzón
     FALL: {
       ROLL_SPEED: 3.2, // Velocidad de giro al perder el equilibrio (rad/s)
