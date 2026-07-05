@@ -111,6 +111,26 @@ describe('CameraController', () => {
       }
       expect(pose.y).toBeCloseTo(GAME3D.CAMERA.REST_EYE_Y, 2)
     })
+
+    it('no teletransporta la cámara al pasar de "jumping" a "splash_done"', () => {
+      // Repro del "doble salto": si el resting default lerpea a partir de un
+      // eyeY interno separado de pos.y, al llegar de jumping (pos.y bajo, eyeY sin actualizar)
+      // la cámara saltaba a 1.9 m antes de bajar al reposo.
+      const cam = new CameraController()
+      cam.update(0.016, { ...baseState, phase: 'running', distance: 30 })
+      const jumpEnd = cam.update(0.016, {
+        ...baseState,
+        phase: 'jumping',
+        jumpEyeY: GAME3D.CAMERA.WATER_EYE_Y,
+      })
+      expect(jumpEnd.y).toBe(GAME3D.CAMERA.WATER_EYE_Y)
+      const firstRest = cam.update(0.016, { ...baseState, phase: 'splash_done' })
+      // No debe subir de golpe a la altura del palo
+      expect(firstRest.y).toBeLessThan(GAME3D.POLE_Y + GAME3D.EYE_HEIGHT)
+      // Y debe estar entre el final del salto y el descanso (movimiento monótono)
+      expect(firstRest.y).toBeGreaterThanOrEqual(GAME3D.CAMERA.WATER_EYE_Y)
+      expect(firstRest.y).toBeLessThanOrEqual(GAME3D.CAMERA.REST_EYE_Y)
+    })
   })
 
   describe('pausa', () => {

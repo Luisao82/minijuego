@@ -104,10 +104,17 @@ export class CameraController {
       // por encima del ojo (WATER_EYE_Y=0.15) y las crestas del río cruzan
       // por delante del horizonte, haciendo aparecer/desaparecer una capa
       // de cielo detrás del jugador tras el chapuzón.
+      //
+      // La lerp se hace sobre pos.y en vez de sobre un this._eyeY separado:
+      // durante 'jumping', pos.y se lee de state.jumpEyeY sin tocar
+      // this._eyeY, así que al entrar en splash_done, si se lerpeaba a
+      // partir de this._eyeY, la cámara "teletransportaba" a 1.9 m antes de
+      // bajar a REST_EYE_Y — se veía como un segundo salto justo tras el
+      // chapuzón.
       default: {
         this._roll *= 1 - Math.min(1, dt * C.LEVEL_OUT_SPEED)
-        this._eyeY += (C.REST_EYE_Y - this._eyeY) * Math.min(1, dt * C.REST_RISE_SPEED)
-        this._pos.y = this._eyeY
+        this._pos.y += (C.REST_EYE_Y - this._pos.y) * Math.min(1, dt * C.REST_RISE_SPEED)
+        this._eyeY = this._pos.y
         break
       }
     }
