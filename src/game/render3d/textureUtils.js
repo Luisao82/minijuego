@@ -32,25 +32,3 @@ export function replaceColor(img, fromHex, toHex, tolerance = 14) {
   ctx.putImageData(data, 0, 0)
   return canvas
 }
-
-// Clona una región del propio canvas en otra posición (misma y).
-// Se usa para estampar copias de los pilares del puente en los extremos.
-export function stampRegion(canvas, { X, Y, W, H }, dstX) {
-  const ctx = canvas.getContext('2d')
-  ctx.drawImage(canvas, X, Y, W, H, dstX, Y, W, H)
-}
-
-// Dibuja un remate escalonado sobre el tope de la torre: bloques centrados
-// apilados de abajo arriba, con el lado izquierdo en sombra (como el fuste).
-export function drawTowerCap(canvas, { Y, BLOCKS, FILL, SHADE }) {
-  const ctx = canvas.getContext('2d')
-  let y = Y
-  for (const [x0, x1, h] of BLOCKS) {
-    y -= h
-    const mid = Math.round((x0 + x1) / 2)
-    ctx.fillStyle = SHADE
-    ctx.fillRect(x0, y, mid - x0, h)
-    ctx.fillStyle = FILL
-    ctx.fillRect(mid, y, x1 - mid, h)
-  }
-}
