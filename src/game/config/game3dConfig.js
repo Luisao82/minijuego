@@ -16,8 +16,6 @@ export const GAME3D = {
   SKY_COLOR_SEVILLA: 0x7dc4f5, // Cielo original de fondo_a (más claro) — se sustituye por SKY_COLOR en la textura 3D
   SKY_COLOR_FRONTAL: 0x7dc4f5, // Cielo original de frontal-rio.webp (coincide con el de Sevilla) — se sustituye por SKY_COLOR en la textura 3D
   WATER_COLOR: 0x4882c3, // Agua muestreada de fondo_a y fondo_b (idéntica en ambas)
-  FOG_NEAR: 90,
-  FOG_FAR: 220,
 
   // Fracción de cada fondo por encima de su línea de agua (medida sobre la imagen):
   // las orillas se recortan ahí para que el caserío apoye justo donde empieza el agua 3D
