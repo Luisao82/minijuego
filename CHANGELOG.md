@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.4.2] — 2026-07-05
+
+### Fixed
+
+- **Franja celeste bajo el puente en la vista 3D:** la escena tiene niebla (`FOG_NEAR=90, FOG_FAR=220`) para que las orillas se fundan al fondo del cielo, y por defecto three.js aplica esa misma niebla también al material del agua. A la distancia del puente el color del agua se mezclaba con `SKY_COLOR`, dando una banda celeste entre las orillas/puente y el agua cercana. Con `fog: false` en el material del agua, el río mantiene su color desde el palo hasta el puente y la unión queda limpia. Las orillas siguen fundiéndose con el cielo al horizonte, así que la sensación de profundidad no cambia.
+
 ## [1.4.1] — 2026-07-05
 
 ### Fixed
