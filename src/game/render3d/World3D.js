@@ -97,13 +97,26 @@ export class World3D {
   // todo el horizonte 3D comparta un único cielo.
   _buildBanks() {
     const W = GAME3D.WORLD
-    this._addBank('bg-game-sevilla', -W.BANK_X, Math.PI / 2, GAME3D.BANK_WATERLINE_TRIANA)
-    this._addBank('bg-game', W.BANK_X, -Math.PI / 2, GAME3D.BANK_WATERLINE_SEVILLA, {
-      unifySkyFrom: GAME3D.SKY_COLOR_SEVILLA,
-    })
+    this._addBank(
+      'bg-game-sevilla',
+      -W.BANK_X,
+      Math.PI / 2,
+      GAME3D.BANK_WATERLINE_TRIANA,
+      W.BANK_TEX_OFFSET_LEFT
+    )
+    this._addBank(
+      'bg-game',
+      W.BANK_X,
+      -Math.PI / 2,
+      GAME3D.BANK_WATERLINE_SEVILLA,
+      W.BANK_TEX_OFFSET_RIGHT,
+      {
+        unifySkyFrom: GAME3D.SKY_COLOR_SEVILLA,
+      }
+    )
   }
 
-  _addBank(key, x, rotY, waterline, { unifySkyFrom = null } = {}) {
+  _addBank(key, x, rotY, waterline, texOffsetX, { unifySkyFrom = null } = {}) {
     const THREE = this._THREE
     const W = GAME3D.WORLD
     const tex = unifySkyFrom
@@ -118,6 +131,9 @@ export class World3D {
       : this._texFromPhaser(key)
     tex.wrapS = THREE.RepeatWrapping
     tex.repeat.set(W.BANK_REPEAT_X, waterline)
+    // El desplazamiento horizontal permite que un punto concreto de la imagen
+    // fuente coincida con una Z específica del mundo (típicamente el puente).
+    tex.offset.x = texOffsetX
     tex.offset.y = 1 - waterline
 
     const bankH = (W.BANK_WIDTH / W.BANK_REPEAT_X) * waterline // mantiene la proporción del dibujo
