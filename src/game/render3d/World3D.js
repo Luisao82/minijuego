@@ -1,6 +1,6 @@
 import { COLORS } from '../config/gameConfig'
 import { GAME3D, RENDER_WIDTH, RENDER_HEIGHT } from '../config/game3dConfig'
-import { replaceColor, stampRegion, drawTowerCap } from './textureUtils'
+import { replaceColor } from './textureUtils'
 
 // Escenario 3D de la vista en primera persona: el Guadalquivir con el caserío
 // de Triana a la izquierda, la orilla de Sevilla a la derecha, el Puente de
@@ -130,20 +130,23 @@ export class World3D {
     this._scene.add(mesh)
   }
 
-  // Puente de Triana frontal (frontal-rio.webp) en dos planos:
-  //   1. La banda del tablero y los arcos, achatada a la altura real del
-  //      tablero para que sea la continuación de las orillas laterales. El
-  //      agua del dibujo está pintada del mismo color que el plano 3D
-  //      (incluida la vista a través de los arcos), así el río continúa sin
-  //      corte hasta el puente. A la imagen se le estampan dos clones del
-  //      pilar del agua en los extremos: las 4 columnas del puente real
-  //      (2 en el agua + 2 pegadas a tierra).
-  //   2. La Torre Sevilla en plano propio detrás del puente, esbelta y con
-  //      el remate dibujado (el asset la trae cortada en plano).
+  // Puente de Triana frontal (frontal-rio.webp) en un único plano. El asset
+  // trae ya dibujados: los 4 pilares (2 en el agua + 2 en tierra), la
+  // barandilla del tablero, los arcos con sus círculos y el remate de la
+  // torre asomando por encima del tablero. El agua del dibujo está pintada
+  // del mismo color que el plano 3D (incluida la vista a través de los
+  // arcos), así el río continúa sin corte hasta el puente. El cielo se
+  // unifica al azul común del escenario 3D antes de subir la textura.
+  //
+  // La geometría del plano respeta el aspecto de la banda visible
+  // [SRC_Y0, SRC_Y1] × todo el ancho del asset: HEIGHT se deriva de WIDTH
+  // para que las columnas y los arcos no se deformen. La posición vertical
+  // del centro se calcula para que la fila DECK_SRC_Y del asset caiga
+  // exactamente en Y_DECK en el mundo.
   _buildBridge() {
     const THREE = this._THREE
     const W = GAME3D.WORLD
-    const { BRIDGE, TOWER } = W
+    const { BRIDGE } = W
 
     const canvas = replaceColor(
       this._textures.get('bg-3d-frontal').getSourceImage(),
@@ -152,32 +155,18 @@ export class World3D {
       W.SKY_REPLACE_TOLERANCE_FRONTAL
     )
 
-    const iw = canvas.width
     const ih = canvas.height
 
-    // Los pilares de tierra se estampan en el plano del puente (px) para que
-    // queden a ±LAND_PILLAR_WORLD_X metros del centro. La banda del puente
-    // (SRC_Y=[SRC_Y0, SRC_Y1]) no se solapa con la de la torre (SRC_Y=[SRC_Y0, SRC_Y1]
-    // del bloque TOWER), así que el mismo canvas sirve para ambos planos.
-    const stampCenter = (worldX) => Math.round(((worldX + BRIDGE.WIDTH / 2) / BRIDGE.WIDTH) * iw)
-    ;[-BRIDGE.LAND_PILLAR_WORLD_X, BRIDGE.LAND_PILLAR_WORLD_X].forEach((worldX) => {
-      const cx = stampCenter(worldX)
-      stampRegion(canvas, BRIDGE.PILLAR_SRC, cx - BRIDGE.PILLAR_SRC.W / 2)
-    })
-    drawTowerCap(canvas, TOWER.CAP)
-
-    // El tablero cae dentro del plano a esta fracción desde arriba. Con eso,
-    // yCenter se elige para que la fila del tablero en la imagen se
-    // proyecte exactamente sobre Y_DECK en el mundo (que es la altura del
-    // horizonte de las orillas laterales).
-    const deckFracFromTop = (BRIDGE.DECK_SRC_Y - BRIDGE.SRC_Y0) / (BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0)
-    const yCenter = BRIDGE.Y_DECK - BRIDGE.HEIGHT * (0.5 - deckFracFromTop)
+    const bandHeightPx = BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0
+    const height = (BRIDGE.WIDTH * bandHeightPx) / BRIDGE.IMG_WIDTH
+    const deckFracFromTop = (BRIDGE.DECK_SRC_Y - BRIDGE.SRC_Y0) / bandHeightPx
+    const yCenter = BRIDGE.Y_DECK - height * (0.5 - deckFracFromTop)
 
     const bridgeTex = this._makeTex(canvas)
     bridgeTex.offset.set(0, 1 - BRIDGE.SRC_Y1 / ih)
-    bridgeTex.repeat.set(1, (BRIDGE.SRC_Y1 - BRIDGE.SRC_Y0) / ih)
+    bridgeTex.repeat.set(1, bandHeightPx / ih)
     const bridge = new THREE.Mesh(
-      new THREE.PlaneGeometry(BRIDGE.WIDTH, BRIDGE.HEIGHT),
+      new THREE.PlaneGeometry(BRIDGE.WIDTH, height),
       new THREE.MeshBasicMaterial({
         map: bridgeTex,
         fog: false,
@@ -190,22 +179,6 @@ export class World3D {
     )
     bridge.position.set(0, yCenter, BRIDGE.Z)
     this._scene.add(bridge)
-
-    const towerTex = this._makeTex(canvas)
-    towerTex.offset.set(TOWER.SRC_X0 / iw, 1 - TOWER.SRC_Y1 / ih)
-    towerTex.repeat.set((TOWER.SRC_X1 - TOWER.SRC_X0) / iw, (TOWER.SRC_Y1 - TOWER.SRC_Y0) / ih)
-    const tower = new THREE.Mesh(
-      new THREE.PlaneGeometry(TOWER.WIDTH, TOWER.HEIGHT),
-      new THREE.MeshBasicMaterial({
-        map: towerTex,
-        fog: false,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
-      })
-    )
-    tower.position.set(TOWER.X, TOWER.Y_BASE + TOWER.HEIGHT / 2, TOWER.Z)
-    this._scene.add(tower)
   }
 
   // El palo: grosor uniforme y el mismo color plano que en las vistas 2D

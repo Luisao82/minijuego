@@ -14,7 +14,7 @@ export const GAME3D = {
   // Colores muestreados de los fondos 2D para que el mundo 3D encaje con ellos
   SKY_COLOR: 0x46a7f6, // Cielo muestreado de fondo_b (Triana) y frontal-rio (puente)
   SKY_COLOR_SEVILLA: 0x7dc4f5, // Cielo original de fondo_a (más claro) — se sustituye por SKY_COLOR en la textura 3D
-  SKY_COLOR_FRONTAL: 0x64a7f0, // Cielo original de frontal-rio.webp — se sustituye por SKY_COLOR en la textura 3D
+  SKY_COLOR_FRONTAL: 0x7dc4f5, // Cielo original de frontal-rio.webp (coincide con el de Sevilla) — se sustituye por SKY_COLOR en la textura 3D
   WATER_COLOR: 0x4882c3, // Agua muestreada de fondo_a y fondo_b (idéntica en ambas)
   FOG_NEAR: 90,
   FOG_FAR: 220,
@@ -43,62 +43,26 @@ export const GAME3D = {
     BANK_Z: -40, // Desplazamiento de las orillas hacia el fondo (m)
     BANK_WIDTH: 320, // Ancho del plano de cada orilla (m)
     BANK_REPEAT_X: 3, // Repeticiones horizontales de la textura de orilla
-    // Puente de Triana (frontal-rio.webp). Composición reconocible:
-    //   • Tablero al mismo horizonte que la línea de tierra de las orillas
-    //     (Y_DECK ≈ altura del caserío de las orillas laterales, ~37 m).
-    //   • Cuatro columnas: 2 en el agua (ya en el asset) y 2 en tierra
-    //     (clonadas del pilar del agua y estampadas justo sobre la línea
-    //     de las orillas, ±BANK_X en el mundo).
-    //   • Plano suficientemente grande y cercano para que los arcos con
-    //     sus círculos característicos se lean bien.
-    // La banda visible [SRC_Y0, SRC_Y1] cubre desde justo encima del
-    // tablero hasta la línea de agua; el resto queda cortado por el propio
-    // plano. Las medidas SRC_* son píxeles sobre la imagen de 1024×1024.
+    // Puente de Triana (frontal-rio.webp). El asset (1542×1024) trae todo
+    // dibujado: 4 columnas (2 en el agua + 2 en tierra), la barandilla del
+    // tablero, los arcos con sus círculos y la torre de la iglesia de Santa
+    // Ana asomando por encima del tablero. Se pinta en UN solo plano frontal
+    // (sin planos auxiliares ni estampados) y se elige la banda vertical
+    // visible con SRC_Y0/SRC_Y1: incluye desde justo encima del remate de la
+    // torre hasta la línea de agua.
+    //
+    // La geometría del plano respeta el aspecto de la banda visible: al fijar
+    // WIDTH, se deriva HEIGHT y la posición vertical del centro con
+    // DECK_SRC_Y/Y_DECK, así el tablero cae siempre en la altura elegida y
+    // los pilares en tierra encajan con la línea de las orillas.
     BRIDGE: {
-      WIDTH: 148, // Ancho del plano (m) — al ser algo más estrecho que 2·BANK_X (=124), los pilares de tierra caen justo dentro de las orillas (±LAND_PILLAR_WORLD_X)
-      HEIGHT: 58, // Alto del plano (m) — deck a Y_DECK, base debajo del agua (queda escondida por el plano del río)
-      Y_DECK: 24, // Altura del tablero (m): coincide con la línea alta de las orillas visible desde el pole (calibrado a ojo)
-      Z: -140, // Distancia del puente (m) — algo más cerca aún para que la estructura sea inconfundible
-      SRC_Y0: 400, // Techo de la banda visible (deja fuera el edificio del fondo derecho del asset)
-      SRC_Y1: 665, // Línea de agua de la imagen (base de las columnas del agua)
-      DECK_SRC_Y: 480, // Fila del tablero en la imagen (para calibrar Y_DECK sobre el plano)
-      PILLAR_SRC: { X: 725, Y: 500, W: 102, H: 165 }, // Pilar del agua (derecho) usado como fuente del clon
-      // Los pilares de tierra se plantan a esta distancia del centro en el
-      // mundo (BANK_X = 62 m). Se dejan a 55 m para que queden claramente
-      // delante del plano de la orilla y el jugador vea las 4 columnas.
-      LAND_PILLAR_WORLD_X: 55,
-    },
-    // Torre Sevilla — plano propio detrás del puente. La parte que se ve
-    // es el remate y el arranque del fuste asomando por encima del
-    // tablero; el resto queda oculto tras el puente. La banda incluye el
-    // CAP (remate pixel art dibujado sobre el asset, que trae la torre
-    // cortada por arriba) hasta un poco más abajo del tope actual del
-    // fuste; así al escalar el plano se ve una torre esbelta y alta.
-    TOWER: {
-      WIDTH: 22, // Ancho del plano (m)
-      HEIGHT: 55, // Alto del plano (m) — su tope asoma bien por encima del tablero
-      X: -42, // A la izquierda del centro, como en la ribera real
-      Y_BASE: 8, // Base del plano (m) — queda oculta tras el puente
-      Z: -158, // Detrás del puente
-      SRC_X0: 55,
-      SRC_X1: 190,
-      SRC_Y0: 130, // Deja aire suficiente para el remate dibujado (CAP)
-      SRC_Y1: 470, // Corte inferior — el resto del fuste queda tras el puente
-      // Remate pixel art: Torre Sevilla es un rascacielos rectangular alto
-      // (no una torre con antena). Un único bloque un poco más ancho extiende
-      // el fuste hacia arriba manteniendo la silueta.
-      // El asset trae la torre con un pico decorativo estrecho (px 156-171 en
-      // y=193) que a baja resolución parece un sombrero flotando; el CAP
-      // arranca en y=214 (fuste ya ancho y consistente) y sube 65 px,
-      // sobrescribiendo el pico y extendiendo el fuste como bloque uniforme.
-      CAP: {
-        Y: 214,
-        BLOCKS: [
-          [134, 174, 65], // Ancho exacto del fuste real (evita "sombrero" a resoluciones bajas)
-        ],
-        FILL: '#7d5f5e', // Tono claro del fuste
-        SHADE: '#523b41', // Sombra del lado izquierdo
-      },
+      WIDTH: 129, // Ancho del plano (m). Con SRC_X0..SRC_X1 = borde a borde de la imagen, los pilares de tierra (px ~30 y ~1512) caen a ±62 m ≈ BANK_X — justo sobre la línea de las orillas
+      Y_DECK: 15, // Altura del tablero (m). Puente de Triana real ~9 m; aquí sube un poco para que quede por delante de la línea del caserío
+      Z: -100, // Distancia del puente (m). Más cerca que en la iteración anterior: los arcos con círculos y la barandilla se leen sin esfuerzo
+      IMG_WIDTH: 1542, // Ancho del asset (px) — sirve para derivar el aspecto exacto
+      SRC_Y0: 200, // Techo de la banda visible — incluye el remate de la torre
+      SRC_Y1: 661, // Línea de agua del asset (base de las 4 columnas)
+      DECK_SRC_Y: 480, // Fila del tablero en el asset (calibra Y_DECK sobre el plano)
     },
     POLE_RADIUS: 0.12, // Grosor del palo (m)
     FLAG: {
