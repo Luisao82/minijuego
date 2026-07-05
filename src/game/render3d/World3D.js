@@ -29,9 +29,10 @@ export class World3D {
     this._renderer.outputColorSpace = THREE.SRGBColorSpace
     this._renderer.setSize(RENDER_WIDTH, RENDER_HEIGHT, false)
 
+    // Sin niebla: puente, agua y orillas se ven nítidos a cualquier distancia
+    // dentro del escenario visible. La profundidad la da la perspectiva.
     this._scene = new THREE.Scene()
     this._scene.background = new THREE.Color(GAME3D.SKY_COLOR)
-    this._scene.fog = new THREE.Fog(GAME3D.SKY_COLOR, GAME3D.FOG_NEAR, GAME3D.FOG_FAR)
 
     const W = GAME3D.WORLD
     this._camera = new THREE.PerspectiveCamera(
@@ -145,9 +146,13 @@ export class World3D {
     tex.offset.y = 1 - waterline
 
     const bankH = (W.BANK_WIDTH / W.BANK_REPEAT_X) * waterline // mantiene la proporción del dibujo
+    // fog:false — el puente y el agua ya no tienen niebla (se ven nítidos), y
+    // con las orillas nebulándose se creaba un halo raro en la unión. Sin la
+    // niebla, la profundidad la sigue dando la propia perspectiva (las
+    // orillas se hacen más pequeñas al alejarse hacia el puente).
     const mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(W.BANK_WIDTH, bankH),
-      new THREE.MeshBasicMaterial({ map: tex, fog: true })
+      new THREE.MeshBasicMaterial({ map: tex, fog: false })
     )
     mesh.position.set(x, bankH / 2, W.BANK_Z)
     mesh.rotation.y = rotY
