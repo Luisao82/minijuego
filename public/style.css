@@ -19,13 +19,17 @@ body {
   padding: 0;
   color: rgba(255, 255, 255, 0.87);
   background-color: #000000;
+  /* En iOS (Capacitor) el WebView se extiende bajo el notch/home indicator
+     con viewport-fit=cover. El body en negro cubre esas zonas para que no
+     se vea la banda blanca por defecto del WKWebView. */
 }
 
 #app {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #000000;
 }

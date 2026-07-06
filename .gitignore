@@ -18,11 +18,14 @@ dist
 dist-ssr
 *.local
 
-# Capacitor (carpetas nativas iOS/Android en la raíz del proyecto)
-# Anclado a la raíz con / para no excluir subcarpetas con esos nombres
-# (p.ej. public/assets/store/icons/ios y .../android, que sí queremos versionar)
-/ios
+# Capacitor Android — carpeta nativa entera fuera del repo hasta que tengamos target Android real
+# (p.ej. public/assets/store/icons/android sí se versiona porque no empieza por /)
 /android
+
+# Capacitor iOS — trackeamos el proyecto Xcode porque tenemos código nativo propio
+# (MainViewController.swift, overrides de Info.plist). Los derivados los excluye ios/.gitignore.
+# Sí excluimos aquí los assets del web bundle sincronizados por `cap sync`, que se regeneran.
+/ios/App/App/public/
 
 # Editor directories and files
 .vscode/*
