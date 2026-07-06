@@ -1,5 +1,9 @@
 {
   "appId": "com.cucana.trianera",
   "appName": "La Cucaña Trianera",
-  "webDir": "dist"
+  "webDir": "dist",
+  "backgroundColor": "#000000",
+  "ios": {
+    "backgroundColor": "#000000"
+  }
 }
