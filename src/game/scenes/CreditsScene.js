@@ -10,12 +10,6 @@ import { skinService } from '../services/SkinService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { version } from '../../../package.json'
 import { DEV_WEB_URL } from '../config/devConfig'
-import { openExternalUrl } from '../utils/openExternalUrl'
-
-// URL oficial de la política de privacidad. Producción en Vercel; el
-// documento fuente (`PRIVACY.md`) vive en el repo y el HTML servido es
-// `public/privacy.html`.
-const PRIVACY_URL = 'https://minijuego-lilac.vercel.app/privacy.html'
 
 const AMBER = 0xd4a520
 const PANEL_BG = 0x0d0600
@@ -109,7 +103,6 @@ export class CreditsScene extends BaseScene {
     this.drawWebLink()
     this.drawFooter()
     this.drawBackButton()
-    this.drawPrivacyButton()
     this.drawDetailsButton()
     this.setupInput()
   }
@@ -346,24 +339,6 @@ export class CreditsScene extends BaseScene {
       () => this.scene.start(SCENES.LICENSES),
       { depth: 5, fontSize: '22px' }
     )
-  }
-
-  // Botón que abre la política de privacidad en el navegador del sistema
-  // (SFSafariViewController en iOS con @capacitor/browser, ventana nueva
-  // en web). Colocado a la izquierda del botón "FICHA TÉCNICA" para
-  // mantener la fila superior derecha con la información legal / de
-  // proyecto agrupada.
-  drawPrivacyButton() {
-    const btnW = 210
-    const btnH = 58
-    const detailsBtnW = 240
-    const btnX = GAME_WIDTH - detailsBtnW - 12 - btnW - 12
-    const btnY = 12
-
-    makeNavButton(this, btnX, btnY, btnW, btnH, 'PRIVACIDAD', () => openExternalUrl(PRIVACY_URL), {
-      depth: 5,
-      fontSize: '22px',
-    })
   }
 
   setupInput() {

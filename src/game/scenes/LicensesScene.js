@@ -5,6 +5,7 @@ import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { version } from '../../../package.json'
 import { DEV_WEB_URL } from '../config/devConfig'
+import { openExternalUrl } from '../utils/openExternalUrl'
 
 const AMBER = 0xd4a520
 const PANEL_BG = 0x0d0600
@@ -43,6 +44,7 @@ export class LicensesScene extends BaseScene {
     this.drawColumns()
     this.drawFooter()
     this.drawBackButton()
+    this.drawPrivacyButton()
     this.setupInput()
   }
 
@@ -191,7 +193,7 @@ export class LicensesScene extends BaseScene {
     url.on('pointerout', () => url.setColor('#ffd647'))
     url.on('pointerup', () => {
       this.sound.play('sfx-click', { volume: 0.6 })
-      window.open(DEV_WEB_URL, '_blank', 'noopener')
+      openExternalUrl(DEV_WEB_URL)
     })
 
     this.add
@@ -209,6 +211,25 @@ export class LicensesScene extends BaseScene {
     makeNavButton(this, 12, 12, 200, 58, 'VOLVER', () => this.scene.start(SCENES.CREDITS), {
       depth: 5,
     })
+  }
+
+  // Acceso a la política de privacidad (escena propia con contenido
+  // embebido, no depende de red ni de Vercel).
+  drawPrivacyButton() {
+    const btnW = 240
+    const btnH = 58
+    const btnX = GAME_WIDTH - btnW - 12
+    const btnY = 12
+    makeNavButton(
+      this,
+      btnX,
+      btnY,
+      btnW,
+      btnH,
+      'PRIVACIDAD',
+      () => this.scene.start(SCENES.PRIVACY),
+      { depth: 5, fontSize: '22px' }
+    )
   }
 
   setupInput() {
