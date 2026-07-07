@@ -52,6 +52,7 @@ export const SCENES = {
   MAP: 'MapScene',
   CREDITS: 'CreditsScene',
   LICENSES: 'LicensesScene',
+  PRIVACY: 'PrivacyScene',
 }
 
 // Panel de control inferior (1/5 de la pantalla)

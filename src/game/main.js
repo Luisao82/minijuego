@@ -18,6 +18,7 @@ import { StatsScene } from './scenes/StatsScene'
 import { MapScene } from './scenes/MapScene'
 import { CreditsScene } from './scenes/CreditsScene'
 import { LicensesScene } from './scenes/LicensesScene'
+import { PrivacyScene } from './scenes/PrivacyScene'
 import { AUTO, Scale, Game } from 'phaser'
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig'
 
@@ -53,6 +54,7 @@ const config = {
     MapScene,
     CreditsScene,
     LicensesScene,
+    PrivacyScene,
   ],
 }
 
