@@ -176,7 +176,7 @@
       <header>
         <h1>Política de privacidad</h1>
         <p class="subtitle">LA CUCAÑA TRIANERA</p>
-        <p class="meta">Última actualización: 28 de mayo de 2026 · Versión 1.0.0</p>
+        <p class="meta">Última actualización: 6 de julio de 2026 · Versión 1.4.5</p>
       </header>
 
       <h2>1. Responsable del tratamiento</h2>
@@ -187,8 +187,9 @@
           <a href="mailto:luisaodeben@gmail.com">luisaodeben@gmail.com</a>
         </li>
         <li>
-          <strong>Aplicación:</strong> <em>La Cucaña Trianera</em> — minijuego pixel art para web e
-          instalable como aplicación móvil (iOS / Android).
+          <strong>Aplicación:</strong> <em>La Cucaña Trianera</em> — minijuego pixel art disponible
+          como aplicación web (Vercel) y como aplicación nativa para dispositivos iOS y Android
+          (empaquetada con Capacitor).
         </li>
       </ul>
 
@@ -212,8 +213,8 @@
       <h2>3. Datos almacenados localmente en tu dispositivo</h2>
       <p>
         La aplicación guarda en el almacenamiento local de tu dispositivo (<code>localStorage</code>
-        del navegador o equivalente en la app nativa) la información necesaria para que el juego
-        funcione y recuerde tu progreso:
+        del navegador en la versión web, o su equivalente dentro del WebView nativo en las versiones
+        móviles) la información necesaria para que el juego funcione y recuerde tu progreso:
       </p>
       <ul>
         <li>Estadísticas de partida (intentos, victorias, derrotas, tiempo, premios).</li>
@@ -221,14 +222,14 @@
         <li>Piezas del mapa de Sevilla descubiertas.</li>
         <li>Premios obtenidos y vistos.</li>
         <li>
-          Preferencias de configuración (música activada/silenciada, perspectiva visual
-          seleccionada).
+          Preferencias de configuración (música activada/silenciada, perspectiva visual seleccionada
+          — 2D Triana / 2D Sevilla / primera persona 3D).
         </li>
       </ul>
       <p>
         Estos datos <strong>nunca abandonan tu dispositivo</strong> y no se sincronizan con ningún
-        servidor. Si desinstalas la aplicación o limpias el almacenamiento del navegador, esta
-        información se elimina por completo.
+        servidor. Si desinstalas la aplicación o limpias el almacenamiento local, esta información
+        se elimina por completo.
       </p>
 
       <h2>4. Servicios de terceros</h2>
@@ -242,14 +243,19 @@
         <li><strong>Proveedor:</strong> Functional Software, Inc. (Sentry.io).</li>
         <li>
           <strong>Finalidad:</strong> registrar errores técnicos y caídas de la aplicación para
-          corregir bugs.
+          corregir bugs. Se activa tanto en la versión web como en la versión nativa.
         </li>
         <li>
           <strong>Datos enviados automáticamente al producirse un error:</strong> mensaje y traza
-          del error, navegador o sistema operativo, versión de la aplicación, pantalla donde se
-          produjo el fallo.
+          del error, tipo de navegador o sistema operativo, versión de la aplicación, pantalla del
+          juego donde se produjo el fallo y dirección IP (procesada solo para prevenir abusos, no
+          almacenada de forma identificable).
         </li>
-        <li>No se envía información personal identificable.</li>
+        <li>
+          <strong>No</strong> se envía información personal identificable, ni contenido de las
+          partidas del usuario, ni datos del almacenamiento local.
+        </li>
+        <li>La captura solo se activa cuando ocurre un error real.</li>
         <li>
           Más información:
           <a href="https://sentry.io/privacy/" target="_blank" rel="noopener">sentry.io/privacy</a>
@@ -261,11 +267,16 @@
         <li><strong>Proveedor:</strong> Google Ireland Limited.</li>
         <li>
           <strong>Finalidad:</strong> cargar las tipografías <em>Jersey 10</em> y
-          <em>Press Start 2P</em> para el diseño pixel art del juego.
+          <em>Press Start 2P</em> para el diseño pixel art del juego. Solo se descargan la primera
+          vez que se abre la aplicación web.
         </li>
         <li>
-          <strong>Datos transmitidos al servidor de Google:</strong> dirección IP y datos técnicos
-          básicos del navegador.
+          <strong>Datos transmitidos al servidor de Google al cargar la fuente:</strong> dirección
+          IP y datos técnicos básicos del navegador.
+        </li>
+        <li>
+          En la versión nativa las fuentes se embeben dentro del propio bundle de la aplicación, por
+          lo que <strong>no se realiza esta conexión</strong> una vez instalada.
         </li>
         <li>
           Más información:
@@ -279,11 +290,19 @@
       <ul>
         <li><strong>Proveedor:</strong> Vercel Inc.</li>
         <li>
-          <strong>Finalidad:</strong> servir la versión web de la aplicación y este documento.
+          <strong>Finalidad:</strong> servir la versión web de la aplicación, este documento y
+          cualquier recurso estático (imágenes, audio, código).
         </li>
         <li>
-          <strong>Datos técnicos registrados por el proveedor:</strong> dirección IP, navegador y
-          ruta solicitada, con la única finalidad de servir el contenido y prevenir abusos.
+          <strong>Datos técnicos registrados por el proveedor:</strong> dirección IP, agente de
+          usuario y ruta solicitada, con la única finalidad de servir el contenido y prevenir
+          abusos.
+        </li>
+        <li>
+          En la versión nativa el bundle está pre-cargado dentro de la propia aplicación, por lo que
+          <strong>no se descarga contenido desde Vercel</strong> durante el uso normal. Solo se
+          conecta a Vercel si el usuario abre desde la app este documento de privacidad, ya que se
+          sirve desde la URL pública oficial.
         </li>
         <li>
           Más información:
@@ -296,8 +315,9 @@
       <h3>4.4 Tiendas de aplicaciones (App Store / Google Play)</h3>
       <p>
         Si descargas la aplicación a través de Apple App Store o Google Play, la tienda
-        correspondiente recopilará sus propios datos según sus políticas. La aplicación en sí no
-        recibe ni accede a esa información.
+        correspondiente recopilará sus propios datos según sus políticas (descargas, versión de
+        sistema operativo, país, valoraciones). La aplicación en sí no recibe ni accede a esa
+        información.
       </p>
       <ul>
         <li>
@@ -308,6 +328,24 @@
         <li>
           <a href="https://policies.google.com/privacy" target="_blank" rel="noopener"
             >Google — Política de privacidad</a
+          >
+        </li>
+      </ul>
+
+      <h3>4.5 Capacitor (framework de empaquetado nativo)</h3>
+      <ul>
+        <li><strong>Proveedor:</strong> Drifty Co. / Ionic.</li>
+        <li>
+          <strong>Finalidad:</strong> empaquetar el juego dentro de una aplicación nativa iOS /
+          Android. Capacitor <strong>no recoge datos por su cuenta</strong>; solo proporciona el
+          puente entre el código JavaScript del juego y el sistema operativo del dispositivo
+          (WKWebView en iOS, WebView en Android).
+        </li>
+        <li><strong>No</strong> se envían datos al proveedor durante el uso normal.</li>
+        <li>
+          Más información:
+          <a href="https://capacitorjs.com/privacy" target="_blank" rel="noopener"
+            >capacitorjs.com/privacy</a
           >
         </li>
       </ul>
@@ -326,14 +364,31 @@
         <li>No envía ningún dato a servidores del desarrollador.</li>
       </ul>
 
-      <h2>6. Menores de edad</h2>
+      <h2>6. Permisos del sistema en la versión nativa</h2>
       <p>
-        La aplicación es apta para todos los públicos y no recoge datos personales, por lo que su
-        uso por parte de menores no implica recogida de información sujeta a normativas como RGPD-K
-        o COPPA.
+        La versión iOS de la aplicación
+        <strong>no solicita ningún permiso del sistema</strong>:
+      </p>
+      <ul>
+        <li>
+          No se pide acceso a cámara, micrófono, ubicación, contactos, fotos ni ningún otro dato del
+          dispositivo.
+        </li>
+        <li>
+          Solo se utilizan las funciones que no requieren autorización explícita: reproducir sonido,
+          mostrar gráficos a pantalla completa y guardar preferencias localmente.
+        </li>
+      </ul>
+
+      <h2>7. Menores de edad</h2>
+      <p>
+        La aplicación es apta para todos los públicos (clasificación <strong>4+</strong> en App
+        Store, equivalente PEGI 3 en Europa) y no recoge datos personales, por lo que su uso por
+        parte de menores no implica recogida de información sujeta a normativas como RGPD-K, COPPA o
+        LOPDGDD.
       </p>
 
-      <h2>7. Derechos del usuario</h2>
+      <h2>8. Derechos del usuario</h2>
       <p>
         Aunque no tratamos datos personales identificables, en cumplimiento del
         <strong>Reglamento (UE) 2016/679 (RGPD)</strong> y la
@@ -357,14 +412,24 @@
         almacenamiento local del navegador.
       </p>
 
-      <h2>8. Cambios en esta política</h2>
+      <h2>9. Cambios en esta política</h2>
       <p>
         Esta política puede actualizarse si se modifican las funcionalidades o servicios utilizados.
-        La versión vigente siempre será la publicada en la URL oficial, indicando la fecha de última
-        actualización en la cabecera.
+        La versión vigente siempre será la publicada en la URL oficial
+        <a href="https://minijuego-lilac.vercel.app/privacy.html">
+          minijuego-lilac.vercel.app/privacy.html</a
+        >, indicando la fecha de última actualización y la versión de la aplicación en la cabecera.
+      </p>
+      <p>
+        Las versiones anteriores permanecen en el historial de Git público del proyecto (<a
+          href="https://github.com/Luisao82/minijuego"
+          target="_blank"
+          rel="noopener"
+          >github.com/Luisao82/minijuego</a
+        >) para consulta y trazabilidad.
       </p>
 
-      <h2>9. Contacto</h2>
+      <h2>10. Contacto</h2>
       <p>Para cualquier consulta sobre esta política, puedes escribir a:</p>
       <p>
         <strong>Luisao</strong> — <a href="mailto:luisaodeben@gmail.com">luisaodeben@gmail.com</a>
