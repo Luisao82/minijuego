@@ -22,6 +22,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- Replace frontal-rio.webp background with updated artwork
 - **`Info.plist` (iOS):** `UIStatusBarHidden = YES` y `UIViewControllerBasedStatusBarAppearance = NO` — la status bar del sistema se oculta durante el juego. `Main.storyboard` apuntando ahora a `MainViewController` (módulo `App`).
 - **Política de privacidad (`PRIVACY.md`, `public/privacy.html`) alineada con la 1.5.0:** fecha 2026-07-06, versión 1.5.0. Sección 1 menciona Capacitor. Sección 3 aclara WKWebView y añade la perspectiva 3D. Sección 4.1 (Sentry) detalla más (IP, no envía contenido de partidas ni localStorage). Sección 4.2 (Google Fonts) aclara que en nativo se embeben. Sección 4.3 (Vercel) aclara que en nativo el bundle es local; la única llamada a Vercel sería la anterior política externa, que ya no existe (in-app). Nueva sección 4.5 Capacitor. Nueva sección 6 (Permisos del sistema en la versión nativa: ninguno). Sección 7 (Menores) añade rating 4+ / PEGI 3. Sección 9 (Cambios) enlaza a la URL oficial y al historial de Git.
 - **Link "Visita mi web" en `LicensesScene`:** ahora usa `openExternalUrl` → en iOS abre Safari embebido en vez de un `window.open` que en Capacitor no siempre funciona bien.
