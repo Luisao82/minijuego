@@ -7,6 +7,31 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-07-08
+
+### Added
+
+- **Escena de política de privacidad dentro de la app (`PrivacyScene`):** el texto completo se embebe en el bundle importando `PRIVACY.md` con `?raw` de Vite. Un mini-parser convierte el markdown (h2/h3, párrafos, listas, negritas, enlaces) en objetos Phaser dentro de un contenedor con scroll (arrastre táctil, ratón y rueda) y un indicador ámbar a la derecha. **No depende de red ni de Vercel** — funciona sin conexión y sobrevive a un cambio de hosting. Accesible desde el menú → INFO → FICHA TÉCNICA → PRIVACIDAD.
+- **Botón PRIVACIDAD dentro de `LicensesScene` (FICHA TÉCNICA):** agrupa toda la información legal / del proyecto en el mismo sitio.
+- **Helper `openExternalUrl`:** abre URLs en el navegador del sistema — `SFSafariViewController` en iOS vía `@capacitor/browser` (nueva dependencia), pestaña nueva en web con `window.open`. Los imports son dinámicos para que el bundle web no pague el coste de Capacitor.
+- **Proyecto nativo iOS trackeado en el repo:** `/ios` sale del `.gitignore` (menos los derivados y el bundle regenerado por `cap sync`). Con esto la configuración nativa (MainViewController, Info.plist, Podfile, iconos generados con `@capacitor/assets`) sobrevive a clones y `cap sync`.
+- **`MainViewController` (Swift):** wrapper que embebe `CAPBridgeViewController` como hijo (Capacitor 8 marca varias de sus propiedades como `public` en vez de `open`, por eso no se puede subclase directamente). Overrides:
+  - `prefersHomeIndicatorAutoHidden = true` — atenúa la home indicator del sistema durante el juego.
+  - `preferredScreenEdgesDeferringSystemGestures = .bottom` — hacen falta dos gestos hacia arriba para salir al Home; evita fallos por swipes accidentales durante la partida.
+- **Web bundle preparado para iOS a pantalla completa:** `meta name="viewport" content-fit=cover` en `index.html`, `body` y `#app` con fondo negro forzado en `style.css`, y `backgroundColor: #000000` en `capacitor.config.json`. Elimina la franja blanca que asomaba por debajo del canvas en el WKWebView.
+
+### Changed
+
+- **`Info.plist` (iOS):** `UIStatusBarHidden = YES` y `UIViewControllerBasedStatusBarAppearance = NO` — la status bar del sistema se oculta durante el juego. `Main.storyboard` apuntando ahora a `MainViewController` (módulo `App`).
+- **Política de privacidad (`PRIVACY.md`, `public/privacy.html`) alineada con la 1.5.0:** fecha 2026-07-06, versión 1.5.0. Sección 1 menciona Capacitor. Sección 3 aclara WKWebView y añade la perspectiva 3D. Sección 4.1 (Sentry) detalla más (IP, no envía contenido de partidas ni localStorage). Sección 4.2 (Google Fonts) aclara que en nativo se embeben. Sección 4.3 (Vercel) aclara que en nativo el bundle es local; la única llamada a Vercel sería la anterior política externa, que ya no existe (in-app). Nueva sección 4.5 Capacitor. Nueva sección 6 (Permisos del sistema en la versión nativa: ninguno). Sección 7 (Menores) añade rating 4+ / PEGI 3. Sección 9 (Cambios) enlaza a la URL oficial y al historial de Git.
+- **Link "Visita mi web" en `LicensesScene`:** ahora usa `openExternalUrl` → en iOS abre Safari embebido en vez de un `window.open` que en Capacitor no siempre funciona bien.
+
+## [1.4.5] — 2026-07-06
+
+### Fixed
+
+- **"Doble salto" al caer al agua en la vista 3D:** al terminar la fase `jumping`, la cámara se veía saltar por segunda vez. La causa: en 1.4.4 el `default` del `CameraController` (splash_done / done) subía `this._eyeY` hacia `REST_EYE_Y`, pero `this._eyeY` no se sincronizaba durante `jumping` (ahí solo se leía `state.jumpEyeY` para `pos.y`). Al entrar en el resting, la cámara "teletransportaba" a `1.9 m` (el valor de `_eyeY` desde el constructor) antes de bajar suavemente a `REST_EYE_Y = 0.55 m`, y esa subida abrupta se percibía como un segundo salto. Se lerpea directamente `this._pos.y` hacia `REST_EYE_Y` y `this._eyeY` se mantiene sincronizado. Test nuevo en `CameraController.test.js` que reproduce la transición sin teletransporte.
+
 ## [1.4.4] — 2026-07-05
 
 ### Fixed

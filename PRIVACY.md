@@ -1,7 +1,7 @@
 # Política de privacidad — La Cucaña Trianera
 
-**Última actualización:** 2026-07-06
-**Versión de la aplicación:** 1.4.5
+**Última actualización:** 2026-07-08
+**Versión de la aplicación:** 1.5.0
 
 Este documento es la **fuente de verdad** de la política de privacidad de la
 aplicación _La Cucaña Trianera_. La versión publicada en web
