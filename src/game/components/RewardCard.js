@@ -4,6 +4,7 @@
 
 import { COLORS } from '../config/gameConfig'
 import { mutedStyle, uiLabelStyle } from '../config/textStyles'
+import { hapticTap } from '../utils/haptics'
 
 /**
  * Crea una ficha de premio y la devuelve como Container.
@@ -148,7 +149,10 @@ export function createRewardCard(scene, reward, count, layout) {
 
     hit.on('pointerover', drawHover)
     hit.on('pointerout', drawNormal)
-    hit.on('pointerdown', () => onPress(reward, count))
+    hit.on('pointerdown', () => {
+      hapticTap()
+      onPress(reward, count)
+    })
     container.add(hit)
   }
 

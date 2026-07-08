@@ -7,6 +7,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.5.1] — 2026-07-09
+
+### Added
+
+- **Feedback háptico en pulsaciones táctiles (iOS/Android nativo):** nueva dependencia `@capacitor/haptics` y helper `src/game/utils/haptics.js` con `hapticTap()`. En Capacitor nativo dispara `Haptics.impact({ style: Light })` (en iOS → `UIImpactFeedbackGenerator(.light)`); en web es no-op. Los imports de `@capacitor/core` y `@capacitor/haptics` son dinámicos para no encarecer el bundle web. Cableado en los componentes compartidos `NavButton`, `IconButton`, `ShareButton` y `RewardCard` — cubre menús, cabeceras, botones de icono y las tarjetas de la colección. **No** se aplica a los botones de equilibrio (`BalanceUI`) porque se mantienen pulsados y provocarían spam de vibración. Reduce el riesgo de rechazo por Guideline 4.2 de App Store ("wrapped web") al aportar un mínimo de integración nativa.
+
+### Changed
+
+- **`register-sw.js` respeta Capacitor nativo:** además del caso de desarrollo (Vite en puerto no estándar), el service worker ahora se desregistra y se limpian sus cachés cuando `window.Capacitor.isNativePlatform()` devuelve `true`. En el WebView nativo el bundle ya se carga desde el filesystem local, así que el SW solo añadía una capa de caché capaz de servir JS obsoleto entre versiones de la app.
+
 ## [1.5.0] — 2026-07-08
 
 ### Added

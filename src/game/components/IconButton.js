@@ -4,6 +4,8 @@
 // cuadrado y con hit area amplia para uso táctil cómodo.
 // ============================================================
 
+import { hapticTap } from '../utils/haptics'
+
 const FILL_NORMAL = 0xd4a520
 const FILL_HOVER = 0xffcc00
 const BORDER_DARK = 0x5c2d00
@@ -97,6 +99,7 @@ export function makeIconButton(scene, x, y, size, icon, onPress, opts = {}) {
     if (!isPressed) return
     isPressed = false
     if (playSfx) scene.sound.play('sfx-click', { volume: 0.6 })
+    hapticTap()
     onPress()
   })
 

@@ -4,6 +4,7 @@
 // ============================================================
 
 import { headingStyle } from '../config/textStyles'
+import { hapticTap } from '../utils/haptics'
 
 const FILL_NORMAL = 0xd4a520 // dorado ámbar sólido
 const FILL_HOVER = 0xffcc00 // dorado más vivo al hover/tap
@@ -135,6 +136,7 @@ export function makeNavButton(scene, x, y, w, h, label, onPress, opts = {}) {
     if (!isPressed) return
     isPressed = false
     scene.sound.play('sfx-click', { volume: 0.6 })
+    hapticTap()
     onPress()
   })
 
