@@ -1,9 +1,22 @@
 if ('serviceWorker' in navigator) {
-  // En desarrollo (servidor Vite en puerto no estándar) el service worker es
-  // cache-first y serviría módulos desactualizados tras cada cambio de código,
-  // pudiendo corromper el arranque del juego. Se desregistra y se limpian sus
-  // cachés para sanear navegadores que ya lo tuvieran instalado.
-  if (window.location.port) {
+  // Casos en los que NO queremos el service worker (cache-first) instalado:
+  //
+  //  • Desarrollo (servidor Vite en puerto no estándar): serviría módulos
+  //    desactualizados tras cada cambio de código y puede corromper el arranque
+  //    del juego.
+  //  • Capacitor nativo (iOS/Android): el WebView ya carga el bundle desde el
+  //    filesystem local, así que el SW solo aportaría una capa extra de caché
+  //    capaz de servir JS obsoleto entre versiones de la app. Además, en iOS
+  //    los SW en WKWebView tienen soporte limitado y comportamientos raros.
+  //
+  // En cualquiera de esos casos se desregistra el SW previo y se limpian las
+  // cachés para dejar el navegador/WebView en un estado sano.
+  const isNative =
+    typeof window.Capacitor !== 'undefined' &&
+    typeof window.Capacitor.isNativePlatform === 'function' &&
+    window.Capacitor.isNativePlatform()
+
+  if (window.location.port || isNative) {
     navigator.serviceWorker.getRegistrations().then((regs) => {
       regs.forEach((reg) => reg.unregister())
     })
