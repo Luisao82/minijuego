@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.5.3] — 2026-07-09
+
+### Fixed
+
+- **Assets del tutorial y de la tienda regenerados SIN el overlay de scanlines CRT** (`public/assets/tutorial/`, `public/assets/store/screenshots/`). En la 1.5.2 las capturas se hicieron con `CRTScene` activa, que dibuja líneas negras cada 3 px con alpha 0.35 sobre todo el canvas — muy visible al escalar a 2×, sobre todo en la ficha de tienda. El nuevo pipeline las regenera parando `CRTScene` justo antes del `canvas.toDataURL()`, lo que da una imagen limpia sin scanlines. Todo el resto se conserva: mismas escenas, mismo storyboard, mismas flechas del tutorial (02-impulso → cursor de la barra INTENTO, 03-equilibrio → botones rojo/azul, 04-grasa → indicador de grasa), mismas dimensiones (tutorial 642×487 / 522×397 WebP; store iPhone 6.7"/6.9" 2796×1290, iPad 13" 2752×2064, Play/PWA 1920×1080).
+
 ## [1.5.2] — 2026-07-09
 
 ### Added
