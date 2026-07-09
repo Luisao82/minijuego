@@ -7,6 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.5.2] — 2026-07-09
+
+### Added
+
+- **`docs/app-store-privacy-checklist.md`:** hoja de respuestas operativa para rellenar la sección **App Privacy** de App Store Connect. Documenta la Privacy Policy URL, qué categorías marcar (**Diagnostics → Crash Data** y **Other Diagnostic Data** por Sentry), qué purposes elegir (**App Functionality**) y por qué la app queda como "Data Not Linked to You / No tracking". Sirve de guía cuando se rellene el formulario en App Store Connect sin tener que redescubrir las respuestas cada vez.
+
+### Changed
+
+- **Imágenes del tutorial refrescadas con el estado actual de la 1.5.1** (`public/assets/tutorial/01-bienvenido.webp` … `06-listo.webp`): capturas nuevas del propio juego renderizado que muestran los componentes actuales — menú con botón INFO y versión 1.5.1, HUD de grasa con el nuevo look, botones NavButton estilo Cartelón de Feria, sprite del Trianero en el palo, botones rojo/azul de equilibrio y barra de balance actualizada. Las flechas indicativas se han redibujado sobre las nuevas capturas: **02-impulso** apunta al cursor de la barra INTENTO, **03-equilibrio** a los botones rojo (izq) y azul (der), **04-grasa** al indicador de grasa en la esquina superior izquierda. **01-bienvenido**, **05-salto** y **06-listo** no llevan flecha (igual que las originales). Dimensiones y formato conservados: 642×487 WebP para 01-05, 522×397 WebP para 06, así que ni el layout de `TutorialScene` ni el pipeline de assets necesitan cambios.
+- **Assets de tienda refrescados con la 1.5.1** (`public/assets/store/screenshots/`): capturas nuevas de la vista 3D (fase impulso y equilibrio) sustituyen a las de 1.0.0 pre-vista-3D. La selección de personaje muestra sólo el personaje central (La Agüela) para evitar los retratos con alcohol de los personajes vecinos. La pantalla de premio se genera con "Pisacorbatas del Giraldillo" en vez del vaso de Cruzcampo, para eliminar marcas comerciales/alcohol de la ficha de tienda (App Store Guideline 5.2 y clasificación 4+). Storyboard final por plataforma (5 tiles): `01-intro`, `02-juego` (3D impulso), `03-seleccion` (La Agüela), `04-premio` (Giraldillo), `05-equilibrio` (3D balance). Sets generados: iPhone 6.7"/6.9" a **2796×1290**, iPad 13" a **2752×2064**, Play/PWA a **1920×1080**. **Ojo:** el juego en sí todavía contiene retratos con alcohol (El Trianero, La Flamenca, El Guiri, Cuñaos) y premios con IP protegida (Cruzcampo, Cantores de Híspalis, Sugus, Maradona, Larry, etc.) — habrá que rediseñarlos antes del submit real.
+
 ## [1.5.1] — 2026-07-09
 
 ### Added
