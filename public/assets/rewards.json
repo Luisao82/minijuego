@@ -1,13 +1,13 @@
 [
   {
     "id": "reward_pali",
-    "nombre": "Llavero del Pali",
+    "nombre": "Llavero del cantautor trianero",
     "imagen": "premios/pali.webp",
     "probabilidad": 0.25
   },
   {
     "id": "reward_curro",
-    "nombre": "Pin del Curro",
+    "nombre": "Pin del canario",
     "imagen": "premios/curro.webp",
     "probabilidad": 0.25
   },
@@ -19,25 +19,25 @@
   },
   {
     "id": "reward_sombrero",
-    "nombre": "El Sombrero de Finidi",
+    "nombre": "El sombrero cordobés",
     "imagen": "premios/sombrero.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_gambrinus",
-    "nombre": "Peluche de Gambrinus",
+    "nombre": "Peluche de la Velá",
     "imagen": "premios/gambrinus.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_maradona",
-    "nombre": "La camiseta del 10",
+    "nombre": "La camiseta clásica del 10",
     "imagen": "premios/maradona.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_pacogandia",
-    "nombre": "La cinta de los mejores chiste de Paco Gandía",
+    "nombre": "La cinta de los mejores chistes andaluces",
     "imagen": "premios/pacogandia.webp",
     "probabilidad": 0.1
   },
@@ -49,28 +49,28 @@
   },
   {
     "id": "reward_vajilla",
-    "nombre": "Vajilla completa de La Cartuja",
+    "nombre": "Vajilla de porcelana sevillana",
     "imagen": "premios/vajilla.webp",
     "probabilidad": 0.1
   },
   {
     "id": "reward_llamador",
     "nombre": "El Llamador",
-    "descripcion": "El \"pograma\" para seguir los pasos",
+    "descripcion": "El martillo del capataz. Sin él, no hay paso.",
     "imagen": "premios/llamador.webp",
     "probabilidad": 0.15
   },
   {
     "id": "reward_cerveza",
-    "nombre": "Una cerveza fresquita",
-    "descripcion": "Nada mejor para celebrar que has conseguido el premio que una cerveza bien fría",
+    "nombre": "Un cucurucho de altramuces",
+    "descripcion": "El aperitivo trianero por excelencia. Nada mejor para celebrar la victoria.",
     "imagen": "premios/cerveza.webp",
     "probabilidad": 0.6
   },
   {
     "id": "reward_vaso",
-    "nombre": "Un mitico vaso",
-    "descripcion": "El mitico vaso que todos recordais al más grande rockero de sevilla en uno de sus conciertos",
+    "nombre": "Un vaso de artesanía trianera",
+    "descripcion": "Pintado a mano por un ceramista del barrio. Una pieza única.",
     "imagen": "premios/vaso.webp",
     "probabilidad": 0.2
   },
@@ -84,15 +84,15 @@
   },
     {
     "id": "reward_sugus",
-    "nombre": "Un sugus",
-    "descripcion": "Quien no recuerda un sugus, el caramelo que nos ha acompañado en tantos momentos de nuestra infancia y adolescencia",
+    "nombre": "Un caramelo de fruta",
+    "descripcion": "El caramelo que nos ha acompañado en tantos momentos de nuestra infancia y adolescencia.",
     "imagen": "premios/sugus.webp",
     "probabilidad": 0.5
   },
   {
     "id": "reward_triana",
     "nombre": "Grande Triana",
-    "descripcion": "Este premio es un homenaje a su legado musical y a su influencia en la cultura sevillana",
+    "descripcion": "Un homenaje al barrio más grande de Sevilla y a su gente.",
     "imagen": "premios/triana.webp",
     "probabilidad": 0.4
   }

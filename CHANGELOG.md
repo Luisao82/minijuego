@@ -7,8 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **`docs/ip-content-audit.md`** — auditoría exhaustiva del contenido con riesgo de propiedad intelectual, marcas registradas o rating de edad (alcohol). Cubre los 15 rewards, los retratos de personaje, los skins problemáticos (Mario, Larry, etc.) y una recomendación priorizada de acciones antes del submit real. Sirve como fuente de verdad para saber qué está limpio, qué está pendiente y por qué se tomó cada decisión.
+
 ### Changed
 
+- **Rewards textualmente limpios de marcas comerciales y alcohol** (`public/assets/rewards.json`). Se mantienen los `id` para no romper el localStorage de jugadores existentes ni los tests; sólo cambian los `nombre` y `descripcion` visibles. Cambios concretos: cerveza fresquita → **cucurucho de altramuces**; vaso mítico del rockero → **vaso de artesanía trianera**; peluche de Gambrinus → **peluche de la Velá**; pin del Curro (Expo 92) → **pin del canario**; camiseta de Maradona → **camiseta clásica del 10**; sombrero de Finidi → **sombrero cordobés**; sugus → **caramelo de fruta**; vajilla de La Cartuja → **vajilla de porcelana sevillana**; descripción de El Llamador sin alusión al programa de Canal Sur; "Grande Triana" reenfocado al barrio, no al grupo musical; llavero del Pali y cinta de Paco Gandía neutralizados para minimizar riesgo con herederos. Se mantienen sin cambios: `reward_hispalis` (decisión explícita del autor), `reward_giraldillo` (patrimonio), `reward_wendolin` (sin marca identificada). Las **imágenes** de los rewards siguen siendo las originales por ahora — el rediseño gráfico se hará aparte.
 - **Créditos musicales actualizados** en `CREDITS.md` y en la `LicensesScene` in-app: la sevillana adaptada como música del menú principal ya no se atribuye a _Cantores de Híspalis_ sino a **_Los del Río_** («Sevilla tiene un color especial»), reflejo del cambio de la pista base. La advertencia "⚠ Uso pendiente de autorización" se mantiene: la composición sigue teniendo derechos de autor y sigue sin licencia expresa.
 - **`docs/email-cantores-hispalis.md` renombrado a `docs/email-music-authorization.md`** y su contenido actualizado al nuevo intérprete/obra. El template sigue siendo válido si en el futuro se decide contactar con la SGAE o con el editor musical.
 - **`TODO.md`** — la entrada de "bloqueante de publicación" se reformula como "riesgo de publicación asumido": la app se publica sin autorización expresa; si aparece reclamación, sustituir por una composición original.
