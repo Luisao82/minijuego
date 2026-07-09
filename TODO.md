@@ -80,11 +80,11 @@
 
 - [x] Redactar Política de privacidad (`PRIVACY.md` + `public/privacy.html` listos para Vercel)
 - [x] Revisar licencias de fuentes usadas (Jersey 10 y Press Start 2P — OFL 1.1, atribuidas en `CREDITS.md`)
-- [x] Revisar licencias de assets de audio (SFX propios con jsfxr/CC0; música del menú ⚠️ pendiente de autorización — ver `docs/email-cantores-hispalis.md`)
+- [x] Revisar licencias de assets de audio (SFX propios con jsfxr/CC0; música del menú ⚠️ pendiente de autorización — ver `docs/email-music-authorization.md`)
 - [x] Créditos en el juego (`CreditsScene` accesible desde el menú por el icono ©)
 - [x] Sustituir `LICENSE` del template Phaser Studio por licencia propietaria de Luisao
 - [x] Limpiar `package.json` (autor, licencia, eliminar refs del template)
-- [ ] **Bloqueante de publicación:** contactar con los titulares de Cantores de Híspalis para autorizar la sevillana adaptada del menú (o sustituirla por una composición original)
+- [ ] **Riesgo de publicación asumido:** la música del menú es una adaptación BeepBox de «Sevilla tiene un color especial», popularizada por Los del Río. La composición tiene derechos de autor. La app se publica sin autorización expresa; si aparece reclamación, sustituir por una composición original.
 
 ---
 
