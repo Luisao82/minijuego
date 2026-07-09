@@ -28,10 +28,10 @@ incluye cualquier transmisión de datos a un servidor externo.
 
 ### Categorías a MARCAR
 
-| Categoría | Subtipo | Marcar |
-|---|---|---|
-| Diagnostics | Crash Data | ✅ |
-| Diagnostics | Other Diagnostic Data | ✅ |
+| Categoría   | Subtipo               | Marcar |
+| ----------- | --------------------- | ------ |
+| Diagnostics | Crash Data            | ✅     |
+| Diagnostics | Other Diagnostic Data | ✅     |
 
 ### Todas las demás — NO marcar
 
@@ -78,6 +78,7 @@ La sección "App Privacy" de la ficha mostrará:
 
 > **Data Not Linked to You**
 > The following data may be collected but it is not linked to your identity:
+>
 > - Diagnostics
 
 ## Coherencia con PRIVACY.md
