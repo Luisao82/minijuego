@@ -7,6 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Créditos musicales actualizados** en `CREDITS.md` y en la `LicensesScene` in-app: la sevillana adaptada como música del menú principal ya no se atribuye a _Cantores de Híspalis_ sino a **_Los del Río_** («Sevilla tiene un color especial»), reflejo del cambio de la pista base. La advertencia "⚠ Uso pendiente de autorización" se mantiene: la composición sigue teniendo derechos de autor y sigue sin licencia expresa.
+- **`docs/email-cantores-hispalis.md` renombrado a `docs/email-music-authorization.md`** y su contenido actualizado al nuevo intérprete/obra. El template sigue siendo válido si en el futuro se decide contactar con la SGAE o con el editor musical.
+- **`TODO.md`** — la entrada de "bloqueante de publicación" se reformula como "riesgo de publicación asumido": la app se publica sin autorización expresa; si aparece reclamación, sustituir por una composición original.
+- **`reward_hispalis`** ("Vinilo de Los cantores de Hispalis") en `public/assets/rewards.json` se mantiene sin cambios por decisión del autor.
+
 ## [1.5.3] — 2026-07-09
 
 ### Fixed

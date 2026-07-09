@@ -1,41 +1,39 @@
 # Plantilla de contacto — Solicitud de uso de obra musical
 
 Este documento es una **plantilla** para solicitar permiso de uso de la
-sevillana de _Cantores de Híspalis_ adaptada como música del menú principal
-del juego _La Cucaña Trianera_.
+sevillana **«Sevilla tiene un color especial»**, popularizada por _Los del
+Río_, adaptada como música del menú principal del juego _La Cucaña Trianera_.
 
 ---
 
 ## A quién enviarla — orden recomendado
 
-Las sevillanas de Cantores de Híspalis están casi con total seguridad
-registradas en la **SGAE** (Sociedad General de Autores y Editores). Los
-derechos de la **composición** (no de la grabación) los gestiona el editor
-musical, que aparece en el registro de la SGAE de la canción.
+Las obras de _Los del Río_ están casi con total seguridad registradas en la
+**SGAE** (Sociedad General de Autores y Editores). Los derechos de la
+**composición** (no de la grabación) los gestiona el editor musical, que
+aparece en el registro de la SGAE de la canción.
 
 Pasos sugeridos:
 
-1. **Identificar la sevillana exacta** — título, álbum, año. Sin esto no se
-   puede tramitar nada.
-2. **Buscar la obra en el catálogo de la SGAE**
-   <https://www.sgae.es> (apartado de consulta de obras). Allí aparece el
-   nombre del editor musical y los autores.
-3. **Contactar primero con el editor musical** que figura como gestor de la
-   obra. Es quien autoriza usos sincronización.
-4. **En paralelo, contactar con Cantores de Híspalis** por su web/Instagram
-   oficial (gesto de cortesía y para acelerar). No tienen capacidad de
-   autorizar derechos editoriales, pero su ayuda agiliza el contacto con
+1. **Buscar la obra en el catálogo de la SGAE** <https://www.sgae.es>
+   (apartado de consulta de obras). Allí aparece el nombre del editor musical
+   y los autores de la composición.
+2. **Contactar primero con el editor musical** que figura como gestor de la
+   obra. Es quien autoriza usos de sincronización.
+3. **En paralelo, contactar con Los del Río** por su web/Instagram oficial
+   (gesto de cortesía y para acelerar). No tienen capacidad de autorizar
+   derechos editoriales por sí mismos, pero su ayuda agiliza el contacto con
    el editor.
-5. **Si no hay respuesta en 4–6 semanas**, la opción prudente es **sustituir
-   la música** por una composición original.
+4. **Si no hay respuesta en 4–6 semanas**, la opción prudente es **sustituir
+   la música** por una composición original inspirada en el folclore.
 
 ### Tipo de licencia que se necesita
 
 Lo que se necesita técnicamente es una **licencia de sincronización (sync
 license)** para usar una **versión derivada** (la adaptación a MIDI/BeepBox)
 de una obra musical preexistente como banda sonora de un videojuego. Si
-también se vende en App Store o Google Play, se considera **uso comercial**,
-aunque el juego sea gratuito.
+también se distribuye en App Store o Google Play, se considera **uso
+comercial**, aunque el juego sea gratuito.
 
 ---
 
@@ -48,7 +46,7 @@ aunque el juego sea gratuito.
 
 ## Cuerpo del email
 
-> Estimados [Cantores de Híspalis / nombre del editor musical]:
+> Estimados [Los del Río / nombre del editor musical]:
 >
 > Me llamo Luisao y estoy desarrollando, como proyecto personal y sin ánimo
 > de lucro inicial, un pequeño videojuego pixel art retro titulado **"La
@@ -59,9 +57,8 @@ aunque el juego sea gratuito.
 >
 > Para la pantalla del menú principal he creado una **adaptación instrumental
 > en estilo 8/16 bits** (recreada con el sintetizador online BeepBox) de la
-> sevillana **«[TÍTULO EXACTO DE LA SEVILLANA]»**, interpretada
-> originalmente por **Cantores de Híspalis** en su álbum **«[ÁLBUM]»**
-> ([AÑO]). La adaptación reinterpreta la melodía con sonidos chip-tune
+> sevillana **«Sevilla tiene un color especial»**, popularizada por **Los
+> del Río**. La adaptación reinterpreta la melodía con sonidos chip-tune
 > retro, sin voz, durante el tiempo que el jugador permanece en el menú
 > principal del juego.
 >
@@ -103,7 +100,7 @@ aunque el juego sea gratuito.
 
 ## Adjuntos recomendados
 
-- Una captura del juego (Pantalla de inicio con el título).
+- Una captura del juego (pantalla de inicio con el título).
 - Si es posible, un MP3 corto (10-15 s) de la adaptación BeepBox actual.
 - La URL para probar la versión web del juego.
 
@@ -115,8 +112,7 @@ aunque el juego sea gratuito.
   requerir prueba de autorización si se dispara una reclamación.
 - Si llega autorización, **archivarla** en `docs/legal/` (no subir al repo
   público si contiene datos personales).
-- Actualizar `CREDITS.md` y la `CreditsScene` retirando la advertencia
+- Actualizar `CREDITS.md` y la `LicensesScene` retirando la advertencia
   "pendiente de autorización" y añadiendo el texto exacto que pidan.
 - Si la respuesta es negativa o silencio prolongado, sustituir el archivo
-  `public/assets/audio/intro.wav` (o el track de música del menú actual)
-  por una composición original y actualizar créditos.
+  de música del menú por una composición original y actualizar créditos.

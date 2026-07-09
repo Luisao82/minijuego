@@ -76,15 +76,13 @@ Lista de efectos:
 **⚠️ Música del menú principal — pendiente de autorización**
 
 La música que suena en el menú principal es una adaptación a MIDI/BeepBox de
-una sevillana del repertorio popular interpretada por _Cantores de Híspalis_.
-La composición original tiene **derechos de autor** y, por tanto, el uso de
-esta adaptación queda **pendiente de obtener autorización expresa de los
-titulares de los derechos** antes de cualquier publicación comercial en App
-Store o Google Play.
+una sevillana del repertorio popular interpretada por _Los del Río_. La
+composición original tiene **derechos de autor** y, por tanto, el uso de esta
+adaptación queda **pendiente de obtener autorización expresa de los titulares
+de los derechos**.
 
-Hasta que se confirme la autorización (o se sustituya por una composición
-original), esta versión de la aplicación **no puede distribuirse en tiendas
-oficiales**.
+Ver [`docs/email-music-authorization.md`](docs/email-music-authorization.md)
+para la plantilla de contacto con la sociedad de gestión y con los titulares.
 
 ---
 

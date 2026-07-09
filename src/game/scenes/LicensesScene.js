@@ -143,7 +143,7 @@ export class LicensesScene extends BaseScene {
     y = this._section(COL_RIGHT_X, y, 'MÚSICA DEL MENÚ')
     y = this._entry(COL_RIGHT_X, y, 'Adaptación BeepBox de sevillana')
     y = this._muted(COL_RIGHT_X, y, 'popular interpretada por')
-    y = this._muted(COL_RIGHT_X, y, 'Cantores de Híspalis.')
+    y = this._muted(COL_RIGHT_X, y, 'Los del Río.')
     y = this._warning(COL_RIGHT_X, y, '⚠ Uso pendiente de autorización')
     y = this._warning(COL_RIGHT_X, y, '   de los titulares.')
     y += 18
