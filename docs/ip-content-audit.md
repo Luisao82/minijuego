@@ -67,15 +67,16 @@ gráfica (Luisao) o generación externa con inpainting.
 
 Este personaje tiene múltiples skins con potencial de conflicto:
 
-| Skin                   | Riesgo | Notas                                                                    | Acción sugerida                                               |
-| ---------------------- | ------ | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| `retro02` "Mario"      | 🔴     | Nombre y probablemente diseño → Nintendo IP                              | Renombrar y verificar que el sprite no sea reconocible.       |
-| `retro01` "Abu Simbel" | 🟢     | Videojuego español clásico (Chicken House / Dinamic).                    | Verificar autoría del sprite; probablemente OK como homenaje. |
-| `retro03` "Dan"        | 🟠     | Ambiguo — puede ser referencia a algo específico. Revisar.               | Verificar y ajustar si aplica.                                |
-| `larry`                | 🔴     | Nombre coincide con Leisure Suit Larry (Sierra) → IP + contenido adulto. | Renombrar y verificar sprite. **Ojo con rating de edad.**     |
+| Skin                   | Riesgo | Notas                                                                    | Acción sugerida                                                             |
+| ---------------------- | ------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `retro02` "Mario"      | 🔴     | Nombre y probablemente diseño → Nintendo IP                              | Nombre → **"El Fontanero"** (✅ aplicado). Sprite pendiente de revisar.     |
+| `retro01` "Abu Simbel" | 🟢     | Videojuego español clásico (Chicken House / Dinamic).                    | Nombre → **"El Faraón"** (✅ aplicado). Sprite pendiente de revisar.        |
+| `retro03` "Dan"        | 🟠     | Ambiguo — puede ser referencia a algo específico. Revisar.               | Se mantiene "Dan" (nombre común, sin marca identificada). Sprite a revisar. |
+| `larry`                | 🔴     | Nombre coincide con Leisure Suit Larry (Sierra) → IP + contenido adulto. | Nombre → **"El Detective"** (✅ aplicado). Sprite pendiente de revisar.     |
 
-**Estado:** 🔴 sin cambios en esta pasada — requiere decisión de Luisao
-sobre cada skin (rediseño vs eliminación).
+**Estado:** ✅ nombres neutralizados en `characters.js`. ⏳ los **sprites**
+(imágenes en `public/assets/sprites/characters/spritesheet/`) siguen pudiendo
+ser reconocibles y necesitan revisión gráfica antes del submit real.
 
 ---
 

@@ -95,10 +95,10 @@ export const CHARACTERS = [
     stats: { peso: 2, equilibrio: 9, altura: 3, edad: 9 },
     available: true,
     skins: [
-      { spritesheet: 'retro02', nombre: 'Mario', flags: null },
-      { spritesheet: 'retro01', nombre: 'Abu Simbel', flags: 3 },
+      { spritesheet: 'retro02', nombre: 'El Fontanero', flags: null },
+      { spritesheet: 'retro01', nombre: 'El Faraón', flags: 3 },
       { spritesheet: 'retro03', nombre: 'Dan', flags: 9 },
-      { spritesheet: 'larry', nombre: 'Larry', flags: 15 },
+      { spritesheet: 'larry', nombre: 'El Detective', flags: 15 },
     ],
   },
   {
