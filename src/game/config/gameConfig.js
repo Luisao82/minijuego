@@ -49,6 +49,7 @@ export const SCENES = {
   SKIN_UNLOCK: 'SkinUnlockScene',
   COLLECTION: 'CollectionScene',
   STATS: 'StatsScene',
+  FINALE: 'FinaleScene',
   MAP: 'MapScene',
   CREDITS: 'CreditsScene',
   LICENSES: 'LicensesScene',

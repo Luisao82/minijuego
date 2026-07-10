@@ -4,7 +4,7 @@ import { COLOR_GOLD } from '../config/fonts'
 import { mutedStyle, uiLabelStyle } from '../config/textStyles'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { makeNavButton } from '../components/NavButton'
-import { startGame } from '../utils/startGame'
+import { startWithFinaleCheck } from '../utils/finaleGate'
 
 const PANEL_W = 560
 const PANEL_H = 620
@@ -292,13 +292,14 @@ export class PerspectiveUnlockScene extends BaseScene {
       return
     }
 
-    // Destino final según nextScene
+    // Destino final según nextScene — la puerta intercala FinaleScene si el
+    // jugador acaba de alcanzar el 100 % (y resuelve GAME vía startGame)
     if (this.nextScene === SCENES.GAME) {
-      startGame(this, { character: this.characterData })
+      startWithFinaleCheck(this, SCENES.GAME, { character: this.characterData })
     } else if (this.nextScene === SCENES.COLLECTION) {
-      this.scene.start(SCENES.COLLECTION, { character: this.characterData })
+      startWithFinaleCheck(this, SCENES.COLLECTION, { character: this.characterData })
     } else {
-      this.scene.start(SCENES.CHARACTER_SELECT)
+      startWithFinaleCheck(this, SCENES.CHARACTER_SELECT)
     }
   }
 }

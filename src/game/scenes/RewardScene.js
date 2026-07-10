@@ -6,7 +6,8 @@ import { rewardStorage } from '../services/RewardStorageService'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { characterRewardService } from '../services/CharacterRewardService'
-import { startGame } from '../utils/startGame'
+import { getCompletion, isGameComplete } from '../services/CompletionService'
+import { startWithFinaleCheck } from '../utils/finaleGate'
 import { skinService } from '../services/SkinService'
 import { makeNavButton } from '../components/NavButton'
 import { makeShareButton } from '../components/ShareButton'
@@ -69,6 +70,17 @@ export class RewardScene extends BaseScene {
     const newPerspUnlocks = perspectiveUnlockService.checkNewUnlocks(rewardStorage)
     if (newPerspUnlocks.length > 0) perspectiveUnlockService.saveUnlocks(newPerspUnlocks)
     this.newPerspUnlocks = newPerspUnlocks
+
+    // Vista 3D: se desbloquea al alcanzar el 100 % de completado. Se comprueba
+    // aquí porque en este punto ya está persistido todo lo obtenido en la
+    // partida (premio, skins, personajes, pieza de mapa y perspectivas). El
+    // desbloqueo es permanente aunque futuras actualizaciones añadan contenido
+    // y el porcentaje baje de 100.
+    const rewardsCount = (this.cache.json.get('rewards') || []).length
+    if (isGameComplete(getCompletion(rewardsCount)) && !perspectiveUnlockService.isUnlocked('3d')) {
+      perspectiveUnlockService.saveUnlocks(['3d'])
+      this.newPerspUnlocks = [...this.newPerspUnlocks, '3d']
+    }
   }
 
   // Umbral más alto configurado actualmente para un personaje. Recalcularlo
@@ -576,7 +588,7 @@ export class RewardScene extends BaseScene {
       if (this.canPlay) this.playAgain()
     })
     this.input.keyboard.on('keydown-ESC', () => {
-      if (this.canPlay) this.scene.start(SCENES.MENU)
+      if (this.canPlay) startWithFinaleCheck(this, SCENES.MENU)
     })
   }
 
@@ -622,10 +634,10 @@ export class RewardScene extends BaseScene {
         newSkins: this.newSkinUnlocks,
         character: this.characterData,
       })
-    } else if (finalScene === SCENES.GAME) {
-      startGame(this, { character: this.characterData })
     } else {
-      this.scene.start(finalScene, { character: this.characterData })
+      // Cierre de la cadena: la puerta intercala FinaleScene si el jugador
+      // acaba de alcanzar el 100 % (y resuelve GAME vía startGame)
+      startWithFinaleCheck(this, finalScene, { character: this.characterData })
     }
   }
 }

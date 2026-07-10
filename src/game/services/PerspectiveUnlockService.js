@@ -7,6 +7,9 @@
 // Tipos de condición soportados (idénticos a UnlockService):
 //   - specific_reward: se desbloquea al obtener por primera vez un premio concreto
 //   - total_rewards:   se desbloquea al acumular N premios en total (de cualquier tipo)
+//   - completion:      NO se evalúa aquí — el desbloqueo lo hace RewardScene
+//                      llamando a saveUnlocks() al detectar el 100 % de completado
+//                      (ver CompletionService). checkNewUnlocks lo ignora.
 //
 // Uso:
 //   import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'

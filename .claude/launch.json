@@ -6,6 +6,12 @@
       "runtimeExecutable": "/Users/luisao/.nvm/versions/node/v22.17.1/bin/node",
       "runtimeArgs": ["./node_modules/.bin/vite", "--config", "vite/config.dev.mjs"],
       "port": 9876
+    },
+    {
+      "name": "dev-preview",
+      "runtimeExecutable": "/Users/luisao/.nvm/versions/node/v22.17.1/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/vite", "--config", "vite/config.dev.mjs", "--port", "5199"],
+      "port": 5199
     }
   ],
   "autoVerify": false

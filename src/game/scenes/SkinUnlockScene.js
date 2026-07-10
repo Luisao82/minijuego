@@ -8,7 +8,7 @@ import { makeShareButton } from '../components/ShareButton'
 import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
-import { startGame } from '../utils/startGame'
+import { startWithFinaleCheck } from '../utils/finaleGate'
 
 // Dimensiones del panel — igual que CharacterUnlockScene
 const PANEL_W = 560
@@ -372,13 +372,13 @@ export class SkinUnlockScene extends BaseScene {
   }
 
   goToSkinSelect() {
-    this.scene.start(SCENES.SKIN_SELECT, {
+    startWithFinaleCheck(this, SCENES.SKIN_SELECT, {
       character: this.character,
       justUnlocked: this.newSkins.map((s) => s.spritesheet),
     })
   }
 
   playAgain() {
-    startGame(this, { character: this.character })
+    startWithFinaleCheck(this, SCENES.GAME, { character: this.character })
   }
 }

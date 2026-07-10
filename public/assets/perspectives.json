@@ -26,6 +26,10 @@
     "backgroundKey": "bg-menu",
     "direction": "rtl",
     "scale": 1.0,
-    "yOffset": 0
+    "yOffset": 0,
+    "condition": {
+      "type": "completion",
+      "hint": "Completa el juego al 100%"
+    }
   }
 ]
