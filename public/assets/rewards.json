@@ -95,5 +95,19 @@
     "descripcion": "Un homenaje al barrio más grande de Sevilla y a su gente.",
     "imagen": "premios/triana.webp",
     "probabilidad": 0.4
+  },
+  {
+    "id": "reward_avellana",
+    "nombre": "Avellanas verde",
+    "descripcion": "Picoteo tradicional en la velá, con una fresquita, espectacular.",
+    "imagen": "premios/avellana.webp",
+    "probabilidad": 0.4
+  },
+  {
+    "id": "reward_palodu",
+    "nombre": "Palodu",
+    "descripcion": "\"Chuchería natural\" que no puede faltar en la tradición sevillana. Cómprate un manojito chiquillo.",
+    "imagen": "premios/palodu.webp",
+    "probabilidad": 0.4
   }
 ]
