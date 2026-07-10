@@ -5,7 +5,13 @@ import { headingStyle, uiLabelLight } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { gameStatsService } from '../services/GameStatsService'
+import { rewardStorage } from '../services/RewardStorageService'
+import { unlockService } from '../services/UnlockService'
+import { skinService } from '../services/SkinService'
+import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
+import { mapService, ALL_PIECES } from '../services/MapService'
 import { StatsCalculator } from '../systems/StatsCalculator'
+import { computeCompletion } from '../systems/CompletionCalculator'
 import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
@@ -147,7 +153,6 @@ export class StatsScene extends BaseScene {
       ['PARTIDAS', `${summary.totalGames}`],
       ['VICTORIAS', `${summary.totalWins}`],
       ['% VICT.', `${summary.winRate}%`],
-      ['REC. MEDIO', `${summary.avgPolePercent}%`],
       ['RACHA MAX.', `${summary.consecutiveWins}`],
     ]
 
@@ -157,6 +162,73 @@ export class StatsScene extends BaseScene {
       this.add.text(COL_LDIV, y, value, F_VALUE).setOrigin(1, 0.5)
       y += 42
     })
+
+    // Nueva fila COMPLETADO: label a la izquierda + barra pixel art con % centrado a la derecha
+    this._drawCompletionRow(F_STAT_LABEL, y)
+  }
+
+  // Fila especial dentro de GENERAL: porcentaje de completado del juego con
+  // barra pixel art estilo Cartelón de Feria (mismo lenguaje visual que
+  // NavButton). Ocupa una única fila de 42 px, coincidiendo con el resto de
+  // stats, así que no descuadra la sección.
+  _drawCompletionRow(labelStyle, y) {
+    this.add.text(COL_L + 4, y, 'COMPLETADO', labelStyle).setOrigin(0, 0.5)
+
+    const rewardsCatalog = this.cache.json.get('rewards')
+    const rewardsCount = Array.isArray(rewardsCatalog) ? rewardsCatalog.length : 0
+
+    const unlockedSkinsPerCharacter = {}
+    for (const c of CHARACTERS) {
+      unlockedSkinsPerCharacter[c.id] = skinService.getUnlockedSkins(c)
+    }
+
+    const { percent } = computeCompletion({
+      characters: CHARACTERS,
+      rewardsCount,
+      mapPiecesCount: ALL_PIECES.length,
+      unlockedCharacterIds: unlockService.getUnlocked(),
+      unlockedSkinsPerCharacter,
+      ownedRewardIds: Object.keys(rewardStorage.getAll()),
+      unlockedMapPieceIds: mapService.getUnlocked(),
+      sevillaUnlocked: perspectiveUnlockService.isUnlocked('sevilla'),
+    })
+
+    const BAR_W = 180
+    const BAR_H = 22
+    const BAR_X = COL_LDIV - BAR_W
+    const BAR_Y = y - BAR_H / 2
+
+    // Sombra pixel art (mismo desplazamiento que NavButton)
+    const g = this.add.graphics().setDepth(2)
+    g.fillStyle(0x000000, 0.35)
+    g.fillRect(BAR_X + 2, BAR_Y + 2, BAR_W, BAR_H)
+
+    // Fondo oscuro del carril
+    g.fillStyle(0x1a0800, 1)
+    g.fillRect(BAR_X, BAR_Y, BAR_W, BAR_H)
+
+    // Relleno dorado proporcional
+    const fillW = Math.max(0, Math.min(BAR_W - 4, Math.round(((BAR_W - 4) * percent) / 100)))
+    if (fillW > 0) {
+      g.fillStyle(0xd4a520, 1)
+      g.fillRect(BAR_X + 2, BAR_Y + 2, fillW, BAR_H - 4)
+      // Highlight superior (línea de brillo pixel art)
+      g.lineStyle(1, 0xffe580, 0.9)
+      g.lineBetween(BAR_X + 2, BAR_Y + 3, BAR_X + 2 + fillW, BAR_Y + 3)
+    }
+
+    // Borde marrón oscuro
+    g.lineStyle(2, 0x5c2d00, 1)
+    g.strokeRect(BAR_X, BAR_Y, BAR_W, BAR_H)
+
+    // Porcentaje centrado sobre la barra
+    this.add
+      .text(BAR_X + BAR_W / 2, y, `${percent}%`, {
+        ...headingStyle(20, '#ffffff', 3),
+        stroke: '#000000',
+      })
+      .setOrigin(0.5)
+      .setDepth(3)
   }
 
   _drawBestCharacter(topChars) {

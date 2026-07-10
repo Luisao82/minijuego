@@ -4,7 +4,7 @@
 
 const STORAGE_KEY = 'cucana_map'
 
-const ALL_PIECES = []
+export const ALL_PIECES = []
 for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) ALL_PIECES.push(`piece-${r}-${c}`)
 
 function load() {

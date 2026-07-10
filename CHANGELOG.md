@@ -7,8 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-07-10
+
 ### Added
 
+- **Nueva stat "COMPLETADO" en la pantalla de estadísticas** (`src/game/scenes/StatsScene.js`). Sustituye a la anterior "REC. MEDIO" (recorrido medio del palo) por un porcentaje de completado global del juego, con una barra pixel art estilo Cartelón de Feria en la misma fila para no descuadrar la sección. El porcentaje agrega en un único número: personajes desbloqueables desbloqueados (excluye Trianero y Flamenca, que están por defecto), skins con condición desbloqueados (los `flags: null` no cuentan), premios distintos obtenidos, piezas del mapa de Sevilla descubiertas y la perspectiva "Sevilla". La perspectiva 3D queda fuera intencionadamente para no auto-referenciar el porcentaje (se desbloquea al 100 %). El easter egg también queda fuera.
+- **Nuevo sistema puro `src/game/systems/CompletionCalculator.js`** con `computeCompletion({...})` (más `computeTotals` y `computeObtained` internos). Recibe todo por parámetro (personajes, contadores, IDs desbloqueados por el jugador) para poder testearse sin Phaser ni `localStorage`. Devuelve `{ totals, obtained, percent }` con un `percent` entero saturado a `[0, 100]`.
+- **`ALL_PIECES` exportado desde `src/game/services/MapService.js`** para que el calculador pueda consultar el total sin acoplarse a la implementación interna.
+- **Suite de 21 tests unitarios** para `CompletionCalculator` (`tests/systems/CompletionCalculator.test.js`) cubriendo: totales con y sin defaults, exclusiones (defaults, hidden, `available: false`), estado inicial (`0 %`), estado completo (`100 %`), estados parciales y protección contra divisiones por cero y datos inconsistentes.
 - **Dos nuevos premios en la colección** (`public/assets/rewards.json`): **Avellanas verde** (`reward_avellana`) — "Picoteo tradicional en la velá, con una fresquita, espectacular"; y **Palodu** (`reward_palodu`) — "'Chuchería natural' que no puede faltar en la tradición sevillana. Cómprate un manojito chiquillo". Probabilidad 0.4 cada uno. Imágenes originales del autor en `public/assets/premios/avellana.webp` y `palodu.webp` (WebP 512×512, generadas por Pillow a partir de los PNG 1024×1024 originales).
 - **`public/support.html`** — página de soporte pública para App Store Connect (campo obligatorio). Reutiliza la paleta y tipografías de `privacy.html` (Jersey 10 + Press Start 2P sobre fondo azul noche) para mantener la estética pixel art coherente. Incluye contacto principal (`luisaodeben@gmail.com`) y ocho preguntas frecuentes cubriendo el modelo gratuito, la privacidad, incidencias, pérdida de progreso, offline, cómo se juega, idiomas, sugerencias, reporte de bugs y ubicación de créditos in-app.
 - **`docs/app-store-listing-copy.md`** — hoja operativa con todos los textos de la ficha de App Store Connect listos para pegar: subtítulo (29 char), promotional text (157 char), descripción larga (~1250 char), keywords (96 char), release notes, review notes, categorías, orden sugerido para rellenar. Complementa `app-store-privacy-checklist.md`.
@@ -22,6 +28,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **`docs/email-cantores-hispalis.md` renombrado a `docs/email-music-authorization.md`** y su contenido actualizado al nuevo intérprete/obra. El template sigue siendo válido si en el futuro se decide contactar con la SGAE o con el editor musical.
 - **`TODO.md`** — la entrada de "bloqueante de publicación" se reformula como "riesgo de publicación asumido": la app se publica sin autorización expresa; si aparece reclamación, sustituir por una composición original.
 - **`reward_hispalis`** ("Vinilo de Los cantores de Hispalis") en `public/assets/rewards.json` se mantiene sin cambios por decisión del autor.
+
+### Removed
+
+- **Stat "REC. MEDIO"** (media del porcentaje del palo recorrido por partida) en la pantalla de estadísticas. La función `avgPolePercent()` de `StatsCalculator` se conserva por si otros consumidores la necesitan en el futuro; simplemente ya no se pinta en `StatsScene`.
 
 ## [1.5.3] — 2026-07-09
 
