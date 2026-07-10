@@ -33,9 +33,13 @@ export class GameScene extends BaseGameScene {
   init(data) {
     super.init(data)
 
+    // Ignorar la perspectiva guardada si está bloqueada (ej. '3d' seleccionada
+    // antes de que pasara a desbloquearse con el 100 % de completado)
     const perspId = data.perspective?.id ?? getStoredPerspective()
     this.perspective =
-      perspectiveUnlockService.getById(perspId) ?? perspectiveUnlockService.getById('triana')
+      (perspectiveUnlockService.isUnlocked(perspId)
+        ? perspectiveUnlockService.getById(perspId)
+        : null) ?? perspectiveUnlockService.getById('triana')
 
     this.poleY = GAME_HEIGHT * POLE.Y_FACTOR
     this.waterY = this.poleY + 60

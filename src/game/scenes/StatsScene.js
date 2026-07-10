@@ -5,14 +5,9 @@ import { headingStyle, uiLabelLight } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { gameStatsService } from '../services/GameStatsService'
-import { rewardStorage } from '../services/RewardStorageService'
-import { unlockService } from '../services/UnlockService'
-import { skinService } from '../services/SkinService'
-import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
-import { mapService, ALL_PIECES } from '../services/MapService'
+import { getCompletion, isGameComplete } from '../services/CompletionService'
 import { StatsCalculator } from '../systems/StatsCalculator'
-import { computeCompletion } from '../systems/CompletionCalculator'
-import { makeNavButton } from '../components/NavButton'
+import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 
 // ── Layout ───────────────────────────────────────────────────
@@ -170,29 +165,21 @@ export class StatsScene extends BaseScene {
   // Fila especial dentro de GENERAL: porcentaje de completado del juego con
   // barra pixel art estilo Cartelón de Feria (mismo lenguaje visual que
   // NavButton). Ocupa una única fila de 42 px, coincidiendo con el resto de
-  // stats, así que no descuadra la sección.
+  // stats, así que no descuadra la sección. Al 100 % la barra se sustituye
+  // por un botón que lanza la escena final de fuegos artificiales.
   _drawCompletionRow(labelStyle, y) {
     this.add.text(COL_L + 4, y, 'COMPLETADO', labelStyle).setOrigin(0, 0.5)
 
     const rewardsCatalog = this.cache.json.get('rewards')
     const rewardsCount = Array.isArray(rewardsCatalog) ? rewardsCatalog.length : 0
+    const completion = getCompletion(rewardsCount)
 
-    const unlockedSkinsPerCharacter = {}
-    for (const c of CHARACTERS) {
-      unlockedSkinsPerCharacter[c.id] = skinService.getUnlockedSkins(c)
+    if (isGameComplete(completion)) {
+      this._drawFinaleButton(y)
+      return
     }
 
-    const { percent } = computeCompletion({
-      characters: CHARACTERS,
-      rewardsCount,
-      mapPiecesCount: ALL_PIECES.length,
-      unlockedCharacterIds: unlockService.getUnlocked(),
-      unlockedSkinsPerCharacter,
-      ownedRewardIds: Object.keys(rewardStorage.getAll()),
-      unlockedMapPieceIds: mapService.getUnlocked(),
-      sevillaUnlocked: perspectiveUnlockService.isUnlocked('sevilla'),
-    })
-
+    const { percent } = completion
     const BAR_W = 180
     const BAR_H = 22
     const BAR_X = COL_LDIV - BAR_W
@@ -229,6 +216,25 @@ export class StatsScene extends BaseScene {
       })
       .setOrigin(0.5)
       .setDepth(3)
+  }
+
+  // Juego completado al 100 %: en lugar de la barra, botón para rever la
+  // escena final. Desaparece (vuelve la barra) si una actualización añade
+  // contenido y el porcentaje baja de 100.
+  _drawFinaleButton(y) {
+    const opts = { depth: 2, fontSize: '20px', paddingX: 14, paddingY: 8 }
+    const label = 'VER FUEGOS ARTIFICIALES'
+    const { w, h } = measureNavButtonSize(this, label, opts)
+    makeNavButton(
+      this,
+      COL_LDIV - w,
+      Math.round(y - h / 2),
+      w,
+      h,
+      label,
+      () => this.scene.start(SCENES.FINALE, { returnTo: SCENES.STATS }),
+      opts
+    )
   }
 
   _drawBestCharacter(topChars) {

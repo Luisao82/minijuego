@@ -1,0 +1,20 @@
+{
+  "message": "Has conseguido todos los premios, skins,\npersonajes y vistas de La Cucaña Trianera.\n¡Triana está de fiesta por ti!",
+  "backgroundKey": "bg-finale",
+  "panDurationMs": 2500,
+  "fireworksDelayMs": 1000,
+  "explosionSfx": "sfx-chapuzon",
+  "explosionVolume": 0.45,
+  "fireworks": {
+    "colors": ["#ffd700", "#ff6b6b", "#4ecdc4", "#45b7d1", "#ff69b4", "#ffeaa7", "#96ceb4", "#ffffff"],
+    "launchYRatio": 0.36,
+    "burstYMinRatio": 0.08,
+    "burstYMaxRatio": 0.32,
+    "intervalMinMs": 350,
+    "intervalMaxMs": 900,
+    "pixelSizeMin": 2,
+    "pixelSizeMax": 5,
+    "particlesMin": 22,
+    "particlesMax": 44
+  }
+}

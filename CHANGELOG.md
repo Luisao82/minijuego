@@ -7,6 +7,22 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Escena final del juego (`src/game/scenes/FinaleScene.js`)** — al alcanzar el 100 % de completado, tras la última pantalla de desbloqueo, se muestra un final: paneo hacia el cielo nocturno de Triana, fuegos artificiales pixel art tras las casas, texto retro "CONGRATULATION", mensaje configurable y botón VOLVER. Se auto-muestra **una sola vez** por cada vez que se alcanza el 100 %; conseguir más banderas estando ya al 100 % no la vuelve a disparar.
+- **Componente reutilizable `src/game/components/Fireworks.js`** — `createFireworks(scene, opts)` genera cohetes y explosiones 100 % por código (rectángulos pixel art, sin texturas) con tamaño, color, radio y cadencia aleatorios, física balística con caída y parpadeo retro al morir. API: `start()`, `stop()`, `destroy()`. Todos los parámetros son configurables por opciones.
+- **`public/assets/finale.json`** — configuración editable de la escena final: `message` (texto bajo CONGRATULATION), fondo, tiempos de paneo y espera, sonido y volumen de explosión, y parámetros de los fuegos (colores, ratios de altura, cadencia, tamaños, nº de partículas).
+- **`src/game/services/CompletionService.js`** — punto único que reúne el estado de todos los servicios de progresión y llama al calculador puro. Expone `getCompletion(rewardsCount)` e `isGameComplete(completion)` (comparación exacta de totales: `percent` redondea 99,6 % a 100 y no vale para desbloqueos). `StatsScene` se refactoriza para usarlo.
+- **`src/game/services/FinaleService.js`** — decide cuándo auto-mostrar el final. Persiste el **total de objetivos** con el que se vio (`cucana_finale_seen_total`), no un booleano: si una actualización añade contenido el total cambia y el final vuelve a auto-mostrarse solo al re-conquistar el 100 %. Suite de 11 tests en `tests/services/FinaleService.test.js`.
+- **`src/game/utils/finaleGate.js`** — `startWithFinaleCheck(scene, target, data)`: todas las navegaciones que cierran la cadena post-partida (RewardScene, PerspectiveUnlockScene, CharacterUnlockScene, SkinUnlockScene) pasan por esta puerta, que intercala FinaleScene antes del destino cuando corresponde.
+- **Botón "VER FUEGOS ARTIFICIALES" en Estadísticas** — con el juego al 100 %, la fila COMPLETADO sustituye la barra por un botón que relanza la escena final (vuelve a Estadísticas al salir). Si el porcentaje baja de 100 por contenido nuevo, reaparece la barra.
+- **Carga del fondo nocturno `bg-finale`** (`public/assets/backgrounds/fondo_b-noche.webp`) en PreloadScene; si el archivo no existe, FinaleScene usa `bg-game-sevilla` como fallback.
+
+### Changed
+
+- **La vista 3D pasa a estar bloqueada** (`public/assets/perspectives.json`, condición nueva de tipo `completion` con hint "Completa el juego al 100%"). Se desbloquea automáticamente al alcanzar el 100 % de completado — RewardScene la desbloquea y la muestra en PerspectiveUnlockScene como el resto de vistas. El desbloqueo es **permanente**: aunque futuras actualizaciones añadan contenido y el porcentaje baje, la 3D no se vuelve a bloquear. La 3D ya estaba excluida del denominador del porcentaje, así que el cálculo no se auto-referencia.
+- **Guarda de migración para la perspectiva guardada**: `startGame` y `GameScene` ignoran la perspectiva almacenada si está bloqueada (jugadores que tenían la 3D seleccionada antes de este cambio caen a la partida 2D con la vista Triana).
+
 ## [1.6.0] — 2026-07-10
 
 ### Added

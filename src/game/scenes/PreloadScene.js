@@ -220,6 +220,9 @@ export class PreloadScene extends BaseScene {
     this.load.image('bg-game-sevilla', 'backgrounds/fondo_b.webp')
     this.load.image('bg-history', 'backgrounds/fondoHistory.webp')
     this.load.image('bg-3d-frontal', 'backgrounds/frontal-rio.webp')
+    // Fondo nocturno de la escena final; si el archivo aún no existe,
+    // FinaleScene usa 'bg-game-sevilla' como fallback
+    this.load.image('bg-finale', 'backgrounds/fondo_b-noche.webp')
 
     // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
     this.load.spritesheet('narrator-history', 'sprites/narrators/narrator_history.png', {
@@ -284,6 +287,9 @@ export class PreloadScene extends BaseScene {
       const data = this.cache.json.get('perspectives')
       perspectiveUnlockService.setData(data)
     })
+
+    // Configuración de la escena final (mensaje, tiempos, fuegos artificiales)
+    this.load.json('finale', 'finale.json')
 
     // Premios: carga el JSON y luego las imágenes de cada premio
     this.load.json('rewards', 'rewards.json')

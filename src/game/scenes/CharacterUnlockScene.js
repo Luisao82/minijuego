@@ -8,7 +8,7 @@ import { makeShareButton } from '../components/ShareButton'
 import { generateShareImage } from '../components/ShareableCard'
 import { shareImage } from '../utils/share'
 import { buildShareText } from '../config/shareConfig'
-import { startGame } from '../utils/startGame'
+import { startWithFinaleCheck } from '../utils/finaleGate'
 
 // Dimensiones del panel de ficha
 const PANEL_W = 560
@@ -390,14 +390,14 @@ export class CharacterUnlockScene extends BaseScene {
   }
 
   proceedOrFinish() {
-    this.scene.start(SCENES.CHARACTER_SELECT)
+    startWithFinaleCheck(this, SCENES.CHARACTER_SELECT)
   }
 
   goToCharacterSelect() {
-    this.scene.start(SCENES.CHARACTER_SELECT)
+    startWithFinaleCheck(this, SCENES.CHARACTER_SELECT)
   }
 
   playAgain() {
-    startGame(this, { character: this.characterData })
+    startWithFinaleCheck(this, SCENES.GAME, { character: this.characterData })
   }
 }

@@ -15,6 +15,7 @@ import { PerspectiveUnlockScene } from './scenes/PerspectiveUnlockScene'
 import { SkinUnlockScene } from './scenes/SkinUnlockScene'
 import { CollectionScene } from './scenes/CollectionScene'
 import { StatsScene } from './scenes/StatsScene'
+import { FinaleScene } from './scenes/FinaleScene'
 import { MapScene } from './scenes/MapScene'
 import { CreditsScene } from './scenes/CreditsScene'
 import { LicensesScene } from './scenes/LicensesScene'
@@ -51,6 +52,7 @@ const config = {
     SkinUnlockScene,
     CollectionScene,
     StatsScene,
+    FinaleScene,
     MapScene,
     CreditsScene,
     LicensesScene,
