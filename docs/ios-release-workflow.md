@@ -90,7 +90,7 @@ día (Mac nuevo, cuenta rotada, etc.).
    - **Key ID** — código corto tipo `ABCD1234EF`.
    - **Issuer ID** — UUID que aparece arriba de la tabla (idéntico para todas
      las keys del team).
-6. **Descargar el `.p8`** (botón *Download API Key*). **Solo se puede descargar
+6. **Descargar el `.p8`** (botón _Download API Key_). **Solo se puede descargar
    una vez.** Guárdalo en un sitio seguro (1Password, Vault, etc.) — si lo
    pierdes hay que generar una key nueva.
 
@@ -99,11 +99,11 @@ día (Mac nuevo, cuenta rotada, etc.).
 En <https://github.com/> → tu repo → **Settings → Secrets and variables →
 Actions → New repository secret**. Crear tres:
 
-| Secret | Valor |
-|---|---|
-| `APP_STORE_CONNECT_API_KEY_ID` | El Key ID (`ABCD1234EF`) |
-| `APP_STORE_CONNECT_API_ISSUER_ID` | El Issuer ID (UUID) |
-| `APP_STORE_CONNECT_API_KEY_P8` | **El contenido completo del `.p8`** (incluidas las líneas `-----BEGIN PRIVATE KEY-----` y `-----END PRIVATE KEY-----`) |
+| Secret                            | Valor                                                                                                                  |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `APP_STORE_CONNECT_API_KEY_ID`    | El Key ID (`ABCD1234EF`)                                                                                               |
+| `APP_STORE_CONNECT_API_ISSUER_ID` | El Issuer ID (UUID)                                                                                                    |
+| `APP_STORE_CONNECT_API_KEY_P8`    | **El contenido completo del `.p8`** (incluidas las líneas `-----BEGIN PRIVATE KEY-----` y `-----END PRIVATE KEY-----`) |
 
 Para el tercero: abre el `.p8` con cualquier editor de texto y **pega tal cual
 todo el contenido** (con saltos de línea) en el valor del secret.
@@ -214,7 +214,7 @@ Revisar el email de Apple. Errores típicos:
   Solución: bumpear MARKETING_VERSION patch y re-tag.
 - **Missing compliance** — al abrir el build en TestFlight aparece "Missing
   Compliance". Contestar el cuestionario de encriptación (típicamente
-  todo *No*).
+  todo _No_).
 
 ### El workflow falla en Sync (`pod install` con error de UTF-8)
 
@@ -233,7 +233,7 @@ Ya está incluido a nivel de job.
 
 En GitHub Actions → run fallido → expandir el step "Archive" o "Export IPA".
 Los logs completos aparecen ahí. También puedes descargar el artifact del
-IPA (si llegó a generarse) desde la pestaña *Summary* del run.
+IPA (si llegó a generarse) desde la pestaña _Summary_ del run.
 
 ### Rotar la API Key (si la key vencida o comprometida)
 
@@ -247,20 +247,20 @@ IPA (si llegó a generarse) desde la pestaña *Summary* del run.
 
 ## Ficheros clave (dónde vive cada cosa)
 
-| Archivo | Qué contiene |
-|---|---|
-| `.github/workflows/ios-release.yml` | El pipeline de CI que compila y sube. |
-| `.github/workflows/ci.yml` | Lint + tests + build web en cada PR (no toca iOS). |
-| `package.json` | Versión visible pública. Debe coincidir con `CHANGELOG.md`. |
-| `CHANGELOG.md` | Historia de cambios en formato Keep a Changelog. |
-| `capacitor.config.json` | `appId`, `appName`, `webDir`. Casi nunca cambia. |
+| Archivo                                 | Qué contiene                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| `.github/workflows/ios-release.yml`     | El pipeline de CI que compila y sube.                                          |
+| `.github/workflows/ci.yml`              | Lint + tests + build web en cada PR (no toca iOS).                             |
+| `package.json`                          | Versión visible pública. Debe coincidir con `CHANGELOG.md`.                    |
+| `CHANGELOG.md`                          | Historia de cambios en formato Keep a Changelog.                               |
+| `capacitor.config.json`                 | `appId`, `appName`, `webDir`. Casi nunca cambia.                               |
 | `ios/App/App.xcodeproj/project.pbxproj` | Config Xcode. Aquí vive `MARKETING_VERSION` y `DEVELOPMENT_TEAM` (35NYHC9DG4). |
-| `ios/App/App/Info.plist` | Orientaciones, status bar, `UIRequiresFullScreen`. |
-| `docs/app-store-listing-copy.md` | Textos de la ficha (subtítulo, descripción, keywords, notes). |
-| `docs/app-store-privacy-checklist.md` | Respuestas a la sección App Privacy. |
-| `public/assets/store/` | Icono 1024, screenshots y feature graphic. |
-| `public/privacy.html` | Política de privacidad hosteada en Vercel. |
-| `public/support.html` | Página de soporte hosteada en Vercel. |
+| `ios/App/App/Info.plist`                | Orientaciones, status bar, `UIRequiresFullScreen`.                             |
+| `docs/app-store-listing-copy.md`        | Textos de la ficha (subtítulo, descripción, keywords, notes).                  |
+| `docs/app-store-privacy-checklist.md`   | Respuestas a la sección App Privacy.                                           |
+| `public/assets/store/`                  | Icono 1024, screenshots y feature graphic.                                     |
+| `public/privacy.html`                   | Política de privacidad hosteada en Vercel.                                     |
+| `public/support.html`                   | Página de soporte hosteada en Vercel.                                          |
 
 ---
 
