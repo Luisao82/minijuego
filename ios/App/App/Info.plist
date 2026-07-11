@@ -39,5 +39,7 @@
 	<false/>
 	<key>UIStatusBarHidden</key>
 	<true/>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 </dict>
 </plist>
