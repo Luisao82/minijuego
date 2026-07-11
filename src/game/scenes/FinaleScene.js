@@ -109,6 +109,10 @@ export class FinaleScene extends BaseScene {
       launchY: Math.round(GAME_HEIGHT * (fw.launchYRatio ?? 0.36)),
       burstYMin: Math.round(GAME_HEIGHT * (fw.burstYMinRatio ?? 0.08)),
       burstYMax: Math.round(GAME_HEIGHT * (fw.burstYMaxRatio ?? 0.32)),
+      // Máscara de cielo: los fuegos solo se ven por encima de la línea de
+      // tejados, así parecen lanzados desde detrás de las casas
+      skyBottomY:
+        typeof fw.skyLineRatio === 'number' ? Math.round(GAME_HEIGHT * fw.skyLineRatio) : undefined,
       intervalMinMs: fw.intervalMinMs,
       intervalMaxMs: fw.intervalMaxMs,
       pixelSizeMin: fw.pixelSizeMin,
@@ -158,9 +162,11 @@ export class FinaleScene extends BaseScene {
       },
     })
 
+    // El mensaje va sobre el agua (zona oscura bajo las casas) para no
+    // pisar el caserío del fondo nocturno
     const message = this.config.message ?? '¡Has completado el juego!'
     const msgText = this.add
-      .text(GAME_WIDTH / 2, TITLE_Y + 70, message, {
+      .text(GAME_WIDTH / 2, Math.round(GAME_HEIGHT * 0.63), message, {
         ...headingStyle(30, '#ffffff', 3),
         stroke: '#000000',
         align: 'center',

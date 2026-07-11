@@ -20,6 +20,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Los fuegos artificiales de la escena final se recortan a la franja del cielo** con una máscara de geometría compartida (`skyBottomY` en `Fireworks.js`, `skyLineRatio` en `finale.json`): los cohetes emergen por detrás de los tejados y las chispas que caen desaparecen tras las casas, dando profundidad. El mensaje de completado se mueve bajo el caserío, sobre el agua, donde se lee sin pisar el fondo.
 - **La vista 3D pasa a estar bloqueada** (`public/assets/perspectives.json`, condición nueva de tipo `completion` con hint "Completa el juego al 100%"). Se desbloquea automáticamente al alcanzar el 100 % de completado — RewardScene la desbloquea y la muestra en PerspectiveUnlockScene como el resto de vistas. El desbloqueo es **permanente**: aunque futuras actualizaciones añadan contenido y el porcentaje baje, la 3D no se vuelve a bloquear. La 3D ya estaba excluida del denominador del porcentaje, así que el cálculo no se auto-referencia.
 - **Guarda de migración para la perspectiva guardada**: `startGame` y `GameScene` ignoran la perspectiva almacenada si está bloqueada (jugadores que tenían la 3D seleccionada antes de este cambio caen a la partida 2D con la vista Triana).
 
