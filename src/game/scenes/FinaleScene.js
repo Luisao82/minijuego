@@ -111,7 +111,8 @@ export class FinaleScene extends BaseScene {
       burstYMax: Math.round(GAME_HEIGHT * (fw.burstYMaxRatio ?? 0.32)),
       // Máscara de cielo: los fuegos solo se ven por encima de la línea de
       // tejados, así parecen lanzados desde detrás de las casas
-      skyBottomY: fw.skyLineRatio != null ? Math.round(GAME_HEIGHT * fw.skyLineRatio) : undefined,
+      skyBottomY:
+        typeof fw.skyLineRatio === 'number' ? Math.round(GAME_HEIGHT * fw.skyLineRatio) : undefined,
       intervalMinMs: fw.intervalMinMs,
       intervalMaxMs: fw.intervalMaxMs,
       pixelSizeMin: fw.pixelSizeMin,
