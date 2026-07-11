@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">La Cucaña Trianera</string>
+    <string name="title_activity_main">La Cucaña Trianera</string>
+    <string name="package_name">com.cucana.trianera</string>
+    <string name="custom_url_scheme">com.cucana.trianera</string>
+</resources>
