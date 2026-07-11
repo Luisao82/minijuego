@@ -1,9 +1,9 @@
 // Configuración del sistema de compartir
 //
 // Si GAME_URL queda vacío, el enlace NO se incluye en el texto ni en la imagen.
-// Rellenar cuando el juego tenga dominio público.
+// Rellenar cuando el juego tenga dominio público definitivo (no Vercel).
 
-export const GAME_URL = 'https://minijuego-lilac.vercel.app'
+export const GAME_URL = ''
 
 export const SHARE_IMAGE_SIZE = 1080 // Cuadrado, óptimo para WhatsApp/Instagram
 
