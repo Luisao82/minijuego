@@ -17,6 +17,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **`src/game/utils/finaleGate.js`** — `startWithFinaleCheck(scene, target, data)`: todas las navegaciones que cierran la cadena post-partida (RewardScene, PerspectiveUnlockScene, CharacterUnlockScene, SkinUnlockScene) pasan por esta puerta, que intercala FinaleScene antes del destino cuando corresponde.
 - **Botón "VER FUEGOS ARTIFICIALES" en Estadísticas** — con el juego al 100 %, la fila COMPLETADO sustituye la barra por un botón que relanza la escena final (vuelve a Estadísticas al salir). Si el porcentaje baja de 100 por contenido nuevo, reaparece la barra.
 - **Carga del fondo nocturno `bg-finale`** (`public/assets/backgrounds/fondo_b-noche.webp`) en PreloadScene; si el archivo no existe, FinaleScene usa `bg-game-sevilla` como fallback.
+- **Persistencia nativa duradera: `src/game/services/NativeStorageBridge.js` + `@capacitor/preferences`** — en la app nativa (iOS/Android), el progreso del jugador (claves `cucana_*` de localStorage) se espeja automáticamente en Preferences (UserDefaults / SharedPreferences), que sobrevive a las purgas de WebView de iOS y a actualizaciones de la app. Al arrancar restaura en localStorage lo que falte y migra el progreso previo de jugadores existentes. En web no hace nada. Los servicios no cambian: siguen usando localStorage síncrono; el puente parchea el prototipo de Storage una sola vez desde `src/main.js`, antes de arrancar Phaser. Suite de 5 tests en `tests/services/NativeStorageBridge.test.js`.
 
 ### Changed
 
