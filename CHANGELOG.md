@@ -7,8 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-07-11
+
 ### Added
 
+- **Workflow de release iOS en GitHub Actions (`.github/workflows/ios-release.yml`)** — compila la app en runners `macos-latest` (Xcode 26 preinstalado) y la sube a App Store Connect al pushear un tag `v*.*.*`. Necesario porque el MacBook Air 2018 del autor tope en macOS Sonoma / Xcode 16, y Apple exige Xcode 26 / SDK iOS 26 desde 2026-04. Firma automática vía App Store Connect API Key (`-allowProvisioningUpdates`), build number derivado de `github.run_number` para no colisionar entre runs, upload con `xcrun altool`. Documentación completa del flujo (setup one-time, publicación por release, troubleshooting) en `docs/ios-release-workflow.md`.
+- **`UIRequiresFullScreen = true` en `ios/App/App/Info.plist`** — Apple rechazaba el bundle porque las orientaciones landscape-only no cubrían el multitasking de iPad. Marcarlo como fullscreen exime del requisito de soportar portrait sin comprometer la orientación fija del juego.
 - **Escena final del juego (`src/game/scenes/FinaleScene.js`)** — al alcanzar el 100 % de completado, tras la última pantalla de desbloqueo, se muestra un final: paneo hacia el cielo nocturno de Triana, fuegos artificiales pixel art tras las casas, texto retro "CONGRATULATION", mensaje configurable y botón VOLVER. Se auto-muestra **una sola vez** por cada vez que se alcanza el 100 %; conseguir más banderas estando ya al 100 % no la vuelve a disparar.
 - **Componente reutilizable `src/game/components/Fireworks.js`** — `createFireworks(scene, opts)` genera cohetes y explosiones 100 % por código (rectángulos pixel art, sin texturas) con tamaño, color, radio y cadencia aleatorios, física balística con caída y parpadeo retro al morir. API: `start()`, `stop()`, `destroy()`. Todos los parámetros son configurables por opciones.
 - **`public/assets/finale.json`** — configuración editable de la escena final: `message` (texto bajo CONGRATULATION), fondo, tiempos de paneo y espera, sonido y volumen de explosión, y parámetros de los fuegos (colores, ratios de altura, cadencia, tamaños, nº de partículas).
