@@ -18,9 +18,15 @@ dist
 dist-ssr
 *.local
 
-# Capacitor Android — carpeta nativa entera fuera del repo hasta que tengamos target Android real
-# (p.ej. public/assets/store/icons/android sí se versiona porque no empieza por /)
-/android
+# Capacitor Android — trackeamos el proyecto nativo para poder configurar
+# manifest, permisos e iconos. Los derivados (build/, .gradle/, keystore local,
+# etc.) ya los excluye android/.gitignore. Excluimos aquí el bundle web que
+# `cap sync` copia dentro del proyecto, porque se regenera desde `dist/`.
+/android/app/src/main/assets/public/
+# Keystore de firma NUNCA en git. Guarda una copia segura fuera del repo.
+*.keystore
+*.jks
+android/keystore.properties
 
 # Capacitor iOS — trackeamos el proyecto Xcode porque tenemos código nativo propio
 # (MainViewController.swift, overrides de Info.plist). Los derivados los excluye ios/.gitignore.

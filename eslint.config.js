@@ -60,6 +60,7 @@ export default [
       'dist/**',
       'node_modules/**',
       'ios/**',
+      'android/**',
       'public/sw.js', // contiene `self` que es WorkerGlobal, no Window
       'public/register-sw.js',
     ],
