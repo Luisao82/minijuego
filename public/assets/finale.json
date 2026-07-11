@@ -7,9 +7,10 @@
   "explosionVolume": 0.45,
   "fireworks": {
     "colors": ["#ffd700", "#ff6b6b", "#4ecdc4", "#45b7d1", "#ff69b4", "#ffeaa7", "#96ceb4", "#ffffff"],
-    "launchYRatio": 0.36,
-    "burstYMinRatio": 0.08,
-    "burstYMaxRatio": 0.32,
+    "launchYRatio": 0.48,
+    "burstYMinRatio": 0.1,
+    "burstYMaxRatio": 0.36,
+    "skyLineRatio": 0.42,
     "intervalMinMs": 350,
     "intervalMaxMs": 900,
     "pixelSizeMin": 2,

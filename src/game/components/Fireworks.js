@@ -39,6 +39,9 @@ export function createFireworks(scene, opts = {}) {
     intervalMinMs: opts.intervalMinMs ?? 350,
     intervalMaxMs: opts.intervalMaxMs ?? 900,
     depth: opts.depth ?? 2,
+    // Línea del cielo (opcional): cohetes y chispas solo se ven por encima
+    // de esta Y — da la sensación de que salen por detrás del decorado
+    skyBottomY: opts.skyBottomY ?? null,
     // Sonido de explosión (opcional)
     sfxKey: opts.sfxKey ?? null,
     sfxVolume: opts.sfxVolume ?? 0.45,
@@ -47,6 +50,16 @@ export function createFireworks(scene, opts = {}) {
   let running = false
   let timer = null
   const alive = new Set() // rects vivos, para poder destruirlos todos
+
+  // Máscara de cielo compartida por todos los rects del componente
+  let skyMask = null
+  let skyMaskGfx = null
+  if (cfg.skyBottomY !== null) {
+    skyMaskGfx = scene.make.graphics()
+    skyMaskGfx.fillStyle(0xffffff)
+    skyMaskGfx.fillRect(0, 0, W, cfg.skyBottomY)
+    skyMask = skyMaskGfx.createGeometryMask()
+  }
 
   const explode = (x, y) => {
     const color = pick(cfg.colors)
@@ -71,6 +84,7 @@ export function createFireworks(scene, opts = {}) {
       const rect = scene.add
         .rectangle(x, y, size, size, i % 3 === 0 ? secondary : color)
         .setDepth(cfg.depth)
+      if (skyMask) rect.setMask(skyMask)
       alive.add(rect)
       parts.push({ rect, vx: Math.cos(angle) * v, vy: Math.sin(angle) * v })
     }
@@ -107,6 +121,7 @@ export function createFireworks(scene, opts = {}) {
     const x = randInt(cfg.xMin, cfg.xMax)
     const targetY = randInt(cfg.burstYMin, cfg.burstYMax)
     const rocket = scene.add.rectangle(x, cfg.launchY, 2, 7, 0xfff2c0).setDepth(cfg.depth)
+    if (skyMask) rocket.setMask(skyMask)
     alive.add(rocket)
 
     scene.tweens.add({
@@ -148,6 +163,10 @@ export function createFireworks(scene, opts = {}) {
       this.stop()
       alive.forEach((rect) => rect.destroy())
       alive.clear()
+      skyMask?.destroy()
+      skyMaskGfx?.destroy()
+      skyMask = null
+      skyMaskGfx = null
     },
   }
 }
