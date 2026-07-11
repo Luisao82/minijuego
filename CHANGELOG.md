@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.1] — 2026-07-11
+
+### Changed
+
+- **`src/game/config/shareConfig.js` — `GAME_URL` vaciado (`''`)** para que el enlace de Vercel (`https://minijuego-lilac.vercel.app`) deje de aparecer en el texto compartido y en la imagen generada por la `ShareableCard`. El dominio de Vercel es efímero y no queremos anunciarlo desde una app publicada en App Store. Cuando exista un dominio público definitivo, rellenar de nuevo esta constante. La lógica ya estaba preparada: `buildShareText` y `ShareableCard` omiten el link cuando la URL está vacía.
+
 ## [1.7.0] — 2026-07-11
 
 ### Added
