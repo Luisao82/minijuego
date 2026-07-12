@@ -11,6 +11,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **Android SDK y Gradle Plugin bumpeados** (`android/variables.gradle`, `android/build.gradle`): `compileSdkVersion` y `targetSdkVersion` 35 → 36, Android Gradle Plugin 8.7.2 → 8.9.1. Requerido por la dependencia transitiva `androidx.browser:browser:1.9.0` que trae algún plugin de Capacitor; el build de release fallaba con `checkReleaseAarMetadata` exigiendo `compileSdk 36` y AGP `≥ 8.9.1`. Gradle wrapper 8.11.1 ya es compatible con AGP 8.9.1, no hace falta tocarlo. No afecta a iOS.
 
+### Fixed
+
+- **`android/build.gradle` — resuelto conflicto de `kotlin-stdlib-jdk7`/`kotlin-stdlib-jdk8` con `kotlin-stdlib` moderno.** Al subir a AGP 8.9.1 el build fallaba con `checkReleaseDuplicateClasses` porque `kotlin-stdlib:1.8.22` ya incluye las clases de los stdlib jdk7/jdk8 (fusionados desde Kotlin 1.8), pero algunos plugins Capacitor siguen requiriendo las variantes legacy `kotlin-stdlib-jdk7:1.6.21` y `kotlin-stdlib-jdk8:1.6.21`. Añadido `exclude` global en el `allprojects` block que descarta esas dos, dejando que el `kotlin-stdlib` moderno cubra todas las APIs. No afecta a runtime, es solo resolución de dependencias.
+
 ### Added
 
 - **Firma de release Android configurada en `android/app/build.gradle`** — nuevo bloque `signingConfigs.release` que lee `android/keystore.properties` (gitignored) con `storeFile`, `storePassword`, `keyAlias`, `keyPassword`, y se aplica a `buildTypes.release` para generar el AAB firmado listo para Google Play. El keystore vive fuera del repo (`~/AndroidKeystores/cucana-release.jks`, formato PKCS12, alias `cucana`) por seguridad. La config está envuelta en `if (keystorePropertiesFile.exists())` para que builds sin el archivo (ej. futuro workflow CI que inyecte secrets por env vars) no rompan. Cuenta developer de Google Play aún en verificación de identidad, así que el primer AAB firmado se generará vía GitHub Actions cuando el bloqueo administrativo desaparezca.
