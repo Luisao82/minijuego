@@ -79,6 +79,7 @@ El jugador elige la perspectiva de la partida en la pantalla **Elige tu vista**:
 | Plugins Capacitor             | `@capacitor/share`, `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/browser`         |
 | **GitHub Actions**            | CI/CD — workflow `ios-release.yml` compila y sube a App Store Connect al pushear un tag `v*.*.*` |
 | **Vercel**                    | Despliegue web con auto-deploy desde `main`                                                      |
+| **Sentry**                    | Monitorización y captura de errores en producción (breadcrumbs de navegación entre escenas)      |
 | **Vitest**                    | Tests unitarios                                                                                  |
 | **Prettier + ESLint**         | Formato y linting (validados en CI en cada PR)                                                   |
 | **LibreSprite / Aseprite**    | Sprites y pixel art dibujados a mano                                                             |
@@ -141,6 +142,7 @@ Sigue los principios de **Clean Architecture**: las escenas son orquestadoras (s
 - ✅ **App iOS** empaquetada con Capacitor, publicada en **TestFlight**, revisión de App Store en curso
 - ✅ **App Android** empaquetada con Capacitor, AAB firmado y APK probados en dispositivo real, esperando verificación de cuenta developer en Google Play
 - ✅ **CI/CD** con GitHub Actions: workflow `ios-release.yml` que compila con Xcode 26 y sube a App Store Connect al pushear un tag `v*.*.*`
+- ✅ **Observabilidad en producción** con Sentry — captura automática de errores y `unhandledrejection`, con breadcrumbs de navegación entre escenas para reproducir el camino que llevó al fallo
 
 ## Visión a futuro
 
@@ -173,6 +175,7 @@ Más allá del componente sentimental, ha sido un ejercicio real de aplicar los 
 - **Frameworks nuevos** — Phaser 3 y Three.js, ninguno de los dos los había usado antes.
 - **Arquitectura** — Clean Architecture adaptada a un juego (entidades, sistemas, componentes, utils).
 - **CI/CD real** — workflows separados de iOS y Android con GitHub Actions.
+- **Observabilidad en producción** — Sentry integrado en la web para capturar errores reales y trazar la navegación previa a cada fallo.
 - **Seguridad y secretos** — gestión de keystores fuera del repo, API keys en secrets, `.gitignore` bien pensado.
 - **Versionado semántico** y CHANGELOG mantenido en cada release.
 - **Uso guiado y consciente de la IA** — sección aparte más abajo.
