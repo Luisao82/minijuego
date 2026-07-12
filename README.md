@@ -203,7 +203,7 @@ Y bloqueantes que me han obligado a ser resolutivo:
 Además de por el TFM, quería que la app **existiera de verdad**. Dos motivos:
 
 1. **Escaparate personal.** Es una forma de enseñar lo que soy capaz de hacer. Si alguien la juega y le gusta, sabe dónde encontrarme.
-2. **Ilusión pura.** El sueño es cruzar Triana un día y ver a alguien con el móvil diciendo *"¡tomaaa, he conseguido al Nazareno!"*. Eso, más que cualquier nota, es lo que me mueve.
+2. **Ilusión pura.** El sueño es cruzar Triana un día y ver a alguien con el móvil diciendo _"¡tomaaa, he conseguido al Nazareno!"_. Eso, más que cualquier nota, es lo que me mueve.
 
 ### Herramientas y creación de contenido
 
