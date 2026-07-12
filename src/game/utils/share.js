@@ -17,8 +17,7 @@ import { Share } from '@capacitor/share'
 
 const isSecureCtx = () => typeof window !== 'undefined' && window.isSecureContext
 
-const isAndroidNative = () =>
-  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
+const isAndroidNative = () => Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
 
 export function canShareImage() {
   // Android nativo: el plugin no acepta blobs sin escribirlos a disco → solo texto.
