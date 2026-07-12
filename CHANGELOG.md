@@ -7,6 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Sección "Sobre este proyecto — TFM" al final del `README.md`** con la historia personal del autor (por qué La Cucaña Trianera, qué significa el proyecto), lo aprendido en el desarrollo, la fecha real autoimpuesta (Velá de Santa Ana), la experiencia de "shipping" y los bloqueantes reales resueltos, motivación para publicar antes de entregar, y reflexión sobre el trabajo con IA como copiloto guiado. Preparación para la entrega del TFM del Máster de Desarrollo con IA (MoureDev / BIG School).
+
+### Changed
+
+- **`README.md` — bloque "Visión a futuro" reemplazado por dos secciones**: nueva "Estado actual" que refleja lo ya publicado (web PWA, iOS TestFlight, Android AAB + APK probado, CI/CD con GitHub Actions), y "Visión a futuro" actualizada con lo que sigue realmente pendiente (compartir imagen en Android, ampliación del mapa, workflow `android-release.yml` bloqueado por Google).
+- **`README.md` — "enjabonado" → "engrasado"** en la descripción de la tradición, más fiel al término tradicional.
+
 ## [1.7.3] — 2026-07-12
 
 ### Added

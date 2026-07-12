@@ -106,9 +106,96 @@ El jugador elige la perspectiva de la partida en la pantalla **Elige tu vista**:
 
 ---
 
+## Estado actual
+
+- ✅ **Web pública** (PWA con Service Worker) — [https://minijuego-lilac.vercel.app/](https://minijuego-lilac.vercel.app/)
+- ✅ **App iOS** empaquetada con Capacitor, publicada en **TestFlight**, revisión de App Store en curso
+- ✅ **App Android** empaquetada con Capacitor, AAB firmado y APK probados en dispositivo real, esperando verificación de cuenta developer en Google Play
+- ✅ **CI/CD** con GitHub Actions: workflow `ios-release.yml` que compila con Xcode 26 y sube a App Store Connect al pushear un tag `v*.*.*`
+
 ## Visión a futuro
 
 - Más personajes con distintos stats que cambien la experiencia de juego
 - Modo con bots en cola: otros jugadores IA suben antes que tú y desgastan el aceite del palo
-- Distribución como **PWA** (Progressive Web App) para instalar directamente desde el navegador
-- Posible empaquetado nativo con **Capacitor** para Android/iOS
+- Compartir **imagen** del premio en Android (actualmente solo texto — requiere `@capacitor/filesystem` para escribir el blob en disco antes de invocar el share nativo)
+- Ampliar el mapa de Sevilla más allá de los trozos actuales
+- Workflow `android-release.yml` para automatizar el AAB (pendiente hasta que Google Play desbloquee la cuenta developer)
+
+---
+
+## 📚 Sobre este proyecto — TFM del Máster de Desarrollo con IA
+
+Este juego es mi Trabajo Fin de Máster del **Máster de Desarrollo con IA** de MoureDev / BIG School, pero para mí es mucho más que eso.
+
+### Por qué La Cucaña Trianera
+
+Soy **trianero de adopción y de corazón**. Cuando empecé a explorar el desarrollo con IA me di cuenta de que podía atreverme con cosas que antes no. Quería hacer un minijuego pixel art propio, pero no me salían ideas que no estuvieran ya cogidas. En algún momento caí en una de las tradiciones más antiguas y curiosas de Triana: la **cucaña de la Velá de Santa Ana**. De niño mis padres me llevaban a verla, y siempre me quedó el ambiente, el bullicio del río y el momento en que alguien conseguía coger la bandera al final del palo engrasado.
+
+Empezó como algo mínimo — mantener el equilibrio, no caerse — y fue creciendo: personajes de Sevilla, premios muy sevillanos, un mapa por trozos, la vista 3D final… hasta convertirse en un pequeño homenaje a la tradición.
+
+### Qué significa para mí
+
+Este juego no es solo un TFM: es una **criatura hecha 100% a mano** en el tiempo que me dejaba mi trabajo. Las fotos son mías, hechas con mi cámara y pixeladas después. Los skins de los personajes están dibujados píxel a píxel. Ha sido una inversión enorme de horas y de ilusión.
+
+### Lo que he aprendido construyéndolo
+
+Más allá del componente sentimental, ha sido un ejercicio real de aplicar los conocimientos del máster a un proyecto vivo:
+
+- **Frameworks nuevos** — Phaser 3 y Three.js, ninguno de los dos los había usado antes.
+- **Arquitectura** — Clean Architecture adaptada a un juego (entidades, sistemas, componentes, utils).
+- **CI/CD real** — workflows separados de iOS y Android con GitHub Actions.
+- **Seguridad y secretos** — gestión de keystores fuera del repo, API keys en secrets, `.gitignore` bien pensado.
+- **Versionado semántico** y CHANGELOG mantenido en cada release.
+- **Uso guiado y consciente de la IA** — sección aparte más abajo.
+
+### La fecha real: Velá de Santa Ana
+
+Además del plazo del máster, me impuse una fecha propia: **publicar la app en App Store y Google Play antes de la Velá de Santa Ana** (cuando se celebra esta tradición en Triana, en julio). Trabajar con una fecha real, con las consecuencias reales de no cumplirla, es una lección que en el aula no se enseña del todo. Este palo me lo he trabajado por mi cuenta y ha sido tan didáctico como el resto.
+
+### Aprender qué es "shipping"
+
+Publicar en producción es la fase más ignorada por los cursos y una de las más reales del oficio. Este proyecto me ha metido de lleno en:
+
+- Cuentas de developer reales (**Apple Developer** + **Google Play Console**).
+- Verificación de identidad, política de privacidad, revisión de tiendas.
+- Firma de apps, **keystores**, gestión segura de secretos.
+- **TestFlight**, revisiones de App Store, cuestionarios IARC.
+- **CI/CD** con GitHub Actions (workflows separados iOS/Android, secrets en el repo, macOS runners porque Apple exige Xcode 26 y mi MacBook Air topa en Xcode 16).
+
+Y bloqueantes que me han obligado a ser resolutivo:
+
+- CocoaPods reventando por encoding — `LANG=en_US.UTF-8` al rescate.
+- Google Play exigiendo verificar un móvil Android físico para publicar (no tengo uno, resuelto con móvil prestado).
+- Migración de `compileSdk` 36 y AGP 8.9.1 con conflicto de duplicate classes en Kotlin stdlib.
+- IPs y música de terceros: **soy consciente del riesgo asumido** (documentado en `docs/ip-content-audit.md`), decisión de autor con plan de sustitución si aparece reclamación.
+
+### Por qué publicarlo antes de entregar
+
+Además de por el TFM, quería que la app **existiera de verdad**. Dos motivos:
+
+1. **Escaparate personal.** Es una forma de enseñar lo que soy capaz de hacer. Si alguien la juega y le gusta, sabe dónde encontrarme.
+2. **Ilusión pura.** El sueño es cruzar Triana un día y ver a alguien con el móvil diciendo *"¡tomaaa, he conseguido al Nazareno!"*. Eso, más que cualquier nota, es lo que me mueve.
+
+### Cómo he trabajado con la IA (Claude Code)
+
+Este proyecto está construido con **Claude Code como copiloto**, pero con **yo siempre al volante**. La regla ha sido clara: antes de dejarle escribir código, entender el porqué. Preguntaba una y otra vez, y me lo explicaba con paciencia hasta que lo entendía.
+
+Donde más me ha ayudado:
+
+- **Arquitectura** — Clean Architecture aplicada a un juego Phaser.
+- **Refactor** y limpieza de código repetitivo.
+- **Explicaciones docentes** al entrar en terreno nuevo (keystores, gradle, Xcode CI, plataformas).
+- **Debugging** de errores oscuros en cadenas de builds nativos.
+
+Hemos discrepado a veces — soluciones que yo veía de otra manera y prevalecía la mía. La IA nunca ha sido el autor del proyecto: ha sido un colaborador senior con quien discutía diseño y aparcaba dudas. Es la única forma sana de usarla, para mí: **para amplificar lo que sé, no para tapar lo que no**.
+
+Si tuviera que dar un consejo a alguien que empieza con estas herramientas, sería uno solo: **no dejes que escriba nada que no puedas explicar tú a un colega**. Ese filtro te obliga a aprender y protege tu proyecto de decisiones que no entiendes.
+
+### Enlaces del proyecto
+
+- 🌐 **Juega ahora (web):** [https://minijuego-lilac.vercel.app/](https://minijuego-lilac.vercel.app/)
+- 🍎 **App Store iOS:** _pendiente de revisión_
+- 🤖 **Google Play Android:** _pendiente de verificación de cuenta developer_
+- 📽️ **Presentación (slides):** _se añadirá cuando esté publicada_
+- 📖 **Documentación técnica adicional:** carpeta [`docs/`](docs/) (release iOS, workflow Android, contenido/IP, App Store checklist)
+- 📝 **Historial de cambios:** [`CHANGELOG.md`](CHANGELOG.md)
