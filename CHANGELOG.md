@@ -7,6 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.2] — 2026-07-12
+
+### Changed
+
+- **Rewards revertidos parcialmente a nombres no-neutralizados por decisión del autor** (`public/assets/rewards.json`). Los `id` NO cambian (compatibilidad con localStorage). Nombres afectados: `reward_pali` → "Llavero del Pali", `reward_curro` → "Pin del Curro", `reward_sombrero` → "Sombrero de Finidi", `reward_gambrinus` → "Peluche del Gambrinus", `reward_pacogandia` → "El chiste de los garbanzos", `reward_vajilla` → "Vajilla de la Cartuja", `reward_cerveza` → "Una caña fresquita", `reward_vaso` → "El vaso de tubo de Silvio". **Riesgo IP/rating asumido explícitamente** por el autor (mismo patrón que la música del menú): se publica sin autorización de titulares vivos ni herederos; si aparece reclamación, se sustituye. Nota sobre rating: "caña fresquita" es alcohol explícito → puede disparar 4+ → 12+ en App Store; pendiente si se sube el rating declarado en App Store Connect. Documentado en `docs/ip-content-audit.md`.
+- **Descripciones de todos los rewards eliminadas** de `public/assets/rewards.json` — el texto no encajaba bien en la escena de premio ni en la colección. La UI ya manejaba el campo opcional (`if (reward.descripcion)` en `RewardScene.js` y `CollectionScene.js`), no requiere cambios de código.
+- **Screenshots 02 y 05 sustituidos por versiones 2D** (`public/assets/store/screenshots/iphone-6.7/`, `iphone-6.5/`, `iphone-6.5-alt/`, `ipad-13/`). Antes mostraban la vista 3D (que está bloqueada hasta el 100 % en el juego real), lo que daba una impresión falsa del producto. Ahora `02-juego` muestra La Flamenca en el palo con la vista 2D del río, y `05-equilibrio` reutiliza la pantalla de tutorial 2D. Recuperados del commit `d934670` (v1.0 original) y redimensionados con `sips` a los tamaños oficiales de cada slot.
+- **Nuevas carpetas de screenshots `public/assets/store/screenshots/iphone-6.5/` (2778×1284) y `iphone-6.5-alt/` (2688×1242)** — Apple sigue exigiendo el tamaño histórico 6.5" para iPhone y no acepta los 6.7" originales. Se generan como derivados de los 6.7" con `sips -z`.
+
 ## [1.7.1] — 2026-07-11
 
 ### Changed
