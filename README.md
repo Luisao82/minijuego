@@ -69,13 +69,22 @@ El jugador elige la perspectiva de la partida en la pantalla **Elige tu vista**:
 
 ## Stack tecnológico
 
-| Tecnología                 | Uso                                                    |
-| -------------------------- | ------------------------------------------------------ |
-| **Phaser 3**               | Motor del juego (v3.90.0)                              |
-| **three.js**               | Renderizado de la vista 3D en primera persona (v0.185) |
-| **Vite**                   | Bundler y servidor de desarrollo (v6.3.1)              |
-| **JavaScript**             | Lenguaje base                                          |
-| **LibreSprite / Aseprite** | Creación de sprites y pixel art                        |
+| Tecnología                    | Uso                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Phaser 3**                  | Motor del juego (v3.90)                                                                          |
+| **three.js**                  | Renderizado de la vista 3D en primera persona (v0.185)                                           |
+| **Vite**                      | Bundler y servidor de desarrollo (v6.3)                                                          |
+| **JavaScript** (ES2022)       | Lenguaje base — módulos ES, sin transpilación adicional                                          |
+| **Capacitor** (iOS + Android) | Empaquetado nativo del juego para App Store y Google Play (v8)                                   |
+| Plugins Capacitor             | `@capacitor/share`, `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/browser`         |
+| **GitHub Actions**            | CI/CD — workflow `ios-release.yml` compila y sube a App Store Connect al pushear un tag `v*.*.*` |
+| **Vercel**                    | Despliegue web con auto-deploy desde `main`                                                      |
+| **Vitest**                    | Tests unitarios                                                                                  |
+| **Prettier + ESLint**         | Formato y linting (validados en CI en cada PR)                                                   |
+| **LibreSprite / Aseprite**    | Sprites y pixel art dibujados a mano                                                             |
+| **BeepBox / jsfxr**           | Música y efectos de sonido, hechos a mano                                                        |
+| **ChatGPT / Gemini**          | Generación de imágenes de fondos y premios con prompts JSON compartidos por coherencia visual    |
+| **Claude Code**               | Copiloto de desarrollo (código, arquitectura, refactor, debugging, docs)                         |
 
 ---
 
@@ -90,19 +99,39 @@ El jugador elige la perspectiva de la partida en la pantalla **Elige tu vista**:
 ## Estructura del proyecto
 
 ```
-├── index.html              # HTML principal
+├── index.html                     # HTML principal
+├── package.json
+├── capacitor.config.json          # Configuración Capacitor (appId, appName, webDir)
 ├── public/
-│   ├── assets/             # Sprites, audio y assets del juego
+│   ├── assets/                    # Sprites, audio, fondos, rewards, personajes
 │   ├── favicon.png
-│   └── style.css           # Estilos globales
+│   └── style.css                  # Estilos globales del contenedor
 ├── src/
-│   ├── main.js             # Bootstrap de la aplicación
+│   ├── main.js                    # Bootstrap web + init NativeStorageBridge
 │   └── game/
-│       ├── main.js         # Configuración y arranque de Phaser
-│       └── scenes/         # Escenas del juego
-├── vite/                   # Configuración de Vite
-└── package.json
+│       ├── main.js                # Configuración y arranque de Phaser
+│       ├── config/                # Constantes y configuración del juego
+│       ├── scenes/                # Escenas de Phaser (capa de presentación)
+│       ├── entities/              # Modelo del dominio (lógica pura sin Phaser)
+│       ├── systems/               # Sistemas de juego (equilibrio, impulso, física)
+│       ├── components/            # Componentes UI reutilizables
+│       ├── services/              # Servicios (persistencia nativa, etc.)
+│       └── utils/                 # Utilidades puras (share, math, haptics…)
+├── android/                       # Proyecto nativo Android (Capacitor)
+├── ios/                           # Proyecto nativo iOS (Capacitor)
+├── docs/                          # Documentación técnica de release e IP
+├── vite/                          # Configuración de Vite (dev, prod)
+├── .github/
+│   └── workflows/                 # CI/CD (ci.yml, ios-release.yml)
+├── CHANGELOG.md                   # Historial de versiones (Keep a Changelog)
+├── GDD.md                         # Game Design Document
+├── CREDITS.md                     # Créditos y agradecimientos
+├── PRIVACY.md                     # Política de privacidad publicada
+├── LICENSE                        # Licencia
+└── CLAUDE.md                      # Directrices para el copiloto IA
 ```
+
+Sigue los principios de **Clean Architecture**: las escenas son orquestadoras (sin lógica de negocio), las entidades y sistemas contienen la lógica pura del juego, y los componentes UI son reutilizables. Detalle completo en el `CLAUDE.md`.
 
 ---
 
@@ -175,6 +204,18 @@ Además de por el TFM, quería que la app **existiera de verdad**. Dos motivos:
 
 1. **Escaparate personal.** Es una forma de enseñar lo que soy capaz de hacer. Si alguien la juega y le gusta, sabe dónde encontrarme.
 2. **Ilusión pura.** El sueño es cruzar Triana un día y ver a alguien con el móvil diciendo *"¡tomaaa, he conseguido al Nazareno!"*. Eso, más que cualquier nota, es lo que me mueve.
+
+### Herramientas y creación de contenido
+
+He usado **varias herramientas distintas** para construir cada tipo de contenido del juego, no una sola IA para todo. La intención era que cada pieza saliera de la herramienta más adecuada, no del atajo más rápido:
+
+- **Código:** Claude Code como copiloto (más abajo).
+- **Imágenes de fondos y premios:** **ChatGPT** y **Gemini**, alimentados con **prompts en formato JSON** compartidos entre imágenes para mantener la coherencia visual (paleta, estilo, escala, encuadre). Sin ese "contrato" de prompt, cada generación divergía y no cuadraba con el resto del set.
+- **Sprites y skins de personajes:** dibujados **píxel a píxel a mano** en LibreSprite / Aseprite. Aquí no hay IA que te dé lo que ves en pantalla — cada personaje me ha llevado sus horas.
+- **Fotografías base:** hechas con **mi cámara** en Triana y después pixeladas para incorporarse al mapa y al 3D.
+- **Música y efectos de sonido:** **BeepBox** y **jsfxr**, hechos a mano. Es la parte donde soy menos experto — el resultado es funcional pero mejorable, y sé que se nota. Aprendizaje pendiente para futuras versiones.
+
+Que el proyecto se apoye en más de una IA (y en herramientas artesanales) no es casualidad: forma parte de aprender **para qué sirve cada una** y no encajar todo a martillazos con la que ya conoces.
 
 ### Cómo he trabajado con la IA (Claude Code)
 
