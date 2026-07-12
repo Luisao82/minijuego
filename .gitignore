@@ -1,6 +1,9 @@
 # Variables de entorno (secretos locales)
 .env
 
+# Guía personal de release (notas locales, no compartir)
+RELEASE_GUIDE.md
+
 # Claude Code (worktrees locales, no parte del repo)
 .claude/worktrees/
 
