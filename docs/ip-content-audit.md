@@ -1,6 +1,43 @@
 # Auditoría de contenido con riesgo IP / edad
 
-Última revisión: 2026-07-09 · Referencia: v1.5.3.
+Última revisión: 2026-07-12 · Referencia: v1.7.2.
+
+## Revert parcial de nombres de premios (2026-07-12, decisión del autor)
+
+El autor decide revertir parcialmente la neutralización aplicada en v1.6.0
+sobre los `nombre` de varios premios y **elimina todas las descripciones**
+(no se visualizaban bien en la escena de premio ni en la colección).
+
+**Riesgo asumido explícitamente** — mismo patrón que la música del menú
+(ver `project-legal-block` en memoria): se publica sin autorización
+expresa; si aparece reclamación de un titular de marca o de los herederos
+de un artista, se reemplaza el nombre por otro neutro.
+
+Rewards revertidos a nombre no-neutralizado:
+
+- `reward_pali` → "Llavero del Pali" (homenaje al cantautor, m. 1988).
+- `reward_curro` → "Pin del Curro" (mascota Expo 92, IP viva).
+- `reward_sombrero` → "Sombrero de Finidi" (jugador real, activo).
+- `reward_gambrinus` → "Peluche del Gambrinus" (cadena de cervecerías,
+  marca viva; implica cerveza sin nombrarla).
+- `reward_pacogandia` → "El chiste de los garbanzos" (nombre nuevo, sin
+  marca identificable → sin riesgo).
+- `reward_vajilla` → "Vajilla de la Cartuja" (Pickman, marca activa).
+- `reward_cerveza` → "Una caña fresquita" (alcohol explícito → **puede
+  disparar rating 4+ → 12+/17+**).
+- `reward_vaso` → "El vaso de tubo de Silvio" (rockero real, m. 2001;
+  "tubo" implica bebida alcohólica).
+
+Descripciones: eliminadas de todos los premios por razones puramente
+estéticas — el texto no encaja bien en la UI.
+
+En consecuencia, las filas de la tabla de abajo marcadas como "✅
+aplicado" para los IDs anteriores están **desactualizadas** — la tabla
+refleja el estado histórico de v1.6.0.
+
+---
+
+## Estado histórico — v1.5.3 (2026-07-09)
 
 Documento operativo para trazar cada elemento del juego que puede generar
 problemas de propiedad intelectual, marcas registradas o rating de edad
