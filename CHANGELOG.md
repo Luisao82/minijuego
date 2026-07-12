@@ -7,6 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Sección "Sobre este proyecto — TFM" al final del `README.md`** con la historia personal del autor (por qué La Cucaña Trianera, qué significa el proyecto), lo aprendido en el desarrollo, la fecha real autoimpuesta (Velá de Santa Ana), la experiencia de "shipping" y los bloqueantes reales resueltos, motivación para publicar antes de entregar, y reflexión sobre el trabajo con IA como copiloto guiado. Incluye subsección **"Herramientas y creación de contenido"** que documenta el uso combinado de Claude Code (código), ChatGPT + Gemini (imágenes de fondos y premios con prompts JSON para coherencia), LibreSprite/Aseprite (sprites a mano), cámara propia (fotografías base pixeladas) y BeepBox + jsfxr (música y SFX). Preparación para la entrega del TFM del Máster de Desarrollo con IA (MoureDev / BIG School).
+
+### Changed
+
+- **`README.md` — bloque "Visión a futuro" reemplazado por dos secciones**: nueva "Estado actual" que refleja lo ya publicado (web PWA, iOS TestFlight, Android AAB + APK probado, CI/CD con GitHub Actions), y "Visión a futuro" actualizada con lo que sigue realmente pendiente (compartir imagen en Android, ampliación del mapa, workflow `android-release.yml` bloqueado por Google).
+- **`README.md` — tabla "Stack tecnológico" ampliada** para reflejar la realidad completa del proyecto: Capacitor (iOS + Android) + sus plugins, GitHub Actions, Vercel, Vitest, Prettier + ESLint, BeepBox / jsfxr para sonido, ChatGPT / Gemini para generación de imágenes, y Claude Code como copiloto.
+- **`README.md` — "Estructura del proyecto" actualizada**: añadidas carpetas y ficheros que existían pero no aparecían (`android/`, `ios/`, `docs/`, `.github/workflows/`, `capacitor.config.json`, `CHANGELOG.md`, `GDD.md`, `CREDITS.md`, `PRIVACY.md`, `LICENSE`, `CLAUDE.md`) y detalle de subcarpetas de `src/game/` (config, entities, systems, components, services, utils). Con nota final sobre Clean Architecture.
+- **`README.md` — "enjabonado" → "engrasado"** en la descripción de la tradición, más fiel al término tradicional.
+
 ## [1.7.3] — 2026-07-12
 
 ### Added
