@@ -7,18 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.3] — 2026-07-12
+
+### Added
+
+- **Plugin `@capacitor/share` instalado y usado en Android nativo** (`src/game/utils/share.js`) — el botón de "compartir premio/skin" no hacía nada en la app Android porque el WebView de Capacitor no expone `navigator.share`. Ahora `shareImage()` detecta con `Capacitor.getPlatform() === 'android'` en modo nativo y usa `Share.share({ text })` del plugin, que lanza el Intent nativo de Android. En iOS y en la web sigue usando `navigator.share` (con imagen) porque ya funcionaba. Limitación conocida: en Android solo se comparte el texto, no la imagen — para compartir imagen habría que escribir el blob a disco con `@capacitor/filesystem` primero, se deja como mejora futura.
+- **Firma de release Android configurada en `android/app/build.gradle`** — nuevo bloque `signingConfigs.release` que lee `android/keystore.properties` (gitignored) con `storeFile`, `storePassword`, `keyAlias`, `keyPassword`, y se aplica a `buildTypes.release` para generar el AAB firmado listo para Google Play. El keystore vive fuera del repo (`~/AndroidKeystores/cucana-release.jks`, formato PKCS12, alias `cucana`) por seguridad. La config está envuelta en `if (keystorePropertiesFile.exists())` para que builds sin el archivo (ej. futuro workflow CI que inyecte secrets por env vars) no rompan.
+- **`.gitignore` — nueva entrada `RELEASE_GUIDE.md`** — chuleta personal del autor con el flujo de release (Vercel + iOS + Android) por si necesita publicar sin ayuda del asistente. Es un archivo local, fuera del repo por decisión.
+
 ### Changed
 
 - **Android SDK y Gradle Plugin bumpeados** (`android/variables.gradle`, `android/build.gradle`): `compileSdkVersion` y `targetSdkVersion` 35 → 36, Android Gradle Plugin 8.7.2 → 8.9.1. Requerido por la dependencia transitiva `androidx.browser:browser:1.9.0` que trae algún plugin de Capacitor; el build de release fallaba con `checkReleaseAarMetadata` exigiendo `compileSdk 36` y AGP `≥ 8.9.1`. Gradle wrapper 8.11.1 ya es compatible con AGP 8.9.1, no hace falta tocarlo. No afecta a iOS.
+- **Modo pantalla completa activado en Android** (`android/app/src/main/res/values/styles.xml`, `android/app/src/main/java/com/cucana/trianera/MainActivity.java`). El tema `AppTheme.NoActionBar` ahora incluye `android:windowFullscreen=true` para ocultar la barra de estado, y `MainActivity` sobreescribe `onCreate` y `onWindowFocusChanged` para aplicar `SYSTEM_UI_FLAG_IMMERSIVE_STICKY` + flags de fullscreen y ocultado de navegación → oculta también la barra de navegación inferior y se mantiene oculta aunque el usuario deslice desde los bordes. Equivalente al `UIRequiresFullScreen=true` que ya teníamos en iOS.
+- **Versión bumpeada a 1.7.3** en `package.json`, `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` en Debug y Release) y `android/app/build.gradle` (`versionName`). `versionCode` Android se mantiene en `1` porque es el primer upload real a Google Play — subirá a `2` en la próxima release.
 
 ### Fixed
 
 - **`android/build.gradle` — resuelto conflicto de `kotlin-stdlib-jdk7`/`kotlin-stdlib-jdk8` con `kotlin-stdlib` moderno.** Al subir a AGP 8.9.1 el build fallaba con `checkReleaseDuplicateClasses` porque `kotlin-stdlib:1.8.22` ya incluye las clases de los stdlib jdk7/jdk8 (fusionados desde Kotlin 1.8), pero algunos plugins Capacitor siguen requiriendo las variantes legacy `kotlin-stdlib-jdk7:1.6.21` y `kotlin-stdlib-jdk8:1.6.21`. Añadido `exclude` global en el `allprojects` block que descarta esas dos, dejando que el `kotlin-stdlib` moderno cubra todas las APIs. No afecta a runtime, es solo resolución de dependencias.
-
-### Added
-
-- **Firma de release Android configurada en `android/app/build.gradle`** — nuevo bloque `signingConfigs.release` que lee `android/keystore.properties` (gitignored) con `storeFile`, `storePassword`, `keyAlias`, `keyPassword`, y se aplica a `buildTypes.release` para generar el AAB firmado listo para Google Play. El keystore vive fuera del repo (`~/AndroidKeystores/cucana-release.jks`, formato PKCS12, alias `cucana`) por seguridad. La config está envuelta en `if (keystorePropertiesFile.exists())` para que builds sin el archivo (ej. futuro workflow CI que inyecte secrets por env vars) no rompan. Cuenta developer de Google Play aún en verificación de identidad, así que el primer AAB firmado se generará vía GitHub Actions cuando el bloqueo administrativo desaparezca.
-- **`.gitignore` — nueva entrada `RELEASE_GUIDE.md`** — chuleta personal del autor con el flujo de release (Vercel + iOS + Android) por si necesita publicar sin ayuda del asistente. Es un archivo local, fuera del repo por decisión.
 
 ## [1.7.2] — 2026-07-12
 
