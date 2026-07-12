@@ -17,6 +17,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **`README.md` — tabla "Stack tecnológico" ampliada** para reflejar la realidad completa del proyecto: Capacitor (iOS + Android) + sus plugins, GitHub Actions, Vercel, Vitest, Prettier + ESLint, BeepBox / jsfxr para sonido, ChatGPT / Gemini para generación de imágenes, y Claude Code como copiloto.
 - **`README.md` — "Estructura del proyecto" actualizada**: añadidas carpetas y ficheros que existían pero no aparecían (`android/`, `ios/`, `docs/`, `.github/workflows/`, `capacitor.config.json`, `CHANGELOG.md`, `GDD.md`, `CREDITS.md`, `PRIVACY.md`, `LICENSE`, `CLAUDE.md`) y detalle de subcarpetas de `src/game/` (config, entities, systems, components, services, utils). Con nota final sobre Clean Architecture.
 - **`README.md` — "enjabonado" → "engrasado"** en la descripción de la tradición, más fiel al término tradicional.
+- **`README.md` — Sentry mencionado** en tres sitios: fila en la tabla de "Stack tecnológico", bullet en "Estado actual" ("Observabilidad en producción con captura de errores y breadcrumbs de navegación"), y bullet en la sección TFM "Lo que he aprendido construyéndolo". Sentry ya estaba integrado (`src/main.js` con init condicional a `import.meta.env.PROD`, `BaseScene.js` con `Sentry.addBreadcrumb` en cada cambio de escena) pero se había omitido en la refresh anterior del README.
 
 ## [1.7.3] — 2026-07-12
 
