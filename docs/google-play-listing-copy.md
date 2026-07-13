@@ -10,18 +10,18 @@ pueden copiarse tal cual. Complementa a `app-store-listing-copy.md`.
 
 ## Datos que ya están cerrados
 
-| Campo                | Valor                                              |
-| -------------------- | -------------------------------------------------- |
-| Nombre de la app     | `La Cucaña Trianera` (18 char, cabe en 30)         |
-| Package name         | `com.cucana.trianera`                              |
-| Idioma predeterminado| Español (España) `es-ES`                           |
-| Tipo                 | Juego                                              |
-| Precio               | Gratis                                             |
-| Contiene anuncios    | No                                                 |
-| Categoría            | Juegos → Casual (secundaria: Arcade)               |
+| Campo                  | Valor                                             |
+| ---------------------- | ------------------------------------------------- |
+| Nombre de la app       | `La Cucaña Trianera` (18 char, cabe en 30)        |
+| Package name           | `com.cucana.trianera`                             |
+| Idioma predeterminado  | Español (España) `es-ES`                          |
+| Tipo                   | Juego                                             |
+| Precio                 | Gratis                                            |
+| Contiene anuncios      | No                                                |
+| Categoría              | Juegos → Casual (secundaria: Arcade)              |
 | Política de privacidad | `https://minijuego-lilac.vercel.app/privacy.html` |
-| Sitio web            | `https://minijuego-lilac.vercel.app/`              |
-| Email de contacto    | `luisaodeben@gmail.com`                            |
+| Sitio web              | `https://minijuego-lilac.vercel.app/`             |
+| Email de contacto      | `luisaodeben@gmail.com`                           |
 
 ---
 
@@ -87,11 +87,11 @@ Primera versión en Google Play. Sube por el palo engrasado de la cucaña de Tri
 
 ## Assets — ya generados y listos para subir
 
-| Asset                    | Ruta                                                   | Tamaño     |
-| ------------------------ | ------------------------------------------------------ | ---------- |
-| **Icon (Play Store)**    | `public/assets/store/icons/android/icon-512.png`       | 512×512    |
-| **Feature graphic**      | `public/assets/store/feature-graphic-1024x500.png`     | 1024×500   |
-| **Screenshots (5)**      | `public/assets/store/screenshots/play-pwa/*.png`       | teléfono   |
+| Asset                 | Ruta                                               | Tamaño   |
+| --------------------- | -------------------------------------------------- | -------- |
+| **Icon (Play Store)** | `public/assets/store/icons/android/icon-512.png`   | 512×512  |
+| **Feature graphic**   | `public/assets/store/feature-graphic-1024x500.png` | 1024×500 |
+| **Screenshots (5)**   | `public/assets/store/screenshots/play-pwa/*.png`   | teléfono |
 
 Google Play acepta screenshots de 16:9 o 9:16, mínimo 320px por lado, máximo 3840px. Los del proyecto son PWA-friendly y sirven.
 
@@ -112,19 +112,19 @@ Cuestionario oficial. Respuestas para v1.7.3:
 
 **Categoría:** Juegos → Otros o Casual.
 
-| Pregunta                                                        | Respuesta |
-| --------------------------------------------------------------- | --------- |
-| Violencia (cartoon, fantasy, realista, o de sangre)             | No        |
-| Contenido sexual (desnudez, insinuaciones, actividad)           | No        |
-| Lenguaje soez u ofensivo                                        | No        |
-| Referencias a drogas, alcohol o tabaco                          | **Sí\***  |
-| Simulación de apuestas con dinero real o virtual                | No        |
-| Miedo, horror o suspenso                                        | No        |
-| Interacción entre usuarios (chat, mensajes, etc.)               | No        |
-| Compartir ubicación                                             | No        |
-| Compartir información personal                                  | No        |
-| Contenido generado por usuarios (UGC)                           | No        |
-| Compras dentro de la app                                        | No        |
+| Pregunta                                              | Respuesta |
+| ----------------------------------------------------- | --------- |
+| Violencia (cartoon, fantasy, realista, o de sangre)   | No        |
+| Contenido sexual (desnudez, insinuaciones, actividad) | No        |
+| Lenguaje soez u ofensivo                              | No        |
+| Referencias a drogas, alcohol o tabaco                | **Sí\***  |
+| Simulación de apuestas con dinero real o virtual      | No        |
+| Miedo, horror o suspenso                              | No        |
+| Interacción entre usuarios (chat, mensajes, etc.)     | No        |
+| Compartir ubicación                                   | No        |
+| Compartir información personal                        | No        |
+| Contenido generado por usuarios (UGC)                 | No        |
+| Compras dentro de la app                              | No        |
 
 **\*** Uno de los rewards ("Una caña fresquita") menciona alcohol. Es una referencia mínima y contextual (tradición popular, no promoción). Marcar como "Referencias infrecuentes/leves a alcohol". Google puede subir el rating de PEGI 3 → PEGI 12. Aceptable.
 
@@ -142,10 +142,10 @@ Play Console → Contenido de la app → Seguridad de los datos.
 
 **Datos recopilados:**
 
-| Categoría         | Tipo                    | ¿Se recopila? | ¿Se comparte? | Opcional | Uso                         |
-| ----------------- | ----------------------- | ------------- | ------------- | -------- | --------------------------- |
-| Diagnóstico app   | Registro de fallos      | Sí            | No            | No       | Análisis y solución de bugs |
-| Diagnóstico app   | Diagnóstico             | Sí            | No            | No       | Análisis y solución de bugs |
+| Categoría       | Tipo               | ¿Se recopila? | ¿Se comparte? | Opcional | Uso                         |
+| --------------- | ------------------ | ------------- | ------------- | -------- | --------------------------- |
+| Diagnóstico app | Registro de fallos | Sí            | No            | No       | Análisis y solución de bugs |
+| Diagnóstico app | Diagnóstico        | Sí            | No            | No       | Análisis y solución de bugs |
 
 **Ningún dato personal identificable**. Sentry recibe stack traces técnicos y información de contexto del dispositivo (versión OS, dimensiones de pantalla). No hay cuenta de usuario, no hay login, no hay geolocalización, no hay identificadores publicitarios.
 
