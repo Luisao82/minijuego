@@ -9,6 +9,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Added
 
+- **`docs/google-play-listing-copy.md`** — hoja operativa para rellenar la ficha de Google Play (paridad con `docs/app-store-listing-copy.md`), con textos adaptados a los límites de Play Store (descripción corta 80 chars, descripción completa 4000, novedades 500), respuestas al cuestionario IARC (PEGI 12 esperado por la referencia a alcohol en un reward), declaración de "Data safety" incluyendo Sentry, orden sugerido de setup, notas para el revisor y territorios de distribución. Elaborado para el primer submit v1.7.3 en la Play Console.
 - **Sección "Sobre este proyecto — TFM" al final del `README.md`** con la historia personal del autor (por qué La Cucaña Trianera, qué significa el proyecto), lo aprendido en el desarrollo, la fecha real autoimpuesta (Velá de Santa Ana), la experiencia de "shipping" y los bloqueantes reales resueltos, motivación para publicar antes de entregar, y reflexión sobre el trabajo con IA como copiloto guiado. Incluye subsección **"Herramientas y creación de contenido"** que documenta el uso combinado de Claude Code (código), ChatGPT + Gemini (imágenes de fondos y premios con prompts JSON para coherencia), LibreSprite/Aseprite (sprites a mano), cámara propia (fotografías base pixeladas) y BeepBox + jsfxr (música y SFX). Preparación para la entrega del TFM del Máster de Desarrollo con IA (MoureDev / BIG School).
 
 ### Changed
