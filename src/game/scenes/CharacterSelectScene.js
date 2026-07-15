@@ -1,7 +1,6 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, GAME_HEIGHT, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
-import { COLOR_GOLD } from '../config/fonts'
-import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
+import { headingStyle, mutedStyle } from '../config/textStyles'
 import { CHARACTERS } from '../config/characters'
 import { createCharacterCard } from '../components/CharacterCard'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
@@ -73,27 +72,42 @@ export class CharacterSelectScene extends BaseScene {
     this.createCarousel()
     this.drawSelectedDetail()
     this.drawNavigation()
-    this.drawPlayButton()
-    this.drawBackButton()
+    this.drawBottomButtons()
     this.setupInput()
   }
 
-  // ── Botón CAMBIAR VISTA ──────────────────────────────────────
-  // Etiqueta y destino fijos (no "VOLVER"): esta escena se entra tanto desde
-  // ViewSelectScene como desde "CAMBIAR PERSONAJE" en el game over, así que
-  // un botón que dependiera del origen resultaría ambiguo.
+  // ── Fila inferior: VISTA (izq) + SELECCIONAR (der) ────────────
+  // Ambos botones con el mismo estilo dorado. VISTA (no "VOLVER"): esta
+  // escena se entra tanto desde ViewSelectScene como desde "CAMBIAR
+  // PERSONAJE" en el game over; un botón que dependiera del origen resultaría
+  // ambiguo. El destino sigue siendo SCENES.VIEW_SELECT.
 
-  drawBackButton() {
+  drawBottomButtons() {
     const opts = { depth: 5 }
-    const { w, h } = measureNavButtonSize(this, 'CAMBIAR VISTA', opts)
+    const MARGIN_X = 40
+    const CENTER_Y = BAND_Y + BAND_H + 70
+
+    const backSize = measureNavButtonSize(this, 'VISTA', opts)
     makeNavButton(
       this,
-      Math.round(GAME_WIDTH / 2 - w / 2),
-      BAND_Y + BAND_H + 110 - Math.round(h / 2),
-      w,
-      h,
-      'CAMBIAR VISTA',
+      MARGIN_X,
+      CENTER_Y - Math.round(backSize.h / 2),
+      backSize.w,
+      backSize.h,
+      'VISTA',
       () => this.scene.start(SCENES.VIEW_SELECT),
+      opts
+    )
+
+    const playSize = measureNavButtonSize(this, 'SELECCIONAR', opts)
+    makeNavButton(
+      this,
+      GAME_WIDTH - MARGIN_X - playSize.w,
+      CENTER_Y - Math.round(playSize.h / 2),
+      playSize.w,
+      playSize.h,
+      'SELECCIONAR',
+      () => this.startGame(),
       opts
     )
   }
@@ -183,7 +197,7 @@ export class CharacterSelectScene extends BaseScene {
   }
 
   // ── Detalle del personaje seleccionado ───────────────────────
-  // Panel ancho debajo del botón SELECCIONAR
+  // Panel ancho dentro de la banda, encima de la fila inferior de botones.
 
   drawSelectedDetail() {
     if (this.detailContainer) this.detailContainer.destroy()
@@ -270,34 +284,6 @@ export class CharacterSelectScene extends BaseScene {
     })
   }
 
-  // ── Botón JUGAR ──────────────────────────────────────────────
-
-  drawPlayButton() {
-    const btnY = BAND_Y + BAND_H + 30
-
-    // Override de stroke '#1a0800' (marrón ligeramente más cálido que el de marca).
-    this.playText = this.add
-      .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR', {
-        ...titleStyle(52, COLOR_GOLD, 8),
-        stroke: '#1a0800',
-        letterSpacing: 12,
-      })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-
-    this.playText.on('pointerdown', () => this.startGame())
-
-    this.tweens.add({
-      targets: this.playText,
-      scaleX: 1.08,
-      scaleY: 1.08,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    })
-  }
-
   // ── Input ────────────────────────────────────────────────────
 
   setupInput() {
@@ -320,9 +306,10 @@ export class CharacterSelectScene extends BaseScene {
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
 
     // Swipe horizontal — acotado a la banda vertical del carrusel.
-    // Sin la cota Y, el pointerdown del botón 'SELECCIONAR' (debajo del carrusel)
-    // se cuela como inicio de swipe y, combinado con la transición de escena,
-    // puede provocar una navegación fantasma al volver desde SkinSelectScene.
+    // Sin la cota Y, el pointerdown de los botones inferiores (VISTA /
+    // SELECCIONAR) se cuela como inicio de swipe y, combinado con la
+    // transición de escena, puede provocar una navegación fantasma al volver
+    // desde SkinSelectScene.
     const swipeYMin = CARDS_Y
     const swipeYMax = CARDS_Y + CARD_HEIGHT
     const isInSwipeBand = (pointer) => pointer.y >= swipeYMin && pointer.y <= swipeYMax

@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
 import { COLOR_GOLD } from '../config/fonts'
-import { headingStyle, titleStyle } from '../config/textStyles'
+import { headingStyle } from '../config/textStyles'
 import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
@@ -61,29 +61,44 @@ export class SkinSelectScene extends BaseScene {
     this.skinDisplay = this.add.container(0, 0)
     this.drawCurrentSkin()
     this.drawNavArrows()
-    this.drawActionButtons()
-    this.drawBackButton()
+    this.drawBottomButtons()
+    this.setupKeyboardShortcuts()
   }
 
-  // ── Botón VOLVER ─────────────────────────────────────────────
-  // Alineado con el eje vertical de la cabecera (headerY=55), igual que
-  // CAMBIAR VISTA en CharacterSelectScene e INICIO en ViewSelectScene.
+  // ── Fila inferior: PERSONAJES (izq) + JUGAR (der) ─────────────
+  // Ambos botones con el mismo estilo dorado, alineados con la fila inferior
+  // de ViewSelectScene y CharacterSelectScene.
 
-  drawBackButton() {
+  drawBottomButtons() {
     const opts = { depth: 5 }
-    const { w, h } = measureNavButtonSize(this, 'VOLVER', opts)
+    const MARGIN_X = 40
+    const CENTER_Y = BAND_Y + BAND_H + 70
+
+    const backSize = measureNavButtonSize(this, 'PERSONAJES', opts)
     makeNavButton(
       this,
-      Math.round(GAME_WIDTH / 2 - w / 2),
-      BAND_Y + BAND_H + 110 - Math.round(h / 2),
-      w,
-      h,
-      'VOLVER',
+      MARGIN_X,
+      CENTER_Y - Math.round(backSize.h / 2),
+      backSize.w,
+      backSize.h,
+      'PERSONAJES',
       () =>
         this.scene.start(SCENES.CHARACTER_SELECT, {
           perspective: this.perspective,
           selectedIndex: this.selectedIndex,
         }),
+      opts
+    )
+
+    const playSize = measureNavButtonSize(this, 'JUGAR', opts)
+    makeNavButton(
+      this,
+      GAME_WIDTH - MARGIN_X - playSize.w,
+      CENTER_Y - Math.round(playSize.h / 2),
+      playSize.w,
+      playSize.h,
+      'JUGAR',
+      () => this.startGame(),
       opts
     )
   }
@@ -364,35 +379,9 @@ export class SkinSelectScene extends BaseScene {
     this.drawCurrentSkin()
   }
 
-  // ── Botones de acción ────────────────────────────────────────
+  // ── Atajos de teclado ────────────────────────────────────────
 
-  drawActionButtons() {
-    const btnY = BAND_Y + BAND_H + 30
-
-    // Mismo estilo que CharacterSelectScene/ViewSelectScene: texto dorado
-    // pulsante, sin caja — para que todos los "SELECCIONAR" sean idénticos.
-    // Override de stroke '#1a0800' (marrón cálido) — idem esas escenas.
-    this.selectText = this.add
-      .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR', {
-        ...titleStyle(52, COLOR_GOLD, 8),
-        stroke: '#1a0800',
-        letterSpacing: 12,
-      })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-
-    this.selectText.on('pointerdown', () => this.startGame())
-
-    this.tweens.add({
-      targets: this.selectText,
-      scaleX: 1.08,
-      scaleY: 1.08,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    })
-
+  setupKeyboardShortcuts() {
     this.input.keyboard.on('keydown-SPACE', () => this.startGame())
     this.input.keyboard.on('keydown-ENTER', () => this.startGame())
     this.input.keyboard.on('keydown-ESC', () => {
