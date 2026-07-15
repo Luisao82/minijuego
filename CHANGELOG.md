@@ -7,6 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.4] - 2026-07-15
+
+### Changed
+
+- **Rediseñada la fila inferior de las tres pantallas de selección (`ViewSelectScene`, `CharacterSelectScene`, `SkinSelectScene`) para evitar confusiones de acción.** El layout anterior tenía un texto dorado pulsante ("SELECCIONAR VISTA" / "SELECCIONAR" / "SELECCIONAR" para skins) encima de un botón amarillo tipo cartelón centrado ("INICIO" / "CAMBIAR VISTA" / "VOLVER"), y los usuarios pulsaban el botón amarillo creyendo que confirmaba la selección. Ahora ambas acciones son botones amarillos idénticos en la misma fila: **secundario a la izquierda** y **primario a la derecha**. Etiquetas cortas para reforzar que son navegación entre pantallas: **MENÚ / VISTA / PERSONAJES** (izquierda) y **SELECCIONAR / SELECCIONAR / JUGAR** (derecha; "JUGAR" en la pantalla de skin es más literal que "SELECCIONAR" al ser la acción final antes de la partida). Se retiraron el texto pulsante y sus tweens; ambos botones usan `makeNavButton` con `measureNavButtonSize` para autotamaño. Layout compartido: `MARGIN_X = 40`, `CENTER_Y = BAND_Y + BAND_H + 70`.
+
+### Fixed
+
+- **`src/game/scenes/HistoryScene.js` — la última página de la historia ya no se auto-sobrescribe.** Antes, al terminar de teclear la última página del último bloque ("¡Échale coraje...!" en "Tu Misión"), `onPageComplete()` llamaba directamente a `onHistoryEnd()`, reemplazando el texto por "¡Eso es todo, mi arma! ¡A por la bandera!" sin dar tiempo a leerlo. Ahora `onPageComplete()` siempre espera input mostrando el indicador ▼, y la transición al texto final se dispara en `advanceDialog()` cuando el usuario toca la caja.
+- **`src/game/config/historyContent.js` — corregidas dos erratas del primer párrafo de la historia.** "¡Escúcha miarma!" → "¡Escucha miarma!" (es-CU-cha es palabra llana terminada en vocal, no lleva tilde). "Te lo voy a contar una historia" → "Te voy a contar una historia" (el "lo" era residuo de una edición previa).
+
 ### Added
 
 - **`docs/google-play-listing-copy.md`** — hoja operativa para rellenar la ficha de Google Play (paridad con `docs/app-store-listing-copy.md`), con textos adaptados a los límites de Play Store (descripción corta 80 chars, descripción completa 4000, novedades 500), respuestas al cuestionario IARC (PEGI 12 esperado por la referencia a alcohol en un reward), declaración de "Data safety" incluyendo Sentry, orden sugerido de setup, notas para el revisor y territorios de distribución. Elaborado para el primer submit v1.7.3 en la Play Console.

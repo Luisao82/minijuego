@@ -310,16 +310,8 @@ export class HistoryScene extends BaseScene {
     this.isTyping = false
     this.narrator.stopTalking()
 
-    const block = HISTORY_BLOCKS[this.blockIdx]
-    const lastPage = this.pageIdx >= block.pages.length - 1
-    const lastBlock = this.blockIdx >= HISTORY_BLOCKS.length - 1
-
-    if (lastPage && lastBlock) {
-      this.onHistoryEnd()
-    } else {
-      this.waitingForInput = true
-      this.setContinueVisible(true)
-    }
+    this.waitingForInput = true
+    this.setContinueVisible(true)
   }
 
   advanceDialog() {
@@ -340,8 +332,15 @@ export class HistoryScene extends BaseScene {
     this.setContinueVisible(false)
 
     const block = HISTORY_BLOCKS[this.blockIdx]
+    const lastPage = this.pageIdx >= block.pages.length - 1
+    const lastBlock = this.blockIdx >= HISTORY_BLOCKS.length - 1
 
-    if (this.pageIdx < block.pages.length - 1) {
+    if (lastPage && lastBlock) {
+      this.onHistoryEnd()
+      return
+    }
+
+    if (!lastPage) {
       this.pageIdx++
       this.startPage()
     } else {

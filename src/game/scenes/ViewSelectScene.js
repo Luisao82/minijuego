@@ -1,7 +1,6 @@
 import { BaseScene } from './BaseScene'
 import { SCENES, GAME_WIDTH, COLORS, CAROUSEL_ARROW_Y } from '../config/gameConfig'
-import { COLOR_GOLD } from '../config/fonts'
-import { headingStyle, mutedStyle, titleStyle } from '../config/textStyles'
+import { headingStyle, mutedStyle } from '../config/textStyles'
 import { getStoredPerspective, storePerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
@@ -44,24 +43,42 @@ export class ViewSelectScene extends BaseScene {
     this.createCarousel()
     this.drawSelectedDetail()
     this.drawNavigation()
-    this.drawConfirmButton()
-    this.drawBackButton()
+    this.drawBottomButtons()
     this.setupInput()
   }
 
-  // ── Botón INICIO ───────────────────────────────────────────────
+  // ── Fila inferior: MENÚ (izq) + SELECCIONAR (der) ─────────────
+  // Ambos botones con el mismo estilo dorado para evitar la confusión que
+  // producía el layout anterior (texto pulsante "SELECCIONAR VISTA" + botón
+  // amarillo centrado debajo: los usuarios pulsaban el amarillo creyendo que
+  // era el "SELECCIONAR").
 
-  drawBackButton() {
+  drawBottomButtons() {
     const opts = { depth: 5 }
-    const { w, h } = measureNavButtonSize(this, 'INICIO', opts)
+    const MARGIN_X = 40
+    const CENTER_Y = BAND_Y + BAND_H + 70
+
+    const backSize = measureNavButtonSize(this, 'MENÚ', opts)
     makeNavButton(
       this,
-      Math.round(GAME_WIDTH / 2 - w / 2),
-      BAND_Y + BAND_H + 110 - Math.round(h / 2),
-      w,
-      h,
-      'INICIO',
+      MARGIN_X,
+      CENTER_Y - Math.round(backSize.h / 2),
+      backSize.w,
+      backSize.h,
+      'MENÚ',
       () => this.scene.start(SCENES.MENU),
+      opts
+    )
+
+    const confirmSize = measureNavButtonSize(this, 'SELECCIONAR', opts)
+    makeNavButton(
+      this,
+      GAME_WIDTH - MARGIN_X - confirmSize.w,
+      CENTER_Y - Math.round(confirmSize.h / 2),
+      confirmSize.w,
+      confirmSize.h,
+      'SELECCIONAR',
+      () => this._goToCharacterSelect(),
       opts
     )
   }
@@ -299,34 +316,6 @@ export class ViewSelectScene extends BaseScene {
       .setInteractive({ useHandCursor: true })
   }
 
-  // ── Botón SELECCIONAR VISTA ───────────────────────────────────
-
-  drawConfirmButton() {
-    const btnY = BAND_Y + BAND_H + 30
-
-    // Override de stroke '#1a0800' (marrón cálido) — idem CharacterSelectScene.
-    this.confirmText = this.add
-      .text(GAME_WIDTH / 2, btnY, 'SELECCIONAR VISTA', {
-        ...titleStyle(52, COLOR_GOLD, 8),
-        stroke: '#1a0800',
-        letterSpacing: 12,
-      })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-
-    this.confirmText.on('pointerdown', () => this._goToCharacterSelect())
-
-    this.tweens.add({
-      targets: this.confirmText,
-      scaleX: 1.08,
-      scaleY: 1.08,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    })
-  }
-
   // ── Input ─────────────────────────────────────────────────────
 
   setupInput() {
@@ -349,9 +338,10 @@ export class ViewSelectScene extends BaseScene {
     this.input.keyboard.on('keydown-ENTER', () => this._goToCharacterSelect())
 
     // Swipe horizontal — acotado a la banda vertical del carrusel.
-    // Sin la cota Y, el pointerdown del botón 'SELECCIONAR VISTA' (debajo del
-    // carrusel) se cuela como inicio de swipe y, combinado con la transición
-    // de escena, puede provocar una navegación fantasma al volver a esta escena.
+    // Sin la cota Y, el pointerdown de los botones inferiores (MENÚ /
+    // SELECCIONAR) se cuela como inicio de swipe y, combinado con la
+    // transición de escena, puede provocar una navegación fantasma al volver
+    // a esta escena.
     const swipeYMin = CARDS_Y
     const swipeYMax = CARDS_Y + CARD_H
     const isInSwipeBand = (pointer) => pointer.y >= swipeYMin && pointer.y <= swipeYMax
