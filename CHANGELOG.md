@@ -7,6 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.5] - 2026-07-17
+
+### Changed
+
+- **Música del menú sustituida por una versión original propia (`public/assets/audio/intro.wav`)** para eliminar el riesgo de derechos de autor sobre la interpretación anterior. La nueva pista es una composición/adaptación regrabada por Carlos Pérez cedida para el proyecto, y sustituye al archivo antiguo bajo la misma clave `music-menu` cargada en `PreloadScene`; no requiere cambios de código de carga o reproducción.
+- **`src/game/scenes/LicensesScene.js` — bloque "MÚSICA DEL MENÚ" reescrito** para reflejar la nueva pista. Se retiran las líneas "Adaptación BeepBox de sevillana / popular interpretada por / Los del Río." y el aviso "⚠ Uso pendiente de autorización de los titulares." Se sustituyen por un único agradecimiento: "Agradecimiento a Carlos Pérez". Se elimina el helper `_warning()` y el estilo `ENTRY_WARNING` que quedaban sin uso tras el cambio.
+- **Versión bumpeada a 1.7.5** en `package.json`, `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` en Debug y Release) y `android/app/build.gradle` (`versionName`). `versionCode` Android sube a `3`.
+
 ## [1.7.4] - 2026-07-15
 
 ### Changed
