@@ -30,7 +30,6 @@ const ENTRY_LINE = {
 }
 
 const ENTRY_MUTED = { ...ENTRY_LINE, color: '#c0b89a' }
-const ENTRY_WARNING = { ...ENTRY_LINE, color: '#ff9b6b' }
 
 export class LicensesScene extends BaseScene {
   constructor() {
@@ -141,11 +140,7 @@ export class LicensesScene extends BaseScene {
     y += 18
 
     y = this._section(COL_RIGHT_X, y, 'MÚSICA DEL MENÚ')
-    y = this._entry(COL_RIGHT_X, y, 'Adaptación BeepBox de sevillana')
-    y = this._muted(COL_RIGHT_X, y, 'popular interpretada por')
-    y = this._muted(COL_RIGHT_X, y, 'Los del Río.')
-    y = this._warning(COL_RIGHT_X, y, '⚠ Uso pendiente de autorización')
-    y = this._warning(COL_RIGHT_X, y, '   de los titulares.')
+    y = this._entry(COL_RIGHT_X, y, 'Agradecimiento a Carlos Pérez')
     y += 18
 
     y = this._section(COL_RIGHT_X, y, 'ARTE Y SPRITES')
@@ -169,11 +164,6 @@ export class LicensesScene extends BaseScene {
 
   _muted(x, y, label) {
     this.add.text(x, y, label, ENTRY_MUTED).setDepth(3)
-    return y + 22
-  }
-
-  _warning(x, y, label) {
-    this.add.text(x, y, label, ENTRY_WARNING).setDepth(3)
     return y + 22
   }
 
