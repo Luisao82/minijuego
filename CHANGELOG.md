@@ -7,9 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.7.6] - 2026-07-18
+
 ### Fixed
 
 - **Android bloqueado a orientación landscape.** `android/app/src/main/AndroidManifest.xml` — añadido `android:screenOrientation="sensorLandscape"` en la `MainActivity` para impedir que el juego se pueda jugar en vertical. Permite las dos orientaciones horizontales (izquierda/derecha) para que el usuario pueda girar el móvil 180º. iOS ya estaba bloqueado a landscape vía `UISupportedInterfaceOrientations` en `Info.plist`.
+
+### Changed
+
+- **Versión bumpeada a 1.7.6** en `package.json` y `android/app/build.gradle` (`versionName "1.7.6"`, `versionCode 4`). **iOS se mantiene en 1.7.5** porque este release solo contiene un fix específico de Android; iOS ya está bloqueado a landscape vía `Info.plist` y no requiere nueva build. La próxima release iOS bumpeará su `MARKETING_VERSION` cuando haya cambios iOS-relevantes.
 
 ## [1.7.5] - 2026-07-17
 
