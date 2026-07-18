@@ -15,7 +15,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
-- **Versión bumpeada a 1.7.6** en `package.json`, `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` y `CURRENT_PROJECT_VERSION = 4` en Debug y Release) y `android/app/build.gradle` (`versionName "1.7.6"`, `versionCode 4`).
+- **Versión bumpeada a 1.7.6** en `package.json` y `android/app/build.gradle` (`versionName "1.7.6"`, `versionCode 4`). **iOS se mantiene en 1.7.5** porque este release solo contiene un fix específico de Android; iOS ya está bloqueado a landscape vía `Info.plist` y no requiere nueva build. La próxima release iOS bumpeará su `MARKETING_VERSION` cuando haya cambios iOS-relevantes.
 
 ## [1.7.5] - 2026-07-17
 
