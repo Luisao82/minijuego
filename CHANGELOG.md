@@ -7,6 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Nuevo personaje "EL BARBA"** (`src/game/config/characters.js`) — estadísticas equilibradas al 50% (peso 5, equilibrio 5, altura 5, edad 5). Descripción: "No te puedes perder los mejores churros de Triana.". Portrait en `public/assets/sprites/characters/el_barba.png` y spritesheet en `public/assets/sprites/characters/spritesheet/el_barba.png` (144×24, 9 frames de 16×24 siguiendo `SPRITE_CONFIG`).
+- **Nuevo premio "Calentitos de El Barba"** (`public/assets/rewards.json`) — id `reward_calentitos`, imagen `premios/calentitos.webp`, probabilidad `0.3`.
+
+### Changed
+
+- **`src/game/services/UnlockService.js` — `el_barba` añadido temporalmente a `DEFAULT_UNLOCKED`** para poder probar el personaje. Marcado con `TODO(el_barba)`: se retirará y su desbloqueo se moverá a `characters-unlock.json` (condición `specific_reward` sobre `reward_calentitos`) cuando se apruebe.
+
 ## [1.7.6] - 2026-07-18
 
 ### Fixed

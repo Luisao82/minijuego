@@ -100,5 +100,11 @@
     "nombre": "Palodu",
     "imagen": "premios/palodu.webp",
     "probabilidad": 0.4
+  },
+  {
+    "id": "reward_calentitos",
+    "nombre": "Calentitos de El Barba",
+    "imagen": "premios/calentitos.webp",
+    "probabilidad": 0.3
   }
 ]
