@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cucana-v1.7.4'
+const CACHE_NAME = 'cucana-v1.7.7-dev'
 
 const PRECACHE_URLS = [
   '/',

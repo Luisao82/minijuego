@@ -16,6 +16,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`src/game/services/UnlockService.js` — `el_barba` añadido temporalmente a `DEFAULT_UNLOCKED`** para poder probar el personaje. Marcado con `TODO(el_barba)`: se retirará y su desbloqueo se moverá a `characters-unlock.json` (condición `specific_reward` sobre `reward_calentitos`) cuando se apruebe.
 
+### Fixed
+
+- **`public/sw.js` — `CACHE_NAME` bumpeado a `cucana-v1.7.7-dev`** para invalidar la caché del service worker, que estaba sirviendo la versión antigua de `rewards.json` (cache-first) y ocultaba `reward_calentitos` en móviles que ya habían abierto el juego antes.
+
 ## [1.7.6] - 2026-07-18
 
 ### Fixed
