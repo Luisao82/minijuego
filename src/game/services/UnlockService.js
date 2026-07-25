@@ -28,7 +28,9 @@ const VERSION_KEY = 'cucana_version'
 const PERSPECTIVES_STORAGE_KEY = 'cucana_unlocked_perspectives'
 const CHARACTER_REWARDS_KEY = 'cucana_character_rewards'
 const SKINS_KEY = 'cucana_skins'
-const DEFAULT_UNLOCKED = ['trianero', 'flamenca']
+// TODO(el_barba): quitar 'el_barba' de aquí cuando se apruebe el desbloqueo por
+// premio y añadir su condición en characters-unlock.json (reward_calentitos).
+const DEFAULT_UNLOCKED = ['trianero', 'flamenca', 'el_barba']
 const GAME_STATS_KEY = 'cucana_game_stats'
 const RESET_BELOW_VERSION = '0.6.0'
 

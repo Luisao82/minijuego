@@ -37,6 +37,15 @@ export const CHARACTERS = [
     ],
   },
   {
+    id: 'el_barba',
+    name: 'EL BARBA',
+    description: 'No te puedes perder los mejores churros de Triana.',
+    sprite: 'char-el_barba',
+    stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
+    available: true,
+    skins: [{ spritesheet: 'el_barba', nombre: 'El Barba', flags: null }],
+  },
+  {
     id: 'abuela',
     name: 'LA AGÜELA',
     description: 'Veterana de mil velás.\nSabiduría y temple.',
