@@ -26,19 +26,14 @@ describe('UnlockService', () => {
   })
 
   describe('estado inicial', () => {
-    // NOTA: 'el_barba' está en DEFAULT_UNLOCKED de forma temporal para pruebas.
-    // Cuando se retire (TODO(el_barba) en UnlockService), volver a length 2.
-    it('arranca con los personajes por defecto desbloqueados (trianero, flamenca, el_barba)', () => {
-      expect(service.getUnlocked()).toEqual(
-        expect.arrayContaining(['trianero', 'flamenca', 'el_barba'])
-      )
-      expect(service.getUnlocked()).toHaveLength(3)
+    it('arranca con los personajes por defecto desbloqueados (trianero, flamenca)', () => {
+      expect(service.getUnlocked()).toEqual(expect.arrayContaining(['trianero', 'flamenca']))
+      expect(service.getUnlocked()).toHaveLength(2)
     })
 
     it('isUnlocked devuelve true para los defaults y false para el resto', () => {
       expect(service.isUnlocked('trianero')).toBe(true)
       expect(service.isUnlocked('flamenca')).toBe(true)
-      expect(service.isUnlocked('el_barba')).toBe(true)
       expect(service.isUnlocked('cualquier_otro')).toBe(false)
     })
   })

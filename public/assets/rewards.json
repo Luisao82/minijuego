@@ -106,5 +106,11 @@
     "nombre": "Calentitos de El Barba",
     "imagen": "premios/calentitos.webp",
     "probabilidad": 0.3
+  },
+  {
+    "id": "reward_camiseta_triana",
+    "nombre": "Camiseta del Triana",
+    "imagen": "premios/camiseta-triana.webp",
+    "probabilidad": 0.2
   }
 ]

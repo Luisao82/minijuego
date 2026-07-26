@@ -7,18 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-07-26
+
 ### Added
 
-- **Nuevo personaje "EL BARBA"** (`src/game/config/characters.js`) — estadísticas equilibradas al 50% (peso 5, equilibrio 5, altura 5, edad 5). Descripción: "No te puedes perder los mejores churros de Triana.". Portrait en `public/assets/sprites/characters/el_barba.png` y spritesheet en `public/assets/sprites/characters/spritesheet/el_barba.png` (144×24, 9 frames de 16×24 siguiendo `SPRITE_CONFIG`).
+- **Nuevo personaje "EL BARBA"** (`src/game/config/characters.js`) — estadísticas equilibradas al 50% (peso 5, equilibrio 5, altura 5, edad 5). Descripción: "No te puedes perder los mejores churros de Triana.". Portrait en `public/assets/sprites/characters/el_barba.png` y spritesheet en `public/assets/sprites/characters/spritesheet/el_barba.png` (144×24, 9 frames de 16×24 siguiendo `SPRITE_CONFIG`). **Se desbloquea al conseguir el premio "Calentitos de El Barba"** — condición `specific_reward` en `public/assets/characters-unlock.json`.
+- **3 skins nuevos para "EL BARBA"** en `public/assets/sprites/characters/spritesheet/`: `el_barba_2.png` ("El Barbas II", desbloquea a 3 banderas), `el_barba_3.png` ("El Barbas III", 9 banderas) y `el_barba_4.png` ("El Barbas IV", 15 banderas). Misma progresión que `retro01`.
 - **Nuevo premio "Calentitos de El Barba"** (`public/assets/rewards.json`) — id `reward_calentitos`, imagen `premios/calentitos.webp`, probabilidad `0.3`.
+- **Nuevo personaje "TRIANA CAMPEÓN"** (`src/game/config/characters.js`) — mismas stats que Trianero (peso 5, equilibrio 4, altura 5, edad 5). Situado justo después de El Barba en la selección. Portrait en `public/assets/sprites/characters/triana_campeon.png`. **Se desbloquea al conseguir el premio "Camiseta del Triana"** — condición `specific_reward` en `public/assets/characters-unlock.json`. Dos skins: `cucurella` ("Cucurella Trianero", default) y `niko` ("Niko de Triana", desbloquea a 5 banderas — misma progresión que `chaval`).
+- **Nuevo premio "Camiseta del Triana"** (`public/assets/rewards.json`) — id `reward_camiseta_triana`, imagen `premios/camiseta-triana.webp`, probabilidad `0.2`.
 
 ### Changed
 
-- **`src/game/services/UnlockService.js` — `el_barba` añadido temporalmente a `DEFAULT_UNLOCKED`** para poder probar el personaje. Marcado con `TODO(el_barba)`: se retirará y su desbloqueo se moverá a `characters-unlock.json` (condición `specific_reward` sobre `reward_calentitos`) cuando se apruebe.
+- **Versión bumpeada a 1.8.0** en `package.json` e `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` en Debug y Release). Android se mantiene en `1.7.6` (esta release solo va a TestFlight; el próximo build Android bumpeará su `versionName`/`versionCode` cuando toque).
 
 ### Fixed
 
-- **`public/sw.js` — `CACHE_NAME` bumpeado a `cucana-v1.7.7-dev`** para invalidar la caché del service worker, que estaba sirviendo la versión antigua de `rewards.json` (cache-first) y ocultaba `reward_calentitos` en móviles que ya habían abierto el juego antes.
+- **`public/sw.js` — `CACHE_NAME` bumpeado a `cucana-v1.8.0`** para invalidar la caché del service worker en cada release: la estrategia cache-first sobre assets estáticos (incluidos `rewards.json` y `characters-unlock.json`) hacía que usuarios recurrentes no vieran cambios de configuración en Vercel hasta forzar recarga.
 
 ## [1.7.6] - 2026-07-18
 
