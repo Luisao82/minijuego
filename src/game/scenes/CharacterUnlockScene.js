@@ -137,11 +137,18 @@ export class CharacterUnlockScene extends BaseScene {
       this.textures.exists(char.sprite) && this.textures.get(char.sprite).key !== '__MISSING'
 
     if (hasSprite) {
+      // setDisplaySize deja scaleX/scaleY calculados para encajar el retrato
+      // en SPRITE_SIZE. Los guardamos como target del tween: si arrancásemos
+      // el tween hacia scale 1 (como antes), la imagen acabaría a tamaño
+      // nativo y se saldría del panel con retratos > SPRITE_SIZE (672×672,
+      // p. ej. el_barba o retro01).
       this.charSprite = this.add
         .image(CENTER_X, spriteY, char.sprite)
         .setDisplaySize(SPRITE_SIZE, SPRITE_SIZE)
         .setOrigin(0.5)
-        .setScale(0)
+      this._charTargetScaleX = this.charSprite.scaleX
+      this._charTargetScaleY = this.charSprite.scaleY
+      this.charSprite.setScale(0)
     } else {
       const placeholderG = this.add.graphics()
       placeholderG.fillStyle(0x2a2a4a, 1)
@@ -152,6 +159,8 @@ export class CharacterUnlockScene extends BaseScene {
         .text(CENTER_X, spriteY, '?', uiLabelLight(80, COLOR_GOLD))
         .setOrigin(0.5)
         .setScale(0)
+      this._charTargetScaleX = 1
+      this._charTargetScaleY = 1
     }
 
     this.contentContainer.add(this.charSprite)
@@ -363,8 +372,8 @@ export class CharacterUnlockScene extends BaseScene {
   animateSprite() {
     this.tweens.add({
       targets: this.charSprite,
-      scaleX: 1,
-      scaleY: 1,
+      scaleX: this._charTargetScaleX,
+      scaleY: this._charTargetScaleY,
       duration: 450,
       ease: 'Back.easeOut',
       onComplete: () => {
