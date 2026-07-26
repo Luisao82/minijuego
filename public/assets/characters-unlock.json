@@ -38,5 +38,21 @@
       "count": 45,
       "hint": "Consigue 45 premios en total"
     }
+  },
+  {
+    "characterId": "el_barba",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_calentitos",
+      "hint": "Consigue los Calentitos de El Barba"
+    }
+  },
+  {
+    "characterId": "triana_campeon",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_camiseta_triana",
+      "hint": "Consigue la Camiseta del Triana"
+    }
   }
 ]

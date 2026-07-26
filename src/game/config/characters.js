@@ -43,7 +43,24 @@ export const CHARACTERS = [
     sprite: 'char-el_barba',
     stats: { peso: 5, equilibrio: 5, altura: 5, edad: 5 },
     available: true,
-    skins: [{ spritesheet: 'el_barba', nombre: 'El Barba', flags: null }],
+    skins: [
+      { spritesheet: 'el_barba', nombre: 'El Barba', flags: null },
+      { spritesheet: 'el_barba_2', nombre: 'El Barbas II', flags: 3 },
+      { spritesheet: 'el_barba_3', nombre: 'El Barbas III', flags: 9 },
+      { spritesheet: 'el_barba_4', nombre: 'El Barbas IV', flags: 15 },
+    ],
+  },
+  {
+    id: 'triana_campeon',
+    name: 'TRIANA CAMPEÓN',
+    description: 'Los campeones que dieron la gloria a Triana.',
+    sprite: 'char-triana_campeon',
+    stats: { peso: 5, equilibrio: 4, altura: 5, edad: 5 },
+    available: true,
+    skins: [
+      { spritesheet: 'cucurella', nombre: 'Cucurella Trianero', flags: null },
+      { spritesheet: 'niko', nombre: 'Niko de Triana', flags: 5 },
+    ],
   },
   {
     id: 'abuela',
