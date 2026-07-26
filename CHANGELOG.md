@@ -7,6 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-07-26
+
+### Fixed
+
+- **`src/game/scenes/CharacterUnlockScene.js` — retrato del personaje se salía del panel de la ficha** con retratos > 260 px de lado (visible en `flamenca`, `retro01`, `el_barba`, `triana_campeon`, todos 672×672). El sprite se creaba con `setDisplaySize(SPRITE_SIZE, SPRITE_SIZE)` para calcular el scale de ajuste, pero acto seguido `setScale(0)` descartaba ese cálculo y el tween de entrada apuntaba a `scaleX/Y: 1` → la imagen terminaba a tamaño nativo. Ahora se guarda el scale objetivo antes del reset a 0 y el tween interpola hasta ese valor.
+- **`public/sw.js` — `CACHE_NAME` bumpeado a `cucana-v1.8.1`** para invalidar la caché del service worker en Vercel.
+
+### Changed
+
+- **Versión bumpeada a 1.8.1** en `package.json` e `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` Debug y Release). Android se mantiene en `1.7.6` (release solo para TestFlight).
+
 ## [1.8.0] - 2026-07-26
 
 ### Added
