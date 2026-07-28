@@ -112,5 +112,11 @@
     "nombre": "Camiseta del Triana",
     "imagen": "premios/camiseta-triana.webp",
     "probabilidad": 0.2
+  },
+  {
+    "id": "reward_bandera_guasinei",
+    "nombre": "Bandera de Guasinei, que arte por dio",
+    "imagen": "premios/guasibandera.webp",
+    "probabilidad": 0.25
   }
 ]

@@ -7,6 +7,18 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-07-27
+
+### Added
+
+- **Nuevo personaje "Guasinei"** (`src/game/config/characters.js`) — situado justo después de Triana Campeón en la selección. Stats: peso 5, equilibrio 4, altura 6, edad 5. Portrait en `public/assets/sprites/characters/javi_guasinei.png`. **Se desbloquea al conseguir el premio "Bandera de Guasinei, que arte por dio"** — condición `specific_reward` en `public/assets/characters-unlock.json`. Tres skins: `guasi_rosa` ("Camiseta Rosa", default), `guasi_La_Cava` ("La Cava", desbloquea a 3 banderas) y `guasi_Azulejo` ("Azulejo", 9 banderas). Progresión intermedia entre `chaval` (2 skins, 5) y `retro01` (4 skins, 3/9/15).
+- **Nuevo premio "Bandera de Guasinei, que arte por dio"** (`public/assets/rewards.json`) — id `reward_bandera_guasinei`, imagen `premios/guasibandera.webp`, probabilidad `0.25`.
+
+### Changed
+
+- **Versión bumpeada a 1.9.0** en `package.json`, `ios/App/App.xcodeproj/project.pbxproj` (`MARKETING_VERSION` Debug y Release) y `android/app/build.gradle` (`versionName "1.9.0"`, `versionCode 5`). Este es el primer bump de Android desde `1.7.6` — se salta 1.8.0/1.8.1 (releases que solo fueron a TestFlight iOS).
+- **`public/sw.js` — `CACHE_NAME` bumpeado a `cucana-v1.9.0`** para invalidar la caché del service worker en Vercel.
+
 ## [1.8.1] - 2026-07-26
 
 ### Fixed
