@@ -63,6 +63,19 @@ export const CHARACTERS = [
     ],
   },
   {
+    id: 'javi_guasinei',
+    name: 'Guasinei',
+    description: 'Ropa ética y sostenible hecha en el barrio',
+    sprite: 'char-javi_guasinei',
+    stats: { peso: 5, equilibrio: 4, altura: 6, edad: 5 },
+    available: true,
+    skins: [
+      { spritesheet: 'guasi_rosa', nombre: 'Camiseta Rosa', flags: null },
+      { spritesheet: 'guasi_La_Cava', nombre: 'La Cava', flags: 3 },
+      { spritesheet: 'guasi_Azulejo', nombre: 'Azulejo', flags: 9 },
+    ],
+  },
+  {
     id: 'abuela',
     name: 'LA AGÜELA',
     description: 'Veterana de mil velás.\nSabiduría y temple.',

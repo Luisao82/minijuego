@@ -54,5 +54,13 @@
       "rewardId": "reward_camiseta_triana",
       "hint": "Consigue la Camiseta del Triana"
     }
+  },
+  {
+    "characterId": "javi_guasinei",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_bandera_guasinei",
+      "hint": "Consigue la Bandera de Guasinei"
+    }
   }
 ]
