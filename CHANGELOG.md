@@ -7,9 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-07-29
+
 ### Fixed
 
 - **Android — iconos de la barra de estado ya no se superponen a los botones "MENÚ" y "FICHA TÉCNICA".** Los flags `SYSTEM_UI_FLAG_IMMERSIVE_STICKY` y demás que usaba `MainActivity.java` están deprecados desde Android 11 y en Android 15+ (targetSdk 36) directamente se ignoran, dejando la status bar visible por encima del juego aunque el fondo fuese transparente. Reescrito para usar `WindowInsetsControllerCompat.hide(systemBars())` con `BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`, más `WindowCompat.setDecorFitsSystemWindows(false)` y `layoutInDisplayCutoutMode = SHORT_EDGES` para que el juego ocupe toda la pantalla incluyendo el área de notch. `styles.xml` ampliado con `statusBarColor` y `navigationBarColor` transparentes y `windowLayoutInDisplayCutoutMode="shortEdges"` para reforzar desde el tema.
+
+### Changed
+
+- **Versión bumpeada a 1.9.1** en `package.json` y `android/app/build.gradle` (`versionName "1.9.1"`, `versionCode 6`). **iOS se mantiene en 1.9.0** porque el fix es Android-only y no procede regenerar un TestFlight nuevo.
 
 ## [1.9.0] - 2026-07-27
 
