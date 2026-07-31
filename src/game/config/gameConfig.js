@@ -88,12 +88,14 @@ export const PHASE1 = {
 
 // Configuración del barco (barcaza)
 // Proporciones basadas en referencia visual: barco 8m, palo 5m → ratio palo:barco = 5:8
-const BOAT_IMAGE_W = 333
-const BOAT_IMAGE_H = 182
-const BOAT_SCALE = 1.6 // Escala grande para coincidir con referencia visual
-const BOAT_W = Math.round(BOAT_IMAGE_W * BOAT_SCALE) // ~416px
-const BOAT_H = Math.round(BOAT_IMAGE_H * BOAT_SCALE) // ~228px
-const POLE_LENGTH = Math.round((BOAT_W * 5) / 8) // ~364px (ratio 5:8)
+// Escala ×3 para igualar la densidad de píxel del spritesheet del personaje
+// (SPRITE_CONFIG.scale = 3) — así el barco y el skin comparten "grano" pixel art.
+const BOAT_IMAGE_W = 175
+const BOAT_IMAGE_H = 83
+const BOAT_SCALE = 3
+const BOAT_W = BOAT_IMAGE_W * BOAT_SCALE // 525px
+const BOAT_H = BOAT_IMAGE_H * BOAT_SCALE // 249px
+const POLE_LENGTH = Math.round((BOAT_W * 5) / 8) // ~328px (ratio 5:8)
 
 export const BOAT = {
   DISPLAY_WIDTH: BOAT_W,
