@@ -250,6 +250,10 @@ export class PreloadScene extends BaseScene {
     this.load.image('hist-mision', 'backgrounds/hist-mision.webp')
 
     this.load.image('boat', 'sprites/barco.png')
+    this.load.spritesheet('boat-small', 'sprites/barquita.png', {
+      frameWidth: 46,
+      frameHeight: 36,
+    })
 
     // Sprites de personajes (excluir hidden — no tienen portrait)
     CHARACTERS.filter((c) => !c.hidden).forEach((char) => {

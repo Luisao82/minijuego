@@ -13,9 +13,11 @@ import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { Player } from '../entities/Player'
+import { BackgroundBoat } from '../entities/BackgroundBoat'
 import { JumpSystem } from '../systems/JumpSystem'
 import { FallSystem } from '../systems/FallSystem'
 import { OilSystem } from '../systems/OilSystem'
+import { flagDeliveryService } from '../services/FlagDeliveryService'
 
 // Vista lateral 2D de la partida (perspectivas Triana y Sevilla).
 // El flujo de juego vive en BaseGameScene; aquí solo la presentación:
@@ -92,8 +94,91 @@ export class GameScene extends BaseGameScene {
 
     this.createControlPanel()
     this.createHUD()
-    this.startPhase1()
     this.setupInput()
+
+    if (flagDeliveryService.consume()) {
+      this._playFlagDeliveryCeremony()
+    } else {
+      this.startPhase1()
+    }
+  }
+
+  // Cinemática de introducción tras conseguir la bandera en la partida
+  // anterior — un barquito entra por la izquierda del río, "planta" la
+  // bandera bajo el palo y se aleja. Durante la ceremonia la fase de
+  // impulso no arranca y un tap en cualquier parte de la pantalla salta al
+  // final. Un tap sobre el barquito queda reservado para una futura escena.
+  _playFlagDeliveryCeremony() {
+    this.phase = 'ceremony'
+    this.flagGraphics.setVisible(false)
+
+    // El barquito vive dentro de gameWorld, así hereda el flip de la
+    // perspectiva. En world coords, para que entre por la IZQUIERDA VISUAL
+    // de la pantalla, en Triana usamos -X (sale por la izquierda física)
+    // y en Sevilla usamos +X más allá del ancho (que al invertirse cae por
+    // la izquierda visual). Ambas 2D usan scale=1.
+    const spriteScale = SPRITE_CONFIG.scale
+    const boatH = 36 * spriteScale
+    const offscreenX = this.perspective.flipX ? GAME_WIDTH + 100 : -100
+    const startWorldX = offscreenX
+    const exitWorldX = offscreenX
+    const stopWorldX = POLE.END_X
+    const y = this.waterY + boatH / 2 - 44
+
+    this._backgroundBoat = new BackgroundBoat(this, {
+      startX: startWorldX,
+      y,
+      scale: spriteScale,
+      depth: 5,
+      parent: this.gameWorld,
+      onClick: () => {
+        // Reservado para una futura escena. Por ahora no hace nada;
+        // el tap sobre el barquito NO debe saltar la cinemática.
+      },
+    })
+
+    const skipHandler = (pointer) => {
+      if (!this._backgroundBoat) return
+      // El botón SALIR conserva su función durante la cinemática.
+      if (
+        pointer &&
+        this.exitBtnBounds &&
+        Phaser.Geom.Rectangle.Contains(this.exitBtnBounds, pointer.x, pointer.y)
+      )
+        return
+      // Tap sobre el barquito → reservado para futura escena, no salta.
+      const boatSprite = this._backgroundBoat.sprite
+      if (
+        pointer &&
+        boatSprite &&
+        Phaser.Geom.Rectangle.Contains(boatSprite.getBounds(), pointer.x, pointer.y)
+      )
+        return
+      this._backgroundBoat.skip()
+    }
+    // Se registra como listener aparte del handleTap normal para poder
+    // desmontarlo cuando la ceremonia acaba.
+    this._ceremonySkipHandler = skipHandler
+    this.input.on('pointerdown', skipHandler)
+
+    this._backgroundBoat.play({
+      targetX: stopWorldX,
+      exitX: exitWorldX,
+      onFlagPlanted: () => this.flagGraphics.setVisible(true),
+      onDone: () => this._endFlagDeliveryCeremony(),
+    })
+  }
+
+  _endFlagDeliveryCeremony() {
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
+    // Si se hizo skip antes de que sonase el frame de plantar, garantiza el
+    // estado final visible (bandera en el palo).
+    this.flagGraphics.setVisible(true)
+    this._backgroundBoat = null
+    this.startPhase1()
   }
 
   _setupGameWorld() {
@@ -283,5 +368,11 @@ export class GameScene extends BaseGameScene {
   _onShutdown() {
     super._onShutdown()
     this.player?.destroy()
+    this._backgroundBoat?.destroy()
+    this._backgroundBoat = null
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
   }
 }

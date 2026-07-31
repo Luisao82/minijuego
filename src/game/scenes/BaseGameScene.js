@@ -5,6 +5,7 @@ import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { mapService } from '../services/MapService'
 import { skinService } from '../services/SkinService'
 import { gameStatsService } from '../services/GameStatsService'
+import { flagDeliveryService } from '../services/FlagDeliveryService'
 import { PowerBar } from '../entities/PowerBar'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
@@ -236,6 +237,7 @@ export class BaseGameScene extends BaseScene {
     this.hasFlag = true
     if (captureGrease) this._capturedGreasePercent = this.oilSystem.getTotalGrease()
     this.oilSystem.reset()
+    flagDeliveryService.set()
     this.onFlagTaken()
   }
 

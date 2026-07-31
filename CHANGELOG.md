@@ -7,6 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Cinemática del barquito que "trae la bandera".** Cuando el jugador consigue la bandera en una partida, la siguiente arranca con una animación: un barquito entra por la izquierda del río, se coloca bajo el palo, planta la bandera (secuencia frames 2→6 del spritesheet) y se aleja oscilando entre frames 6↔5. Nuevo asset `public/assets/sprites/barquita.png` (spritesheet 276×36, 6 frames de 46×36 renderizados a scale ×3 igual que el personaje). Nueva entidad `src/game/entities/BackgroundBoat.js` con máquina de estados `ENTERING → PLANTING → LEAVING → DONE`, diseñada como componente autónomo para soportar múltiples barcos de fondo en el futuro (cada uno con su spritesheet, ritmo, profundidad y `onClick` propio). Nuevo servicio `src/game/services/FlagDeliveryService.js` que persiste el flag pendiente en `localStorage` (clave `cucana_flag_delivery_pending`) — se activa en `BaseGameScene._onFlagGrabbed` y se consume en `GameScene.create`. Durante la cinemática la fase de impulso queda bloqueada; un tap en cualquier parte de la pantalla salta al estado final (bandera puesta), mientras que un tap sobre el barquito queda reservado para una futura escena y no interrumpe la animación. El botón SALIR conserva su función. La bandera del palo se oculta al arrancar y se revela cuando el barquito llega al frame 6, para que la aparición coincida con el "plantado".
+
+### Changed
+
+- **Barco de la escena de juego redibujado a la misma densidad de píxel que el personaje.** Nuevo sprite `public/assets/sprites/barco.png` de **175×83 px nativos** (antes 333×182). En `src/game/config/gameConfig.js`, `BOAT_SCALE` pasa de `1.6` a `3` para igualar `SPRITE_CONFIG.scale` del skin, de forma que 1 px de arte del barco = 1 px de arte del personaje. Tamaño en pantalla: **525×249 px** (antes ~533×291) — encaje visual casi idéntico pero sin el efecto de "píxeles finos" del barco anterior. `POLE_LENGTH` recalculado a ~328 px (antes ~333) manteniendo el ratio 5:8. La escena 3D (`World3D`) usa la misma textura y refleja el cambio automáticamente.
+
 ## [1.9.1] - 2026-07-29
 
 ### Fixed
