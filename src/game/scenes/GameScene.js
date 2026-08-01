@@ -112,18 +112,21 @@ export class GameScene extends BaseGameScene {
     this.phase = 'ceremony'
     this.flagGraphics.setVisible(false)
 
-    // El barquito recorre el río en línea recta de IZQUIERDA a DERECHA en
-    // coords del mundo: entra por la izquierda de la pantalla (Triana),
-    // pasa bajo la bandera plantándola, y continúa hasta salir por el
-    // lado del barco grande — NO vuelve atrás. El barquito vive dentro
-    // de gameWorld, así hereda el flip de la perspectiva: en Sevilla el
-    // flip invierte la dirección en pantalla sin tocar las coords del
-    // mundo. El sprite nativo mira a la izquierda (mástil/bandera en el
-    // lado izquierdo), así que lo volteamos con flipX para que su proa
-    // apunte en la dirección de avance.
+    // El barquito recorre el río de IZQUIERDA a DERECHA en coords del
+    // mundo: entra por la izquierda de la pantalla (Triana), se detiene
+    // bajo la bandera para plantarla y continúa "engrasando" el palo
+    // hasta que se acerca al barco grande, donde se desvanece — NO pasa
+    // por delante del barco grande. El sprite ya mira a la derecha
+    // nativamente (escalera delante = lado derecho del frame, motor
+    // detrás = lado izquierdo), así que NO necesita flipX. En Sevilla el
+    // flip de gameWorld invierte automáticamente la dirección en pantalla
+    // sin tocar las coords del mundo.
     const spriteScale = SPRITE_CONFIG.scale
     const startWorldX = -150
-    const exitWorldX = GAME_WIDTH + 150
+    // Se desvanece justo antes del borde izquierdo del barco grande
+    // (POLE.START_X = borde izquierdo del casco). Restamos ~30 px para
+    // que el fundido termine limpio, sin solapamiento visible.
+    const exitWorldX = POLE.START_X - 30
     const stopWorldX = POLE.END_X
     const y = this.poleY + 30
 
@@ -132,11 +135,12 @@ export class GameScene extends BaseGameScene {
       y,
       scale: spriteScale,
       depth: 5,
-      flipX: true,
-      enterSpeedPxPerSec: 220,
-      leaveSpeedPxPerSec: 260,
-      plantFrameDelayMs: 180,
-      leaveOscillationMs: 260,
+      enterSpeedPxPerSec: 110,
+      leaveSpeedPxPerSec: 75,
+      plantFrameDelayMs: 220,
+      leaveAltFrameMs: 220,
+      leaveFinalFrameMs: 550,
+      leaveFadeMs: 500,
       parent: this.gameWorld,
       onClick: () => {
         // Reservado para una futura escena. Por ahora no hace nada;

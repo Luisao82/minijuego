@@ -14,8 +14,8 @@
 
 const FRAME_IDLE = 0 // Frame 1 en la referencia del usuario
 const FRAMES_PLANT = [1, 2, 3, 4, 5] // Frames 2→6 (planta la bandera)
-const FRAME_PLANTED = 5 // Frame 6 — bandera colocada
-const FRAME_LEAVE_ALT = 4 // Oscila 6↔5 mientras se aleja
+const FRAME_PLANTED = 5 // Frame 6 — bandera colocada (frame "en reposo")
+const FRAME_LEAVE_ALT = 4 // Frame 5 — alterna con FRAME_PLANTED mientras se aleja "engrasando" el palo
 
 export class BackgroundBoat {
   constructor(
@@ -26,11 +26,13 @@ export class BackgroundBoat {
       y,
       scale = 3,
       depth = 0,
-      flipX = false, // Voltea el sprite horizontalmente (para movimientos L→R cuando el sprite mira a la izquierda)
+      flipX = false, // Voltea el sprite horizontalmente (por si un futuro barco viene con orientación distinta)
       enterSpeedPxPerSec = 320,
       leaveSpeedPxPerSec = 260,
       plantFrameDelayMs = 130,
-      leaveOscillationMs = 220,
+      leaveAltFrameMs = 200, // Duración del frame "trabajando"
+      leaveFinalFrameMs = 500, // Duración del frame "en reposo" (más largo)
+      leaveFadeMs = 400, // Fundido al final del trayecto de salida
       onClick = null,
       parent = null, // Container padre opcional (para heredar transformaciones)
     }
@@ -39,11 +41,14 @@ export class BackgroundBoat {
     this.enterSpeedPxPerSec = enterSpeedPxPerSec
     this.leaveSpeedPxPerSec = leaveSpeedPxPerSec
     this.plantFrameDelayMs = plantFrameDelayMs
-    this.leaveOscillationMs = leaveOscillationMs
+    this.leaveAltFrameMs = leaveAltFrameMs
+    this.leaveFinalFrameMs = leaveFinalFrameMs
+    this.leaveFadeMs = leaveFadeMs
     this.onClick = onClick
 
     this.state = 'IDLE'
     this._activeTween = null
+    this._fadeTween = null
     this._activeTimer = null
     this._leaveOscillationEvent = null
     this._onDone = null
@@ -132,17 +137,20 @@ export class BackgroundBoat {
   _leave(exitX, onGone) {
     this.state = 'LEAVING'
 
-    // Oscilación 6↔5 durante la salida — refuerza la sensación de
-    // balanceo sobre las olas con la bandera ya plantada.
-    this._leaveOscillationEvent = this.scene.time.addEvent({
-      delay: this.leaveOscillationMs,
-      loop: true,
-      callback: () => {
+    // Alternancia 6↔5 durante la salida — evoca al barquero "engrasando"
+    // el palo mientras avanza. El frame 6 (en reposo, bandera plantada)
+    // se mantiene más tiempo que el frame 5 (trabajando) para que la
+    // animación no resulte nerviosa.
+    const cycle = () => {
+      if (this._destroyed) return
+      this.sprite.setFrame(FRAME_PLANTED)
+      this._leaveOscillationEvent = this.scene.time.delayedCall(this.leaveFinalFrameMs, () => {
         if (this._destroyed) return
-        const curr = this.sprite.frame.name
-        this.sprite.setFrame(curr === String(FRAME_PLANTED) ? FRAME_LEAVE_ALT : FRAME_PLANTED)
-      },
-    })
+        this.sprite.setFrame(FRAME_LEAVE_ALT)
+        this._leaveOscillationEvent = this.scene.time.delayedCall(this.leaveAltFrameMs, cycle)
+      })
+    }
+    cycle()
 
     const distance = Math.abs(exitX - this.sprite.x)
     const duration = (distance / this.leaveSpeedPxPerSec) * 1000
@@ -156,11 +164,24 @@ export class BackgroundBoat {
         onGone()
       },
     })
+
+    // Fundido al final del recorrido para que el barquito "desaparezca"
+    // cerca del barco grande sin pasar por delante de él.
+    const fadeDelay = Math.max(0, duration - this.leaveFadeMs)
+    this._fadeTween = this.scene.tweens.add({
+      targets: this.sprite,
+      alpha: 0,
+      duration: this.leaveFadeMs,
+      delay: fadeDelay,
+      ease: 'Quad.easeIn',
+    })
   }
 
   _cancelActive() {
     this._activeTween?.stop()
     this._activeTween = null
+    this._fadeTween?.stop()
+    this._fadeTween = null
     this._activeTimer?.remove(false)
     this._activeTimer = null
     this._leaveOscillationEvent?.remove(false)
