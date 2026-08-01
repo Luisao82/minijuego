@@ -112,24 +112,28 @@ export class GameScene extends BaseGameScene {
     this.phase = 'ceremony'
     this.flagGraphics.setVisible(false)
 
-    // El barquito vive dentro de gameWorld, así hereda el flip de la
-    // perspectiva. En world coords, para que entre por la IZQUIERDA VISUAL
-    // de la pantalla, en Triana usamos -X (sale por la izquierda física)
-    // y en Sevilla usamos +X más allá del ancho (que al invertirse cae por
-    // la izquierda visual). Ambas 2D usan scale=1.
+    // El barquito recorre el río en línea recta: entra por el lado del
+    // barco grande (fondo de la escena en la ficción), pasa bajo el palo
+    // plantando la bandera y continúa hasta salir por el lado opuesto —
+    // NO vuelve atrás. El barquito vive dentro de gameWorld, así hereda
+    // el flip de la perspectiva: en Triana entra por la derecha visual y
+    // sale por la izquierda; en Sevilla el flip invierte la animación en
+    // pantalla sin necesidad de tocar las coords del mundo.
     const spriteScale = SPRITE_CONFIG.scale
-    const boatH = 36 * spriteScale
-    const offscreenX = this.perspective.flipX ? GAME_WIDTH + 100 : -100
-    const startWorldX = offscreenX
-    const exitWorldX = offscreenX
+    const startWorldX = GAME_WIDTH + 100
+    const exitWorldX = -150
     const stopWorldX = POLE.END_X
-    const y = this.waterY + boatH / 2 - 44
+    const y = this.poleY + 30
 
     this._backgroundBoat = new BackgroundBoat(this, {
       startX: startWorldX,
       y,
       scale: spriteScale,
       depth: 5,
+      enterSpeedPxPerSec: 220,
+      leaveSpeedPxPerSec: 260,
+      plantFrameDelayMs: 180,
+      leaveOscillationMs: 260,
       parent: this.gameWorld,
       onClick: () => {
         // Reservado para una futura escena. Por ahora no hace nada;

@@ -1,5 +1,7 @@
-// BackgroundBoat — barquito animado que entra por la izquierda, "planta" la
-// bandera bajo el palo y se aleja oscilando su balanceo. Diseñado como
+// BackgroundBoat — barquito animado que cruza la escena en línea recta:
+// entra desde un lado, "planta" la bandera bajo el palo y continúa hasta
+// salir por el lado opuesto oscilando su balanceo. No hay vuelta atrás:
+// startX y exitX pueden estar en lados distintos de stopX. Diseñado como
 // componente autónomo para poder tener varios barcos independientes en el
 // fondo (cada uno con su spritesheet, ritmo, profundidad y callbacks).
 //
@@ -128,8 +130,8 @@ export class BackgroundBoat {
   _leave(exitX, onGone) {
     this.state = 'LEAVING'
 
-    // Oscilación 6↔5 durante el viaje de vuelta — refuerza la sensación
-    // de balanceo sobre las olas.
+    // Oscilación 6↔5 durante la salida — refuerza la sensación de
+    // balanceo sobre las olas con la bandera ya plantada.
     this._leaveOscillationEvent = this.scene.time.addEvent({
       delay: this.leaveOscillationMs,
       loop: true,
