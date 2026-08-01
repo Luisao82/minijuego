@@ -165,16 +165,19 @@ export class BackgroundBoat {
       },
     })
 
-    // Fundido al final del recorrido para que el barquito "desaparezca"
-    // cerca del barco grande sin pasar por delante de él.
-    const fadeDelay = Math.max(0, duration - this.leaveFadeMs)
-    this._fadeTween = this.scene.tweens.add({
-      targets: this.sprite,
-      alpha: 0,
-      duration: this.leaveFadeMs,
-      delay: fadeDelay,
-      ease: 'Quad.easeIn',
-    })
+    // Fundido opcional al final del recorrido. Con leaveFadeMs = 0 el
+    // barquito desaparece de golpe al llegar a exitX (corte seco, útil
+    // cuando la escena arranca inmediatamente después).
+    if (this.leaveFadeMs > 0) {
+      const fadeDelay = Math.max(0, duration - this.leaveFadeMs)
+      this._fadeTween = this.scene.tweens.add({
+        targets: this.sprite,
+        alpha: 0,
+        duration: this.leaveFadeMs,
+        delay: fadeDelay,
+        ease: 'Quad.easeIn',
+      })
+    }
   }
 
   _cancelActive() {

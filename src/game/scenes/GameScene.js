@@ -128,7 +128,7 @@ export class GameScene extends BaseGameScene {
     // que el fundido termine limpio, sin solapamiento visible.
     const exitWorldX = POLE.START_X - 30
     const stopWorldX = POLE.END_X
-    const y = this.poleY + 30
+    const y = this.poleY + 36
 
     this._backgroundBoat = new BackgroundBoat(this, {
       startX: startWorldX,
@@ -140,11 +140,13 @@ export class GameScene extends BaseGameScene {
       plantFrameDelayMs: 220,
       leaveAltFrameMs: 220,
       leaveFinalFrameMs: 550,
-      leaveFadeMs: 500,
+      leaveFadeMs: 0, // Corte seco al llegar al final — la partida arranca justo después
       parent: this.gameWorld,
       onClick: () => {
-        // Reservado para una futura escena. Por ahora no hace nada;
-        // el tap sobre el barquito NO debe saltar la cinemática.
+        // TODO(cutscene-click): abrir una escena narrativa del barquero
+        // (formato tipo HistoryScene / TutorialScene). Sprite ya está
+        // marcado interactive; el tap sobre el barco NO debe saltar la
+        // cinemática — eso ya lo maneja skipHandler más abajo.
       },
     })
 
