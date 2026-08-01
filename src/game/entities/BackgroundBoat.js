@@ -26,6 +26,7 @@ export class BackgroundBoat {
       y,
       scale = 3,
       depth = 0,
+      flipX = false, // Voltea el sprite horizontalmente (para movimientos L→R cuando el sprite mira a la izquierda)
       enterSpeedPxPerSec = 320,
       leaveSpeedPxPerSec = 260,
       plantFrameDelayMs = 130,
@@ -51,6 +52,7 @@ export class BackgroundBoat {
     this.sprite = scene.add
       .sprite(startX, y, textureKey, FRAME_IDLE)
       .setScale(scale)
+      .setFlipX(flipX)
       .setDepth(depth)
       .setInteractive({ useHandCursor: true })
 

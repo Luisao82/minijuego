@@ -112,16 +112,18 @@ export class GameScene extends BaseGameScene {
     this.phase = 'ceremony'
     this.flagGraphics.setVisible(false)
 
-    // El barquito recorre el río en línea recta: entra por el lado del
-    // barco grande (fondo de la escena en la ficción), pasa bajo el palo
-    // plantando la bandera y continúa hasta salir por el lado opuesto —
-    // NO vuelve atrás. El barquito vive dentro de gameWorld, así hereda
-    // el flip de la perspectiva: en Triana entra por la derecha visual y
-    // sale por la izquierda; en Sevilla el flip invierte la animación en
-    // pantalla sin necesidad de tocar las coords del mundo.
+    // El barquito recorre el río en línea recta de IZQUIERDA a DERECHA en
+    // coords del mundo: entra por la izquierda de la pantalla (Triana),
+    // pasa bajo la bandera plantándola, y continúa hasta salir por el
+    // lado del barco grande — NO vuelve atrás. El barquito vive dentro
+    // de gameWorld, así hereda el flip de la perspectiva: en Sevilla el
+    // flip invierte la dirección en pantalla sin tocar las coords del
+    // mundo. El sprite nativo mira a la izquierda (mástil/bandera en el
+    // lado izquierdo), así que lo volteamos con flipX para que su proa
+    // apunte en la dirección de avance.
     const spriteScale = SPRITE_CONFIG.scale
-    const startWorldX = GAME_WIDTH + 100
-    const exitWorldX = -150
+    const startWorldX = -150
+    const exitWorldX = GAME_WIDTH + 150
     const stopWorldX = POLE.END_X
     const y = this.poleY + 30
 
@@ -130,6 +132,7 @@ export class GameScene extends BaseGameScene {
       y,
       scale: spriteScale,
       depth: 5,
+      flipX: true,
       enterSpeedPxPerSec: 220,
       leaveSpeedPxPerSec: 260,
       plantFrameDelayMs: 180,
