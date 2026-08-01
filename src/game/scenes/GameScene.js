@@ -123,11 +123,11 @@ export class GameScene extends BaseGameScene {
     // sin tocar las coords del mundo.
     const spriteScale = SPRITE_CONFIG.scale
     const startWorldX = -150
-    // Desaparece bien antes del borde izquierdo del barco grande
-    // (POLE.START_X = borde izquierdo del casco). Restamos ~100 px para
-    // dejar hueco visible y que la silueta del barquito nunca llegue a
-    // tocar el casco grande.
-    const exitWorldX = POLE.START_X - 100
+    // Desaparece antes del borde izquierdo del barco grande
+    // (POLE.START_X = borde izquierdo del casco). Restamos ~65 px para
+    // dejar un hueco visible sin que las siluetas lleguen a tocarse,
+    // pero sin cortar demasiado pronto.
+    const exitWorldX = POLE.START_X - 65
     const stopWorldX = POLE.END_X
     const y = this.poleY + 36
 
