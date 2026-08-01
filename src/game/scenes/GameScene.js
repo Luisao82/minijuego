@@ -123,10 +123,11 @@ export class GameScene extends BaseGameScene {
     // sin tocar las coords del mundo.
     const spriteScale = SPRITE_CONFIG.scale
     const startWorldX = -150
-    // Se desvanece justo antes del borde izquierdo del barco grande
-    // (POLE.START_X = borde izquierdo del casco). Restamos ~30 px para
-    // que el fundido termine limpio, sin solapamiento visible.
-    const exitWorldX = POLE.START_X - 30
+    // Desaparece bien antes del borde izquierdo del barco grande
+    // (POLE.START_X = borde izquierdo del casco). Restamos ~100 px para
+    // dejar hueco visible y que la silueta del barquito nunca llegue a
+    // tocar el casco grande.
+    const exitWorldX = POLE.START_X - 100
     const stopWorldX = POLE.END_X
     const y = this.poleY + 36
 
@@ -135,8 +136,8 @@ export class GameScene extends BaseGameScene {
       y,
       scale: spriteScale,
       depth: 5,
-      enterSpeedPxPerSec: 110,
-      leaveSpeedPxPerSec: 75,
+      enterSpeedPxPerSec: 80,
+      leaveSpeedPxPerSec: 55,
       plantFrameDelayMs: 220,
       leaveAltFrameMs: 220,
       leaveFinalFrameMs: 550,
