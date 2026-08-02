@@ -13,6 +13,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Nueva versión del sprite del barco principal** (`public/assets/sprites/barco.png`) — mantiene las mismas dimensiones nativas (175×83) y se sirve al mismo `BOAT_SCALE` de 3, así que no hay cambios de configuración ni de layout, solo se sustituye la arte.
 - **Barco de la escena de juego redibujado a la misma densidad de píxel que el personaje.** Nuevo sprite `public/assets/sprites/barco.png` de **175×83 px nativos** (antes 333×182). En `src/game/config/gameConfig.js`, `BOAT_SCALE` pasa de `1.6` a `3` para igualar `SPRITE_CONFIG.scale` del skin, de forma que 1 px de arte del barco = 1 px de arte del personaje. Tamaño en pantalla: **525×249 px** (antes ~533×291) — encaje visual casi idéntico pero sin el efecto de "píxeles finos" del barco anterior. `POLE_LENGTH` recalculado a ~328 px (antes ~333) manteniendo el ratio 5:8. La escena 3D (`World3D`) usa la misma textura y refleja el cambio automáticamente.
 
 ## [1.9.1] - 2026-07-29
