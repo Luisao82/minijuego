@@ -36,6 +36,7 @@ export const SCENES = {
   CRT: 'CRTScene',
   MENU: 'MenuScene',
   HISTORY: 'HistoryScene',
+  ANDANA: 'AndanaScene',
   TUTORIAL: 'TutorialScene',
   VIEW_SELECT: 'ViewSelectScene',
   CHARACTER_SELECT: 'CharacterSelectScene',

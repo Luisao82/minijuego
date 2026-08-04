@@ -143,12 +143,7 @@ export class GameScene extends BaseGameScene {
       leaveFinalFrameMs: 550,
       leaveFadeMs: 0, // Corte seco al llegar al final — la partida arranca justo después
       parent: this.gameWorld,
-      onClick: () => {
-        // TODO(cutscene-click): abrir una escena narrativa del barquero
-        // (formato tipo HistoryScene / TutorialScene). Sprite ya está
-        // marcado interactive; el tap sobre el barco NO debe saltar la
-        // cinemática — eso ya lo maneja skipHandler más abajo.
-      },
+      onClick: () => this._openAndanaScene(),
     })
 
     const skipHandler = (pointer) => {
@@ -193,6 +188,24 @@ export class GameScene extends BaseGameScene {
     this.flagGraphics.setVisible(true)
     this._backgroundBoat = null
     this.startPhase1()
+  }
+
+  // Al pulsar sobre el barquito durante la cinemática: cortar la
+  // cinemática y abrir la historia de la familia Andana. Cuando el
+  // jugador termine (o pulse SALTAR) volveremos aquí mediante
+  // scene.start(GAME), y como flagDeliveryService.consume() ya se llamó
+  // al entrar en create(), la partida arrancará normal sin ceremonia.
+  _openAndanaScene() {
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
+    this._backgroundBoat?.destroy()
+    this._backgroundBoat = null
+    this.scene.start(SCENES.ANDANA, {
+      character: this.characterData,
+      perspective: this.perspective,
+    })
   }
 
   _setupGameWorld() {

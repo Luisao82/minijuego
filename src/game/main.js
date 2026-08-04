@@ -3,6 +3,7 @@ import { CRTScene } from './scenes/CRTScene'
 import { PreloadScene } from './scenes/PreloadScene'
 import { MenuScene } from './scenes/MenuScene'
 import { HistoryScene } from './scenes/HistoryScene'
+import { AndanaScene } from './scenes/AndanaScene'
 import { TutorialScene } from './scenes/TutorialScene'
 import { ViewSelectScene } from './scenes/ViewSelectScene'
 import { CharacterSelectScene } from './scenes/CharacterSelectScene'
@@ -40,6 +41,7 @@ const config = {
     CRTScene,
     MenuScene,
     HistoryScene,
+    AndanaScene,
     TutorialScene,
     ViewSelectScene,
     CharacterSelectScene,
