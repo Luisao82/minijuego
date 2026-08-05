@@ -122,7 +122,10 @@ export class BaseNarratedScene extends BaseScene {
       const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, key)
       bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
     } else {
-      this.add.graphics().fillStyle(this._palette.bgFallback, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      this.add
+        .graphics()
+        .fillStyle(this._palette.bgFallback, 1)
+        .fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
     }
 
     this.add
