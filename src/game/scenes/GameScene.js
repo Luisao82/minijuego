@@ -13,9 +13,11 @@ import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { Player } from '../entities/Player'
+import { BackgroundBoat } from '../entities/BackgroundBoat'
 import { JumpSystem } from '../systems/JumpSystem'
 import { FallSystem } from '../systems/FallSystem'
 import { OilSystem } from '../systems/OilSystem'
+import { flagDeliveryService } from '../services/FlagDeliveryService'
 
 // Vista lateral 2D de la partida (perspectivas Triana y Sevilla).
 // El flujo de juego vive en BaseGameScene; aquí solo la presentación:
@@ -92,8 +94,118 @@ export class GameScene extends BaseGameScene {
 
     this.createControlPanel()
     this.createHUD()
-    this.startPhase1()
     this.setupInput()
+
+    if (flagDeliveryService.consume()) {
+      this._playFlagDeliveryCeremony()
+    } else {
+      this.startPhase1()
+    }
+  }
+
+  // Cinemática de introducción tras conseguir la bandera en la partida
+  // anterior — un barquito entra por la izquierda del río, "planta" la
+  // bandera bajo el palo y se aleja. Durante la ceremonia la fase de
+  // impulso no arranca y un tap en cualquier parte de la pantalla salta al
+  // final. Un tap sobre el barquito queda reservado para una futura escena.
+  _playFlagDeliveryCeremony() {
+    this.phase = 'ceremony'
+    this.flagGraphics.setVisible(false)
+
+    // El barquito recorre el río de IZQUIERDA a DERECHA en coords del
+    // mundo: entra por la izquierda de la pantalla (Triana), se detiene
+    // bajo la bandera para plantarla y continúa "engrasando" el palo
+    // hasta que se acerca al barco grande, donde se desvanece — NO pasa
+    // por delante del barco grande. El sprite ya mira a la derecha
+    // nativamente (escalera delante = lado derecho del frame, motor
+    // detrás = lado izquierdo), así que NO necesita flipX. En Sevilla el
+    // flip de gameWorld invierte automáticamente la dirección en pantalla
+    // sin tocar las coords del mundo.
+    const spriteScale = SPRITE_CONFIG.scale
+    const startWorldX = -150
+    // Desaparece antes del borde izquierdo del barco grande
+    // (POLE.START_X = borde izquierdo del casco). Restamos ~65 px para
+    // dejar un hueco visible sin que las siluetas lleguen a tocarse,
+    // pero sin cortar demasiado pronto.
+    const exitWorldX = POLE.START_X - 65
+    const stopWorldX = POLE.END_X
+    const y = this.poleY + 36
+
+    this._backgroundBoat = new BackgroundBoat(this, {
+      startX: startWorldX,
+      y,
+      scale: spriteScale,
+      depth: 5,
+      enterSpeedPxPerSec: 80,
+      leaveSpeedPxPerSec: 55,
+      plantFrameDelayMs: 220,
+      leaveAltFrameMs: 220,
+      leaveFinalFrameMs: 550,
+      leaveFadeMs: 0, // Corte seco al llegar al final — la partida arranca justo después
+      parent: this.gameWorld,
+      onClick: () => this._openAndanaScene(),
+    })
+
+    const skipHandler = (pointer) => {
+      if (!this._backgroundBoat) return
+      // El botón SALIR conserva su función durante la cinemática.
+      if (
+        pointer &&
+        this.exitBtnBounds &&
+        Phaser.Geom.Rectangle.Contains(this.exitBtnBounds, pointer.x, pointer.y)
+      )
+        return
+      // Tap sobre el barquito → reservado para futura escena, no salta.
+      const boatSprite = this._backgroundBoat.sprite
+      if (
+        pointer &&
+        boatSprite &&
+        Phaser.Geom.Rectangle.Contains(boatSprite.getBounds(), pointer.x, pointer.y)
+      )
+        return
+      this._backgroundBoat.skip()
+    }
+    // Se registra como listener aparte del handleTap normal para poder
+    // desmontarlo cuando la ceremonia acaba.
+    this._ceremonySkipHandler = skipHandler
+    this.input.on('pointerdown', skipHandler)
+
+    this._backgroundBoat.play({
+      targetX: stopWorldX,
+      exitX: exitWorldX,
+      onFlagPlanted: () => this.flagGraphics.setVisible(true),
+      onDone: () => this._endFlagDeliveryCeremony(),
+    })
+  }
+
+  _endFlagDeliveryCeremony() {
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
+    // Si se hizo skip antes de que sonase el frame de plantar, garantiza el
+    // estado final visible (bandera en el palo).
+    this.flagGraphics.setVisible(true)
+    this._backgroundBoat = null
+    this.startPhase1()
+  }
+
+  // Al pulsar sobre el barquito durante la cinemática: cortar la
+  // cinemática y abrir la historia de la familia Andana. Cuando el
+  // jugador termine (o pulse SALTAR) volveremos aquí mediante
+  // scene.start(GAME), y como flagDeliveryService.consume() ya se llamó
+  // al entrar en create(), la partida arrancará normal sin ceremonia.
+  _openAndanaScene() {
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
+    this._backgroundBoat?.destroy()
+    this._backgroundBoat = null
+    this.scene.start(SCENES.ANDANA, {
+      character: this.characterData,
+      perspective: this.perspective,
+    })
   }
 
   _setupGameWorld() {
@@ -283,5 +395,11 @@ export class GameScene extends BaseGameScene {
   _onShutdown() {
     super._onShutdown()
     this.player?.destroy()
+    this._backgroundBoat?.destroy()
+    this._backgroundBoat = null
+    if (this._ceremonySkipHandler) {
+      this.input.off('pointerdown', this._ceremonySkipHandler)
+      this._ceremonySkipHandler = null
+    }
   }
 }

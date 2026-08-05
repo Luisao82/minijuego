@@ -229,6 +229,10 @@ export class PreloadScene extends BaseScene {
       frameWidth: 35,
       frameHeight: 35,
     })
+    this.load.spritesheet('narrator-andana', 'sprites/narrators/narrator_andana.png', {
+      frameWidth: 35,
+      frameHeight: 35,
+    })
     this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', {
       frameWidth: 35,
       frameHeight: 35,
@@ -243,6 +247,8 @@ export class PreloadScene extends BaseScene {
     this.load.image('tut-06', 'tutorial/06-listo.webp')
 
     // Imágenes históricas
+    this.load.image('andana-01', 'backgrounds/andana-01.webp')
+    this.load.image('andana-02', 'backgrounds/andana-02.webp')
     this.load.image('hist-intro', 'backgrounds/hist-intro.webp')
     this.load.image('hist-sabio', 'backgrounds/hist-sabio.webp')
     this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
@@ -250,6 +256,10 @@ export class PreloadScene extends BaseScene {
     this.load.image('hist-mision', 'backgrounds/hist-mision.webp')
 
     this.load.image('boat', 'sprites/barco.png')
+    this.load.spritesheet('boat-small', 'sprites/barquita.png', {
+      frameWidth: 46,
+      frameHeight: 36,
+    })
 
     // Sprites de personajes (excluir hidden — no tienen portrait)
     CHARACTERS.filter((c) => !c.hidden).forEach((char) => {

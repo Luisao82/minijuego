@@ -7,6 +7,24 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-08-05
+
+### Added
+
+- **Nueva escena `AndanaScene` — historia de la familia Andana**, organizadora histórica de la Cucaña. Se lanza al pulsar el barquito durante la cinemática de entrega de la bandera. Al terminar (o al pulsar SALTAR) arranca la partida directamente. Contenido en `src/game/config/andanaContent.js` (2 bloques con imágenes `andana-01` y `andana-02` — WebP convertidas de PNG 1096×1096 y 1448×1086). Nuevo narrador `narrator-andana` (spritesheet 140×35, 4 frames).
+- **Nueva base `BaseNarratedScene`** — refactor de `HistoryScene` extrayendo toda la lógica compartida (dibujo del cuadro RPG, máquina de escribir, navegación por bloques/páginas, capa de imagen ilustrativa, indicador de continuar). `HistoryScene` queda como subclase de ~40 líneas y `AndanaScene` como otra subclase equivalente — futuras escenas narradas son triviales de añadir. La paleta, spritesheet del narrador, background, texto final y callbacks de los botones (`getBackButtonConfig`, `getEndButtonConfig`) se inyectan vía hooks.
+- **Cinemática del barquito que "trae la bandera".** Cuando el jugador consigue la bandera en una partida, la siguiente arranca con una animación: un barquito entra lentamente por la izquierda de la pantalla (Triana), se detiene bajo la bandera para plantarla (frames 2→6 del spritesheet) y continúa "engrasando" el palo alternando los dos últimos frames (frame 6 en reposo, se mantiene el doble de tiempo que el frame 5 de trabajo) hasta que desaparece de golpe justo antes del barco grande — sin fundido, la partida arranca inmediatamente después. Sprite en orientación nativa (escalera delante, motor detrás), sin `flipX`; el flip de gameWorld invierte la dirección visual en Sevilla automáticamente. Velocidades lentas para lectura clara (entrada 80 px/s, salida 55 px/s). Nuevo asset `public/assets/sprites/barquita.png` (spritesheet 276×36, 6 frames de 46×36 renderizados a scale ×3, igual que el personaje). Nueva entidad `src/game/entities/BackgroundBoat.js` con máquina de estados `ENTERING → PLANTING → LEAVING → DONE`, diseñada como componente autónomo para soportar múltiples barcos de fondo en el futuro (cada uno con su spritesheet, ritmo, profundidad y `onClick` propio). Nuevo servicio `src/game/services/FlagDeliveryService.js` que persiste el flag pendiente en `localStorage` (clave `cucana_flag_delivery_pending`) — se activa en `BaseGameScene._onFlagGrabbed` y se consume en `GameScene.create`. Durante la cinemática la fase de impulso queda bloqueada; un tap en cualquier parte de la pantalla salta al estado final (bandera puesta), mientras que un tap sobre el barquito abre `AndanaScene`. El botón SALIR conserva su función.
+
+### Changed
+
+- **Barco principal redibujado a la misma densidad de píxel que el personaje.** Nuevo sprite `public/assets/sprites/barco.png` de **175×83 px nativos** (antes 333×182). En `src/game/config/gameConfig.js`, `BOAT_SCALE` pasa de `1.6` a `3` para igualar `SPRITE_CONFIG.scale` del skin, de forma que 1 px de arte del barco = 1 px de arte del personaje. Tamaño en pantalla: **525×249 px** (antes ~533×291) — encaje visual casi idéntico pero sin el efecto de "píxeles finos" del barco anterior. `POLE_LENGTH` recalculado a ~328 px (antes ~333) manteniendo el ratio 5:8. La escena 3D (`World3D`) usa la misma textura y refleja el cambio automáticamente.
+- **Actualizados los spritesheets de los narradores** `narrator-history` y `narrator-tutorial` con las nuevas versiones (mismas dimensiones 140×35, mismo orden de frames). El `narrator-tutorial` es también la cara del desarrollador en `CreditsScene`, así que ese cambio también aparece allí.
+- **Nueva foto `bar.webp`** en `public/assets/map/photos/` (mapa de Sevilla) — mismas dimensiones 1024×1024, misma calidad WebP q82.
+
+### Removed
+
+- Ficheros huérfanos `narrator.png`, `narrator_eyes.png`, `narrator_m_open.png` y `narrator_open.png` en `sprites/narrators/` — eran los frames sueltos originales que se combinaron en su día en los spritesheets `narrator_history.png` y `narrator_tutorial.png`. Confirmado por `grep` que no los cargaba ningún fichero de `src/`.
+
 ## [1.9.1] - 2026-07-29
 
 ### Fixed
