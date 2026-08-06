@@ -30,8 +30,19 @@ const TARGETS = [
   { name: 'play-pwa', width: 1920, height: 1080, desc: 'Google Play 16:9 + PWA wide' },
 ]
 
-// Orden recomendado para tiendas (primero el hook visual)
-const ORDER = ['intro', 'juego', 'seleccion', 'premio', 'tutorial']
+// Orden recomendado para tiendas (primero el hook visual). Los nombres
+// deben coincidir con los ficheros fuente (sin extensión, case-insensitive)
+// y pueden llevar ya el prefijo NN- que se respeta como aparece en el
+// archivo de salida.
+const ORDER = [
+  '01-menu',
+  '02-juego-equilibrio',
+  '03-personajes',
+  '04-cinematica-barquito',
+  '05-premio',
+  '06-historia-andana',
+  '07-historia',
+]
 
 // ─── PNG decoder/encoder (mismo que upscale-icon.mjs) ────────────────────
 function decodePNG(buffer) {
@@ -56,10 +67,11 @@ function decodePNG(buffer) {
     else if (type === 'IEND') break
     offset += 8 + len + 4
   }
-  if (bitDepth !== 8 || colorType !== 6)
+  // colorType 6 = RGBA (bpp 4), colorType 2 = RGB (bpp 3, sin alpha)
+  if (bitDepth !== 8 || (colorType !== 6 && colorType !== 2))
     throw new Error(`PNG no soportado: ${bitDepth}/${colorType}`)
-  const bpp = 4,
-    stride = width * bpp
+  const bpp = colorType === 6 ? 4 : 3
+  const stride = width * bpp
   const inflated = inflateSync(Buffer.concat(idat))
   const pixels = Buffer.alloc(width * height * bpp)
   for (let y = 0; y < height; y++) {
@@ -99,6 +111,18 @@ function decodePNG(buffer) {
       }
       pixels[outOff + x] = recon
     }
+  }
+  // Si venía sin alpha, expandimos a RGBA rellenando el canal alpha a 255
+  // — el resto del script (paste, encode) asume 4 canales por píxel.
+  if (colorType === 2) {
+    const rgba = Buffer.alloc(width * height * 4)
+    for (let i = 0, j = 0; i < pixels.length; i += 3, j += 4) {
+      rgba[j] = pixels[i]
+      rgba[j + 1] = pixels[i + 1]
+      rgba[j + 2] = pixels[i + 2]
+      rgba[j + 3] = 255
+    }
+    return { width, height, pixels: rgba }
   }
   return { width, height, pixels }
 }
@@ -169,8 +193,11 @@ const screens = readdirSync(INPUT_DIR).filter((f) => f.toLowerCase().endsWith('.
 console.log(`Capturas encontradas: ${screens.length}`)
 console.log(`  ${screens.join(', ')}`)
 
-// Aplicar orden recomendado
-const orderedNames = ORDER.map((n) => `${n}.png`).filter((f) => screens.includes(f))
+// Aplicar orden recomendado — match case-insensitive (acepta .png o .PNG)
+const orderedNames = ORDER.map((n) => {
+  const target = `${n}.png`.toLowerCase()
+  return screens.find((f) => f.toLowerCase() === target)
+}).filter(Boolean)
 const remaining = screens.filter((f) => !orderedNames.includes(f))
 const finalOrder = [...orderedNames, ...remaining]
 
@@ -212,15 +239,18 @@ for (const target of TARGETS) {
     const canvas = blackCanvas(target.width, target.height)
     pasteCenter(canvas, target.width, target.height, resized.pixels, resized.width, resized.height)
 
-    const n = String(i + 1).padStart(2, '0')
-    const outPath = resolve(outDir, `${n}-${baseName}.png`)
+    // Si el nombre ya empieza con NN- respetamos el prefijo tal cual (el
+    // usuario ha decidido el orden en el nombre); si no, añadimos el
+    // índice de posición.
+    const outName = /^\d{2}-/.test(baseName)
+      ? `${baseName}.png`
+      : `${String(i + 1).padStart(2, '0')}-${baseName}.png`
+    const outPath = resolve(outDir, outName)
     writeFileSync(outPath, encodePNG(target.width, target.height, canvas))
     totalGenerated++
 
     const barInfo = sourceRatio === targetRatio ? 'sin bandas' : `bandas ${bars}`
-    console.log(
-      `  ${n}-${baseName}.png  → ${fitW}×${fitH} en ${target.width}×${target.height} (${barInfo})`
-    )
+    console.log(`  ${outName}  → ${fitW}×${fitH} en ${target.width}×${target.height} (${barInfo})`)
   })
 }
 
