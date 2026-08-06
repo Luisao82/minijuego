@@ -1,8 +1,14 @@
 // Procesa las capturas del juego en /Users/luisao/Desktop/pantallazos/
 // y las reformatea con letterbox negro centrado para cada formato de tienda:
-//   • iPhone 6.7" landscape (App Store) — 2796×1290
+//   • iPhone 6.5" landscape (App Store) — 2778×1284
 //   • iPad Pro 13" landscape (App Store) — 2752×2064
 //   • Google Play / PWA 16:9 — 1920×1080
+//
+// Nota sobre iPhone 6.5": App Store Connect todavía usa el slot 6.5" para
+// muchas apps existentes (aunque Apple ya haya lanzado 6.7"/6.9" para las
+// nuevas). Las dimensiones aceptadas son 2778×1284 o 2688×1242 — nuestro
+// origen es 2778×1284 nativo del iPhone, así que el output coincide 1:1
+// sin letterbox.
 //
 // Uso:  node scripts/build-screenshots.mjs
 
@@ -21,10 +27,10 @@ const TMP_DIR = '/tmp/cucana-shots-tmp'
 
 const TARGETS = [
   {
-    name: 'iphone-6.7',
-    width: 2796,
-    height: 1290,
-    desc: 'iPhone 6.7" landscape (App Store, REQUIRED)',
+    name: 'iphone-6.5',
+    width: 2778,
+    height: 1284,
+    desc: 'iPhone 6.5" landscape (App Store, REQUIRED — matches native source 1:1)',
   },
   { name: 'ipad-13', width: 2752, height: 2064, desc: 'iPad Pro 13" landscape (App Store)' },
   { name: 'play-pwa', width: 1920, height: 1080, desc: 'Google Play 16:9 + PWA wide' },
