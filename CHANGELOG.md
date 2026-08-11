@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Barcos ambientales del río (prototipo, `feature/ambient-boats`).** Nueva capa visual de barcos/kayaks/padel-surfistas que cruzan el fondo del río durante la partida, siempre por detrás del barco principal. Persiste entre partidas consecutivas y se regenera al volver al menú (`MenuScene.create` → `ambientBoatsService.reset()`). Configurable por el usuario vía `public/data/ambient-boats.json` (peso relativo por barco, capas de profundidad con parallax de escala/velocidad/alfa, franja Y por capa, dirección `ltr | rtl | random`, animación opcional, y `click` opcional que abre otra escena narrativa o una URL externa con modal de confirmación). Nuevos ficheros: `src/game/entities/AmbientBoat.js` (sprite visual), `src/game/services/AmbientBoatsService.js` (singleton persistente que avanza el estado con `game.events.on('step')` y sobrevive a los shutdowns de `GameScene`), `src/game/components/ConfirmModal.js` (modal genérico con el mismo lenguaje visual que `ExitConfirmModal`) y assets en `public/assets/boats/` (`kayak`, `padelsurf`, `padelsurf_chica`, `padelsurf_chico`, `padelsurf_perrete`, `noaVictoria`). La Nao Victoria es el único barco con evento de click en este prototipo — apunta a `HistoryScene` como historia de prueba.
+
 ## [1.10.0] - 2026-08-05
 
 ### Added

@@ -1,0 +1,137 @@
+{
+  "_readme": "Barcos ambientales del río. Modifica libremente 'weight' (0 = desactivado), 'spawnIntervalMs', 'maxOnScreen', posiciones Y por capa y velocidad base. La probabilidad de aparecer es 'weight' relativo al total. El campo 'file' es el nombre del PNG dentro de public/assets/boats/.",
+
+  "config": {
+    "maxOnScreen": 3,
+    "spawnIntervalMs": [6000, 14000],
+    "initialDelayMs": [500, 3000],
+    "pauseDuringFlagCeremony": false,
+    "pauseDuringConfirmDialog": true,
+    "pauseDuringSplashAndCelebration": false,
+    "entryOffscreenMargin": 120,
+    "depthLayers": {
+      "far":  { "z": -3, "scaleMul": 0.7, "speedMul": 0.55, "alpha": 0.85 },
+      "mid":  { "z": -2, "scaleMul": 1.0, "speedMul": 1.0,  "alpha": 1.0 },
+      "near": { "z": -1, "scaleMul": 1.3, "speedMul": 1.4,  "alpha": 1.0 }
+    },
+    "yRangePerLayer": {
+      "far":  [420, 438],
+      "mid":  [455, 475],
+      "near": [485, 505]
+    }
+  },
+
+  "boats": [
+    {
+      "id": "kayak",
+      "file": "kayak.png",
+      "textureKey": "ambient-kayak",
+      "frameWidth": 40,
+      "frameHeight": 15,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5, 6, 7], "frameRate": 8, "repeat": -1 },
+      "weight": 35,
+      "depthLayer": "mid",
+      "direction": "random",
+      "baseSpeedPxPerSec": 90,
+      "spriteFacesRight": true,
+      "click": null
+    },
+    {
+      "id": "padelsurf",
+      "file": "padelsurf.png",
+      "textureKey": "ambient-padelsurf",
+      "frameWidth": 40,
+      "frameHeight": 25,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
+      "weight": 25,
+      "depthLayer": "mid",
+      "direction": "random",
+      "baseSpeedPxPerSec": 55,
+      "spriteFacesRight": true,
+      "click": null
+    },
+    {
+      "id": "padelsurf-chica",
+      "file": "padelsurf_chica.png",
+      "textureKey": "ambient-padelsurf-chica",
+      "frameWidth": 40,
+      "frameHeight": 25,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
+      "weight": 20,
+      "depthLayer": "near",
+      "direction": "random",
+      "baseSpeedPxPerSec": 60,
+      "spriteFacesRight": true,
+      "click": null
+    },
+    {
+      "id": "padelsurf-chico",
+      "file": "padelsurf_chico.png",
+      "textureKey": "ambient-padelsurf-chico",
+      "frameWidth": 40,
+      "frameHeight": 25,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
+      "weight": 20,
+      "depthLayer": "near",
+      "direction": "random",
+      "baseSpeedPxPerSec": 60,
+      "spriteFacesRight": true,
+      "click": null
+    },
+    {
+      "id": "padelsurf-perrete",
+      "file": "padelsurf_perrete.png",
+      "textureKey": "ambient-padelsurf-perrete",
+      "frameWidth": 40,
+      "frameHeight": 25,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
+      "weight": 15,
+      "depthLayer": "far",
+      "direction": "random",
+      "baseSpeedPxPerSec": 65,
+      "spriteFacesRight": true,
+      "click": null
+    },
+    {
+      "id": "noa-victoria",
+      "file": "noaVictoria.png",
+      "textureKey": "ambient-noa-victoria",
+      "frameWidth": 120,
+      "frameHeight": 95,
+      "animation": null,
+      "weight": 5,
+      "depthLayer": "far",
+      "direction": "random",
+      "baseSpeedPxPerSec": 25,
+      "spriteFacesRight": true,
+      "click": {
+        "category": "narrative",
+        "type": "scene",
+        "target": "HistoryScene",
+        "confirmMessage": "¿Quieres ver la historia de la Nao Victoria?",
+        "enabled": true
+      }
+    },
+    {
+      "_comment": "Ejemplo desactivado — plantilla lista para futuras publis. Cambia enabled:true y weight>0 cuando toque.",
+      "id": "sponsor-ejemplo",
+      "file": "kayak.png",
+      "textureKey": "ambient-sponsor-ejemplo",
+      "frameWidth": 40,
+      "frameHeight": 15,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5, 6, 7], "frameRate": 8, "repeat": -1 },
+      "weight": 0,
+      "depthLayer": "near",
+      "direction": "ltr",
+      "baseSpeedPxPerSec": 90,
+      "spriteFacesRight": true,
+      "click": {
+        "category": "sponsor",
+        "type": "url",
+        "target": "https://ejemplo.com/promo",
+        "confirmMessage": "¿Abrir la web del patrocinador?",
+        "enabled": false
+      }
+    }
+  ]
+}
