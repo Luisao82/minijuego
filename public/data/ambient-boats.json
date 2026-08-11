@@ -16,7 +16,7 @@
       "near": { "z": -1, "scaleMul": 0.9,  "speedMul": 1.25, "alpha": 1.0 }
     },
     "yRangePerLayer": {
-      "far":  [400, 420],
+      "far":  [290, 310],
       "mid":  [320, 345],
       "near": [365, 395]
     }
