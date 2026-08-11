@@ -11,14 +11,14 @@
     "entryOffscreenMargin": 200,
     "defaultBaseScale": 3,
     "depthLayers": {
-      "far":  { "z": -3, "scaleMul": 0.85, "speedMul": 0.55, "alpha": 0.9 },
-      "mid":  { "z": -2, "scaleMul": 1.0,  "speedMul": 1.0,  "alpha": 1.0 },
-      "near": { "z": -1, "scaleMul": 1.15, "speedMul": 1.35, "alpha": 1.0 }
+      "far":  { "z": -3, "scaleMul": 0.85, "speedMul": 0.45, "alpha": 0.7 },
+      "mid":  { "z": -2, "scaleMul": 1.0,  "speedMul": 0.9,  "alpha": 0.9 },
+      "near": { "z": -1, "scaleMul": 1.15, "speedMul": 1.25, "alpha": 1.0 }
     },
     "yRangePerLayer": {
-      "far":  [255, 275],
-      "mid":  [290, 310],
-      "near": [325, 350]
+      "far":  [275, 295],
+      "mid":  [320, 345],
+      "near": [365, 395]
     }
   },
 
@@ -87,7 +87,7 @@
       "frameHeight": 25,
       "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
       "weight": 15,
-      "depthLayer": "far",
+      "depthLayer": "mid",
       "direction": "random",
       "baseSpeedPxPerSec": 65,
       "spriteFacesRight": false,
