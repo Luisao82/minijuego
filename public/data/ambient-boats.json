@@ -34,7 +34,7 @@
       "depthLayer": "mid",
       "direction": "random",
       "baseSpeedPxPerSec": 90,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": null
     },
     {
@@ -48,7 +48,7 @@
       "depthLayer": "mid",
       "direction": "random",
       "baseSpeedPxPerSec": 55,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": null
     },
     {
@@ -62,7 +62,7 @@
       "depthLayer": "near",
       "direction": "random",
       "baseSpeedPxPerSec": 60,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": null
     },
     {
@@ -76,7 +76,7 @@
       "depthLayer": "near",
       "direction": "random",
       "baseSpeedPxPerSec": 60,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": null
     },
     {
@@ -90,7 +90,7 @@
       "depthLayer": "far",
       "direction": "random",
       "baseSpeedPxPerSec": 65,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": null
     },
     {
@@ -105,7 +105,7 @@
       "baseScale": 1.8,
       "direction": "random",
       "baseSpeedPxPerSec": 25,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": {
         "category": "narrative",
         "type": "scene",
@@ -126,7 +126,7 @@
       "depthLayer": "near",
       "direction": "ltr",
       "baseSpeedPxPerSec": 90,
-      "spriteFacesRight": true,
+      "spriteFacesRight": false,
       "click": {
         "category": "sponsor",
         "type": "url",
