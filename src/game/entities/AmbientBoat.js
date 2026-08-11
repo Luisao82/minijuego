@@ -5,20 +5,23 @@
 // dueño de la lógica; la entidad solo dibuja.
 
 export class AmbientBoat {
-  constructor(scene, { catalogEntry, layerConfig, x, y, direction, parent, onClick }) {
+  constructor(scene, { catalogEntry, layerConfig, baseScale, x, y, direction, parent, onClick }) {
     this.scene = scene
     this.catalogEntry = catalogEntry
     this.direction = direction
 
-    const scale = (catalogEntry.baseScale ?? 1) * (layerConfig.scaleMul ?? 1)
+    const scale = (baseScale ?? catalogEntry.baseScale ?? 1) * (layerConfig.scaleMul ?? 1)
     const alpha = layerConfig.alpha ?? 1
     const depth = layerConfig.z ?? 1
 
     const hasAnim = !!catalogEntry.animation
     const initialFrame = hasAnim ? catalogEntry.animation.frames[0] : 0
 
+    // Origen bottom-center: la Y del catálogo es la línea de flotación del
+    // barco. Cambia la escala sin que se despeguen o hundan del agua.
     this.sprite = scene.add
       .sprite(x, y, catalogEntry.textureKey, initialFrame)
+      .setOrigin(0.5, 1)
       .setScale(scale)
       .setAlpha(alpha)
       .setDepth(depth)

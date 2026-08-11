@@ -166,10 +166,13 @@ class AmbientBoatsService {
     const spawnX = direction > 0 ? -margin : GAME_WIDTH + margin
     const exitX = direction > 0 ? GAME_WIDTH + margin : -margin
 
+    const baseScale = picked.baseScale ?? this._config.defaultBaseScale ?? 1
+
     const state = {
       id: `${picked.id}-${this._elapsedMs}-${Math.random().toString(36).slice(2, 6)}`,
       catalogEntry: picked,
       layerCfg,
+      baseScale,
       direction,
       speedPxPerSec: (picked.baseSpeedPxPerSec ?? 60) * (layerCfg.speedMul ?? 1),
       y: this._randRange(yRange),
@@ -197,6 +200,7 @@ class AmbientBoatsService {
     return new AmbientBoat(this._attachedScene, {
       catalogEntry: state.catalogEntry,
       layerConfig: state.layerCfg,
+      baseScale: state.baseScale,
       x,
       y: state.y,
       direction: state.direction,
