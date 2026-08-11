@@ -102,7 +102,7 @@
       "animation": null,
       "weight": 5,
       "depthLayer": "far",
-      "baseScale": 1,
+      "scale": 3,
       "direction": "random",
       "baseSpeedPxPerSec": 25,
       "spriteFacesRight": false,

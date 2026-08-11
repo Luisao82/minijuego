@@ -181,14 +181,19 @@ class AmbientBoatsService {
     const spawnX = direction > 0 ? -margin : GAME_WIDTH + margin
     const exitX = direction > 0 ? GAME_WIDTH + margin : -margin
 
+    // Escala final: si el barco declara `scale`, se usa tal cual y se salta
+    // el multiplicador de capa (útil para el barco atracado que no debe
+    // encogerse por perspectiva). Si no, baseScale × scaleMul de capa.
     const baseScale = picked.baseScale ?? this._config.defaultBaseScale ?? 1
+    const finalScale =
+      picked.scale != null ? picked.scale : baseScale * (layerCfg.scaleMul ?? 1)
 
     const state = {
       id: `${picked.id}-${this._elapsedMs}-${Math.random().toString(36).slice(2, 6)}`,
       catalogEntry: picked,
       layerKey,
       layerCfg,
-      baseScale,
+      finalScale,
       direction,
       speedPxPerSec: (picked.baseSpeedPxPerSec ?? 60) * (layerCfg.speedMul ?? 1),
       y: this._randRange(yRange),
@@ -216,7 +221,7 @@ class AmbientBoatsService {
     return new AmbientBoat(this._attachedScene, {
       catalogEntry: state.catalogEntry,
       layerConfig: state.layerCfg,
-      baseScale: state.baseScale,
+      finalScale: state.finalScale,
       x,
       y: state.y,
       direction: state.direction,

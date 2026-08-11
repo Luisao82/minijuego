@@ -5,12 +5,12 @@
 // dueño de la lógica; la entidad solo dibuja.
 
 export class AmbientBoat {
-  constructor(scene, { catalogEntry, layerConfig, baseScale, x, y, direction, parent, onClick }) {
+  constructor(scene, { catalogEntry, layerConfig, finalScale, x, y, direction, parent, onClick }) {
     this.scene = scene
     this.catalogEntry = catalogEntry
     this.direction = direction
 
-    const scale = (baseScale ?? catalogEntry.baseScale ?? 1) * (layerConfig.scaleMul ?? 1)
+    const scale = finalScale ?? 1
     const alpha = layerConfig.alpha ?? 1
     const depth = layerConfig.z ?? 1
 
