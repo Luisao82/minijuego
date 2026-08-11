@@ -161,7 +161,22 @@ class AmbientBoatsService {
     const layerCfg = this._config.depthLayers?.[layerKey] ?? { z: 1, scaleMul: 1, speedMul: 1, alpha: 1 }
     const yRange = this._config.yRangePerLayer?.[layerKey] ?? [460, 480]
 
-    const direction = this._resolveDirection(picked.direction)
+    // Anti-colisión: si ya hay barcos en la misma capa, el nuevo debe
+    // moverse en el mismo sentido. Si el catálogo obliga a un sentido
+    // contrario, descartamos este spawn y volveremos a intentar más tarde.
+    const sameLayer = this._activeBoats.find((s) => s.layerKey === layerKey)
+    let direction
+    if (sameLayer) {
+      const req = picked.direction
+      if ((req === 'ltr' && sameLayer.direction < 0) ||
+          (req === 'rtl' && sameLayer.direction > 0)) {
+        return
+      }
+      direction = sameLayer.direction
+    } else {
+      direction = this._resolveDirection(picked.direction)
+    }
+
     const margin = this._config.entryOffscreenMargin ?? 120
     const spawnX = direction > 0 ? -margin : GAME_WIDTH + margin
     const exitX = direction > 0 ? GAME_WIDTH + margin : -margin
@@ -171,6 +186,7 @@ class AmbientBoatsService {
     const state = {
       id: `${picked.id}-${this._elapsedMs}-${Math.random().toString(36).slice(2, 6)}`,
       catalogEntry: picked,
+      layerKey,
       layerCfg,
       baseScale,
       direction,

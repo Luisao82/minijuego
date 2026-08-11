@@ -12,8 +12,8 @@
     "defaultBaseScale": 3,
     "depthLayers": {
       "far":  { "z": -3, "scaleMul": 0.85, "speedMul": 0.45, "alpha": 1.0 },
-      "mid":  { "z": -2, "scaleMul": 1.0,  "speedMul": 0.9,  "alpha": 1.0 },
-      "near": { "z": -1, "scaleMul": 1.15, "speedMul": 1.25, "alpha": 1.0 }
+      "mid":  { "z": -2, "scaleMul": 0.8,  "speedMul": 0.9,  "alpha": 1.0 },
+      "near": { "z": -1, "scaleMul": 0.9,  "speedMul": 1.25, "alpha": 1.0 }
     },
     "yRangePerLayer": {
       "far":  [275, 295],
@@ -102,7 +102,7 @@
       "animation": null,
       "weight": 5,
       "depthLayer": "far",
-      "baseScale": 1.8,
+      "baseScale": 1,
       "direction": "random",
       "baseSpeedPxPerSec": 25,
       "spriteFacesRight": false,
