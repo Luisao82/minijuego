@@ -77,6 +77,15 @@ export class GameScene extends BaseGameScene {
   create() {
     this.drawSimpleBackground()
     this._setupGameWorld()
+
+    // Capa de barcos ambientales: contenedor hijo de gameWorld que se
+    // inserta ANTES del palo y del barco principal, así queda por detrás
+    // de todo lo demás (los depths negativos por sí solos no funcionan
+    // dentro de un Container — Phaser respeta el orden de inserción del
+    // container, no el depth de sus hijos).
+    this.ambientLayer = this.add.container(0, 0)
+    this.gameWorld.add(this.ambientLayer)
+
     this.drawPole()
 
     this.oilSystem = new OilSystem()
@@ -99,7 +108,7 @@ export class GameScene extends BaseGameScene {
     this.createHUD()
     this.setupInput()
 
-    ambientBoatsService.attachToScene(this, this.gameWorld, {
+    ambientBoatsService.attachToScene(this, this.ambientLayer, {
       onNarrativeClick: (entry) => this._onAmbientBoatClick(entry),
     })
 

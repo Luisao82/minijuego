@@ -29,7 +29,12 @@ export class AmbientBoat {
     const faces = catalogEntry.spriteFacesRight !== false
     this.sprite.setFlipX(direction > 0 !== faces)
 
-    if (parent) parent.add(this.sprite)
+    if (parent) {
+      parent.add(this.sprite)
+      // Dentro de un Container el setDepth no reordena por sí solo — hay
+      // que pedir sort explícito para que near quede sobre mid y mid sobre far.
+      parent.sort?.('depth')
+    }
 
     if (hasAnim) {
       const animKey = `${catalogEntry.textureKey}-anim`
