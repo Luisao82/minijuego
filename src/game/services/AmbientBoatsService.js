@@ -40,6 +40,10 @@ class AmbientBoatsService {
     this._attachedContainer = null
     this._onNarrativeClick = null
     this._stepHandler = null
+    // Última dirección con la que apareció cada barco `unique` — se usa
+    // para alternar el sentido de cruce en spawns consecutivos (evita que
+    // una persona real "salga siempre del mismo lado").
+    this._lastDirectionById = new Map()
   }
 
   // Inicializa una única vez con la instancia global del Game y el catálogo
@@ -68,6 +72,7 @@ class AmbientBoatsService {
     this._activeBoats = []
     this._elapsedMs = 0
     this._pausedReasons.clear()
+    this._lastDirectionById.clear()
     if (!this.isReady()) return
     // Primer spawn: entre initialDelayMs — hueco corto para que ya se vea
     // algún barco al entrar en la primera partida sin esperar.
@@ -167,21 +172,25 @@ class AmbientBoatsService {
     const layerCfg = this._config.depthLayers?.[layerKey] ?? { z: 1, scaleMul: 1, speedMul: 1, alpha: 1 }
     const yRange = this._config.yRangePerLayer?.[layerKey] ?? [460, 480]
 
-    // Anti-colisión: si ya hay barcos en la misma capa, el nuevo debe
-    // moverse en el mismo sentido. Si el catálogo obliga a un sentido
-    // contrario, descartamos este spawn y volveremos a intentar más tarde.
-    const sameLayer = this._activeBoats.find((s) => s.layerKey === layerKey)
-    let direction
-    if (sameLayer) {
-      const req = picked.direction
-      if ((req === 'ltr' && sameLayer.direction < 0) ||
-          (req === 'rtl' && sameLayer.direction > 0)) {
-        return
-      }
-      direction = sameLayer.direction
+    // Dirección deseada:
+    //   - `unique` → alternar respecto a la última vez que salió.
+    //   - resto   → según `direction` del catálogo (ltr, rtl o random).
+    let desiredDirection
+    if (picked.unique) {
+      const last = this._lastDirectionById.get(picked.id)
+      desiredDirection = last != null ? -last : this._resolveDirection(picked.direction)
     } else {
-      direction = this._resolveDirection(picked.direction)
+      desiredDirection = this._resolveDirection(picked.direction)
     }
+
+    // Anti-colisión: si ya hay barcos en la misma capa moviéndose en sentido
+    // opuesto, descartamos este spawn y lo intentamos en el próximo ciclo.
+    // Si la capa ya tiene barcos en el mismo sentido, el nuevo se une.
+    const sameLayer = this._activeBoats.find((s) => s.layerKey === layerKey)
+    if (sameLayer && sameLayer.direction !== desiredDirection) return
+    const direction = desiredDirection
+
+    if (picked.unique) this._lastDirectionById.set(picked.id, direction)
 
     const margin = this._config.entryOffscreenMargin ?? 120
     const spawnX = direction > 0 ? -margin : GAME_WIDTH + margin

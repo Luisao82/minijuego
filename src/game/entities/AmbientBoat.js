@@ -12,7 +12,11 @@ export class AmbientBoat {
 
     const scale = finalScale ?? 1
     const alpha = layerConfig.alpha ?? 1
-    const depth = layerConfig.z ?? 1
+    // Depth compuesto: z de capa × 10000 + Y. Así far < mid < near siempre,
+    // y dentro de una misma capa gana el barco con Y mayor (más cerca del
+    // observador). Evita el "montaje" de sprites que compartían depth y
+    // dependían del orden de inserción.
+    const depth = (layerConfig.z ?? 1) * 10000 + y
 
     const hasAnim = !!catalogEntry.animation
     const initialFrame = hasAnim ? catalogEntry.animation.frames[0] : 0
