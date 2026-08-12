@@ -2,8 +2,8 @@
   "_readme": "Barcos ambientales del río. Modifica libremente 'weight' (0 = desactivado), 'spawnIntervalMs', 'maxOnScreen', posiciones Y por capa y velocidad base. La probabilidad de aparecer es 'weight' relativo al total. El campo 'file' es el nombre del PNG dentro de public/assets/boats/.",
 
   "config": {
-    "maxOnScreen": 3,
-    "spawnIntervalMs": [6000, 14000],
+    "maxOnScreen": 2,
+    "spawnIntervalMs": [10000, 20000],
     "initialDelayMs": [500, 3000],
     "pauseDuringFlagCeremony": false,
     "pauseDuringConfirmDialog": true,
@@ -47,7 +47,7 @@
       "weight": 25,
       "depthLayer": "mid",
       "direction": "random",
-      "baseSpeedPxPerSec": 55,
+      "baseSpeedPxPerSec": 40,
       "spriteFacesRight": false,
       "click": null
     },
@@ -61,7 +61,7 @@
       "weight": 20,
       "depthLayer": "near",
       "direction": "random",
-      "baseSpeedPxPerSec": 60,
+      "baseSpeedPxPerSec": 40,
       "spriteFacesRight": false,
       "click": null
     },
@@ -75,7 +75,7 @@
       "weight": 20,
       "depthLayer": "near",
       "direction": "random",
-      "baseSpeedPxPerSec": 60,
+      "baseSpeedPxPerSec": 40,
       "spriteFacesRight": false,
       "click": null
     },
@@ -87,9 +87,25 @@
       "frameHeight": 25,
       "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
       "weight": 15,
+      "unique": true,
       "depthLayer": "mid",
       "direction": "random",
-      "baseSpeedPxPerSec": 65,
+      "baseSpeedPxPerSec": 40,
+      "spriteFacesRight": false,
+      "click": null
+    },
+    {
+      "id": "padelsurf-andrea",
+      "file": "padelsurf_Andrea.png",
+      "textureKey": "ambient-padelsurf-andrea",
+      "frameWidth": 40,
+      "frameHeight": 25,
+      "animation": { "frames": [0, 1, 2, 3, 4, 5], "frameRate": 6, "repeat": -1 },
+      "weight": 15,
+      "unique": true,
+      "depthLayer": "near",
+      "direction": "random",
+      "baseSpeedPxPerSec": 40,
       "spriteFacesRight": false,
       "click": null
     },

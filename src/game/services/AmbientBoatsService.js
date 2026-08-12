@@ -141,8 +141,14 @@ class AmbientBoatsService {
   _trySpawn() {
     if (this._activeBoats.length >= this._config.maxOnScreen) return
 
+    // Descartar del pool los barcos marcados como `unique` que ya estén
+    // navegando (personas reales — no pueden aparecer dos veces a la vez).
+    const activeIds = new Set(this._activeBoats.map((s) => s.catalogEntry.id))
     const enabled = this._catalog.boats.filter(
-      (entry) => entry && (entry.weight ?? 0) > 0
+      (entry) =>
+        entry &&
+        (entry.weight ?? 0) > 0 &&
+        !(entry.unique && activeIds.has(entry.id))
     )
     if (!enabled.length) return
 
