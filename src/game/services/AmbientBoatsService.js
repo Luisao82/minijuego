@@ -178,7 +178,7 @@ class AmbientBoatsService {
     let desiredDirection
     if (picked.unique) {
       const last = this._lastDirectionById.get(picked.id)
-      desiredDirection = last != null ? -last : this._resolveDirection(picked.direction)
+      desiredDirection = last !== undefined ? -last : this._resolveDirection(picked.direction)
     } else {
       desiredDirection = this._resolveDirection(picked.direction)
     }
@@ -201,7 +201,9 @@ class AmbientBoatsService {
     // encogerse por perspectiva). Si no, baseScale × scaleMul de capa.
     const baseScale = picked.baseScale ?? this._config.defaultBaseScale ?? 1
     const finalScale =
-      picked.scale != null ? picked.scale : baseScale * (layerCfg.scaleMul ?? 1)
+      picked.scale !== undefined && picked.scale !== null
+        ? picked.scale
+        : baseScale * (layerCfg.scaleMul ?? 1)
 
     const state = {
       id: `${picked.id}-${this._elapsedMs}-${Math.random().toString(36).slice(2, 6)}`,

@@ -117,6 +117,7 @@
       "frameHeight": 95,
       "animation": null,
       "weight": 5,
+      "unique": true,
       "depthLayer": "far",
       "scale": 3,
       "direction": "random",
@@ -129,6 +130,22 @@
         "confirmMessage": "¿Quieres ver la historia de la Nao Victoria?",
         "enabled": true
       }
+    },
+    {
+      "id": "city-sevilla",
+      "file": "citySevilla.png",
+      "textureKey": "ambient-city-sevilla",
+      "frameWidth": 110,
+      "frameHeight": 35,
+      "animation": null,
+      "weight": 20,
+      "unique": true,
+      "depthLayer": "far",
+      "scale": 3,
+      "direction": "random",
+      "baseSpeedPxPerSec": 45,
+      "spriteFacesRight": false,
+      "click": null
     },
     {
       "_comment": "Ejemplo desactivado — plantilla lista para futuras publis. Cambia enabled:true y weight>0 cuando toque.",
