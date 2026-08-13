@@ -5,39 +5,31 @@
     "originInBoatImage": "top-left",
     "flagNativeWidth": 30,
     "flagNativeHeight": 15,
-    "emptyWeight": 8,
+    "emptyWeight": 0.8,
     "confirmMessage": "¿Abrir la web del colaborador?"
   },
 
   "slots": [
-    { "id": "proa",    "x": 10, "y": 62 },
-    { "id": "centro", "x": 75, "y": 62 },
-    { "id": "popa",    "x": 135, "y": 62 }
+    { "id": "publi1", "x": 9,   "y": 63 },
+    { "id": "publi2", "x": 64,  "y": 64 },
+    { "id": "publi3", "x": 102, "y": 63 }
   ],
 
   "flags": [
     {
-      "id": "test-a-rojo",
-      "file": "flag-red.png",
-      "textureKey": "flag-red",
-      "url": "https://www.wikipedia.org/wiki/Sevilla",
-      "weight": 20,
+      "id": "el-barba",
+      "file": "publi_calenteria.png",
+      "textureKey": "flag-el-barba",
+      "url": "https://www.instagram.com/calenteriaelbarbatriana/?hl=es",
+      "weight": 0.8,
       "category": "sponsor"
     },
     {
-      "id": "test-b-azul",
-      "file": "flag-blue.png",
-      "textureKey": "flag-blue",
-      "url": "https://www.wikipedia.org/wiki/Triana",
-      "weight": 20,
-      "category": "sponsor"
-    },
-    {
-      "id": "test-c-verde",
-      "file": "flag-green.png",
-      "textureKey": "flag-green",
-      "url": "https://www.wikipedia.org/wiki/Cuca%C3%B1a",
-      "weight": 20,
+      "id": "guasinei",
+      "file": "publi_guasinei.png",
+      "textureKey": "flag-guasinei",
+      "url": "https://www.guasinei.es/",
+      "weight": 0.8,
       "category": "sponsor"
     }
   ]
