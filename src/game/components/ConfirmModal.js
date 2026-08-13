@@ -13,14 +13,7 @@ const DEPTH = 60
 
 export function showConfirmModal(
   scene,
-  {
-    title = '¿SEGURO?',
-    message = '',
-    confirmLabel = 'SÍ',
-    cancelLabel = 'NO',
-    onConfirm,
-    onCancel,
-  }
+  { title = '¿SEGURO?', message = '', confirmLabel = 'SÍ', cancelLabel = 'NO', onConfirm, onCancel }
 ) {
   const PX = Math.round((GAME_WIDTH - PANEL_W) / 2)
   const PY = Math.round((GAME_HEIGHT - PANEL_H) / 2)
@@ -83,7 +76,16 @@ export function showConfirmModal(
     const btnY = PY + PANEL_H - btnH - 24
 
     makeNavButton(scene, startX, btnY, sizeA.w, btnH, confirmLabel, onConfirm, btnOpts)
-    makeNavButton(scene, startX + sizeA.w + gap, btnY, sizeB.w, btnH, cancelLabel, onCancel, btnOpts)
+    makeNavButton(
+      scene,
+      startX + sizeA.w + gap,
+      btnY,
+      sizeB.w,
+      btnH,
+      cancelLabel,
+      onCancel,
+      btnOpts
+    )
   })
 
   return {

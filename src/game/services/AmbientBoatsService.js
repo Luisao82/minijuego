@@ -123,8 +123,7 @@ class AmbientBoatsService {
       const t = (this._elapsedMs - state.spawnAtMs) / 1000
       const x = state.spawnX + state.direction * state.speedPxPerSec * t
 
-      const exited =
-        state.direction > 0 ? x >= state.exitX : x <= state.exitX
+      const exited = state.direction > 0 ? x >= state.exitX : x <= state.exitX
 
       if (exited) {
         state.sprite?.destroy()
@@ -150,10 +149,7 @@ class AmbientBoatsService {
     // navegando (personas reales — no pueden aparecer dos veces a la vez).
     const activeIds = new Set(this._activeBoats.map((s) => s.catalogEntry.id))
     const enabled = this._catalog.boats.filter(
-      (entry) =>
-        entry &&
-        (entry.weight ?? 0) > 0 &&
-        !(entry.unique && activeIds.has(entry.id))
+      (entry) => entry && (entry.weight ?? 0) > 0 && !(entry.unique && activeIds.has(entry.id))
     )
     if (!enabled.length) return
 
@@ -169,7 +165,12 @@ class AmbientBoatsService {
     }
 
     const layerKey = picked.depthLayer ?? 'mid'
-    const layerCfg = this._config.depthLayers?.[layerKey] ?? { z: 1, scaleMul: 1, speedMul: 1, alpha: 1 }
+    const layerCfg = this._config.depthLayers?.[layerKey] ?? {
+      z: 1,
+      scaleMul: 1,
+      speedMul: 1,
+      alpha: 1,
+    }
     const yRange = this._config.yRangePerLayer?.[layerKey] ?? [460, 480]
 
     // Dirección deseada:
