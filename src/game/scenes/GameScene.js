@@ -18,6 +18,9 @@ import { JumpSystem } from '../systems/JumpSystem'
 import { FallSystem } from '../systems/FallSystem'
 import { OilSystem } from '../systems/OilSystem'
 import { flagDeliveryService } from '../services/FlagDeliveryService'
+import { ambientBoatsService } from '../services/AmbientBoatsService'
+import { showConfirmModal } from '../components/ConfirmModal'
+import { openExternalUrl } from '../utils/openExternalUrl'
 
 // Vista lateral 2D de la partida (perspectivas Triana y Sevilla).
 // El flujo de juego vive en BaseGameScene; aquí solo la presentación:
@@ -74,6 +77,15 @@ export class GameScene extends BaseGameScene {
   create() {
     this.drawSimpleBackground()
     this._setupGameWorld()
+
+    // Capa de barcos ambientales: contenedor hijo de gameWorld que se
+    // inserta ANTES del palo y del barco principal, así queda por detrás
+    // de todo lo demás (los depths negativos por sí solos no funcionan
+    // dentro de un Container — Phaser respeta el orden de inserción del
+    // container, no el depth de sus hijos).
+    this.ambientLayer = this.add.container(0, 0)
+    this.gameWorld.add(this.ambientLayer)
+
     this.drawPole()
 
     this.oilSystem = new OilSystem()
@@ -96,11 +108,68 @@ export class GameScene extends BaseGameScene {
     this.createHUD()
     this.setupInput()
 
+    ambientBoatsService.attachToScene(this, this.ambientLayer, {
+      onNarrativeClick: (entry) => this._onAmbientBoatClick(entry),
+    })
+
     if (flagDeliveryService.consume()) {
       this._playFlagDeliveryCeremony()
     } else {
       this.startPhase1()
     }
+  }
+
+  // Click sobre un barco ambiental (solo si tiene click.enabled=true).
+  // Pausa la partida + los barcos ambientales, muestra un modal de
+  // confirmación y ejecuta la acción configurada (scene o url) si el jugador
+  // acepta. Si acepta una escena, se pierde la partida en curso — mismo
+  // contrato que el botón SALIR.
+  _onAmbientBoatClick(entry) {
+    if (this._ambientModal) return
+    const click = entry.click
+    if (!click?.enabled) return
+
+    const canInterrupt =
+      this.phase === 'impulse' || this.phase === 'running' || this.phase === 'jumping'
+    if (!canInterrupt) return
+
+    this._prePausePhase = this.phase
+    this.phase = 'paused'
+    ambientBoatsService.pause('confirm-modal')
+
+    const closeModal = () => {
+      this._ambientModal?.destroy()
+      this._ambientModal = null
+    }
+
+    const resumeGame = () => {
+      closeModal()
+      ambientBoatsService.resume('confirm-modal')
+      this.phase = this._prePausePhase
+    }
+
+    const executeAction = () => {
+      closeModal()
+      if (click.type === 'scene' && click.target) {
+        ambientBoatsService.detachFromScene()
+        this.scene.start(click.target, click.payload ?? undefined)
+      } else if (click.type === 'url' && click.target) {
+        openExternalUrl(click.target)
+        ambientBoatsService.resume('confirm-modal')
+        this.phase = this._prePausePhase
+      } else {
+        resumeGame()
+      }
+    }
+
+    this._ambientModal = showConfirmModal(this, {
+      title: click.confirmMessage || '¿VER MÁS?',
+      message: click.type === 'scene' ? 'Perderás la partida en curso' : '',
+      confirmLabel: 'SÍ',
+      cancelLabel: 'SEGUIR',
+      onConfirm: executeAction,
+      onCancel: resumeGame,
+    })
   }
 
   // Cinemática de introducción tras conseguir la bandera en la partida
@@ -401,5 +470,9 @@ export class GameScene extends BaseGameScene {
       this.input.off('pointerdown', this._ceremonySkipHandler)
       this._ceremonySkipHandler = null
     }
+    this._ambientModal?.destroy()
+    this._ambientModal = null
+    ambientBoatsService.resume('confirm-modal')
+    ambientBoatsService.detachFromScene()
   }
 }

@@ -5,6 +5,7 @@ import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
+import { ambientBoatsService } from '../services/AmbientBoatsService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -72,6 +73,8 @@ export class PreloadScene extends BaseScene {
     Promise.all([timerReady, document.fonts.ready]).then(() => {
       this._stripeTimer?.remove()
       this._revealTimer?.remove()
+      const ambientCatalog = this.cache.json.get('ambient-boats')
+      if (ambientCatalog) ambientBoatsService.init(this.game, ambientCatalog)
       this.scene.start(SCENES.MENU)
     })
   }
@@ -259,6 +262,29 @@ export class PreloadScene extends BaseScene {
     this.load.spritesheet('boat-small', 'sprites/barquita.png', {
       frameWidth: 46,
       frameHeight: 36,
+    })
+
+    // Barcos ambientales del río (catálogo + spritesheets/imágenes por entrada).
+    // Las spritesheets se registran dinámicamente en cuanto el JSON está en cache,
+    // así puedes añadir/quitar barcos sin tocar código.
+    this.load.json('ambient-boats', '../data/ambient-boats.json')
+    this.load.on('filecomplete-json-ambient-boats', () => {
+      const catalog = this.cache.json.get('ambient-boats')
+      if (!catalog?.boats) return
+      const seen = new Set()
+      catalog.boats.forEach((entry) => {
+        if (!entry?.textureKey || !entry.file || seen.has(entry.textureKey)) return
+        seen.add(entry.textureKey)
+        const path = `boats/${entry.file}`
+        if (entry.animation) {
+          this.load.spritesheet(entry.textureKey, path, {
+            frameWidth: entry.frameWidth,
+            frameHeight: entry.frameHeight,
+          })
+        } else {
+          this.load.image(entry.textureKey, path)
+        }
+      })
     })
 
     // Sprites de personajes (excluir hidden — no tienen portrait)

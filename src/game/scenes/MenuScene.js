@@ -5,6 +5,7 @@ import { headingStyle, titleStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
+import { ambientBoatsService } from '../services/AmbientBoatsService'
 import { version } from '../../../package.json'
 
 const _AMBER = 0xd4a520
@@ -19,6 +20,10 @@ export class MenuScene extends BaseScene {
   }
 
   create() {
+    // Regenera la flota de barcos ambientales para las próximas partidas.
+    // Persiste entre partidas consecutivas y solo se resetea al volver aquí.
+    ambientBoatsService.reset()
+
     this.drawBackground()
     this.animateTitle()
     this._startMusic()
