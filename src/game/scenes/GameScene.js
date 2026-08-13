@@ -18,6 +18,9 @@ import { JumpSystem } from '../systems/JumpSystem'
 import { FallSystem } from '../systems/FallSystem'
 import { OilSystem } from '../systems/OilSystem'
 import { flagDeliveryService } from '../services/FlagDeliveryService'
+import { boatFlagsService } from '../services/BoatFlagsService'
+import { showConfirmModal } from '../components/ConfirmModal'
+import { openExternalUrl } from '../utils/openExternalUrl'
 
 // Vista lateral 2D de la partida (perspectivas Triana y Sevilla).
 // El flujo de juego vive en BaseGameScene; aquí solo la presentación:
@@ -96,11 +99,56 @@ export class GameScene extends BaseGameScene {
     this.createHUD()
     this.setupInput()
 
+    // Banderas del barco principal — se enganchan al gameWorld después del
+    // barco. Reciben la Y del palo para calcular las coords world de cada
+    // slot y el flag de perspectiva para el pre-flip (evita texto espejado
+    // en Sevilla).
+    boatFlagsService.setPoleY(this.poleY)
+    boatFlagsService.attachToScene(this, this.gameWorld, {
+      perspectiveFlipped: !!this.perspective?.flipX,
+      onFlagClick: (meta) => this._onBoatFlagClick(meta),
+    })
+
     if (flagDeliveryService.consume()) {
       this._playFlagDeliveryCeremony()
     } else {
       this.startPhase1()
     }
+  }
+
+  // Click sobre una bandera del barco. Pausa la partida, muestra confirm
+  // modal y si el jugador acepta abre la URL en el navegador (in-app en
+  // Capacitor, pestaña nueva en web). No hay riesgo de perder la partida:
+  // openExternalUrl no cambia de escena, solo abre el navegador encima.
+  _onBoatFlagClick(meta) {
+    if (this._flagModal) return
+    const flag = meta?.flag
+    if (!flag?.url) return
+
+    const canInterrupt =
+      this.phase === 'impulse' || this.phase === 'running' || this.phase === 'jumping'
+    if (!canInterrupt) return
+
+    this._prePausePhase = this.phase
+    this.phase = 'paused'
+
+    const close = () => {
+      this._flagModal?.destroy()
+      this._flagModal = null
+      this.phase = this._prePausePhase
+    }
+
+    this._flagModal = showConfirmModal(this, {
+      title: boatFlagsService.getConfirmMessage() || '¿ABRIR WEB?',
+      message: flag.id ?? '',
+      confirmLabel: 'SÍ',
+      cancelLabel: 'SEGUIR',
+      onConfirm: () => {
+        openExternalUrl(flag.url)
+        close()
+      },
+      onCancel: close,
+    })
   }
 
   // Cinemática de introducción tras conseguir la bandera en la partida
@@ -401,5 +449,8 @@ export class GameScene extends BaseGameScene {
       this.input.off('pointerdown', this._ceremonySkipHandler)
       this._ceremonySkipHandler = null
     }
+    this._flagModal?.destroy()
+    this._flagModal = null
+    boatFlagsService.detachFromScene()
   }
 }

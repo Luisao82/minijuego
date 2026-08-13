@@ -7,6 +7,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Banderas del barco principal (prototipo, `feature/boat-flags`).** Sistema data-driven para colocar banderas (patrocinadores/colaboradores) sobre la imagen del barco. Configurable por el usuario vía `public/data/boat-flags.json` — `slots` con posiciones `(x, y)` en píxeles de la imagen NATIVA del barco (175×83), `flags` con `{id, file, url, weight, category}`, y `emptyWeight` en `config` para probabilidad de dejar un slot vacío. Al entrar en `MenuScene` se sortea la asignación slot→bandera (sin repeticiones, `emptyWeight` compite con las banderas como bandera "fantasma"); persiste durante todas las partidas seguidas para evitar saltos visuales, se regenera al volver al menú. Las banderas se escalan automáticamente igual que el barco (`BOAT_SCALE`), heredan el flip del `gameWorld` en Sevilla y aplican un pre-flip contra-mirror para que el texto quede legible. Click sobre una bandera → modal de confirmación reutilizando `ConfirmModal` → abre la URL en el navegador vía `openExternalUrl` (in-app en Capacitor, pestaña nueva en web). Nuevos ficheros: `src/game/entities/BoatFlag.js`, `src/game/services/BoatFlagsService.js`, `public/data/boat-flags.json`, y 3 PNGs placeholder en `public/assets/flags/` (`flag-red`, `flag-blue`, `flag-green` — 30×15 con flecha direccional y letra para validar visualmente el flip Sevilla).
+
 ## [1.10.0] - 2026-08-05
 
 ### Added

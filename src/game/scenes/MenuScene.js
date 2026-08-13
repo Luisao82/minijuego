@@ -5,6 +5,7 @@ import { headingStyle, titleStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 import { version } from '../../../package.json'
 
 const _AMBER = 0xd4a520
@@ -19,6 +20,11 @@ export class MenuScene extends BaseScene {
   }
 
   create() {
+    // Regenera la asignación slot→bandera del barco para la próxima sesión.
+    // Persiste durante todas las partidas seguidas y solo se sortea de
+    // nuevo al volver aquí — así el jugador no ve saltos raros.
+    boatFlagsService.reset()
+
     this.drawBackground()
     this.animateTitle()
     this._startMusic()

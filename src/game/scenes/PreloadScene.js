@@ -5,6 +5,7 @@ import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -72,6 +73,8 @@ export class PreloadScene extends BaseScene {
     Promise.all([timerReady, document.fonts.ready]).then(() => {
       this._stripeTimer?.remove()
       this._revealTimer?.remove()
+      const flagsCatalog = this.cache.json.get('boat-flags')
+      if (flagsCatalog) boatFlagsService.init(flagsCatalog)
       this.scene.start(SCENES.MENU)
     })
   }
@@ -259,6 +262,19 @@ export class PreloadScene extends BaseScene {
     this.load.spritesheet('boat-small', 'sprites/barquita.png', {
       frameWidth: 46,
       frameHeight: 36,
+    })
+
+    // Banderas del barco principal — el JSON declara qué PNGs cargar.
+    this.load.json('boat-flags', '../data/boat-flags.json')
+    this.load.on('filecomplete-json-boat-flags', () => {
+      const catalog = this.cache.json.get('boat-flags')
+      if (!catalog?.flags) return
+      const seen = new Set()
+      catalog.flags.forEach((entry) => {
+        if (!entry?.textureKey || !entry.file || seen.has(entry.textureKey)) return
+        seen.add(entry.textureKey)
+        this.load.image(entry.textureKey, `flags/${entry.file}`)
+      })
     })
 
     // Sprites de personajes (excluir hidden — no tienen portrait)

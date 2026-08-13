@@ -1,0 +1,44 @@
+{
+  "_readme": "Banderas del barco principal. Cada slot es una posición fija sobre la imagen NATIVA del barco (175×83 px). Al arrancar cada sesión (al pasar por MenuScene) se sortea qué bandera va en cada slot: los pesos deciden probabilidad relativa, ninguna bandera se repite en dos slots, y 'emptyWeight' del config compite con las banderas — si sale, ese slot queda vacío.",
+
+  "config": {
+    "originInBoatImage": "top-left",
+    "flagNativeWidth": 30,
+    "flagNativeHeight": 15,
+    "emptyWeight": 8,
+    "confirmMessage": "¿Abrir la web del colaborador?"
+  },
+
+  "slots": [
+    { "id": "proa",    "x": 10, "y": 62 },
+    { "id": "centro", "x": 75, "y": 62 },
+    { "id": "popa",    "x": 135, "y": 62 }
+  ],
+
+  "flags": [
+    {
+      "id": "test-a-rojo",
+      "file": "flag-red.png",
+      "textureKey": "flag-red",
+      "url": "https://www.wikipedia.org/wiki/Sevilla",
+      "weight": 20,
+      "category": "sponsor"
+    },
+    {
+      "id": "test-b-azul",
+      "file": "flag-blue.png",
+      "textureKey": "flag-blue",
+      "url": "https://www.wikipedia.org/wiki/Triana",
+      "weight": 20,
+      "category": "sponsor"
+    },
+    {
+      "id": "test-c-verde",
+      "file": "flag-green.png",
+      "textureKey": "flag-green",
+      "url": "https://www.wikipedia.org/wiki/Cuca%C3%B1a",
+      "weight": 20,
+      "category": "sponsor"
+    }
+  ]
+}
