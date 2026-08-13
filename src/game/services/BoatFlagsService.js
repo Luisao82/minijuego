@@ -39,7 +39,9 @@ class BoatFlagsService {
   }
 
   isReady() {
-    return !!this._catalog && Array.isArray(this._catalog.slots) && Array.isArray(this._catalog.flags)
+    return (
+      !!this._catalog && Array.isArray(this._catalog.slots) && Array.isArray(this._catalog.flags)
+    )
   }
 
   getConfirmMessage() {
