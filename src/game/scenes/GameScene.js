@@ -19,6 +19,7 @@ import { FallSystem } from '../systems/FallSystem'
 import { OilSystem } from '../systems/OilSystem'
 import { flagDeliveryService } from '../services/FlagDeliveryService'
 import { ambientBoatsService } from '../services/AmbientBoatsService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 import { showConfirmModal } from '../components/ConfirmModal'
 import { openExternalUrl } from '../utils/openExternalUrl'
 
@@ -112,6 +113,16 @@ export class GameScene extends BaseGameScene {
       onNarrativeClick: (entry) => this._onAmbientBoatClick(entry),
     })
 
+    // Banderas del barco principal — se enganchan al gameWorld después del
+    // barco. Reciben la Y del palo para calcular las coords world de cada
+    // slot y el flag de perspectiva para el pre-flip (evita texto espejado
+    // en Sevilla).
+    boatFlagsService.setPoleY(this.poleY)
+    boatFlagsService.attachToScene(this, this.gameWorld, {
+      perspectiveFlipped: !!this.perspective?.flipX,
+      onFlagClick: (meta) => this._onBoatFlagClick(meta),
+    })
+
     if (flagDeliveryService.consume()) {
       this._playFlagDeliveryCeremony()
     } else {
@@ -125,7 +136,7 @@ export class GameScene extends BaseGameScene {
   // acepta. Si acepta una escena, se pierde la partida en curso — mismo
   // contrato que el botón SALIR.
   _onAmbientBoatClick(entry) {
-    if (this._ambientModal) return
+    if (this._ambientModal || this._flagModal) return
     const click = entry.click
     if (!click?.enabled) return
 
@@ -169,6 +180,41 @@ export class GameScene extends BaseGameScene {
       cancelLabel: 'SEGUIR',
       onConfirm: executeAction,
       onCancel: resumeGame,
+    })
+  }
+
+  // Click sobre una bandera del barco. Pausa la partida, muestra confirm
+  // modal y si el jugador acepta abre la URL en el navegador (in-app en
+  // Capacitor, pestaña nueva en web). No hay riesgo de perder la partida:
+  // openExternalUrl no cambia de escena, solo abre el navegador encima.
+  _onBoatFlagClick(meta) {
+    if (this._flagModal || this._ambientModal) return
+    const flag = meta?.flag
+    if (!flag?.url) return
+
+    const canInterrupt =
+      this.phase === 'impulse' || this.phase === 'running' || this.phase === 'jumping'
+    if (!canInterrupt) return
+
+    this._prePausePhase = this.phase
+    this.phase = 'paused'
+
+    const close = () => {
+      this._flagModal?.destroy()
+      this._flagModal = null
+      this.phase = this._prePausePhase
+    }
+
+    this._flagModal = showConfirmModal(this, {
+      title: boatFlagsService.getConfirmMessage() || '¿ABRIR WEB?',
+      message: flag.id ?? '',
+      confirmLabel: 'SÍ',
+      cancelLabel: 'SEGUIR',
+      onConfirm: () => {
+        openExternalUrl(flag.url)
+        close()
+      },
+      onCancel: close,
     })
   }
 
@@ -474,5 +520,8 @@ export class GameScene extends BaseGameScene {
     this._ambientModal = null
     ambientBoatsService.resume('confirm-modal')
     ambientBoatsService.detachFromScene()
+    this._flagModal?.destroy()
+    this._flagModal = null
+    boatFlagsService.detachFromScene()
   }
 }

@@ -6,6 +6,7 @@ import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { ambientBoatsService } from '../services/AmbientBoatsService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -75,6 +76,8 @@ export class PreloadScene extends BaseScene {
       this._revealTimer?.remove()
       const ambientCatalog = this.cache.json.get('ambient-boats')
       if (ambientCatalog) ambientBoatsService.init(this.game, ambientCatalog)
+      const flagsCatalog = this.cache.json.get('boat-flags')
+      if (flagsCatalog) boatFlagsService.init(flagsCatalog)
       this.scene.start(SCENES.MENU)
     })
   }
@@ -265,8 +268,6 @@ export class PreloadScene extends BaseScene {
     })
 
     // Barcos ambientales del río (catálogo + spritesheets/imágenes por entrada).
-    // Las spritesheets se registran dinámicamente en cuanto el JSON está en cache,
-    // así puedes añadir/quitar barcos sin tocar código.
     this.load.json('ambient-boats', '../data/ambient-boats.json')
     this.load.on('filecomplete-json-ambient-boats', () => {
       const catalog = this.cache.json.get('ambient-boats')
@@ -284,6 +285,19 @@ export class PreloadScene extends BaseScene {
         } else {
           this.load.image(entry.textureKey, path)
         }
+      })
+    })
+
+    // Banderas del barco principal — el JSON declara qué PNGs cargar.
+    this.load.json('boat-flags', '../data/boat-flags.json')
+    this.load.on('filecomplete-json-boat-flags', () => {
+      const catalog = this.cache.json.get('boat-flags')
+      if (!catalog?.flags) return
+      const seen = new Set()
+      catalog.flags.forEach((entry) => {
+        if (!entry?.textureKey || !entry.file || seen.has(entry.textureKey)) return
+        seen.add(entry.textureKey)
+        this.load.image(entry.textureKey, `flags/${entry.file}`)
       })
     })
 

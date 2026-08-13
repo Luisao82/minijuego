@@ -11,13 +11,13 @@
     "entryOffscreenMargin": 200,
     "defaultBaseScale": 3,
     "depthLayers": {
-      "far":  { "z": -3, "scaleMul": 0.85, "speedMul": 0.45, "alpha": 1.0 },
-      "mid":  { "z": -2, "scaleMul": 0.8,  "speedMul": 0.9,  "alpha": 1.0 },
-      "near": { "z": -1, "scaleMul": 0.9,  "speedMul": 1.25, "alpha": 1.0 }
+      "far": { "z": -3, "scaleMul": 0.85, "speedMul": 0.45, "alpha": 1.0 },
+      "mid": { "z": -2, "scaleMul": 0.8, "speedMul": 0.9, "alpha": 1.0 },
+      "near": { "z": -1, "scaleMul": 0.9, "speedMul": 1.25, "alpha": 1.0 }
     },
     "yRangePerLayer": {
-      "far":  [290, 310],
-      "mid":  [320, 345],
+      "far": [290, 310],
+      "mid": [320, 345],
       "near": [365, 395]
     }
   },
