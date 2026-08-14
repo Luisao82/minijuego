@@ -163,7 +163,13 @@ export class GameScene extends BaseGameScene {
       closeModal()
       if (click.type === 'scene' && click.target) {
         ambientBoatsService.detachFromScene()
-        this.scene.start(click.target, click.payload ?? undefined)
+        // Incluimos passThrough con los datos de la partida para que las
+        // escenas narradas (StoryScene) puedan devolvernos a la partida
+        // con el mismo personaje/perspectiva.
+        this.scene.start(click.target, {
+          ...(click.payload ?? {}),
+          passThrough: { character: this.characterData, perspective: this.perspective },
+        })
       } else if (click.type === 'url' && click.target) {
         openExternalUrl(click.target)
         ambientBoatsService.resume('confirm-modal')
@@ -175,7 +181,7 @@ export class GameScene extends BaseGameScene {
 
     this._ambientModal = showConfirmModal(this, {
       title: click.confirmMessage || '¿VER MÁS?',
-      message: click.type === 'scene' ? 'Perderás la partida en curso' : '',
+      message: '',
       confirmLabel: 'SÍ',
       cancelLabel: 'SEGUIR',
       onConfirm: executeAction,

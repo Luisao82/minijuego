@@ -70,11 +70,11 @@ export const STORIES = {
     backgroundKey: 'bg-history',
     backButton: {
       label: 'SALTAR',
-      action: { type: 'goto', scene: SCENES.MENU },
+      action: { type: 'goto-with-passthrough', scene: SCENES.GAME, fallback: SCENES.MENU },
     },
     endButton: {
       label: 'SEGUIR',
-      action: { type: 'goto', scene: SCENES.MENU },
+      action: { type: 'goto-with-passthrough', scene: SCENES.GAME, fallback: SCENES.MENU },
     },
   },
 }
