@@ -317,9 +317,12 @@ export class GameScene extends BaseGameScene {
     }
     this._backgroundBoat?.destroy()
     this._backgroundBoat = null
-    this.scene.start(SCENES.ANDANA, {
-      character: this.characterData,
-      perspective: this.perspective,
+    this.scene.start(SCENES.STORY, {
+      storyId: 'andana',
+      passThrough: {
+        character: this.characterData,
+        perspective: this.perspective,
+      },
     })
   }
 

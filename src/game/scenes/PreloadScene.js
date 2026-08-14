@@ -230,15 +230,8 @@ export class PreloadScene extends BaseScene {
     // FinaleScene usa 'bg-game-sevilla' como fallback
     this.load.image('bg-finale', 'backgrounds/fondo_b-noche.webp')
 
-    // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
-    this.load.spritesheet('narrator-history', 'sprites/narrators/narrator_history.png', {
-      frameWidth: 35,
-      frameHeight: 35,
-    })
-    this.load.spritesheet('narrator-andana', 'sprites/narrators/narrator_andana.png', {
-      frameWidth: 35,
-      frameHeight: 35,
-    })
+    // Narrador del tutorial — el resto de narradores los carga StoryScene
+    // bajo demanda a partir del catálogo (config/stories.js).
     this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', {
       frameWidth: 35,
       frameHeight: 35,
@@ -252,14 +245,9 @@ export class PreloadScene extends BaseScene {
     this.load.image('tut-05', 'tutorial/05-salto.webp')
     this.load.image('tut-06', 'tutorial/06-listo.webp')
 
-    // Imágenes históricas
-    this.load.image('andana-01', 'backgrounds/andana-01.webp')
-    this.load.image('andana-02', 'backgrounds/andana-02.webp')
-    this.load.image('hist-intro', 'backgrounds/hist-intro.webp')
-    this.load.image('hist-sabio', 'backgrounds/hist-sabio.webp')
-    this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
-    this.load.image('hist-leyenda', 'backgrounds/hist-leyenda.webp')
-    this.load.image('hist-mision', 'backgrounds/hist-mision.webp')
+    // Nota: las imágenes de los bloques de historias (hist-*, andana-*)
+    // ya no se cargan aquí — StoryScene.preload() las trae bajo demanda
+    // desde `imageFile` del bloque en config/*Content.js.
 
     this.load.image('boat', 'sprites/barco.png')
     this.load.spritesheet('boat-small', 'sprites/barquita.png', {

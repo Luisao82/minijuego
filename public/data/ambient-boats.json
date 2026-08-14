@@ -126,8 +126,9 @@
       "click": {
         "category": "narrative",
         "type": "scene",
-        "target": "HistoryScene",
-        "confirmMessage": "¿Quieres ver la historia de la Nao Victoria?",
+        "target": "StoryScene",
+        "payload": { "storyId": "nao-victoria" },
+        "confirmMessage": "¿Quieres conocer la historia de la Nao Victoria?",
         "enabled": true
       }
     },
