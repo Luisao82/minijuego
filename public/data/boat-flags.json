@@ -17,6 +17,14 @@
 
   "flags": [
     {
+      "id": "triana-fc",
+      "file": "publi_trianaFC.png",
+      "textureKey": "flag-triana-fc",
+      "url": "https://www.trianaclubdefutbol.es/",
+      "weight": 0.8,
+      "category": "sponsor"
+    },
+    {
       "id": "el-barba",
       "file": "publi_calenteria.png",
       "textureKey": "flag-el-barba",
