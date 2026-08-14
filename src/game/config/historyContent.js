@@ -6,6 +6,7 @@ export const HISTORY_BLOCKS = [
   {
     title: 'La Velá de Santa Ana',
     image: 'hist-intro',
+    imageFile: 'backgrounds/hist-intro.webp',
     pages: [
       '¡Escucha miarma! Te voy a contar una historia como si estuviéramos sentados con una "fresquita" en la calle Betis viendo caer la tarde.',
       'Para entender este juego, tienes que entender que Triana no es un barrio, es una religión. Y su fiesta mayor, la Velá, es el momento en que el corazón de Sevilla cruza el puente y se queda a vivir en la otra orilla.',
@@ -14,6 +15,7 @@ export const HISTORY_BLOCKS = [
   {
     title: 'El Milagro del Sabio',
     image: 'hist-sabio',
+    imageFile: 'backgrounds/hist-sabio.webp',
     pages: [
       'Todo este jaleo lo empezó Alfonso X, el que llamaban el Sabio. El pobre hombre tenía los ojos que no veía ni tres en un burro por una enfermedad "malaje".',
       'Se encomendó a la Señora Santa Ana, la abuela de todos los trianeros, y sin más, sanó por arte de "magia".',
@@ -23,6 +25,7 @@ export const HISTORY_BLOCKS = [
   {
     title: 'La Picaresca se echa al río',
     image: 'hist-picaresca',
+    imageFile: 'backgrounds/hist-picaresca.webp',
     pages: [
       'Pero claro, en Triana el espíritu es inquieto. La gente rezaba, sí, pero luego el cuerpo pedía alegría. La fiesta bajó del altar a la orilla del Guadalquivir.',
       'Lo que eran rezos se convirtieron en cantes, en avellanas verdes —que se comen a espuertas— y en el olor a sardina asada que quita er sentio.',
@@ -32,6 +35,7 @@ export const HISTORY_BLOCKS = [
   {
     title: 'La Leyenda de la Cucaña',
     image: 'hist-leyenda',
+    imageFile: 'backgrounds/hist-leyenda.webp',
     pages: [
       'Y aquí llegamos a lo que te interesa: la Cucaña. Dicen los antiguos que esto viene de los marineros y calafates que vivían en el barrio.',
       'Para demostrar quién tenía más "age" y más equilibrio, ponían un palo en la proa de los barcos que venían de las Indias.',
@@ -42,6 +46,7 @@ export const HISTORY_BLOCKS = [
   {
     title: 'Tu Misión',
     image: 'hist-mision',
+    imageFile: 'backgrounds/hist-mision.webp',
     pages: [
       'Ahora te toca a ti, mi arma. Vas a subirte a ese palo con el puente de Triana de fondo y la Giralda mirándote de reojo.\nTen cuidado, que el palo no tiene amigos y el río está esperando.',
       '¡Échale coraje, aprieta los dientes y no te olvides de la gracia, que en Triana hasta para caerse hay que tener arte!',

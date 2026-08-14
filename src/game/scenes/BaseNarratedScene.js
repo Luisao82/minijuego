@@ -9,8 +9,9 @@ import { makeNavButton } from '../components/NavButton'
 // tinte, cuadro de diálogo RPG con retrato del narrador a la izquierda,
 // título arriba, texto con máquina de escribir, imagen ilustrativa en la
 // mitad superior y navegación por bloques (con páginas dentro de cada
-// bloque). HistoryScene y AndanaScene extienden esta base — la lógica
-// vive aquí, cada subclase solo aporta contenido y callbacks.
+// bloque). StoryScene extiende esta base como escena única y data-driven
+// para todas las historias — la lógica vive aquí, StoryScene solo lee el
+// catálogo y aporta contenido y callbacks.
 //
 // Contrato para las subclases (obligatorio):
 //   getBlocks()               → [{ title, image, pages: string[] }, ...]

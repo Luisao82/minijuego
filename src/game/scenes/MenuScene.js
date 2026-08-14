@@ -227,7 +227,7 @@ export class MenuScene extends BaseScene {
       btnW,
       btnH,
       'HISTORIA',
-      () => this.scene.start(SCENES.HISTORY),
+      () => this.scene.start(SCENES.STORY, { storyId: 'la-cucana' }),
       { depth: 2, fontSize: '34px' }
     )
 

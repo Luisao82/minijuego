@@ -7,6 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Nueva historia "La Nao Victoria"** — narrada en primera persona por un marinero superviviente de la expedición Magallanes-Elcano. 5 bloques (`La Nao Victoria`, `Cruzando el Atlántico`, `El estrecho y el Pacífico`, `La muerte de Magallanes`, `La vuelta al mundo`) con anécdotas del motín de San Julián, los patagones, el cruce del Pacífico y la muerte de Magallanes en Mactán. Nuevo narrador `narrator-magallanes` (140×35, mismo formato que los otros). Contenido en `src/game/config/naoVictoriaContent.js`.
+
+### Changed
+
+- **Refactor: escenas de historia unificadas en `StoryScene` data-driven.** `HistoryScene` y `AndanaScene` eliminadas. Nueva escena única `StoryScene` (registrada como `SCENES.STORY`) recibe `{storyId, passThrough}` en `init()` y lee el catálogo `src/game/config/stories.js` para obtener bloques, narrador, fondo y acciones de botones. Las acciones se expresan como verbos (`goto`, `goto-with-passthrough`) que la escena traduce en `scene.start(...)` — así una historia nueva se añade tocando solo un fichero de contenido + una entrada al catálogo, sin crear una escena nueva. Callers migrados: `MenuScene` (botón HISTORIA → `{storyId: 'la-cucana'}`), `GameScene._openAndanaScene` (barquito de la ceremonia → `{storyId: 'andana', passThrough: {character, perspective}}`).
+- **Carga bajo demanda de assets de historias.** `PreloadScene` ya no incluye los spritesheets `narrator-history` / `narrator-andana` ni las 7 imágenes de bloques (`hist-*`, `andana-*`). `StoryScene.preload()` los carga solo cuando el jugador abre la historia, comprobando cache antes para no repetir descargas. Los bloques declaran ahora `imageFile` junto a `image` (key), así el sistema es completamente data-driven. Reduce ~1MB de carga inicial (los WebP de bloques suman ~200KB × 7).
+
 ## [1.10.0] - 2026-08-05
 
 ### Added
