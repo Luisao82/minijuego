@@ -18,6 +18,12 @@
     "probabilidad": 0.1
   },
   {
+    "id": "reward_100ptas",
+    "nombre": "100 pesetas para el viaje",
+    "imagen": "premios/100ptas.webp",
+    "probabilidad": 0.1
+  },
+  {
     "id": "reward_sombrero",
     "nombre": "Sombrero de Finidi",
     "imagen": "premios/sombrero.webp",

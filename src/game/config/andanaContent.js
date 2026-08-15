@@ -8,6 +8,7 @@ export const ANDANA_BLOCKS = [
   {
     title: 'Historia',
     image: 'andana-01',
+    imageFile: 'backgrounds/andana-01.webp',
     pages: [
       'La organización de la CUCAÑA desde hace un siglo corre a cargo de la familia ANDANA (foto del año 1.961), familia de raíces trianeras que se viene encargando de la organización de este concurso.',
       'Su conocimiento del río Guadalquivir, donde los antepasados de esta familia trabajaban como areneros del río, dió lugar a que se les encargara la organización de este concurso, que a día de hoy siguen llevando a cabo manteniendo intacta su esencia.',
@@ -16,6 +17,7 @@ export const ANDANA_BLOCKS = [
   {
     title: 'La tradición continúa',
     image: 'andana-02',
+    imageFile: 'backgrounds/andana-02.webp',
     pages: [
       'Generación tras generación, la Familia Andana sigue poniendo todo su esfuerzo, dedicación y cariño para que cada año se celebre este espectáculo sin igual en la ciudad, y para que cada año, en la Velá de Santa Ana, todos podamos disfrutar de la CUCAÑA de Triana.',
     ],

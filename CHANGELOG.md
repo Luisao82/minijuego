@@ -7,6 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-08-15
+
+### Added
+
+- **Barcos ambientales del río.** Kayaks, padel-surfistas y galeón Nao Victoria cruzando el río por detrás del barco principal. Configurable en `public/data/ambient-boats.json`. Persistente entre partidas, se regenera al volver al menú. Anti-colisión, uniques alternan dirección, depth compuesto `layerZ*10000 + y`. Nao Victoria abre la historia narrada `nao-victoria`; city-sevilla es un tour boat con weight alto. Nuevos ficheros: `src/game/entities/AmbientBoat.js`, `src/game/services/AmbientBoatsService.js`, `src/game/components/ConfirmModal.js`, y assets en `public/assets/boats/`.
+- **Banderas del barco principal.** Sistema data-driven para banderas de patrocinadores sobre el barco. Configurable en `public/data/boat-flags.json` — `slots` con `(x, y)` en píxeles de la imagen nativa, `flags` con `{id, file, url, weight, category}`, `emptyWeight` para probabilidad de slot vacío. Asignación sorteada al entrar en menú (sin repeticiones), persistente entre partidas. Origen central + pre-flip en Sevilla para que el texto quede legible. Click → `ConfirmModal` → `openExternalUrl`. Nuevos ficheros: `src/game/entities/BoatFlag.js`, `src/game/services/BoatFlagsService.js`, `public/data/boat-flags.json`, assets en `public/assets/flags/`. Colaboradores iniciales: El Barba (Calentería), Guasinei, Triana FC.
+- **Nueva historia "La Nao Victoria"** — narrada en primera persona por el propio capitán (sin nombrarse). 2 bloques (`La búsqueda`, `La vuelta al mundo`) que van del "todos decían que era imposible" al "yo no vi el regreso" con las imágenes `nao-partida` y `nao-ruta`. Nuevo narrador `narrator-magallanes`. Contenido en `src/game/config/naoVictoriaContent.js`.
+- **Nuevo personaje "Curro"** — la mascota de la Expo 92. Stats peso 9 / equilibrio 2 / altura 9 / edad 9 (peso alto + poco equilibrio = reto). 3 skins: Curro (defecto), Guasi Curro (5 banderas), Triana Curro (10 banderas). Se desbloquea consiguiendo el nuevo premio `reward_100ptas` — _"100 pesetas para el viaje"_ (probabilidad 0.1, mismo peso que La Wendolin).
+- **Nuevo skin "Make Triana Great Again"** para El Guiri. Se desbloquea con 10 banderas — deliberadamente alto para que se sienta ganado.
+- **Nuevo arte del barco principal** — reemplaza `barco.png` manteniendo las mismas dimensiones nativas (175×83, escala ×3). Las coordenadas de los slots de banderas siguen siendo válidas.
+
+### Changed
+
+- **Refactor: escenas de historia unificadas en `StoryScene` data-driven.** `HistoryScene` y `AndanaScene` eliminadas. Nueva escena única `StoryScene` recibe `{storyId, passThrough}` en `init()` y lee el catálogo `src/game/config/stories.js`. Acciones expresadas como verbos (`goto`, `goto-with-passthrough`) traducidos por la escena. Añadir historia = fichero de contenido + entrada al catálogo, sin escena nueva. Callers migrados: `MenuScene` (`{storyId: 'la-cucana'}`), `GameScene._openAndanaScene` (`{storyId: 'andana', passThrough}`), ambient-boats Nao Victoria (`{storyId: 'nao-victoria'}`).
+- **Carga bajo demanda de assets de historias.** `PreloadScene` ya no bulk-loadea narradores ni imágenes de bloques. `StoryScene.preload()` los carga con cache-check al abrir la historia. Los bloques declaran `imageFile` junto a `image` (key). Reduce ~1MB de carga inicial.
+- **`GameScene._onAmbientBoatClick` propaga passThrough**. Los clicks narrativos desde barcos ambientales heredan `{character, perspective}` automáticamente para que las historias puedan volver a la partida (Nao Victoria ahora vuelve a la partida como Andana).
+
 ## [1.10.0] - 2026-08-05
 
 ### Added

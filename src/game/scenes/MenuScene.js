@@ -5,6 +5,8 @@ import { headingStyle, titleStyle, uiLabelStyle } from '../config/textStyles'
 import { makeNavButton } from '../components/NavButton'
 import { makeIconButton } from '../components/IconButton'
 import { musicService } from '../services/MusicService'
+import { ambientBoatsService } from '../services/AmbientBoatsService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 import { version } from '../../../package.json'
 
 const _AMBER = 0xd4a520
@@ -19,6 +21,12 @@ export class MenuScene extends BaseScene {
   }
 
   create() {
+    // Regenera flota de barcos ambientales + asignación de banderas del
+    // barco principal para la próxima sesión. Ambos persisten durante
+    // todas las partidas seguidas y solo se re-sortean al volver aquí.
+    ambientBoatsService.reset()
+    boatFlagsService.reset()
+
     this.drawBackground()
     this.animateTitle()
     this._startMusic()
@@ -227,7 +235,7 @@ export class MenuScene extends BaseScene {
       btnW,
       btnH,
       'HISTORIA',
-      () => this.scene.start(SCENES.HISTORY),
+      () => this.scene.start(SCENES.STORY, { storyId: 'la-cucana' }),
       { depth: 2, fontSize: '34px' }
     )
 

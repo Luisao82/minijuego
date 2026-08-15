@@ -62,5 +62,13 @@
       "rewardId": "reward_bandera_guasinei",
       "hint": "Consigue la Bandera de Guasinei"
     }
+  },
+  {
+    "characterId": "curro",
+    "condition": {
+      "type": "specific_reward",
+      "rewardId": "reward_100ptas",
+      "hint": "Consigue las 100 pesetas para el viaje"
+    }
   }
 ]

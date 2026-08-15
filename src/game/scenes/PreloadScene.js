@@ -5,6 +5,8 @@ import { CHARACTERS } from '../config/characters'
 import { SPRITE_CONFIG } from '../config/spriteConfig'
 import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
+import { ambientBoatsService } from '../services/AmbientBoatsService'
+import { boatFlagsService } from '../services/BoatFlagsService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -72,6 +74,10 @@ export class PreloadScene extends BaseScene {
     Promise.all([timerReady, document.fonts.ready]).then(() => {
       this._stripeTimer?.remove()
       this._revealTimer?.remove()
+      const ambientCatalog = this.cache.json.get('ambient-boats')
+      if (ambientCatalog) ambientBoatsService.init(this.game, ambientCatalog)
+      const flagsCatalog = this.cache.json.get('boat-flags')
+      if (flagsCatalog) boatFlagsService.init(flagsCatalog)
       this.scene.start(SCENES.MENU)
     })
   }
@@ -224,15 +230,8 @@ export class PreloadScene extends BaseScene {
     // FinaleScene usa 'bg-game-sevilla' como fallback
     this.load.image('bg-finale', 'backgrounds/fondo_b-noche.webp')
 
-    // Narradores (spritesheet 140×35 px, 4 frames de 35×35: base, boca-media, boca-abierta, ojos-cerrados)
-    this.load.spritesheet('narrator-history', 'sprites/narrators/narrator_history.png', {
-      frameWidth: 35,
-      frameHeight: 35,
-    })
-    this.load.spritesheet('narrator-andana', 'sprites/narrators/narrator_andana.png', {
-      frameWidth: 35,
-      frameHeight: 35,
-    })
+    // Narrador del tutorial — el resto de narradores los carga StoryScene
+    // bajo demanda a partir del catálogo (config/stories.js).
     this.load.spritesheet('narrator-tutorial', 'sprites/narrators/narrator_tutorial.png', {
       frameWidth: 35,
       frameHeight: 35,
@@ -246,19 +245,48 @@ export class PreloadScene extends BaseScene {
     this.load.image('tut-05', 'tutorial/05-salto.webp')
     this.load.image('tut-06', 'tutorial/06-listo.webp')
 
-    // Imágenes históricas
-    this.load.image('andana-01', 'backgrounds/andana-01.webp')
-    this.load.image('andana-02', 'backgrounds/andana-02.webp')
-    this.load.image('hist-intro', 'backgrounds/hist-intro.webp')
-    this.load.image('hist-sabio', 'backgrounds/hist-sabio.webp')
-    this.load.image('hist-picaresca', 'backgrounds/hist-picaresca.webp')
-    this.load.image('hist-leyenda', 'backgrounds/hist-leyenda.webp')
-    this.load.image('hist-mision', 'backgrounds/hist-mision.webp')
+    // Nota: las imágenes de los bloques de historias (hist-*, andana-*)
+    // ya no se cargan aquí — StoryScene.preload() las trae bajo demanda
+    // desde `imageFile` del bloque en config/*Content.js.
 
     this.load.image('boat', 'sprites/barco.png')
     this.load.spritesheet('boat-small', 'sprites/barquita.png', {
       frameWidth: 46,
       frameHeight: 36,
+    })
+
+    // Barcos ambientales del río (catálogo + spritesheets/imágenes por entrada).
+    this.load.json('ambient-boats', '../data/ambient-boats.json')
+    this.load.on('filecomplete-json-ambient-boats', () => {
+      const catalog = this.cache.json.get('ambient-boats')
+      if (!catalog?.boats) return
+      const seen = new Set()
+      catalog.boats.forEach((entry) => {
+        if (!entry?.textureKey || !entry.file || seen.has(entry.textureKey)) return
+        seen.add(entry.textureKey)
+        const path = `boats/${entry.file}`
+        if (entry.animation) {
+          this.load.spritesheet(entry.textureKey, path, {
+            frameWidth: entry.frameWidth,
+            frameHeight: entry.frameHeight,
+          })
+        } else {
+          this.load.image(entry.textureKey, path)
+        }
+      })
+    })
+
+    // Banderas del barco principal — el JSON declara qué PNGs cargar.
+    this.load.json('boat-flags', '../data/boat-flags.json')
+    this.load.on('filecomplete-json-boat-flags', () => {
+      const catalog = this.cache.json.get('boat-flags')
+      if (!catalog?.flags) return
+      const seen = new Set()
+      catalog.flags.forEach((entry) => {
+        if (!entry?.textureKey || !entry.file || seen.has(entry.textureKey)) return
+        seen.add(entry.textureKey)
+        this.load.image(entry.textureKey, `flags/${entry.file}`)
+      })
     })
 
     // Sprites de personajes (excluir hidden — no tienen portrait)

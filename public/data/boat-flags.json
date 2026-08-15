@@ -1,0 +1,44 @@
+{
+  "_readme": "Banderas del barco principal. Cada slot es una posición fija sobre la imagen NATIVA del barco (175×83 px). Al arrancar cada sesión (al pasar por MenuScene) se sortea qué bandera va en cada slot: los pesos deciden probabilidad relativa, ninguna bandera se repite en dos slots, y 'emptyWeight' del config compite con las banderas — si sale, ese slot queda vacío.",
+
+  "config": {
+    "originInBoatImage": "top-left",
+    "flagNativeWidth": 30,
+    "flagNativeHeight": 15,
+    "emptyWeight": 0.8,
+    "confirmMessage": "¿Abrir la web del colaborador?"
+  },
+
+  "slots": [
+    { "id": "publi1", "x": 9, "y": 63 },
+    { "id": "publi2", "x": 64, "y": 64 },
+    { "id": "publi3", "x": 102, "y": 63 }
+  ],
+
+  "flags": [
+    {
+      "id": "triana-fc",
+      "file": "publi_trianaFC.png",
+      "textureKey": "flag-triana-fc",
+      "url": "https://www.trianaclubdefutbol.es/",
+      "weight": 0.8,
+      "category": "sponsor"
+    },
+    {
+      "id": "el-barba",
+      "file": "publi_calenteria.png",
+      "textureKey": "flag-el-barba",
+      "url": "https://www.instagram.com/calenteriaelbarbatriana/?hl=es",
+      "weight": 0.8,
+      "category": "sponsor"
+    },
+    {
+      "id": "guasinei",
+      "file": "publi_guasinei.png",
+      "textureKey": "flag-guasinei",
+      "url": "https://www.guasinei.es/",
+      "weight": 0.8,
+      "category": "sponsor"
+    }
+  ]
+}
