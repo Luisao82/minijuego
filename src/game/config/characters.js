@@ -144,6 +144,19 @@ export const CHARACTERS = [
     ],
   },
   {
+    id: 'curro',
+    name: 'CURRO',
+    description: 'Hola, soy Curro, la mascota de la Expo 92',
+    sprite: 'char-curro',
+    stats: { peso: 9, equilibrio: 2, altura: 9, edad: 9 },
+    available: true,
+    skins: [
+      { spritesheet: 'curro', nombre: 'Curro', flags: null },
+      { spritesheet: 'guasi_curro', nombre: 'Guasi Curro', flags: 5 },
+      { spritesheet: 'triana_curro', nombre: 'Triana Curro', flags: 10 },
+    ],
+  },
+  {
     id: 'easter_egg',
     name: 'EASTER EGG',
     description: 'Has descubierto un secreto...',
