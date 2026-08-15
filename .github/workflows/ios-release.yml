@@ -57,11 +57,19 @@ jobs:
         id: build_number
         run: echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
+      - name: Derive marketing version from package.json
+        id: marketing_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Marketing version: $VERSION"
+
       - name: Archive
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           BUILD_NUMBER: ${{ steps.build_number.outputs.value }}
+          MARKETING_VERSION: ${{ steps.marketing_version.outputs.value }}
         working-directory: ios/App
         run: |
           xcodebuild \
@@ -75,6 +83,7 @@ jobs:
             -authenticationKeyID "$API_KEY_ID" \
             -authenticationKeyIssuerID "$API_ISSUER_ID" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            MARKETING_VERSION="$MARKETING_VERSION" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
             archive
 
