@@ -1,34 +1,27 @@
-// Contenido narrativo de la historia de la Nao Victoria contada en
-// primera persona por un marinero superviviente de la expedición de
-// Magallanes-Elcano. Se dispara desde el barco atracado ambient
-// (barco "noa-victoria" en public/data/ambient-boats.json) al pulsarlo
-// durante una partida.
+// Contenido narrativo de la historia de la Nao Victoria. La voz es la
+// del propio capitán — sin nombrarse. Se dispara al pulsar el barco
+// "noa-victoria" que cruza el fondo (public/data/ambient-boats.json).
 
 export const NAO_VICTORIA_BLOCKS = [
   {
-    title: 'La Nao Victoria',
-    image: null,
+    title: 'La búsqueda',
+    image: 'nao-partida',
+    imageFile: 'backgrounds/nao-partida.webp',
     pages: [
-      'Soy Juan, marinero de Sanlúcar. Zarpamos 245 hombres en cinco naos en 1519. Solo dieciocho volvimos, tres años después, en esta pequeña Victoria.',
-      'Magallanes buscaba un paso al sur del Nuevo Mundo. Bajamos por Brasil hasta la Patagonia, donde vimos hombres tan altos que el capitán los llamó "patagones".',
-    ],
-  },
-  {
-    title: 'El estrecho y el Pacífico',
-    image: null,
-    pages: [
-      'En octubre de 1520 encontramos el paso — hoy lo llaman Estrecho de Magallanes. Al salir, un océano tan calmo que lo bautizó "Pacífico". Noventa y nueve días sin ver tierra: comimos serrín, cuero cocido y ratas a un ducado cada una.',
-      'En Filipinas, Magallanes murió atravesado por lanzas en la playa de Mactán. Elcano, un vasco de Guetaria, tomó el mando.',
+      'Todos decían que era imposible. Un paso al sur del Nuevo Mundo, una ruta al oeste hasta las Molucas sin cruzar mares del Rey de Portugal. Yo sabía que existía.',
+      'El 20 de septiembre de 1519 zarpamos de Sanlúcar. Cinco naos, doscientos cuarenta y cinco hombres, y una sola obsesión: llegar a la Especiería antes que nadie.',
     ],
   },
   {
     title: 'La vuelta al mundo',
-    image: null,
+    image: 'nao-ruta',
+    imageFile: 'backgrounds/nao-ruta.webp',
     pages: [
-      'Cargamos las Molucas de clavo y canela. Solo esta Victoria se atrevió a volver por el Índico. Los portugueses nos cazaron por sus aguas; perdimos veintiuno más.',
-      'El 6 de septiembre de 1522 entramos en Sanlúcar. Éramos dieciocho fantasmas — y los primeros hombres en dar la vuelta al mundo.',
+      'Un año y medio buscándolo entre motines, hambre y frío. Cuando por fin apareció — un laberinto de canales entre montañas heladas — al otro lado nos esperaba un océano al que llamé Pacífico. Nos engañó: noventa y nueve días sin ver tierra, comiendo cuero y serrín.',
+      'Yo no vi el regreso. Mi maestre Elcano cargó las bodegas de clavo en las Molucas y volvió con esta Victoria — la única de las cinco. El 6 de septiembre de 1522, dieciocho hombres pisaron Sanlúcar. Los primeros en dar la vuelta al mundo.',
     ],
   },
 ]
 
-export const NAO_VICTORIA_END_TEXT = 'Dieciocho hombres, tres años, una vuelta al mundo.'
+export const NAO_VICTORIA_END_TEXT =
+  'Doscientos cuarenta y cinco zarpamos. Dieciocho volvieron con la Tierra a la espalda.'
