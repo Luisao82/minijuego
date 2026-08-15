@@ -108,7 +108,10 @@ export const CHARACTERS = [
     sprite: 'char-guiri',
     stats: { peso: 4, equilibrio: 1, altura: 5, edad: 5 },
     available: true,
-    skins: [{ spritesheet: 'guiri', nombre: 'Clásico', flags: null }],
+    skins: [
+      { spritesheet: 'guiri', nombre: 'Clásico', flags: null },
+      { spritesheet: 'guiri_trampa', nombre: 'Make Triana Great Again', flags: 10 },
+    ],
   },
   {
     id: 'cunaos',
