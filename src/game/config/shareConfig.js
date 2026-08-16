@@ -1,14 +1,14 @@
-// Configuración del sistema de compartir
+// Configuración del sistema de compartir.
 //
-// Si GAME_URL queda vacío, el enlace NO se incluye en el texto ni en la imagen.
-// Rellenar cuando el juego tenga dominio público definitivo (no Vercel).
+// URLs de descarga de la app en cada tienda. Aparecen al pie del texto
+// compartido para que quien reciba pueda instalar el juego con un tap.
 
-export const GAME_URL = ''
+export const IOS_APP_URL = 'https://apps.apple.com/app/id6789896027'
+export const ANDROID_APP_URL = 'https://play.google.com/store/apps/details?id=com.cucana.trianera'
 
 export const SHARE_IMAGE_SIZE = 1080 // Cuadrado, óptimo para WhatsApp/Instagram
 
 // Plantillas de texto. Usa {name} como placeholder del nombre del premio/skin/personaje.
-// El enlace se añade automáticamente al final si GAME_URL no está vacío.
 export const SHARE_TEXTS = {
   REWARD_NEW: '¡NUEVO PREMIO! He conseguido {name} en La Cucaña Trianera 🏳️',
   REWARD_COLLECTION: 'Mira el {name} que tengo en La Cucaña Trianera 🏳️',
@@ -29,9 +29,11 @@ export const SHARE_BRANDING = {
   },
 }
 
-// Devuelve el texto compuesto listo para Web Share API
+const DOWNLOAD_FOOTER = `\n\n📱 Descárgalo gratis:\n🍎 iOS → ${IOS_APP_URL}\n🤖 Android → ${ANDROID_APP_URL}`
+
+// Devuelve el texto compuesto listo para compartir (mensaje + pie de descarga).
 export function buildShareText(templateKey, name) {
   const tpl = SHARE_TEXTS[templateKey] ?? ''
   const base = tpl.replace('{name}', name)
-  return GAME_URL ? `${base}\n${GAME_URL}` : base
+  return `${base}${DOWNLOAD_FOOTER}`
 }

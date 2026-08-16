@@ -7,6 +7,32 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-08-15
+
+### Fixed
+
+- **Compartir en iOS: segundo intento se quedaba en "preparando…".** El Web Share API dentro del WKWebView de Capacitor no liberaba bien el estado del sheet entre llamadas. Reescrito `src/game/utils/share.js` para usar `@capacitor/share` con `files:[uri]` sobre un fichero temporal escrito con `@capacitor/filesystem` — se evita WebKit por completo en nativo.
+- **Compartir en Android sin imagen.** El plugin `@capacitor/share` requiere un file path (no acepta blobs). Ahora en Android también se escribe el blob a caché y se comparte el URI resultante, así que la imagen viaja con el texto.
+- **`x{count}` colado en la imagen compartida desde la colección.** `CollectionScene` ya no pasa `count` a `generateShareImage` — el contador es solo UI del juego, no del share.
+
+### Changed
+
+- **Pie de descarga en el texto compartido.** Todos los mensajes terminan ahora con:
+  ```
+  📱 Descárgalo gratis:
+  🍎 iOS → https://apps.apple.com/app/id6789896027
+  🤖 Android → https://play.google.com/store/apps/details?id=com.cucana.trianera
+  ```
+  Quien reciba puede instalar el juego con un tap.
+- **Guard anti-doble-tap en `shareImage`** — bandera `_sharingInFlight` para que dos toques seguidos rápidos no abran dos sheets a la vez.
+- **30 spritesheets de skins refrescados** con arte retocado (mismas dimensiones 144×24). Los 5 skins retro (`retro01/02/03`, `larry`, `developer`) intactos.
+- **Nombres corregidos**: skins de El Barba `El Barbas II/III/IV` → `El Barba II/III/IV` (sin la "s"). Nombre del personaje `Guasinei` → `GUASINEI` en mayúsculas como el resto.
+- **Arte del barco principal refrescado** — nuevo `barco.png` con mismas dimensiones nativas (175×83).
+
+### Added
+
+- **Dependencia `@capacitor/filesystem@^8.1.2`** para escribir blobs a caché temporal antes de compartir.
+
 ## [1.11.0] - 2026-08-15
 
 ### Added

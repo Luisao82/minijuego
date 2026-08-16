@@ -45,9 +45,9 @@ export const CHARACTERS = [
     available: true,
     skins: [
       { spritesheet: 'el_barba', nombre: 'El Barba', flags: null },
-      { spritesheet: 'el_barba_2', nombre: 'El Barbas II', flags: 3 },
-      { spritesheet: 'el_barba_3', nombre: 'El Barbas III', flags: 9 },
-      { spritesheet: 'el_barba_4', nombre: 'El Barbas IV', flags: 15 },
+      { spritesheet: 'el_barba_2', nombre: 'El Barba II', flags: 3 },
+      { spritesheet: 'el_barba_3', nombre: 'El Barba III', flags: 9 },
+      { spritesheet: 'el_barba_4', nombre: 'El Barba IV', flags: 15 },
     ],
   },
   {
@@ -64,7 +64,7 @@ export const CHARACTERS = [
   },
   {
     id: 'javi_guasinei',
-    name: 'Guasinei',
+    name: 'GUASINEI',
     description: 'Ropa ética y sostenible hecha en el barrio',
     sprite: 'char-javi_guasinei',
     stats: { peso: 5, equilibrio: 4, altura: 6, edad: 5 },

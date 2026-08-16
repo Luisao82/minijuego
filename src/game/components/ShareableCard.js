@@ -8,13 +8,13 @@
 //   │                                      │
 //   │     [imagen grande del premio]       │
 //   │              NOMBRE                  │
-//   │              x3                      │  (solo premios)
 //   │                                      │
-//   ├──────────────────────────────────────┤
-//   │       https://cucanatrianera.com     │  (solo si GAME_URL no vacío)
 //   └──────────────────────────────────────┘
+//
+// Los enlaces de descarga (iOS/Android) van en el texto compartido,
+// no en la imagen — ver src/game/config/shareConfig.js.
 
-import { GAME_URL, SHARE_BRANDING, SHARE_IMAGE_SIZE } from '../config/shareConfig'
+import { SHARE_BRANDING, SHARE_IMAGE_SIZE } from '../config/shareConfig'
 
 const SIZE = SHARE_IMAGE_SIZE
 const PAD = 60
@@ -105,25 +105,11 @@ function drawHeader(ctx, subtitleKey) {
   ctx.fillRect(PAD, lineY, SIZE - PAD * 2, 4)
 }
 
-function drawFooter(ctx) {
-  if (!GAME_URL) return
-  const y = SIZE - PAD - 30
-
-  ctx.fillStyle = COLORS.gold
-  ctx.fillRect(PAD, y - 30, SIZE - PAD * 2, 4)
-
-  ctx.font = 'bold 28px "Press Start 2P", monospace'
-  ctx.fillStyle = COLORS.textSoft
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'top'
-  ctx.fillText(GAME_URL, SIZE / 2, y)
-}
-
 function drawCardBody(ctx, { name, count, source }) {
   const cardX = PAD
   const cardW = SIZE - PAD * 2
   const cardY = PAD + 200
-  const cardH = SIZE - cardY - PAD - (GAME_URL ? 80 : 0)
+  const cardH = SIZE - cardY - PAD
 
   // Panel interno con marco dorado
   ctx.fillStyle = COLORS.panel
@@ -245,7 +231,6 @@ export async function generateShareImage(scene, options) {
     count,
     source: getSourceImage(scene, textureKey, frame),
   })
-  drawFooter(ctx)
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
