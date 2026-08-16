@@ -154,6 +154,11 @@ export class Player {
   setFalling() {
     const hadFlag = this._state === PLAYER_STATE.FLAG || this._state === PLAYER_STATE.JUMPING_FLAG
     this._state = hadFlag ? PLAYER_STATE.FALLING_FLAG : PLAYER_STATE.FALLING
+    // Si la caída llega mientras aún corría la secuencia de suelta del
+    // empuje (típico cuando se agotan los 5 intentos y se cae directo sin
+    // running), esos timers pisarían el frame FALL con PUSH_A / STAND.
+    this._stopPushTimer()
+    this._stopPushReleaseTimer()
     this._syncFrame()
   }
 

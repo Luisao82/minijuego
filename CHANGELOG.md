@@ -16,7 +16,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Changed
 
-- **Arte del barco principal refrescado** (`public/assets/sprites/barco.png`) — nueva versión con mismas dimensiones nativas (175×83), sin cambios de código.
+- **Arte del barco principal refrescado** (`public/assets/sprites/barco.png`) — mismas dimensiones nativas (175×83), sin cambios de código.
+
+### Fixed
+
+- **Frame de caída pisado al agotar los 5 intentos de impulso.** Si el jugador dejaba correr la barra hasta agotar los intentos, `_startFall()` arrancaba mientras la secuencia de suelta del empuje aún tenía timers pendientes — los callbacks reemplazaban el frame `FALL` por `PUSH_A` y luego por `STAND`/`WALK`, produciendo un parpadeo del sprite durante la caída. `Player.setFalling()` ahora cancela los timers de empuje y suelta antes de aplicar el frame.
 
 ## [1.11.1] - 2026-08-15
 
