@@ -278,13 +278,22 @@ export class Player {
     this._stopPushTimer()
     if (this._state !== PLAYER_STATE.PUSHING) return 0
 
-    // Secuencia de suelta: PUSH_B primero (impacto del empujón) → PUSH_A
-    // (se compone). La escena mantiene la carrera parada hasta el final.
-    this._sprite.setFrame(SPRITE_FRAMES.PUSH_B)
+    // Secuencia de suelta: PUSH_B (impacto del empujón) → PUSH_A (suelta)
+    // → STAND (justo cuando la carrera va a arrancar). El último paso
+    // resetea también _animTimer para que el ciclo de carrera no herede
+    // el frame anterior en el primer tick — sin eso se veía frame 9
+    // durante los ~150 ms iniciales del intervalo de walk, dando sensación
+    // de que el personaje flotaba unos pixeles con el brazo aún visible.
     this._stopPushReleaseTimer()
+    this._sprite.setFrame(SPRITE_FRAMES.PUSH_B)
     this._pushReleaseTimer = this._scene.time.delayedCall(PUSH_RELEASE_HOLD_B, () => {
-      this._pushReleaseTimer = null
       this._sprite?.setFrame(SPRITE_FRAMES.PUSH_A)
+      this._pushReleaseTimer = this._scene.time.delayedCall(PUSH_RELEASE_HOLD_A, () => {
+        this._pushReleaseTimer = null
+        this._sprite?.setFrame(SPRITE_FRAMES.STAND)
+        this._animTimer = 0
+        this._animToggle = false
+      })
     })
     this._state = PLAYER_STATE.NORMAL
     return PUSH_RELEASE_HOLD_B + PUSH_RELEASE_HOLD_A

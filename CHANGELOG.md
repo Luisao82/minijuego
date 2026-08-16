@@ -14,6 +14,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   - Nuevos hooks en `BaseGameScene`: `onImpulsePhaseStart(weight)` / `onImpulsePhaseEnd()`. `onImpulsePhaseEnd()` puede devolver ms de retraso; si es >0, `startRunning()` se pospone. Override en `GameScene`.
   - Constantes tuneables al principio de `Player.js`: `PUSH_RELEASE_HOLD_B`, `PUSH_RELEASE_HOLD_A`, `PUSH_CYCLE`, `PUSH_WEIGHT_REF`, `PUSH_WEIGHT_FACTOR_MIN/MAX`.
 
+### Changed
+
+- **Arte del barco principal refrescado** (`public/assets/sprites/barco.png`) — nueva versión con mismas dimensiones nativas (175×83), sin cambios de código.
+
 ## [1.11.1] - 2026-08-15
 
 ### Fixed
