@@ -19,16 +19,27 @@ export const PLAYER_STATE = {
   FALLING_FLAG: 'falling-flag', // Cayendo con bandera
 }
 
-// Duración (ms) del frame de transición PUSH_A al soltar la barra de
-// impulso, antes de que la carrera tome el control de la animación.
-const PUSH_BRIDGE_MS = 120
+// Frame de transición PUSH_A al soltar la barra — muy corto para dar
+// sensación de resbalar/soltarse antes de arrancar la carrera.
+const PUSH_BRIDGE_MS = 40
 
-// Rango de intervalo (ms) para alternar PUSH_A ↔ PUSH_B, derivado del peso
-// del personaje. Mismo criterio que PowerBar (más peso = barra más rápida
-// = alternancia más rápida). Peso 1 ≈ 260 ms · Peso 10 ≈ 100 ms.
-const PUSH_INTERVAL_BASE = 280
-const PUSH_INTERVAL_PER_WEIGHT = 18
-const PUSH_INTERVAL_MIN = 100
+// Ciclo de animación del empuje. Cada paso tiene su propio dwell (ms) para
+// evitar el efecto metrónomo: se mantiene atrás (9) más tiempo, y el
+// empujón adelante (10) alterna entre corto y sostenido. Editar libremente
+// para tunear la sensación sin tocar la lógica.
+const PUSH_CYCLE = [
+  { frame: 9, delay: 650 }, // PUSH_A — atrás, reposo largo
+  { frame: 10, delay: 220 }, // PUSH_B — empujón corto adelante
+  { frame: 9, delay: 380 }, // PUSH_A — atrás corto
+  { frame: 10, delay: 500 }, // PUSH_B — adelante mantenido
+]
+
+// Escalado del ciclo por peso del personaje: peso=PUSH_WEIGHT_REF → factor 1.0;
+// pesos mayores aceleran el ciclo, menores lo ralentizan. Clamp para evitar
+// extremos si algún día un stat sale del rango 1-10.
+const PUSH_WEIGHT_REF = 5
+const PUSH_WEIGHT_FACTOR_MIN = 0.5
+const PUSH_WEIGHT_FACTOR_MAX = 1.6
 
 export class Player {
   constructor(
@@ -83,7 +94,8 @@ export class Player {
 
     // Empuje (fase de impulso)
     this._pushTimer = null
-    this._pushToggle = false
+    this._pushStep = 0
+    this._pushWeightFactor = 1
     this._bridgeUntil = 0 // ms — updateAnimation no toca frames hasta esta marca
 
     this.redraw()
@@ -228,12 +240,14 @@ export class Player {
 
   // ── Empuje (fase de impulso) ────────────────────────────────
 
-  // Alterna PUSH_A ↔ PUSH_B mientras dure la fase de impulso. Al terminar
-  // (active=false) deja PUSH_A como frame puente durante PUSH_BRIDGE_MS,
-  // hasta que updateAnimation() tome el relevo con STAND ↔ WALK.
+  // Reproduce el ciclo PUSH_CYCLE mientras dure la fase de impulso. Al
+  // terminar (active=false) deja PUSH_A como frame puente durante
+  // PUSH_BRIDGE_MS, hasta que updateAnimation() tome el relevo con
+  // STAND ↔ WALK.
   //
-  // weightStat controla la cadencia: más peso = alternancia más rápida,
-  // igual que la barra de impulso en PowerBar (BASE + weight * FACTOR).
+  // weightStat modula la velocidad global del ciclo: personajes más pesados
+  // hacen el ciclo más rápido (misma dirección que la barra de impulso en
+  // PowerBar). El escalado se aplica multiplicando los dwells de PUSH_CYCLE.
   setPushing(active, weightStat = 5) {
     if (!this._sprite) return
 
@@ -246,24 +260,12 @@ export class Player {
     if (active) {
       this._stopPushTimer()
       this._state = PLAYER_STATE.PUSHING
-      this._pushToggle = false
-      this._sprite.setFrame(SPRITE_FRAMES.PUSH_A)
-
-      const interval = Math.max(
-        PUSH_INTERVAL_MIN,
-        PUSH_INTERVAL_BASE - weightStat * PUSH_INTERVAL_PER_WEIGHT
+      this._pushStep = 0
+      this._pushWeightFactor = Math.max(
+        PUSH_WEIGHT_FACTOR_MIN,
+        Math.min(PUSH_WEIGHT_FACTOR_MAX, PUSH_WEIGHT_REF / Math.max(1, weightStat))
       )
-
-      this._pushTimer = this._scene.time.addEvent({
-        delay: interval,
-        callback: () => {
-          this._pushToggle = !this._pushToggle
-          this._sprite.setFrame(
-            this._pushToggle ? SPRITE_FRAMES.PUSH_B : SPRITE_FRAMES.PUSH_A
-          )
-        },
-        loop: true,
-      })
+      this._advancePushCycle()
     } else {
       this._stopPushTimer()
       if (this._state === PLAYER_STATE.PUSHING) {
@@ -274,9 +276,20 @@ export class Player {
     }
   }
 
+  _advancePushCycle() {
+    if (this._state !== PLAYER_STATE.PUSHING || !this._sprite) return
+    const step = PUSH_CYCLE[this._pushStep % PUSH_CYCLE.length]
+    this._sprite.setFrame(step.frame)
+    const delay = Math.max(30, step.delay * this._pushWeightFactor)
+    this._pushTimer = this._scene.time.delayedCall(delay, () => {
+      this._pushStep++
+      this._advancePushCycle()
+    })
+  }
+
   _stopPushTimer() {
     if (this._pushTimer) {
-      this._pushTimer.destroy()
+      this._pushTimer.remove(false)
       this._pushTimer = null
     }
   }
