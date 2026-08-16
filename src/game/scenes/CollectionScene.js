@@ -404,10 +404,11 @@ export class CollectionScene extends BaseScene {
         if (sharing) return
         sharing = true
         try {
+          // No pasamos `count` a propósito — la imagen compartida no debe
+          // mostrar "xN". El contador se ve en el juego, no en el share.
           const blob = await generateShareImage(this, {
             name: reward.nombre,
             textureKey: reward.id,
-            count,
             subtitleKey: 'REWARD_COLLECTION',
           })
           await shareImage(blob, buildShareText('REWARD_COLLECTION', reward.nombre))
