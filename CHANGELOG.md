@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Animación de empuje en la fase de impulso (prueba con Trianero).** Nuevos frames `PUSH_A` (9) y `PUSH_B` (10) en el spritesheet: el personaje aparece agarrado al brazo de un compañero, alternando entre ambos frames mientras dura la barra de impulso, para dar sensación de coger carrerilla. Al soltar la barra, `PUSH_A` hace de frame puente durante 120 ms antes de arrancar el ciclo de carrera (`STAND` ↔ `WALK`). La cadencia de la alternancia depende del stat de peso — mismo criterio que la velocidad de la barra en `PowerBar`.
+  - De momento solo el skin `trianero` tiene los frames nuevos. El resto de skins mantienen `STAND` durante la fase de impulso vía fallback (`Player.setPushing()`); el fallback está marcado con TODO para eliminarlo cuando todos los skins tengan los frames 9-10.
+  - Nuevos hooks en `BaseGameScene`: `onImpulsePhaseStart(weight)` / `onImpulsePhaseEnd()`, override en `GameScene`.
+
 ## [1.11.1] - 2026-08-15
 
 ### Fixed

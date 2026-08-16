@@ -11,12 +11,24 @@ import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 
 export const PLAYER_STATE = {
   NORMAL: 'normal', // De pie en el palo
+  PUSHING: 'pushing', // Fase de impulso — agarrado al brazo del compañero
   JUMPING: 'jumping', // Saltando sin bandera
   JUMPING_FLAG: 'jumping-flag', // Saltando con bandera
   FLAG: 'flag', // En el palo con bandera
   FALLING: 'falling', // Cayendo sin bandera
   FALLING_FLAG: 'falling-flag', // Cayendo con bandera
 }
+
+// Duración (ms) del frame de transición PUSH_A al soltar la barra de
+// impulso, antes de que la carrera tome el control de la animación.
+const PUSH_BRIDGE_MS = 120
+
+// Rango de intervalo (ms) para alternar PUSH_A ↔ PUSH_B, derivado del peso
+// del personaje. Mismo criterio que PowerBar (más peso = barra más rápida
+// = alternancia más rápida). Peso 1 ≈ 260 ms · Peso 10 ≈ 100 ms.
+const PUSH_INTERVAL_BASE = 280
+const PUSH_INTERVAL_PER_WEIGHT = 18
+const PUSH_INTERVAL_MIN = 100
 
 export class Player {
   constructor(
@@ -68,6 +80,11 @@ export class Player {
     this._celebTimer = null
     this._celebGraphics = null // solo en fallback pixel art
     this._celebFrame = 0
+
+    // Empuje (fase de impulso)
+    this._pushTimer = null
+    this._pushToggle = false
+    this._bridgeUntil = 0 // ms — updateAnimation no toca frames hasta esta marca
 
     this.redraw()
   }
@@ -173,6 +190,9 @@ export class Player {
   // Anima entre STAND y WALK según la velocidad de movimiento.
   updateAnimation(dt, speed) {
     if (!this._sprite) return
+    // Frame de transición PUSH_A tras soltar la barra — mantener durante
+    // PUSH_BRIDGE_MS antes de arrancar el ciclo de carrera.
+    if (this._bridgeUntil && this._scene.time.now < this._bridgeUntil) return
     if (this._state === PLAYER_STATE.JUMPING || this._state === PLAYER_STATE.JUMPING_FLAG) return
     if (this._state === PLAYER_STATE.FALLING || this._state === PLAYER_STATE.FALLING_FLAG) return
 
@@ -204,6 +224,61 @@ export class Player {
 
   setFlipX(flip) {
     this._sprite?.setFlipX(flip)
+  }
+
+  // ── Empuje (fase de impulso) ────────────────────────────────
+
+  // Alterna PUSH_A ↔ PUSH_B mientras dure la fase de impulso. Al terminar
+  // (active=false) deja PUSH_A como frame puente durante PUSH_BRIDGE_MS,
+  // hasta que updateAnimation() tome el relevo con STAND ↔ WALK.
+  //
+  // weightStat controla la cadencia: más peso = alternancia más rápida,
+  // igual que la barra de impulso en PowerBar (BASE + weight * FACTOR).
+  setPushing(active, weightStat = 5) {
+    if (!this._sprite) return
+
+    // Fallback provisional: skins con spritesheet antiguo (< 11 frames) no
+    // tienen PUSH_A/PUSH_B — se quedan con STAND durante la fase de impulso.
+    // TODO: eliminar este bloque cuando TODOS los skins tengan los frames 9-10.
+    const totalFrames = this._sprite.texture.frameTotal - 1 // -1 por __BASE
+    if (totalFrames < 11) return
+
+    if (active) {
+      this._stopPushTimer()
+      this._state = PLAYER_STATE.PUSHING
+      this._pushToggle = false
+      this._sprite.setFrame(SPRITE_FRAMES.PUSH_A)
+
+      const interval = Math.max(
+        PUSH_INTERVAL_MIN,
+        PUSH_INTERVAL_BASE - weightStat * PUSH_INTERVAL_PER_WEIGHT
+      )
+
+      this._pushTimer = this._scene.time.addEvent({
+        delay: interval,
+        callback: () => {
+          this._pushToggle = !this._pushToggle
+          this._sprite.setFrame(
+            this._pushToggle ? SPRITE_FRAMES.PUSH_B : SPRITE_FRAMES.PUSH_A
+          )
+        },
+        loop: true,
+      })
+    } else {
+      this._stopPushTimer()
+      if (this._state === PLAYER_STATE.PUSHING) {
+        this._sprite.setFrame(SPRITE_FRAMES.PUSH_A)
+        this._bridgeUntil = this._scene.time.now + PUSH_BRIDGE_MS
+        this._state = PLAYER_STATE.NORMAL
+      }
+    }
+  }
+
+  _stopPushTimer() {
+    if (this._pushTimer) {
+      this._pushTimer.destroy()
+      this._pushTimer = null
+    }
   }
 
   // ── Visibilidad ──────────────────────────────────────────────
@@ -288,6 +363,7 @@ export class Player {
 
   destroy() {
     this.stopCelebration()
+    this._stopPushTimer()
     this._sprite?.destroy()
     this._sprite = null
     this._graphics?.destroy()
