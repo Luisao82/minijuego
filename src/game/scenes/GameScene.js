@@ -374,7 +374,7 @@ export class GameScene extends BaseGameScene {
   }
 
   onImpulsePhaseEnd() {
-    this.player?.setPushing(false)
+    return this.player?.setPushing(false) ?? 0
   }
 
   isFlagReached() {
