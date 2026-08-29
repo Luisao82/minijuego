@@ -10,13 +10,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Added
 
 - **Animación de empuje en la fase de impulso (prueba con Trianero).** Nuevos frames `PUSH_A` (9) y `PUSH_B` (10) en el spritesheet: el personaje aparece agarrado al brazo de un compañero durante la barra de impulso. La animación reproduce un ciclo con dwells desiguales (`PUSH_CYCLE` en `Player.js`) para evitar efecto metrónomo — mantiene el frame atrás (9) más tiempo y alterna el empujón adelante (10) entre corto y sostenido. Al pulsar para parar la barra se reproduce una secuencia de suelta `PUSH_B → PUSH_A` y **la carrera no arranca ni el personaje se desplaza hasta que la suelta termina** (evita la sensación de flotar). La velocidad global del ciclo se modula por el stat de peso: personajes más pesados hacen el ciclo más rápido, mismo criterio que la barra en `PowerBar`.
-  - De momento solo el skin `trianero` tiene los frames nuevos. El resto de skins mantienen `STAND` durante la fase de impulso vía fallback (`Player.setPushing()`) y la carrera arranca sin retraso; el fallback está marcado con TODO para eliminarlo cuando todos los skins tengan los frames 9-10.
+  - 36 skins (todos los personajes activos + `developer`) actualizados con los frames nuevos 9-10 (176×24). Los 4 skins retro (`retro01/02/03`, `larry`) y `default.png` siguen en 144×24 y quedan cubiertos por el fallback en `Player.setPushing()` — el fallback conserva su TODO hasta que también se actualicen o se decidan retirar.
   - Nuevos hooks en `BaseGameScene`: `onImpulsePhaseStart(weight)` / `onImpulsePhaseEnd()`. `onImpulsePhaseEnd()` puede devolver ms de retraso; si es >0, `startRunning()` se pospone. Override en `GameScene`.
   - Constantes tuneables al principio de `Player.js`: `PUSH_RELEASE_HOLD_B`, `PUSH_RELEASE_HOLD_A`, `PUSH_CYCLE`, `PUSH_WEIGHT_REF`, `PUSH_WEIGHT_FACTOR_MIN/MAX`.
 
 ### Changed
 
 - **Arte del barco principal refrescado** (`public/assets/sprites/barco.png`) — mismas dimensiones nativas (175×83), sin cambios de código.
+- **Publi Calentería refrescada** (`public/assets/flags/publi_calenteria.png`) — misma dimensión (30×15), sin cambios de código.
 
 ### Fixed
 
