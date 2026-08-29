@@ -369,6 +369,14 @@ export class GameScene extends BaseGameScene {
     this.player.redraw()
   }
 
+  onImpulsePhaseStart(weightStat) {
+    this.player?.setPushing(true, weightStat)
+  }
+
+  onImpulsePhaseEnd() {
+    return this.player?.setPushing(false) ?? 0
+  }
+
   isFlagReached() {
     return this._checkFlagCollision()
   }

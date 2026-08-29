@@ -11,12 +11,41 @@ import { SPRITE_CONFIG, SPRITE_FRAMES } from '../config/spriteConfig'
 
 export const PLAYER_STATE = {
   NORMAL: 'normal', // De pie en el palo
+  PUSHING: 'pushing', // Fase de impulso — agarrado al brazo del compañero
   JUMPING: 'jumping', // Saltando sin bandera
   JUMPING_FLAG: 'jumping-flag', // Saltando con bandera
   FLAG: 'flag', // En el palo con bandera
   FALLING: 'falling', // Cayendo sin bandera
   FALLING_FLAG: 'falling-flag', // Cayendo con bandera
 }
+
+// Secuencia de "suelta del brazo" al pulsar para parar la barra:
+//   1) frame PUSH_B (10) — el brazo tira hacia adelante (impacto del empujón)
+//   2) frame PUSH_A (9)  — el personaje suelta el brazo y se compone
+//   3) arranca la carrera (STAND ↔ WALK) con desplazamiento real
+// La suma de HOLD_B + HOLD_A es también el retraso que aplica BaseGameScene
+// antes de llamar a startRunning(), para que el personaje NO se desplace
+// mientras dura la animación (evita la sensación de flotar).
+const PUSH_RELEASE_HOLD_B = 110
+const PUSH_RELEASE_HOLD_A = 130
+
+// Ciclo de animación del empuje. Cada paso tiene su propio dwell (ms) para
+// evitar el efecto metrónomo: se mantiene atrás (9) más tiempo, y el
+// empujón adelante (10) alterna entre corto y sostenido. Editar libremente
+// para tunear la sensación sin tocar la lógica.
+const PUSH_CYCLE = [
+  { frame: 9, delay: 650 }, // PUSH_A — atrás, reposo largo
+  { frame: 10, delay: 220 }, // PUSH_B — empujón corto adelante
+  { frame: 9, delay: 380 }, // PUSH_A — atrás corto
+  { frame: 10, delay: 500 }, // PUSH_B — adelante mantenido
+]
+
+// Escalado del ciclo por peso del personaje: peso=PUSH_WEIGHT_REF → factor 1.0;
+// pesos mayores aceleran el ciclo, menores lo ralentizan. Clamp para evitar
+// extremos si algún día un stat sale del rango 1-10.
+const PUSH_WEIGHT_REF = 5
+const PUSH_WEIGHT_FACTOR_MIN = 0.5
+const PUSH_WEIGHT_FACTOR_MAX = 1.6
 
 export class Player {
   constructor(
@@ -69,6 +98,12 @@ export class Player {
     this._celebGraphics = null // solo en fallback pixel art
     this._celebFrame = 0
 
+    // Empuje (fase de impulso)
+    this._pushTimer = null
+    this._pushStep = 0
+    this._pushWeightFactor = 1
+    this._pushReleaseTimer = null
+
     this.redraw()
   }
 
@@ -119,6 +154,11 @@ export class Player {
   setFalling() {
     const hadFlag = this._state === PLAYER_STATE.FLAG || this._state === PLAYER_STATE.JUMPING_FLAG
     this._state = hadFlag ? PLAYER_STATE.FALLING_FLAG : PLAYER_STATE.FALLING
+    // Si la caída llega mientras aún corría la secuencia de suelta del
+    // empuje (típico cuando se agotan los 5 intentos y se cae directo sin
+    // running), esos timers pisarían el frame FALL con PUSH_A / STAND.
+    this._stopPushTimer()
+    this._stopPushReleaseTimer()
     this._syncFrame()
   }
 
@@ -206,6 +246,89 @@ export class Player {
     this._sprite?.setFlipX(flip)
   }
 
+  // ── Empuje (fase de impulso) ────────────────────────────────
+
+  // Reproduce el ciclo PUSH_CYCLE mientras dure la fase de impulso.
+  // Al terminar (active=false) lanza la secuencia de suelta del brazo
+  // (PUSH_B → PUSH_A) y devuelve la duración total en ms — la escena debe
+  // esperar ese tiempo antes de arrancar la carrera para que el personaje
+  // no empiece a desplazarse mientras aún se ve agarrado.
+  //
+  // weightStat modula la velocidad del ciclo mientras dura el empuje:
+  // personajes más pesados hacen el ciclo más rápido (misma dirección que
+  // la barra de impulso en PowerBar). No afecta a la secuencia de suelta.
+  setPushing(active, weightStat = 5) {
+    if (!this._sprite) return 0
+
+    // Fallback provisional: skins con spritesheet antiguo (< 11 frames) no
+    // tienen PUSH_A/PUSH_B — se quedan con STAND durante la fase de impulso
+    // y la carrera arranca sin retraso.
+    // TODO: eliminar este bloque cuando TODOS los skins tengan los frames 9-10.
+    const totalFrames = this._sprite.texture.frameTotal - 1 // -1 por __BASE
+    if (totalFrames < 11) return 0
+
+    if (active) {
+      this._stopPushTimer()
+      this._stopPushReleaseTimer()
+      this._state = PLAYER_STATE.PUSHING
+      this._pushStep = 0
+      this._pushWeightFactor = Math.max(
+        PUSH_WEIGHT_FACTOR_MIN,
+        Math.min(PUSH_WEIGHT_FACTOR_MAX, PUSH_WEIGHT_REF / Math.max(1, weightStat))
+      )
+      this._advancePushCycle()
+      return 0
+    }
+
+    this._stopPushTimer()
+    if (this._state !== PLAYER_STATE.PUSHING) return 0
+
+    // Secuencia de suelta: PUSH_B (impacto del empujón) → PUSH_A (suelta)
+    // → STAND (justo cuando la carrera va a arrancar). El último paso
+    // resetea también _animTimer para que el ciclo de carrera no herede
+    // el frame anterior en el primer tick — sin eso se veía frame 9
+    // durante los ~150 ms iniciales del intervalo de walk, dando sensación
+    // de que el personaje flotaba unos pixeles con el brazo aún visible.
+    this._stopPushReleaseTimer()
+    this._sprite.setFrame(SPRITE_FRAMES.PUSH_B)
+    this._pushReleaseTimer = this._scene.time.delayedCall(PUSH_RELEASE_HOLD_B, () => {
+      this._sprite?.setFrame(SPRITE_FRAMES.PUSH_A)
+      this._pushReleaseTimer = this._scene.time.delayedCall(PUSH_RELEASE_HOLD_A, () => {
+        this._pushReleaseTimer = null
+        this._sprite?.setFrame(SPRITE_FRAMES.STAND)
+        this._animTimer = 0
+        this._animToggle = false
+      })
+    })
+    this._state = PLAYER_STATE.NORMAL
+    return PUSH_RELEASE_HOLD_B + PUSH_RELEASE_HOLD_A
+  }
+
+  _advancePushCycle() {
+    if (this._state !== PLAYER_STATE.PUSHING || !this._sprite) return
+    const step = PUSH_CYCLE[this._pushStep % PUSH_CYCLE.length]
+    this._sprite.setFrame(step.frame)
+    const delay = Math.max(30, step.delay * this._pushWeightFactor)
+    this._pushTimer = this._scene.time.delayedCall(delay, () => {
+      this._pushStep++
+      this._advancePushCycle()
+    })
+  }
+
+  _stopPushTimer() {
+    if (this._pushTimer) {
+      this._pushTimer.remove(false)
+      this._pushTimer = null
+    }
+  }
+
+  _stopPushReleaseTimer() {
+    if (this._pushReleaseTimer) {
+      this._pushReleaseTimer.remove(false)
+      this._pushReleaseTimer = null
+    }
+  }
+
   // ── Visibilidad ──────────────────────────────────────────────
 
   setVisible(visible) {
@@ -288,6 +411,8 @@ export class Player {
 
   destroy() {
     this.stopCelebration()
+    this._stopPushTimer()
+    this._stopPushReleaseTimer()
     this._sprite?.destroy()
     this._sprite = null
     this._graphics?.destroy()

@@ -95,6 +95,7 @@ export class BaseGameScene extends BaseScene {
     this.phase = 'impulse'
     this.powerBarUI = new PowerBarUI(this, this.powerBar, this.characterData)
     this.powerBarUI.create()
+    this.onImpulsePhaseStart(weight)
   }
 
   onBarStopped() {
@@ -108,7 +109,15 @@ export class BaseGameScene extends BaseScene {
       this._showMaxPowerText()
     }
 
-    this.startRunning()
+    // La subclase puede devolver un retraso (ms) para que la carrera no
+    // arranque hasta que termine su animación de suelta — así el personaje
+    // no se desplaza mientras aún se ve agarrado al brazo.
+    const releaseDelay = this.onImpulsePhaseEnd() || 0
+    if (releaseDelay > 0) {
+      this.time.delayedCall(releaseDelay, () => this.startRunning())
+    } else {
+      this.startRunning()
+    }
   }
 
   _showMaxPowerText() {
@@ -484,6 +493,20 @@ export class BaseGameScene extends BaseScene {
 
   // Presentación del avance durante la carrera (mover sprite, animación...)
   onRunProgress(_dt) {}
+
+  // Arranque de la fase de impulso — feedback visual del personaje
+  // (p. ej. animación de empuje). weightStat viene del stat "peso" y
+  // permite modular la cadencia de animaciones al mismo criterio que la barra.
+  onImpulsePhaseStart(_weightStat) {}
+
+  // Cierre de la fase de impulso — el jugador ha soltado la barra y va
+  // a arrancar la carrera. Permite detener animaciones de la fase previa.
+  // Puede devolver ms de retraso: si es >0, la carrera no arrancará hasta
+  // que hayan pasado, dando margen a una animación de suelta que no debe
+  // solaparse con el desplazamiento.
+  onImpulsePhaseEnd() {
+    return 0
+  }
 
   // La grasa ha cambiado este frame (overlay del palo en 2D)
   onOilChanged() {}
