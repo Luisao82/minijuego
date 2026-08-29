@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-08-29
+
 ### Added
 
 - **Animación de empuje en la fase de impulso (prueba con Trianero).** Nuevos frames `PUSH_A` (9) y `PUSH_B` (10) en el spritesheet: el personaje aparece agarrado al brazo de un compañero durante la barra de impulso. La animación reproduce un ciclo con dwells desiguales (`PUSH_CYCLE` en `Player.js`) para evitar efecto metrónomo — mantiene el frame atrás (9) más tiempo y alterna el empujón adelante (10) entre corto y sostenido. Al pulsar para parar la barra se reproduce una secuencia de suelta `PUSH_B → PUSH_A` y **la carrera no arranca ni el personaje se desplaza hasta que la suelta termina** (evita la sensación de flotar). La velocidad global del ciclo se modula por el stat de peso: personajes más pesados hacen el ciclo más rápido, mismo criterio que la barra en `PowerBar`.
