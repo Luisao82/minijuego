@@ -32,10 +32,16 @@ const MAP_Y = 80
 const BAND_Y = 72
 const BAND_H = 690
 
-// Selector de bloques (mitad izquierda)
+// Cabecera del selector: título "LISTA DE RETOS" a la izquierda y el
+// selector radio de modo (GPS / METROS) a la derecha, justo antes del mapa.
+const HEADER_X = 32
+const HEADER_Y = MAP_Y // 80
+const HEADER_H = 48
+
+// Selector de bloques (mitad izquierda, debajo del header)
 const SEL_X = 32
-const SEL_Y = MAP_Y
-const SEL_W = MAP_X - SEL_X - 24 // separación con el mapa
+const SEL_Y = HEADER_Y + HEADER_H + 12 // 140
+const SEL_W = MAP_X - SEL_X - 24
 
 // ── Layout zoom ───────────────────────────────────────────────
 const ZOOM_SIZE = 460
@@ -44,13 +50,13 @@ const ZOOM_CY = 360
 const ZOOM_HALF = ZOOM_SIZE / 2 // 230
 const ARROW_GAP = 48 // distancia del borde de imagen al centro de la flecha
 
-// ── Barra inferior (VOLVER / CAMBIAR MODO / TUTORIAL) ─────────
-const BTN_W = 220
+// ── Barra inferior (VOLVER / TUTORIAL) ────────────────────────
+const BTN_W = 240
 const BTN_H = 58
-const BTN_GAP = 30
+const BTN_GAP = 40
 const BTN_Y = MAP_Y + GRID_H + 8 // 696 — bottom a 754
-const BTN_ROW_W = BTN_W * 3 + BTN_GAP * 2 // 720
-const BTN_ROW_X = Math.round((GAME_WIDTH - BTN_ROW_W) / 2) // 152
+const BTN_ROW_W = BTN_W * 2 + BTN_GAP // 520
+const BTN_ROW_X = Math.round((GAME_WIDTH - BTN_ROW_W) / 2) // 252
 
 export class MapScene extends BaseScene {
   constructor() {
@@ -98,6 +104,7 @@ export class MapScene extends BaseScene {
     this.drawMap()
     if (mapService.getUnlocked().length === 0) this.drawEmptyHint()
 
+    this.drawSelectorHeader()
     this.blockSelector = new BlockSelector(this, {
       x: SEL_X,
       y: SEL_Y,
@@ -316,6 +323,7 @@ export class MapScene extends BaseScene {
     mapService.setUnlockMode('meters')
     this.closePermissionDeniedModal()
     this.blockSelector?.refresh()
+    this._drawModeRadios(MAP_X - 8, HEADER_Y + HEADER_H / 2)
     this.refreshPlayerMarkerVisibility()
     this.showToast('Modo cambiado a metros')
   }
@@ -539,8 +547,7 @@ export class MapScene extends BaseScene {
   drawBottomBar() {
     const y = BTN_Y
     const xVolver = BTN_ROW_X
-    const xMode = BTN_ROW_X + BTN_W + BTN_GAP
-    const xTut = BTN_ROW_X + (BTN_W + BTN_GAP) * 2
+    const xTut = BTN_ROW_X + BTN_W + BTN_GAP
 
     makeNavButton(
       this,
@@ -556,16 +563,6 @@ export class MapScene extends BaseScene {
     )
     makeNavButton(
       this,
-      xMode,
-      y,
-      BTN_W,
-      BTN_H,
-      'CAMBIAR MODO',
-      () => this.toggleUnlockMode(),
-      { depth: 3 }
-    )
-    makeNavButton(
-      this,
       xTut,
       y,
       BTN_W,
@@ -576,15 +573,134 @@ export class MapScene extends BaseScene {
     )
   }
 
-  // Toggle directo entre GPS ↔ metros. Sin modal — feedback con toast.
+  // ── Cabecera del selector: título + selector radio de modo ────
+  //
+  // Layout:
+  //   [ LISTA DE RETOS ]                        Modo: (●) GPS  ( ) METROS
+  //
+  // Al pulsar cualquiera de los dos radios se cambia el unlockMode y se
+  // refresca la lista de bloques + el marker del jugador.
+
+  drawSelectorHeader() {
+    this._headerObjs = []
+
+    // Título "LISTA DE RETOS" a la izquierda
+    const title = this.add
+      .text(HEADER_X, HEADER_Y + HEADER_H / 2, 'LISTA DE RETOS', {
+        ...headingStyle(32, COLOR_GOLD, 4),
+        stroke: '#000000',
+      })
+      .setOrigin(0, 0.5)
+      .setDepth(3)
+    this._headerObjs.push(title)
+
+    // Selector radio de modo a la derecha (termina justo antes del mapa)
+    this._modeRadioObjs = []
+    this._drawModeRadios(MAP_X - 8, HEADER_Y + HEADER_H / 2)
+  }
+
+  _drawModeRadios(rightX, cy) {
+    this._modeRadioObjs.forEach((o) => {
+      if (o?.destroy) o.destroy()
+    })
+    this._modeRadioObjs = []
+
+    const mode = mapService.getUnlockMode() || 'gps'
+
+    const track = (o) => {
+      this._modeRadioObjs.push(o)
+      return o
+    }
+
+    const RADIO_R = 8
+    const RADIO_GAP = 8
+    const LABEL_GAP = 20
+    const HIT_H = 44
+
+    // Fila alineada a la derecha:  [Modo:]  [○ GPS]  [○ METROS]
+    const optMeters = this._buildRadioOption('METROS', mode === 'meters', RADIO_R, RADIO_GAP)
+    const optGps = this._buildRadioOption('GPS', mode === 'gps', RADIO_R, RADIO_GAP)
+    const modoLabel = this.add
+      .text(0, 0, 'Modo:', { ...headingStyle(22, '#f0d99a', 3), stroke: '#000000' })
+      .setOrigin(1, 0.5)
+      .setDepth(3)
+
+    optMeters.setRight(rightX, cy)
+    optGps.setRight(optMeters.left - LABEL_GAP, cy)
+    modoLabel.setPosition(optGps.left - LABEL_GAP, cy)
+
+    track(modoLabel)
+    optGps.objs.forEach((o) => track(o))
+    optMeters.objs.forEach((o) => track(o))
+
+    // Áreas táctiles anchas por radio
+    const zoneGps = track(
+      this.add
+        .zone(optGps.left, cy - HIT_H / 2, optGps.width, HIT_H)
+        .setOrigin(0)
+        .setDepth(4)
+        .setInteractive({ useHandCursor: true })
+    )
+    zoneGps.on('pointerdown', () => this._pickMode('gps'))
+
+    const zoneMeters = track(
+      this.add
+        .zone(optMeters.left, cy - HIT_H / 2, optMeters.width, HIT_H)
+        .setOrigin(0)
+        .setDepth(4)
+        .setInteractive({ useHandCursor: true })
+    )
+    zoneMeters.on('pointerdown', () => this._pickMode('meters'))
+  }
+
+  // Devuelve un "objeto" ligero con métodos setRight/left para poder
+  // right-align sin recalcular a mano cada anchura.
+  _buildRadioOption(text, selected, radius, gap) {
+    const g = this.add.graphics().setDepth(3)
+    g.lineStyle(2, COLORS.GOLD, 1)
+    g.strokeCircle(0, 0, radius)
+    if (selected) {
+      g.fillStyle(COLORS.GOLD, 1)
+      g.fillCircle(0, 0, radius - 3)
+    }
+
+    const label = this.add.text(0, 0, text, {
+      ...headingStyle(22, selected ? '#f0d99a' : '#8a8a9a', 3),
+      stroke: '#000000',
+    }).setOrigin(0, 0.5).setDepth(3)
+
+    const width = radius * 2 + gap + label.width
+    let left = 0
+    const opt = {
+      objs: [g, label],
+      get width() { return width },
+      get left() { return left },
+      setRight(rightX, cy) {
+        left = rightX - width
+        g.setPosition(left + radius, cy)
+        label.setPosition(left + radius * 2 + gap, cy)
+      },
+    }
+    return opt
+  }
+
+  _pickMode(mode) {
+    if ((mapService.getUnlockMode() || 'gps') === mode) return
+    this.toggleUnlockMode(mode)
+  }
+
+  // Cambia el modo de desbloqueo. Si se pasa `target`, va a ese modo
+  // directamente (usado por los radio buttons); si no, hace toggle.
   // Efectos secundarios: al pasar a metros paramos el watch y ocultamos
   // el marker; al pasar a GPS reintentamos el tracking (puede abrir el
   // modal de permiso denegado si el usuario no lo concedió antes).
-  async toggleUnlockMode() {
+  async toggleUnlockMode(target) {
     const current = mapService.getUnlockMode() || 'gps'
-    const next = current === 'gps' ? 'meters' : 'gps'
+    const next = target || (current === 'gps' ? 'meters' : 'gps')
+    if (next === current) return
     mapService.setUnlockMode(next)
     this.blockSelector?.refresh()
+    this._drawModeRadios(MAP_X - 8, HEADER_Y + HEADER_H / 2)
 
     if (next === 'meters') {
       // Parar watch y cerrar modal si estaba abierto por permiso denegado

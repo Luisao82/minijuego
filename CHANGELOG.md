@@ -46,6 +46,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Changed (Rediseño del selector de retos)
+
+- **Nuevo header en la mitad izquierda del mapa**: `LISTA DE RETOS` a la izquierda en estilo de sección (Jersey 10, 32pt) y a la derecha un selector radio *"Modo: (●) GPS  ( ) METROS"* alineado justo antes del mapa.
+- **Botón `CAMBIAR MODO` eliminado de la barra inferior** — la barra queda con `VOLVER` y `TUTORIAL`. Cambiar de modo ahora se hace pulsando el radio correspondiente en el header; el cambio dispara el mismo comportamiento de antes (arranca/para watch, refresca selector, toast).
+- **Tarjetas de bloque más grandes y legibles en móvil:** alto de 60 → 78 px; título del bloque de 18pt → 26pt (Jersey 10); indicador de progreso ("N de M visitas" / "X m") pasa de `mutedStyle(14)` monospace a `headingStyle(22)` en el mismo tipográficamente que el resto del juego; texto de bloqueo también agrandado; sello de 12 → 15 px de radio.
+
 ### Changed (Pulido — pasos F)
 
 - **Panel de debug del GPS retirado del mapa.** Ya no era necesario tras calibrar `mapBounds`. Se elimina el texto informativo de la esquina superior (`lat/lon`, precisión, POI más cercano) y todos los métodos asociados en `MapScene`. Los estados críticos que antes se pintaban allí (permiso denegado, GPS no disponible) ahora se cubren con el modal de permiso denegado y toasts breves.

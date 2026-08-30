@@ -3,17 +3,20 @@
 // (medalla, progreso o candado). El bloque activo se rodea de esquinas
 // en "L" al estilo del header de escena.
 //
+// El label del modo y su selector radio los pinta MapScene por encima —
+// este componente solo se ocupa de las tarjetas.
+//
 // Se redibuja llamando a refresh(); el consumidor lo hace tras cambios
 // de estado (nuevo check-in, cambio de modo, bloque completado, etc.).
 
 import { COLORS } from '../config/gameConfig'
-import { headingStyle, mutedStyle, uiLabelLight } from '../config/textStyles'
+import { headingStyle, uiLabelLight } from '../config/textStyles'
 import { mapService } from '../services/MapService'
 
-const CARD_H = 60
+const CARD_H = 78
 const CARD_GAP = 12
-const CARD_PAD_X = 16
-const CORNER_LEN = 10
+const CARD_PAD_X = 18
+const CORNER_LEN = 12
 const CORNER_INSET = 4
 
 export class BlockSelector {
@@ -36,17 +39,10 @@ export class BlockSelector {
 
   refresh() {
     this.destroy()
-
     const mode = mapService.getUnlockMode() || 'gps'
-    const modeLabel = mode === 'meters' ? 'Modo metros' : 'Modo GPS'
-    this._addText(this._x, this._y, modeLabel, {
-      ...headingStyle(22, '#f0d99a', 2),
-      stroke: '#000000',
-    })
-
     const activeId = this._resolveActiveBlockId()
     const blocks = mapService.getBlocks()
-    let y = this._y + 40
+    let y = this._y
     blocks.forEach((block) => {
       this._drawCard(block, y, block.id === activeId, mode)
       y += CARD_H + CARD_GAP
@@ -71,10 +67,10 @@ export class BlockSelector {
     bg.lineStyle(1, COLORS.GOLD, unlocked ? 0.45 : 0.2)
     bg.strokeRect(x, y, this._w, CARD_H)
 
-    // Nombre
+    // Nombre — más grande y con más aire.
     const titleColor = unlocked ? '#f0d99a' : '#6b6b7a'
     this._addText(x + CARD_PAD_X, y + CARD_H / 2, block.title, {
-      ...headingStyle(18, titleColor, 2),
+      ...headingStyle(26, titleColor, 2),
       stroke: '#000000',
     }).setOrigin(0, 0.5)
 
@@ -90,8 +86,7 @@ export class BlockSelector {
       this._drawLock(block, mode, rx, ry)
     }
 
-    // Esquinas en "L" si es el bloque activo — refuerza que "es el que
-    // pinta sus POIs en el mapa".
+    // Esquinas en "L" si es el bloque activo.
     if (isActive && unlocked && !completed) this._drawCorners(x, y)
 
     // Área táctil (permite reactivar un bloque completado o desbloqueado).
@@ -126,18 +121,19 @@ export class BlockSelector {
     // GPS   → círculo dorado + '★'  (estrella: haber estado allí)
     // Metros → círculo plateado + 'M' (mando: haberlo jugado)
     const g = this._add(this._scene.add.graphics().setDepth(3))
+    const cx = rx - 15
     if (completionMode === 'meters') {
       g.fillStyle(0xb8b8c8, 1)
-      g.fillCircle(rx - 12, ry, 12)
+      g.fillCircle(cx, ry, 15)
       g.lineStyle(2, 0xffffff, 1)
-      g.strokeCircle(rx - 12, ry, 12)
-      this._addText(rx - 12, ry, 'M', uiLabelLight(14, '#1a1a2e')).setOrigin(0.5)
+      g.strokeCircle(cx, ry, 15)
+      this._addText(cx, ry, 'M', uiLabelLight(18, '#1a1a2e')).setOrigin(0.5)
     } else {
       g.fillStyle(0xe8b842, 1)
-      g.fillCircle(rx - 12, ry, 12)
+      g.fillCircle(cx, ry, 15)
       g.lineStyle(2, 0xffffff, 1)
-      g.strokeCircle(rx - 12, ry, 12)
-      this._addText(rx - 12, ry, '★', uiLabelLight(14, '#5a3a08')).setOrigin(0.5)
+      g.strokeCircle(cx, ry, 15)
+      this._addText(cx, ry, '★', uiLabelLight(18, '#5a3a08')).setOrigin(0.5)
     }
   }
 
@@ -154,25 +150,23 @@ export class BlockSelector {
       text = `${Math.round(remaining)} m`
     }
     this._addText(rx, ry, text, {
-      ...mutedStyle(14, '#e57373'),
+      ...headingStyle(22, '#e57373', 2),
       stroke: '#000000',
-      strokeThickness: 2,
     }).setOrigin(1, 0.5)
   }
 
   _drawLock(block, mode, rx, ry) {
     const text = mode === 'gps' ? 'Completa el anterior' : `${block.unlockDistance ?? 0} m`
     this._addText(rx, ry, text, {
-      ...mutedStyle(12, '#6b6b7a'),
+      ...headingStyle(18, '#8a8a9a', 2),
       stroke: '#000000',
-      strokeThickness: 2,
     }).setOrigin(1, 0.5)
     // Candadito
     const g = this._add(this._scene.add.graphics().setDepth(3))
     g.fillStyle(0x333355, 1)
-    g.fillRect(rx - 14, ry - 4, 12, 9)
-    g.lineStyle(1.5, 0x555577, 1)
-    g.strokeRect(rx - 11, ry - 10, 6, 6)
+    g.fillRect(rx - 18, ry - 4, 14, 11)
+    g.lineStyle(2, 0x555577, 1)
+    g.strokeRect(rx - 15, ry - 12, 8, 8)
   }
 
   _addText(x, y, str, style) {
@@ -191,9 +185,5 @@ export class BlockSelector {
   }
 }
 
-// Alto total que ocuparía el selector si tuviera N bloques (label + tarjetas).
-export function blockSelectorHeight(count) {
-  return 40 + count * CARD_H + (count - 1) * CARD_GAP
-}
-
 export const BLOCK_CARD_HEIGHT = CARD_H
+export const BLOCK_CARD_GAP = CARD_GAP
