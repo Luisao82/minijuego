@@ -42,6 +42,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`MapService.load()`: los arrays vacíos por defecto ya no se comparten entre llamadas.** El objeto plantilla anterior compartía referencia de `unlocked`, `seen`, etc., así que un `push()` sobre el estado devuelto contaminaba llamadas futuras cuando `localStorage` estaba vacío. Se sustituye por una factory `createEmptyState()` que devuelve arrays nuevos en cada carga.
 
+### Fixed (Vercel)
+
+- **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
+
 ### Added (POC visual del GPS)
 
 - **Punto azul de posición del jugador en el mapa (POC de prueba en móvil).**
