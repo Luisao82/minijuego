@@ -13,10 +13,10 @@ import { COLORS } from '../config/gameConfig'
 import { headingStyle, uiLabelLight } from '../config/textStyles'
 import { mapService } from '../services/MapService'
 
-const CARD_H = 78
+const CARD_H = 92
 const CARD_GAP = 12
-const CARD_PAD_X = 18
-const CORNER_LEN = 12
+const CARD_PAD_X = 20
+const CORNER_LEN = 14
 const CORNER_INSET = 4
 
 export class BlockSelector {
@@ -70,7 +70,7 @@ export class BlockSelector {
     // Nombre — más grande y con más aire.
     const titleColor = unlocked ? '#f0d99a' : '#6b6b7a'
     this._addText(x + CARD_PAD_X, y + CARD_H / 2, block.title, {
-      ...headingStyle(26, titleColor, 2),
+      ...headingStyle(34, titleColor, 3),
       stroke: '#000000',
     }).setOrigin(0, 0.5)
 
@@ -150,7 +150,7 @@ export class BlockSelector {
       text = `${Math.round(remaining)} m`
     }
     this._addText(rx, ry, text, {
-      ...headingStyle(22, '#e57373', 2),
+      ...headingStyle(28, '#e57373', 3),
       stroke: '#000000',
     }).setOrigin(1, 0.5)
   }
@@ -158,7 +158,7 @@ export class BlockSelector {
   _drawLock(block, mode, rx, ry) {
     const text = mode === 'gps' ? 'Completa el anterior' : `${block.unlockDistance ?? 0} m`
     this._addText(rx, ry, text, {
-      ...headingStyle(18, '#8a8a9a', 2),
+      ...headingStyle(22, '#8a8a9a', 2),
       stroke: '#000000',
     }).setOrigin(1, 0.5)
     // Candadito
