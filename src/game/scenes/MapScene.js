@@ -730,7 +730,7 @@ export class MapScene extends BaseScene {
 
   showToast(message) {
     const cx = GAME_WIDTH / 2
-    const cy = 120
+    const cy = GAME_HEIGHT / 2
     const w = 360
     const h = 44
     const g = this.add.graphics().setDepth(100)

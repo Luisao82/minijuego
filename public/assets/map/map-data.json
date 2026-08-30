@@ -45,7 +45,7 @@
       "id": "triana-de-barrio",
       "title": "Triana de barrio",
       "order": 1,
-      "unlockDistance": 200,
+      "unlockDistance": 750,
       "badgeGps": "map/badges/badge-gps.webp",
       "badgeMeters": "map/badges/badge-meters.webp",
       "pois": [

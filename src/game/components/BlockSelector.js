@@ -161,12 +161,6 @@ export class BlockSelector {
       ...headingStyle(22, '#8a8a9a', 2),
       stroke: '#000000',
     }).setOrigin(1, 0.5)
-    // Candadito
-    const g = this._add(this._scene.add.graphics().setDepth(3))
-    g.fillStyle(0x333355, 1)
-    g.fillRect(rx - 18, ry - 4, 14, 11)
-    g.lineStyle(2, 0x555577, 1)
-    g.strokeRect(rx - 15, ry - 12, 8, 8)
   }
 
   _addText(x, y, str, style) {
