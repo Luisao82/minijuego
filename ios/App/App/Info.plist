@@ -41,5 +41,7 @@
 	<true/>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>La Cucaña Trianera usa tu ubicación para marcar los sitios de Sevilla que visitas en el reto del mapa.</string>
 </dict>
 </plist>

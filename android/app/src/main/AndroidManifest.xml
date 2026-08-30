@@ -33,4 +33,12 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Reto GPS del mapa: ubicación para marcar POIs visitados en persona.
+         Se usa solo mientras el mapa está abierto; no hay tracking en
+         background. `coarse` es suficiente para el radio de 50 m; `fine`
+         se pide como opcional para mejorar la precisión cuando esté
+         disponible. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

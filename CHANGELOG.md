@@ -15,6 +15,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   - `src/game/services/GeoService.js` — único punto que toca la geolocalización nativa (`@capacitor/geolocation`) o del navegador. Estados de permiso normalizados (`granted` / `denied` / `prompt` / `unavailable`) y API idéntica en ambas plataformas. Inyección de fakes para tests. `openNativeSettings` queda como no-op a la espera del plugin definitivo.
   - Dep nueva: `@capacitor/geolocation`.
   - Tests: 24 nuevos entre `tests/utils/geo.test.js` y `tests/services/GeoService.test.js`.
+- **Permisos de ubicación en las builds nativas.**
+  - iOS: `NSLocationWhenInUseUsageDescription` en `ios/App/App/Info.plist` con el texto que verá el usuario en el popup del sistema.
+  - Android: `ACCESS_COARSE_LOCATION` y `ACCESS_FINE_LOCATION` en `android/app/src/main/AndroidManifest.xml`.
 
 ## [1.12.0] - 2026-08-29
 
