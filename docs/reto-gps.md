@@ -32,42 +32,55 @@ Los POIs del mapa se agrupan en **bloques**. Cada bloque tiene:
 - `id` — identificador único (kebab-case).
 - `title` — nombre visible.
 - `order` — orden en la progresión (número entero).
-- `requiresGps` — `true` para bloques de reto, `false` para el bloque por
-  defecto.
-- `unlockDistance` — metros necesarios para desbloquearlo por modo metros
-  (solo aplica a bloques de reto; se define por bloque en el JSON, sin
-  fórmula escalonada).
-- `pois[]` — lista de POIs del bloque.
+- `unlockDistance` — metros necesarios para desbloquearlo por modo metros.
+- `contentAlwaysVisible` — `true` en el bloque introductorio (Sevilla
+  Esencial): permite ver foto y texto de sus POIs sin condición.
+  Ausente/`false` en los demás: el contenido solo se ve cuando el bloque
+  está desbloqueado y activo.
+- `badgeGps`, `badgeMeters` — rutas a las imágenes de los sellos (creados
+  por el equipo en pixel art).
+- `icon` — opcional. Ruta a un icono pixel art para el bloque. Si no
+  está, se omite en el selector.
+- `pois[]` — lista de POIs del bloque, cada uno con `lat`/`lon` reales.
 
-**Dos tipos de bloque:**
+**Un solo tipo de bloque, con un flag diferenciador:**
 
-| Tipo | `requiresGps` | Estado | Contenido | Desbloqueo |
-|------|--------------|--------|-----------|------------|
-| Por defecto | `false` | Siempre desbloqueado | Curado, generalista (los 5 POIs actuales) | N/A — siempre visible |
-| De reto | `true` | Progresión secuencial | Descubrimiento local | GPS o metros según modo del usuario |
+Todos los bloques participan en la cadena de progresión y todos exigen
+completar sus POIs (por check-in o por metros). La única diferencia es que
+el bloque con `contentAlwaysVisible: true` permite explorar sus fotos y
+textos aunque no hayas hecho check-in — pensado para dar contenido
+cultural inmediato al no-Sevillano.
 
-**Progresión de los bloques de reto:**
+**Progresión:**
 
-1. Todos están bloqueados hasta que el usuario elija modo (GPS o metros).
-2. Elección: se desbloquea el primero automáticamente en modo GPS, o al
-   alcanzar `unlockDistance` en modo metros.
-3. Al completar un bloque → se marca como completado y se desbloquea el
-   siguiente.
-4. Al completar el último → mensaje *"¡Has completado todos los retos!
-   Pronto habrá más…"*.
+1. Al elegir modo, se desbloquea el primer bloque (`order: 0` — Sevilla
+   Esencial).
+2. Al completar sus POIs (por check-in GPS o por acumular `unlockDistance`
+   metros) → se marca como completado y se desbloquea el siguiente.
+3. Al completar el último bloque disponible → mensaje *"¡Has completado
+   todos los retos! Pronto habrá más…"*.
+
+**Modelo de POI — solo lat/lon, la pieza se deriva:**
+
+El POI declara únicamente su coord GPS real; su posición en píxeles del
+mapa ilustrado, y la pieza a la que pertenece, las calcula el código a
+partir de las 4 esquinas del mapa (`mapBounds`). Fuente única de verdad:
+la coord real. Al afinar las 4 esquinas durante pruebas, todos los POIs
+se recolocan automáticamente sin tocar sus entradas.
 
 **División de contenido para el arranque:**
 
 Los 5 POIs actuales se reparten entre dos bloques para poder probar el
 flujo completo desde el primer día:
 
-- **"Sevilla Esencial"** (bloque por defecto, `requiresGps: false`) —
-  3 POIs de referencia turística:
+- **"Sevilla Esencial"** (`order: 0`, `contentAlwaysVisible: true`) —
+  3 POIs de referencia turística. Contenido siempre visible como guía
+  cultural, y también actúa como primer bloque de la cadena (sus
+  check-ins/metros desbloquean el siguiente):
   - Giralda
   - Torre del Oro
   - Relojería de Sierpes
-- **"Triana de barrio"** (primer bloque de reto, `requiresGps: true`) —
-  2 POIs de descubrimiento local:
+- **"Triana de barrio"** (`order: 1`) — 2 POIs de descubrimiento local:
   - Bar Curioso
   - El Torero Roto
 
@@ -132,11 +145,13 @@ solo el JSON, sin cambios de código.
 - Marcar un POI como visitado es acción manual — botón "Estoy aquí" en el
   modal del POI, visible solo cuando estás dentro del radio.
 
-### Bloque por defecto
+### Bloque con `contentAlwaysVisible: true` (Sevilla Esencial)
 
-- Siempre visible desde el primer arranque, sin necesidad de haber elegido
-  modo ni activado GPS.
-- Sus POIs son solo lectura — sin check-in, sin contador, sin sello.
+- Sus POIs se pueden **explorar** siempre — foto y texto abiertos sin
+  condición.
+- Aun así participa en la cadena: sus check-ins (modo GPS) o su
+  `unlockDistance` (modo metros) desbloquean el siguiente bloque.
+- Al completarlo, recibe su sello igual que cualquier otro bloque.
 
 ---
 
@@ -244,7 +259,9 @@ Tres botones estilo pixel art (con la tipografía consistente del juego):
   toca Capacitor / `navigator.geolocation`.
 - `src/game/utils/geo.js` — funciones puras:
   `haversineDistance(lat1, lon1, lat2, lon2)`,
-  `latLonToPixel(lat, lon, bounds)`, `isInBounds(lat, lon, bounds)`.
+  `latLonToPixel(lat, lon, bounds)`, `isInBounds(lat, lon, bounds)`,
+  `pixelToPiece(x, y)` (deriva `{row, col}` desde el pixel global del
+  mapa).
 - `src/game/config/mapBounds.js` — coordenadas GPS de las 4 esquinas del
   mapa completo.
 - `src/game/components/PlayerMarker.js` — el avatar pulsante reutilizable.
@@ -282,8 +299,9 @@ Tres botones estilo pixel art (con la tipografía consistente del juego):
   - Gestiona los modales del reto (cambio de modo, permiso denegado,
     bloque completado).
 - `public/assets/map/map-data.json` — nueva estructura con `blocks[]`. Cada
-  POI referencia su foto por ruta relativa dentro de la carpeta de su
-  bloque.
+  POI declara solo `lat`/`lon` (sin `x`/`y`/`row`/`col`); su pieza y su
+  posición en píxeles del mapa se derivan al vuelo. Cada POI referencia su
+  foto por ruta relativa dentro de la carpeta de su bloque.
 - `PrivacyScene` — añadir sección explicando el uso del GPS.
 
 ### Sin sistema de recompensa material
@@ -431,23 +449,52 @@ Estas coord se irán ajustando durante las pruebas reales sobre el terreno.
 
 ```json
 {
+  "mapBounds": {
+    "nw": { "lat": 37.4100, "lon": -6.0100 },
+    "ne": { "lat": 37.4100, "lon": -5.9780 },
+    "sw": { "lat": 37.3700, "lon": -6.0100 },
+    "se": { "lat": 37.3700, "lon": -5.9780 }
+  },
   "blocks": [
     {
       "id": "sevilla-esencial",
       "title": "Sevilla Esencial",
       "order": 0,
-      "requiresGps": false,
+      "contentAlwaysVisible": true,
+      "unlockDistance": 50,
+      "badgeGps": "badges/badge-gps.webp",
+      "badgeMeters": "badges/badge-meters.webp",
       "pois": [
-        { "id": "giralda", "title": "La Giralda", "photo": "sevilla-esencial/giralda.webp" },
-        { "id": "torre-oro", "title": "Torre del Oro", "photo": "sevilla-esencial/torreDelOro.webp" },
-        { "id": "relojeria", "title": "Relojería", "photo": "sevilla-esencial/relojeria.webp" }
+        {
+          "id": "giralda",
+          "title": "La Giralda",
+          "text": "La Giralda, símbolo de Sevilla.",
+          "photo": "sevilla-esencial/giralda.webp",
+          "lat": 37.38590,
+          "lon": -5.99300
+        },
+        {
+          "id": "torre-oro",
+          "title": "Torre del Oro",
+          "text": "Torre del Oro, famosa torre de Sevilla.",
+          "photo": "sevilla-esencial/torreDelOro.webp",
+          "lat": 37.38260,
+          "lon": -5.99630
+        },
+        {
+          "id": "relojeria",
+          "title": "Relojería",
+          "text": "Relojería típica de la calle Sierpes.",
+          "photo": "sevilla-esencial/relojeria.webp",
+          "lat": 37.39100,
+          "lon": -5.99400
+        }
       ]
     },
     {
       "id": "triana-de-barrio",
       "title": "Triana de barrio",
       "order": 1,
-      "requiresGps": true,
       "unlockDistance": 200,
       "badgeGps": "badges/badge-gps.webp",
       "badgeMeters": "badges/badge-meters.webp",
@@ -455,16 +502,18 @@ Estas coord se irán ajustando durante las pruebas reales sobre el terreno.
         {
           "id": "bar-curioso",
           "title": "Bar Curioso",
+          "text": "Bar con una de las fotos más curiosas de Sevilla.",
           "photo": "triana-de-barrio/bar.webp",
-          "lat": null,
-          "lon": null
+          "lat": 37.38950,
+          "lon": -5.99331
         },
         {
           "id": "torero-roto",
           "title": "El Torero Roto",
+          "text": "Escultura del torero roto.",
           "photo": "triana-de-barrio/torero-roto.webp",
-          "lat": null,
-          "lon": null
+          "lat": 37.38539,
+          "lon": -6.00286
         }
       ]
     }
@@ -472,12 +521,16 @@ Estas coord se irán ajustando durante las pruebas reales sobre el terreno.
 }
 ```
 
-`unlockDistance: 200` es un valor de arranque para probar rápido; se
-ajusta en el JSON tras las primeras partidas reales.
+**Valores de arranque a calibrar en pruebas reales:**
 
-Las `lat`/`lon` de los 2 POIs de "Triana de barrio" son `null` a día de
-hoy — se rellenarán con las coord del punto de vista de las fotos
-originales, no del monumento fotografiado.
+- `unlockDistance` de cada bloque (50 en Sevilla Esencial como onboarding
+  corto, 200 en Triana de barrio como primer reto real).
+- `mapBounds` — las 4 esquinas son estimadas. Al probar en Sevilla con el
+  móvil se afinarán, y todos los POIs se recolocan automáticamente en el
+  mapa ilustrado sin tocar sus `lat`/`lon`.
+- `lat`/`lon` de la Relojería es aproximada (calle Sierpes en general);
+  se afinará con la coord real del punto de vista de la foto cuando el
+  equipo la pase.
 
 ### Campo `icon` opcional por bloque
 
@@ -487,12 +540,12 @@ nombre. Si no está, se omite. Al principio ningún bloque lleva icono.
 
 ### Pendiente de aportar
 
-- Diseños finales de: selector de bloques (ya definido en mockup) y sellos
-  `badge-gps.webp` / `badge-meters.webp` (referencia: estrella / mando).
+- Sellos `badge-gps.webp` / `badge-meters.webp` (referencia: estrella /
+  mando) — imágenes pixel art creadas por el equipo.
 - Imágenes del tutorial `map-tut-01.webp` … `map-tut-06.webp`.
-- Coordenadas GPS reales de los 2 POIs de "Triana de barrio" (desde las
-  fotos originales del equipo).
-- Bloques futuros (título, `order`, `unlockDistance`, POIs con coord).
+- Coord real de la Relojería (punto de vista de la foto).
+- Bloques futuros (título, `order`, `unlockDistance`, POIs con
+  `lat`/`lon`).
 
 ---
 
