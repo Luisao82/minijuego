@@ -456,7 +456,7 @@ export class MapScene extends BaseScene {
       .text(
         cx,
         cy,
-        'Para conseguir las piezas del mapa,\ndebes conseguir la bandera\ncon el MAX POWER de impulso.',
+        'Consigue piezas\ncogiendo la bandera\ncon MAX POWER.',
         {
           ...headingStyle(32, '#f0d99a', 2),
           stroke: '#000000',
