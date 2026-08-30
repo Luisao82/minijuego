@@ -82,7 +82,8 @@ export class BlockSelector {
     const rx = x + this._w - CARD_PAD_X
     const ry = y + CARD_H / 2
     if (completed) {
-      this._drawMedal(rx, ry)
+      const completionMode = mapService.getBlockCompletionMode(block.id)
+      this._drawMedal(rx, ry, completionMode)
     } else if (unlocked) {
       this._drawProgress(block, mode, rx, ry)
     } else {
@@ -120,14 +121,24 @@ export class BlockSelector {
     g.lineBetween(right, bot, right, bot - CORNER_LEN)
   }
 
-  _drawMedal(rx, ry) {
-    // Sello provisional (imagen final la aporta el equipo).
+  _drawMedal(rx, ry, completionMode) {
+    // Sellos provisionales (imágenes finales las aporta el equipo).
+    // GPS   → círculo dorado + '★'  (estrella: haber estado allí)
+    // Metros → círculo plateado + 'M' (mando: haberlo jugado)
     const g = this._add(this._scene.add.graphics().setDepth(3))
-    g.fillStyle(0xe8b842, 1)
-    g.fillCircle(rx - 12, ry, 12)
-    g.lineStyle(2, 0xffffff, 1)
-    g.strokeCircle(rx - 12, ry, 12)
-    this._addText(rx - 12, ry, '★', uiLabelLight(14, '#5a3a08')).setOrigin(0.5)
+    if (completionMode === 'meters') {
+      g.fillStyle(0xb8b8c8, 1)
+      g.fillCircle(rx - 12, ry, 12)
+      g.lineStyle(2, 0xffffff, 1)
+      g.strokeCircle(rx - 12, ry, 12)
+      this._addText(rx - 12, ry, 'M', uiLabelLight(14, '#1a1a2e')).setOrigin(0.5)
+    } else {
+      g.fillStyle(0xe8b842, 1)
+      g.fillCircle(rx - 12, ry, 12)
+      g.lineStyle(2, 0xffffff, 1)
+      g.strokeCircle(rx - 12, ry, 12)
+      this._addText(rx - 12, ry, '★', uiLabelLight(14, '#5a3a08')).setOrigin(0.5)
+    }
   }
 
   _drawProgress(block, mode, rx, ry) {

@@ -65,7 +65,6 @@ export class MapScene extends BaseScene {
     this.zoomOpen = false
     this.playerMarker = null
     this.zoomPlayerMarker = null
-    this.debugText = null
     this.lastGpsPosition = null
     this._geoStopped = false
     this.blockSelector = null
@@ -109,7 +108,6 @@ export class MapScene extends BaseScene {
     this.drawBottomBar()
 
     this.playerMarker = new PlayerMarker(this, { radius: 7, depth: 12 })
-    this.drawDebugPanel()
     this.startGpsTracking()
 
     this.events.once('shutdown', () => this.cleanupGps())
@@ -143,11 +141,10 @@ export class MapScene extends BaseScene {
     const perm = await geoService.checkPermission()
 
     if (perm === 'unavailable') {
-      this.updateDebugPanel({ status: 'GPS no disponible' })
+      this.showToast('GPS no disponible en este dispositivo')
       return
     }
     if (perm === 'denied') {
-      this.updateDebugPanel({ status: 'GPS: permiso denegado' })
       this.showPermissionDeniedModal()
       return
     }
@@ -155,7 +152,6 @@ export class MapScene extends BaseScene {
     if (perm === 'prompt') {
       const next = await geoService.requestPermission()
       if (next === 'denied') {
-        this.updateDebugPanel({ status: 'GPS: permiso denegado' })
         this.showPermissionDeniedModal()
         return
       }
@@ -165,29 +161,21 @@ export class MapScene extends BaseScene {
 
     if (this._geoStopped) return
 
-    this.updateDebugPanel({ status: 'GPS: esperando primera lectura…' })
     this._watchActive = true
     try {
       await geoService.watchPosition(
         (pos) => this.onGpsPosition(pos),
         (err) => {
-          const code = err?.code
           // navigator.geolocation error codes: 1 = PERMISSION_DENIED,
           // 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
-          if (code === 1) {
+          if (err?.code === 1) {
             this._watchActive = false
-            this.updateDebugPanel({ status: 'GPS: permiso denegado' })
             this.showPermissionDeniedModal()
-            return
           }
-          const msg =
-            code === 2 ? 'posición no disponible' : code === 3 ? 'timeout' : err?.message || 'error'
-          this.updateDebugPanel({ status: `GPS: ${msg}` })
         }
       )
-    } catch (err) {
+    } catch (_) {
       this._watchActive = false
-      this.updateDebugPanel({ status: `GPS error: ${err?.message ?? err}` })
     }
   }
 
@@ -355,12 +343,6 @@ export class MapScene extends BaseScene {
     if (this._geoStopped) return
     this.lastGpsPosition = { lat, lon, accuracy }
     this.refreshPlayerMarkerVisibility()
-    this.updateDebugPanel({
-      status: isInBounds(lat, lon, MAP_BOUNDS) ? 'GPS OK' : 'Fuera del mapa',
-      lat,
-      lon,
-      accuracy,
-    })
   }
 
   // Reglas de visibilidad del marker (vista global y zoom):
@@ -435,43 +417,6 @@ export class MapScene extends BaseScene {
     )
   }
 
-  // Panel de debug provisional (esquina superior). Se retirará cuando el
-  // reto esté afinado; útil para calibrar mapBounds sobre el terreno.
-  drawDebugPanel() {
-    this.debugText = this.add
-      .text(8, 8, 'GPS: esperando…', mutedStyle(12, '#a8ccff'))
-      .setDepth(50)
-      .setScrollFactor(0)
-  }
-
-  updateDebugPanel({ status = 'GPS…', lat = null, lon = null, accuracy = null } = {}) {
-    if (!this.debugText) return
-    const lines = [status]
-    if (lat !== null && lon !== null) {
-      lines.push(`lat ${lat.toFixed(5)}  lon ${lon.toFixed(5)}`)
-      if (accuracy !== null) lines.push(`± ${Math.round(accuracy)} m`)
-      const nearest = this.nearestPoi(lat, lon)
-      if (nearest) {
-        lines.push(`~ ${nearest.title}: ${Math.round(nearest.distance)} m`)
-      }
-    }
-    this.debugText.setText(lines.join('\n'))
-  }
-
-  nearestPoi(lat, lon) {
-    let best = null
-    for (const block of mapService.getBlocks()) {
-      for (const poi of block.pois || []) {
-        if (poi.lat === null || poi.lat === undefined) continue
-        if (poi.lon === null || poi.lon === undefined) continue
-        const d = haversineDistance(lat, lon, poi.lat, poi.lon)
-        if (!best || d < best.distance) {
-          best = { title: poi.title, distance: d }
-        }
-      }
-    }
-    return best
-  }
 
   // ── Pista cuando aún no hay ninguna pieza ─────────────────────
   // Panel centrado sobre la cuadrícula explicando cómo se consiguen

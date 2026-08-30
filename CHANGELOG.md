@@ -46,6 +46,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Changed (Pulido — pasos F)
+
+- **Panel de debug del GPS retirado del mapa.** Ya no era necesario tras calibrar `mapBounds`. Se elimina el texto informativo de la esquina superior (`lat/lon`, precisión, POI más cercano) y todos los métodos asociados en `MapScene`. Los estados críticos que antes se pintaban allí (permiso denegado, GPS no disponible) ahora se cubren con el modal de permiso denegado y toasts breves.
+- **Sellos diferenciados en el selector de bloques según cómo se cerró el bloque.** El bloque completado por GPS se pinta con un círculo dorado y una estrella `★`; el completado por metros con un círculo plateado y una `M`. Son placeholders — el equipo aportará las imágenes finales en `map/badges/badge-gps.webp` y `map/badges/badge-meters.webp`.
+
 ### Added (UX de permiso GPS denegado)
 
 - **Nuevo modal pixel-art de permiso denegado** que aparece cuando el usuario rechaza el GPS (en el popup del sistema, del navegador, o tras revocarlo desde ajustes). Ofrece dos salidas:
