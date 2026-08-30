@@ -56,13 +56,29 @@ Los POIs del mapa se agrupan en **bloques**. Cada bloque tiene:
 4. Al completar el último → mensaje *"¡Has completado todos los retos!
    Pronto habrá más…"*.
 
-**División de contenido:**
+**División de contenido para el arranque:**
 
-- El **bloque por defecto** contiene los POIs ya definidos actualmente en el
-  juego (Giralda, Torre del Oro, Relojería, Bar Curioso, El Torero Roto). Se
-  quedan tal cual, pasan a formar parte del bloque por defecto.
-- Los **bloques de reto** se irán poblando con contenido nuevo según el
-  equipo vaya haciendo fotos.
+Los 5 POIs actuales se reparten entre dos bloques para poder probar el
+flujo completo desde el primer día:
+
+- **"Sevilla Esencial"** (bloque por defecto, `requiresGps: false`) —
+  3 POIs de referencia turística:
+  - Giralda
+  - Torre del Oro
+  - Relojería de Sierpes
+- **"Triana de barrio"** (primer bloque de reto, `requiresGps: true`) —
+  2 POIs de descubrimiento local:
+  - Bar Curioso
+  - El Torero Roto
+
+Nota: al inicio, los 2 POIs de "Triana de barrio" están geográficamente
+en el centro histórico (piezas 2-1 y 3-1 del mapa ilustrado), no en Triana.
+Es un reparto de prueba para validar la mecánica. Cuando el equipo tenga
+contenido real de Triana, esos POIs se moverán y el bloque se rellenará
+con fotos coherentes con su tema.
+
+Nuevos bloques de reto ("Sevilla de Noche", etc.) se irán añadiendo tocando
+solo el JSON, sin cambios de código.
 
 ---
 
@@ -77,8 +93,20 @@ Los POIs del mapa se agrupan en **bloques**. Cada bloque tiene:
   se usa lo ya acumulado del nuevo modo para seguir desbloqueando.
 - Cambiar de modo **no revierte** los bloques ya desbloqueados — lo
   desbloqueado se queda desbloqueado.
-- Se distingue con un **sello diferente** cómo se completó cada bloque:
-  🥇 *"Completado en persona"* (GPS) / 🎮 *"Completado jugando"* (metros).
+- Se distingue con un **sello diferente** cómo se completó cada bloque —
+  imágenes pixel art que el equipo diseña (referencia inicial:
+  🥇 estrella para GPS / 🎮 mando para metros). En el JSON cada bloque
+  reserva campos `badgeGps` y `badgeMeters` con rutas a los sprites.
+
+### Cambio de modo
+
+- Un solo botón *"CAMBIAR MODO"* en la barra inferior del mapa hace
+  **toggle directo** GPS ↔ metros (sin modal de confirmación).
+- Al pulsarlo se refresca al momento la lista de bloques (la columna
+  cambia de "N de M visitas" a "quedan X metros" o viceversa).
+- Se muestra un toast pixel-art breve *"Modo cambiado a GPS"* / *"Modo
+  cambiado a metros"* durante ~2 segundos.
+- Es reversible con el mismo botón — no se pierde nada al cambiar.
 
 ### Contador de metros
 
@@ -138,31 +166,44 @@ arranque. Es la fuente de verdad.
 
 ## 5. Cambios visuales (pixel art, dentro del canvas)
 
-### Selector de bloques (nuevo componente — diseño pendiente)
+### Layout del mapa con selector
 
-- Aparece en la vista global del mapa.
-- Muestra todos los bloques con su estado: **por defecto** (siempre abierto),
-  **activo** (en progreso), **completado** (con sello diferenciado según
-  modo), **bloqueado** (con condición del modo actual).
-- Al pulsar un bloque desbloqueado, sus POIs se muestran en el mapa; los de
-  otros bloques se ocultan.
-- **Se refresca al momento** cuando el usuario activa el GPS por primera vez,
-  con animación de *"nuevo bloque disponible"* sobre el primer bloque de
-  reto.
-- Para un bloque bloqueado, el texto de la condición depende del modo:
-  - Modo GPS: *"🎯 Visita 5 sitios en persona"* (con contador visitados/total).
-  - Modo metros: *"🎮 Te quedan 340 metros"* (basado en `unlockDistanceCounter`).
+El mapa se **desplaza a la derecha** de la escena para dejar sitio en la
+mitad izquierda al selector de bloques (label superior con el modo activo
++ lista vertical de bloques).
+
+### Selector de bloques (nuevo componente)
+
+- Aparece en la mitad izquierda de la vista global del mapa.
+- Label arriba: *"Modo GPS"* o *"Modo metros"*.
+- Debajo, lista vertical de bloques. Cada bloque muestra a la izquierda su
+  nombre y a la derecha uno de estos indicadores según su estado:
+  - **Completado** → medalla/sello diferenciado según modo con el que se
+    cerró (`badgeGps` o `badgeMeters` del JSON).
+  - **Activo (en progreso)** → marco de esquinas L rodeando el bloque
+    entero + texto de progreso a la derecha (en modo GPS: *"N de M
+    visitas"*; en modo metros: *"quedan X metros"*).
+  - **Bloqueado** → aparece con el mismo estilo pero grisado.
+- Al pulsar un bloque completado o activo, sus POIs se muestran en el mapa;
+  los de otros bloques se ocultan. Solo un bloque puede tener las esquinas L
+  a la vez (el "activo" visualmente en la escena).
+- **Se refresca al momento** cuando el usuario cambia de modo o cuando se
+  desbloquea un bloque nuevo.
+
+### Barra inferior de botones
+
+Tres botones estilo pixel art (con la tipografía consistente del juego):
+`VOLVER`, `CAMBIAR MODO`, `TUTORIAL`.
 
 ### En `MapScene` (vista global)
 
-- Botón/indicador *"🎯 Reto activo"* discreto una vez el usuario ha elegido
-  modo. Al tocarlo → modal con opciones: *"Cambiar modo"*, *"Ver tutorial
-  otra vez"*, *"Cerrar"*.
 - Avatar del jugador (punto azul pulsante) sobre su posición, solo si:
   - Modo GPS activo.
   - Está dentro de una pieza desbloqueada.
   - El bloque activo es de reto (no aplica al bloque por defecto).
 - En el selector, cada bloque de reto muestra su progreso según el modo.
+- El cambio de modo se hace exclusivamente desde el botón inferior
+  `CAMBIAR MODO` (ver §3).
 
 ### En vista zoom de una pieza
 
@@ -179,12 +220,13 @@ arranque. Es la fuente de verdad.
 - Animación + sonido al marcar por primera vez.
 - Si el bloque es el por defecto, el modal es solo lectura.
 
-### Modales pixel-art nuevos
+### Modales y feedback pixel-art
 
 - Tutorial del mapa (ver §7).
 - Selector inicial de modo (GPS o metros) al final del tutorial.
-- Permiso GPS denegado: mensaje + botón "Abrir ajustes".
-- Confirmar cambio de modo.
+- Permiso GPS denegado: mensaje + botón "Abrir ajustes" / "Cambiar a modo
+  metros".
+- Toast de cambio de modo (no modal — mensaje efímero de ~2s).
 - Bloque completado — mensaje de enhorabuena + preview del siguiente
   desbloqueado + sello correspondiente al modo.
 - Último bloque completado — *"Has completado todos los retos disponibles.
@@ -269,20 +311,33 @@ máquina de escribir. Paleta e interacción idénticas.
 **Flujo:** al terminar el último bloque narrativo del tutorial → aparece un
 selector de modo (GPS o metros). La elección se persiste como `unlockMode`.
 
-**Contenido (a redactar con el usuario):** aproximadamente 6-8 bloques
-cubriendo:
+**Contenido (borrador aprobado, a ajustar en implementación):**
 
-1. Presentación del mapa y las piezas.
-2. Cómo se consiguen las piezas (recordatorio del MAX POWER).
-3. Qué son los bloques temáticos.
-4. El bloque por defecto (siempre disponible).
-5. Cómo se desbloquean los bloques de reto — modo GPS.
-6. Cómo se desbloquean los bloques de reto — modo metros.
-7. Los sellos diferenciados por modo.
-8. Elige tu modo.
+1. **El mapa de Sevilla** (`map-tut-01`) — *"¡Aquí lo tienes! El Mapa de
+   Sevilla. Está dividido en 15 piezas que se van desbloqueando conforme
+   consigas la bandera con el MAX POWER. ¡Ya conoces cómo!"*
+2. **Los retos** (`map-tut-02`) — *"Además, el mapa esconde RETOS. Cada
+   reto es una colección de fotos de sitios especiales de Sevilla que debes
+   ir descubriendo. Al completar uno, se te desbloquea el siguiente."*
+3. **Sevilla Esencial** (`map-tut-03`) — *"El bloque 'Sevilla Esencial'
+   es tuyo desde el principio, sin condiciones. Contiene los sitios más
+   emblemáticos. Puedes verlos y leer su historia cuando quieras."*
+4. **Modo GPS** (`map-tut-04`) — *"Los demás retos se desbloquean visitando
+   los sitios EN PERSONA. Tu móvil detecta cuándo estás cerca (a 50 metros
+   o menos) y podrás marcar la foto como visitada. ¡Este es el MODO GPS!"*
+5. **Modo metros** (`map-tut-05`) — *"¿No estás en Sevilla o prefieres no
+   usar el GPS? ¡Sin problema! En MODO METROS, cada partida cuenta. Los
+   metros que recorras en el palo, aunque no cojas la bandera, te acercan
+   al siguiente reto."*
+6. **Elige tu modo** (`map-tut-06`) — *"Cada modo tiene su propio sello.
+   Puedes cambiar de uno a otro cuando quieras. ¿Cómo prefieres empezar?"*
+   → botones [MODO GPS] [MODO METROS]
 
-**Assets:** `map-tut-01`, `map-tut-02`, … con la misma naming convention
-que las del tutorial actual (`tut-01`, …).
+**Narrador:** mismo `Narrator` que `TutorialScene`, reutilizando el
+spritesheet `narrator-tutorial` (mismo personaje).
+
+**Assets nuevos:** `map-tut-01.webp` … `map-tut-06.webp` — los provee el
+equipo cuando el guion esté confirmado.
 
 ---
 
@@ -316,16 +371,28 @@ Fotos organizadas por bloque, cada uno en su propia carpeta:
 
 ```
 public/assets/map/photos/
-├── <id-bloque-por-defecto>/    (nombre pendiente)
+├── sevilla-esencial/
 │   ├── giralda.webp
-│   ├── torre-oro.webp
-│   ├── relojeria.webp
-│   ├── bar-curioso.webp
+│   ├── torreDelOro.webp
+│   └── relojeria.webp
+├── triana-de-barrio/
+│   ├── bar.webp
 │   └── torero-roto.webp
-├── triana-misteriosa/
-│   └── ...
-└── sevilla-de-noche/
+└── <futuros-bloques>/
     └── ...
+```
+
+Las 5 imágenes actuales (`bar.webp`, `escultura_torero_roto.webp`,
+`giralda.webp`, `relojeria.webp`, `torreDelOro.webp`) se moverán a las
+subcarpetas correspondientes. `escultura_torero_roto.webp` se renombra a
+`torero-roto.webp` para consistencia kebab-case.
+
+Sellos:
+
+```
+public/assets/map/badges/
+├── badge-gps.webp
+└── badge-meters.webp
 ```
 
 Imágenes del tutorial del mapa:
@@ -343,19 +410,89 @@ código.
 
 ---
 
-## 10. Contenido que aporta el equipo
+## 10. Configuración inicial
 
-- **Coordenadas de las 4 esquinas del mapa** (NW, NE, SW, SE) en lat/lon
-  reales de Sevilla.
-- **Para cada POI**:
-  - `blockId` al que pertenece.
-  - Coordenadas GPS del punto de vista de la foto.
-  - Foto (webp) desde ese punto de vista, en la carpeta del bloque.
-  - Título y texto descriptivo.
-- **Bloques nuevos**: título, `order`, `unlockDistance`, y sus POIs.
-- **Textos e imágenes** del tutorial del mapa (`map-tut-XX`).
-- **Nombre definitivo** del bloque por defecto.
-- **Diseños** del selector de bloques y del selector de modo.
+### Coordenadas de las 4 esquinas del mapa (estimación inicial)
+
+Estimadas por la posición de referencias visibles en la screenshot original
+del mapa de Sevilla (Guadalquivir vertical, Parque de María Luisa en la
+esquina inferior derecha):
+
+| Esquina | Latitud | Longitud | Zona real aproximada |
+|---------|---------|----------|----------------------|
+| NW | 37.4100 | -6.0100 | Norte de Triana / La Cartuja oeste |
+| NE | 37.4100 | -5.9780 | Macarena / La Barzola |
+| SW | 37.3700 | -6.0100 | Sur de Los Remedios / Tablada |
+| SE | 37.3700 | -5.9780 | Parque de María Luisa / Bermejales |
+
+Estas coord se irán ajustando durante las pruebas reales sobre el terreno.
+
+### Bloques iniciales (JSON)
+
+```json
+{
+  "blocks": [
+    {
+      "id": "sevilla-esencial",
+      "title": "Sevilla Esencial",
+      "order": 0,
+      "requiresGps": false,
+      "pois": [
+        { "id": "giralda", "title": "La Giralda", "photo": "sevilla-esencial/giralda.webp" },
+        { "id": "torre-oro", "title": "Torre del Oro", "photo": "sevilla-esencial/torreDelOro.webp" },
+        { "id": "relojeria", "title": "Relojería", "photo": "sevilla-esencial/relojeria.webp" }
+      ]
+    },
+    {
+      "id": "triana-de-barrio",
+      "title": "Triana de barrio",
+      "order": 1,
+      "requiresGps": true,
+      "unlockDistance": 200,
+      "badgeGps": "badges/badge-gps.webp",
+      "badgeMeters": "badges/badge-meters.webp",
+      "pois": [
+        {
+          "id": "bar-curioso",
+          "title": "Bar Curioso",
+          "photo": "triana-de-barrio/bar.webp",
+          "lat": null,
+          "lon": null
+        },
+        {
+          "id": "torero-roto",
+          "title": "El Torero Roto",
+          "photo": "triana-de-barrio/torero-roto.webp",
+          "lat": null,
+          "lon": null
+        }
+      ]
+    }
+  ]
+}
+```
+
+`unlockDistance: 200` es un valor de arranque para probar rápido; se
+ajusta en el JSON tras las primeras partidas reales.
+
+Las `lat`/`lon` de los 2 POIs de "Triana de barrio" son `null` a día de
+hoy — se rellenarán con las coord del punto de vista de las fotos
+originales, no del monumento fotografiado.
+
+### Campo `icon` opcional por bloque
+
+Se reserva en el schema para el futuro. Si un bloque incluye
+`"icon": "path/al/icono.webp"`, el selector lo pinta a la izquierda del
+nombre. Si no está, se omite. Al principio ningún bloque lleva icono.
+
+### Pendiente de aportar
+
+- Diseños finales de: selector de bloques (ya definido en mockup) y sellos
+  `badge-gps.webp` / `badge-meters.webp` (referencia: estrella / mando).
+- Imágenes del tutorial `map-tut-01.webp` … `map-tut-06.webp`.
+- Coordenadas GPS reales de los 2 POIs de "Triana de barrio" (desde las
+  fotos originales del equipo).
+- Bloques futuros (título, `order`, `unlockDistance`, POIs con coord).
 
 ---
 
