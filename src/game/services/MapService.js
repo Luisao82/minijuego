@@ -298,6 +298,27 @@ class MapService {
     return !!prev && this.isBlockCompleted(prev.id)
   }
 
+  // ¿Están visitados en persona TODOS los POIs del bloque?
+  isBlockFullyVisited(blockId) {
+    const block = this.getBlock(blockId)
+    if (!block || !block.pois || block.pois.length === 0) return false
+    const visited = new Set(load().visitedInPerson)
+    return block.pois.every((p) => visited.has(p.id))
+  }
+
+  // Si el bloque está totalmente visitado y aún no marcado como
+  // completado, lo cierra con `mode` y avanza el bloque activo al
+  // siguiente. Devuelve el bloque siguiente que se acaba de
+  // desbloquear (o null si no ha completado nada, o si no había más).
+  checkAndCompleteBlock(blockId, mode = 'gps') {
+    if (this.isBlockCompleted(blockId)) return null
+    if (!this.isBlockFullyVisited(blockId)) return null
+    this.markBlockCompleted(blockId, mode)
+    const next = this.getNextBlock(blockId)
+    if (next) this.setActiveBlockId(next.id)
+    return next
+  }
+
   // ── Tutorial del mapa ───────────────────────────────────────────
 
   hasSeenMapTutorial() {

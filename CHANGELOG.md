@@ -46,6 +46,21 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Added (Check-in de POIs — mecánica jugable)
+
+- **Check-in físico de POIs desde el modal del POI en el mapa.**
+  - Zona nueva en el modal del POI que muestra uno de tres estados según GPS + posición:
+    - Sello `✓ VISITADO EN PERSONA` (verde) si el POI ya está marcado.
+    - Botón `ESTOY AQUÍ` si estás dentro del radio de check-in (50 m por defecto — ajustable en `config/mapBounds.js`).
+    - Texto `A X m del punto` cuando estás fuera de rango, para ayudarte a acercarte.
+    - `Esperando GPS…` mientras no hay lectura de posición.
+  - Al pulsar `ESTOY AQUÍ`, `mapService.markVisitedInPerson(poiId)` persiste el check-in y el modal se redibuja al momento con el sello. Se comprueba de nuevo la distancia en el instante del pulsado por si la posición cambió.
+  - Los POIs ya visitados aparecen en el mapa (vista de zoom) como círculos verdes con `✓` en lugar del rojo pulsante.
+  - Nueva constante `CHECKIN_RADIUS_M` en `src/game/config/mapBounds.js`.
+- **Progresión automática de bloques al completar el último POI.**
+  - `MapService.isBlockFullyVisited(id)` y `checkAndCompleteBlock(id, mode)` — cierra el bloque, avanza el `activeBlockId` al siguiente y devuelve ese siguiente para que la UI pueda felicitar.
+  - Toast pixel-art `¡BLOQUE COMPLETADO! Desbloqueado: <nombre>` que aparece 3 s y se desvanece cuando el usuario cierra el último POI de un bloque.
+
 ### Fixed (POC visual del GPS)
 
 - **En web (navegador móvil), el popup del permiso no salía.** `MapScene.startGpsTracking` bailaba cuando `checkPermission` seguía en `prompt` tras `requestPermission` — en web no hay API de request explícita, el popup solo se dispara al llamar realmente a `watchPosition`/`getCurrentPosition`. Ahora, con `prompt` en web se sigue adelante y el propio `watchPosition` provoca el prompt.

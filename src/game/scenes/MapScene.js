@@ -12,6 +12,7 @@ import {
   MAP_PIXEL_WIDTH,
   MAP_PIXEL_HEIGHT,
   PIECE_ORIGINAL_SIZE,
+  CHECKIN_RADIUS_M,
 } from '../config/mapBounds'
 import { haversineDistance, isInBounds, latLonToPixel } from '../utils/geo'
 
@@ -518,22 +519,37 @@ export class MapScene extends BaseScene {
   }
 
   addZoomPoint(track, point, px, py) {
-    // Círculo rojo con borde blanco — se dibuja una sola vez
-    const dot = track(this.add.graphics().setDepth(24))
-    dot.fillStyle(0xff2200, 1)
-    dot.fillCircle(px, py, 10)
-    dot.lineStyle(2, 0xffffff, 1)
-    dot.strokeCircle(px, py, 10)
+    const visited = mapService.isVisitedInPerson(point.id)
 
-    // Pulso animando el alpha del objeto directamente (sin onUpdate)
-    this.tweens.add({
-      targets: dot,
-      alpha: 0.45,
-      duration: 650,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    })
+    // Rojo pulsante si pendiente, verde con ✓ estático si visitado
+    const dot = track(this.add.graphics().setDepth(24))
+    if (visited) {
+      dot.fillStyle(0x2ecc40, 1)
+      dot.fillCircle(px, py, 10)
+      dot.lineStyle(2, 0xffffff, 1)
+      dot.strokeCircle(px, py, 10)
+      // Tick blanco encima
+      const tick = track(
+        this.add
+          .text(px, py, '✓', uiLabelLight(14, '#ffffff'))
+          .setOrigin(0.5)
+          .setDepth(25)
+      )
+      tick.setStroke('#0a4a10', 3)
+    } else {
+      dot.fillStyle(0xff2200, 1)
+      dot.fillCircle(px, py, 10)
+      dot.lineStyle(2, 0xffffff, 1)
+      dot.strokeCircle(px, py, 10)
+      this.tweens.add({
+        targets: dot,
+        alpha: 0.45,
+        duration: 650,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      })
+    }
 
     // Zona táctil 56×56 px — cómoda para el dedo en móvil
     const hit = track(this.add.zone(px, py, 56, 56).setDepth(25))
@@ -642,7 +658,7 @@ export class MapScene extends BaseScene {
 
     // Foto
     const imgMaxW = Math.round(PW * 0.98)
-    const imgH = 460
+    const imgH = 400
     const imgY = PY + 66
     const hasImg =
       point.id && this.textures.exists(point.id) && this.textures.get(point.id).key !== '__MISSING'
@@ -674,7 +690,7 @@ export class MapScene extends BaseScene {
     m(
       this.add
         .text(CX, imgY + imgH + 12, point.text || '', {
-          ...mutedStyle(20, COLOR_GOLD),
+          ...mutedStyle(18, COLOR_GOLD),
           stroke: '#000000',
           strokeThickness: 3,
           align: 'center',
@@ -684,6 +700,9 @@ export class MapScene extends BaseScene {
         .setDepth(D + 2)
     )
 
+    // Zona de check-in (botón / sello / distancia)
+    this.drawPointCheckin(m, point, PX, PY, PW, PH, CX, D)
+
     // Hint cierre
     m(
       this.add
@@ -691,6 +710,164 @@ export class MapScene extends BaseScene {
         .setOrigin(0.5)
         .setDepth(D + 2)
     )
+  }
+
+  // Dibuja la sección inferior del modal de POI: sello si ya visitado,
+  // botón "ESTOY AQUÍ" si estás en rango, o distancia estimada si no.
+  drawPointCheckin(m, point, PX, PY, PW, PH, CX, D) {
+    const AREA_Y = PY + PH - 88 // top de la zona (56px alto + hint)
+    const AREA_H = 56
+
+    if (mapService.isVisitedInPerson(point.id)) {
+      this.drawVisitedBadge(m, CX, AREA_Y + AREA_H / 2, D)
+      return
+    }
+
+    // Si el POI no lleva coord GPS aún, no podemos hacer check-in.
+    if (point.lat === null || point.lat === undefined) return
+    if (point.lon === null || point.lon === undefined) return
+
+    const pos = this.lastGpsPosition
+    if (!pos) {
+      m(
+        this.add
+          .text(CX, AREA_Y + AREA_H / 2, 'Esperando GPS…', mutedStyle(14, '#888899'))
+          .setOrigin(0.5)
+          .setDepth(D + 2)
+      )
+      return
+    }
+
+    const distance = haversineDistance(pos.lat, pos.lon, point.lat, point.lon)
+
+    if (distance <= CHECKIN_RADIUS_M) {
+      this.drawCheckinButton(m, point, CX, AREA_Y, D)
+    } else {
+      m(
+        this.add
+          .text(
+            CX,
+            AREA_Y + AREA_H / 2,
+            `A ${Math.round(distance)} m del punto`,
+            mutedStyle(14, '#a8a8b8')
+          )
+          .setOrigin(0.5)
+          .setDepth(D + 2)
+      )
+    }
+  }
+
+  drawVisitedBadge(m, cx, cy, D) {
+    const BW = 320
+    const BH = 44
+    const bx = cx - BW / 2
+    const by = cy - BH / 2
+
+    const g = m(this.add.graphics().setDepth(D + 2))
+    g.fillStyle(0x0a4a10, 1)
+    g.fillRect(bx, by, BW, BH)
+    g.lineStyle(2, 0x2ecc40, 1)
+    g.strokeRect(bx, by, BW, BH)
+
+    m(
+      this.add
+        .text(cx, cy, '✓  VISITADO EN PERSONA', {
+          ...uiLabelStyle(14, '#a8ffb0', 2),
+          stroke: '#000000',
+        })
+        .setOrigin(0.5)
+        .setDepth(D + 3)
+    )
+  }
+
+  drawCheckinButton(m, point, cx, y, D) {
+    const BW = 240
+    const BH = 48
+    const bx = Math.round(cx - BW / 2)
+    const before = this.children.list.length
+    makeNavButton(
+      this,
+      bx,
+      y,
+      BW,
+      BH,
+      'ESTOY AQUÍ',
+      () => this.onCheckinPressed(point),
+      { depth: D + 2 }
+    )
+    this.children.list.slice(before).forEach((o) => m(o))
+  }
+
+  onCheckinPressed(point) {
+    // Doble verificación: la posición puede haber cambiado entre abrir
+    // el modal y pulsar el botón.
+    const pos = this.lastGpsPosition
+    if (!pos) return
+    const distance = haversineDistance(pos.lat, pos.lon, point.lat, point.lon)
+    if (distance > CHECKIN_RADIUS_M) {
+      // Fuera de rango justo al pulsar — refrescamos y salimos sin marcar.
+      this.showPointModal(point)
+      return
+    }
+
+    mapService.markVisitedInPerson(point.id)
+    try {
+      this.sound.play('sfx-flag', { volume: 0.6 })
+    } catch (_) {}
+
+    const nextBlock = mapService.checkAndCompleteBlock(point.blockId, 'gps')
+
+    // Redibujamos el modal para que aparezca el sello.
+    this.showPointModal(point)
+
+    // Redibujamos también los POIs del zoom (para pasar de rojo a verde).
+    if (this.zoomOpen && this._zoomRow !== null && this._zoomCol !== null) {
+      const row = this._zoomRow
+      const col = this._zoomCol
+      this.closeZoomView()
+      this.openZoomView(row, col)
+      this.showPointModal(point)
+    }
+
+    if (nextBlock) {
+      this.showBlockCompletedToast(nextBlock)
+    }
+  }
+
+  showBlockCompletedToast(nextBlock) {
+    const cx = GAME_WIDTH / 2
+    const cy = 120
+    const g = this.add.graphics().setDepth(100)
+    g.fillStyle(0x000000, 0.9)
+    g.fillRect(cx - 260, cy - 40, 520, 80)
+    g.lineStyle(2, 0x2ecc40, 1)
+    g.strokeRect(cx - 260, cy - 40, 520, 80)
+
+    const text = this.add
+      .text(
+        cx,
+        cy,
+        `¡BLOQUE COMPLETADO!\nDesbloqueado: ${nextBlock.title}`,
+        {
+          ...uiLabelStyle(14, '#a8ffb0', 2),
+          stroke: '#000000',
+          align: 'center',
+          lineSpacing: 6,
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(101)
+
+    this.tweens.add({
+      targets: [g, text],
+      alpha: 0,
+      delay: 3200,
+      duration: 400,
+      onComplete: () => {
+        g.destroy()
+        text.destroy()
+      },
+    })
   }
 
   closePointModal() {

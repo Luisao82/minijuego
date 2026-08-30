@@ -22,3 +22,9 @@ export const MAP_BOUNDS = {
 export const MAP_PIXEL_WIDTH = 600
 export const MAP_PIXEL_HEIGHT = 1000
 export const PIECE_ORIGINAL_SIZE = 200
+
+// Radio de tolerancia para el check-in de un POI (metros).
+// Se ajustará con pruebas reales sobre el terreno; un valor mayor es
+// más permisivo con el error del GPS urbano; menor exige estar más
+// cerca del punto de vista de la foto.
+export const CHECKIN_RADIUS_M = 50

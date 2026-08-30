@@ -315,6 +315,57 @@ describe('MapService', () => {
     })
   })
 
+  describe('isBlockFullyVisited / checkAndCompleteBlock', () => {
+    beforeEach(() => mapService.setMapData(FIXTURE))
+
+    it('isBlockFullyVisited es false si falta algún POI', () => {
+      expect(mapService.isBlockFullyVisited('sevilla-esencial')).toBe(false)
+      mapService.markVisitedInPerson('giralda')
+      expect(mapService.isBlockFullyVisited('sevilla-esencial')).toBe(false)
+    })
+
+    it('isBlockFullyVisited es true cuando todos los POIs están visitados', () => {
+      mapService.markVisitedInPerson('giralda')
+      mapService.markVisitedInPerson('torre-oro')
+      expect(mapService.isBlockFullyVisited('sevilla-esencial')).toBe(true)
+    })
+
+    it('checkAndCompleteBlock no completa si faltan visitas', () => {
+      mapService.markVisitedInPerson('giralda')
+      const next = mapService.checkAndCompleteBlock('sevilla-esencial')
+      expect(next).toBeNull()
+      expect(mapService.isBlockCompleted('sevilla-esencial')).toBe(false)
+    })
+
+    it('checkAndCompleteBlock cierra el bloque, cambia el activo y devuelve el siguiente', () => {
+      mapService.markVisitedInPerson('giralda')
+      mapService.markVisitedInPerson('torre-oro')
+      const next = mapService.checkAndCompleteBlock('sevilla-esencial', 'gps')
+      expect(next.id).toBe('triana-de-barrio')
+      expect(mapService.isBlockCompleted('sevilla-esencial')).toBe(true)
+      expect(mapService.getBlockCompletionMode('sevilla-esencial')).toBe('gps')
+      expect(mapService.getActiveBlockId()).toBe('triana-de-barrio')
+    })
+
+    it('checkAndCompleteBlock devuelve null si ya estaba completado', () => {
+      mapService.markVisitedInPerson('giralda')
+      mapService.markVisitedInPerson('torre-oro')
+      mapService.checkAndCompleteBlock('sevilla-esencial', 'gps')
+      // Segunda llamada
+      const next = mapService.checkAndCompleteBlock('sevilla-esencial', 'gps')
+      expect(next).toBeNull()
+    })
+
+    it('checkAndCompleteBlock devuelve null si no hay siguiente bloque', () => {
+      mapService.markVisitedInPerson('bar-curioso')
+      // triana-de-barrio no está desbloqueado pero podemos marcarlo aquí:
+      // el método no lo comprueba (solo mira si sus POIs están visitados).
+      const next = mapService.checkAndCompleteBlock('triana-de-barrio', 'gps')
+      expect(next).toBeNull()
+      expect(mapService.isBlockCompleted('triana-de-barrio')).toBe(true)
+    })
+  })
+
   describe('tutorial del mapa', () => {
     it('arranca sin ver', () => {
       expect(mapService.hasSeenMapTutorial()).toBe(false)
