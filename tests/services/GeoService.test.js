@@ -1,0 +1,121 @@
+import { GeoService } from '../../src/game/services/GeoService'
+
+function makeFakeCapacitorGeo(initial = {}) {
+  let permission = initial.permission ?? 'prompt'
+  let position = initial.position ?? { coords: { latitude: 37.3859, longitude: -5.9930, accuracy: 12 } }
+  let watchCbs = []
+  let nextWatchId = 1
+
+  return {
+    checkPermissions: async () => ({ location: permission }),
+    requestPermissions: async () => {
+      permission = 'granted'
+      return { location: permission }
+    },
+    getCurrentPosition: async () => position,
+    watchPosition: async (_opts, cb) => {
+      const id = String(nextWatchId++)
+      watchCbs.push({ id, cb })
+      // Emisión inmediata para simular una lectura
+      cb(position, null)
+      return id
+    },
+    clearWatch: async ({ id }) => {
+      watchCbs = watchCbs.filter((w) => w.id !== id)
+    },
+    _setPermission: (p) => {
+      permission = p
+    },
+    _setPosition: (p) => {
+      position = p
+    },
+    _watches: () => watchCbs.length,
+  }
+}
+
+function makeFakeNavGeo() {
+  let nextWatchId = 1
+  const watches = new Map()
+  const position = { coords: { latitude: 37.3859, longitude: -5.9930, accuracy: 12 } }
+
+  return {
+    getCurrentPosition: (ok) => ok(position),
+    watchPosition: (ok) => {
+      const id = nextWatchId++
+      watches.set(id, ok)
+      ok(position)
+      return id
+    },
+    clearWatch: (id) => {
+      watches.delete(id)
+    },
+    _watches: () => watches.size,
+  }
+}
+
+describe('GeoService — modo nativo', () => {
+  it('checkPermission normaliza granted/denied', async () => {
+    const geo = makeFakeCapacitorGeo({ permission: 'granted' })
+    const svc = new GeoService({ isNative: true, geolocation: geo })
+    expect(await svc.checkPermission()).toBe('granted')
+    geo._setPermission('denied')
+    expect(await svc.checkPermission()).toBe('denied')
+  })
+
+  it('checkPermission trata prompt-with-rationale como prompt', async () => {
+    const geo = makeFakeCapacitorGeo({ permission: 'prompt-with-rationale' })
+    const svc = new GeoService({ isNative: true, geolocation: geo })
+    expect(await svc.checkPermission()).toBe('prompt')
+  })
+
+  it('getCurrentPosition devuelve coord normalizadas', async () => {
+    const geo = makeFakeCapacitorGeo()
+    const svc = new GeoService({ isNative: true, geolocation: geo })
+    const pos = await svc.getCurrentPosition()
+    expect(pos).toEqual({ lat: 37.3859, lon: -5.9930, accuracy: 12 })
+  })
+
+  it('watchPosition invoca el callback y stopWatch cancela', async () => {
+    const geo = makeFakeCapacitorGeo()
+    const svc = new GeoService({ isNative: true, geolocation: geo })
+    const seen = []
+    await svc.watchPosition((p) => seen.push(p))
+    expect(seen).toHaveLength(1)
+    expect(seen[0]).toEqual({ lat: 37.3859, lon: -5.9930, accuracy: 12 })
+    expect(geo._watches()).toBe(1)
+    await svc.stopWatch()
+    expect(geo._watches()).toBe(0)
+  })
+})
+
+describe('GeoService — modo web', () => {
+  it('getCurrentPosition usa navigator.geolocation y normaliza', async () => {
+    const nav = makeFakeNavGeo()
+    const svc = new GeoService({ isNative: false, navGeolocation: nav, navPermissions: null })
+    const pos = await svc.getCurrentPosition()
+    expect(pos).toEqual({ lat: 37.3859, lon: -5.9930, accuracy: 12 })
+  })
+
+  it('checkPermission devuelve unavailable si no hay geolocation', async () => {
+    const svc = new GeoService({ isNative: false, navGeolocation: null, navPermissions: null })
+    expect(await svc.checkPermission()).toBe('unavailable')
+  })
+
+  it('checkPermission usa navigator.permissions cuando existe', async () => {
+    const nav = makeFakeNavGeo()
+    const perms = { query: async () => ({ state: 'granted' }) }
+    const svc = new GeoService({ isNative: false, navGeolocation: nav, navPermissions: perms })
+    expect(await svc.checkPermission()).toBe('granted')
+  })
+
+  it('watchPosition/stopWatch delegan a navigator y limpian', async () => {
+    const nav = makeFakeNavGeo()
+    const svc = new GeoService({ isNative: false, navGeolocation: nav, navPermissions: null })
+    const seen = []
+    await svc.watchPosition((p) => seen.push(p))
+    expect(seen).toHaveLength(1)
+    expect(nav._watches()).toBe(1)
+    await svc.stopWatch()
+    expect(nav._watches()).toBe(0)
+  })
+})

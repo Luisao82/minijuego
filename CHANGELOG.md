@@ -7,6 +7,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Infra del reto GPS del mapa (paso 1 — pura, sin UI).** Preparado el andamiaje sobre el que se construirá el reto por bloques descrito en `docs/reto-gps.md`.
+  - `src/game/config/mapBounds.js` — coord GPS de las 4 esquinas del mapa ilustrado (estimadas; se afinarán en pruebas reales) y dimensiones en píxeles del sistema original.
+  - `src/game/utils/geo.js` — funciones puras: `haversineDistance` (metros entre dos puntos GPS), `latLonToPixel`, `isInBounds`, `pixelToPiece`.
+  - `src/game/services/GeoService.js` — único punto que toca la geolocalización nativa (`@capacitor/geolocation`) o del navegador. Estados de permiso normalizados (`granted` / `denied` / `prompt` / `unavailable`) y API idéntica en ambas plataformas. Inyección de fakes para tests. `openNativeSettings` queda como no-op a la espera del plugin definitivo.
+  - Dep nueva: `@capacitor/geolocation`.
+  - Tests: 24 nuevos entre `tests/utils/geo.test.js` y `tests/services/GeoService.test.js`.
+
 ## [1.12.0] - 2026-08-29
 
 ### Added
