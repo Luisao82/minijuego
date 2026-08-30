@@ -7,6 +7,7 @@ import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { mapService } from '../services/MapService'
 import { geoService } from '../services/GeoService'
 import { PlayerMarker } from '../components/PlayerMarker'
+import { BlockSelector } from '../components/BlockSelector'
 import {
   MAP_BOUNDS,
   MAP_PIXEL_WIDTH,
@@ -17,16 +18,24 @@ import {
 import { haversineDistance, isInBounds, latLonToPixel } from '../utils/geo'
 
 // ── Layout mapa general ───────────────────────────────────────
+// Grid del mapa desplazado a la derecha para dejar hueco al selector de
+// bloques a la izquierda (según el mockup del diseño del reto).
 const COLS = 3
 const ROWS = 5
 const TILE = 120
 const GAP = 2
 const GRID_W = COLS * TILE + (COLS - 1) * GAP // 364
 const GRID_H = ROWS * TILE + (ROWS - 1) * GAP // 608
-const MAP_X = Math.round((GAME_WIDTH - GRID_W) / 2) // 330
+const MAP_RIGHT_MARGIN = 32
+const MAP_X = GAME_WIDTH - GRID_W - MAP_RIGHT_MARGIN // 628
 const MAP_Y = 80
 const BAND_Y = 72
 const BAND_H = 690
+
+// Selector de bloques (mitad izquierda)
+const SEL_X = 32
+const SEL_Y = MAP_Y
+const SEL_W = MAP_X - SEL_X - 24 // separación con el mapa
 
 // ── Layout zoom ───────────────────────────────────────────────
 const ZOOM_SIZE = 460
@@ -35,10 +44,13 @@ const ZOOM_CY = 360
 const ZOOM_HALF = ZOOM_SIZE / 2 // 230
 const ARROW_GAP = 48 // distancia del borde de imagen al centro de la flecha
 
-// ── Botón inferior general ────────────────────────────────────
-const BTN_W = 240
+// ── Barra inferior (VOLVER / CAMBIAR MODO / TUTORIAL) ─────────
+const BTN_W = 220
 const BTN_H = 58
+const BTN_GAP = 30
 const BTN_Y = MAP_Y + GRID_H + 8 // 696 — bottom a 754
+const BTN_ROW_W = BTN_W * 3 + BTN_GAP * 2 // 720
+const BTN_ROW_X = Math.round((GAME_WIDTH - BTN_ROW_W) / 2) // 152
 
 export class MapScene extends BaseScene {
   constructor() {
@@ -56,6 +68,7 @@ export class MapScene extends BaseScene {
     this.debugText = null
     this.lastGpsPosition = null
     this._geoStopped = false
+    this.blockSelector = null
   }
 
   create() {
@@ -66,11 +79,27 @@ export class MapScene extends BaseScene {
       if (mapData) mapService.setMapData(mapData)
     }
 
+    // Asegura que hay un bloque activo: por defecto el primero desbloqueado.
+    // Cuando el tutorial + selector de modo estén hechos, esta elección
+    // vendrá de ahí; hasta entonces, arrancamos en 'gps' y activo=primero.
+    if (!mapService.getActiveBlockId()) {
+      const first = mapService.getFirstBlock()
+      if (first) mapService.setActiveBlockId(first.id)
+    }
+
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
     drawSceneHeader(this, GAME_WIDTH / 2, 40, 'MAPA DE SEVILLA', 240)
     this.drawMap()
     if (mapService.getUnlocked().length === 0) this.drawEmptyHint()
-    this.drawButtons()
+
+    this.blockSelector = new BlockSelector(this, {
+      x: SEL_X,
+      y: SEL_Y,
+      width: SEL_W,
+      onSelect: (blockId) => this.onBlockSelected(blockId),
+    })
+
+    this.drawBottomBar()
 
     this.playerMarker = new PlayerMarker(this, { radius: 7, depth: 12 })
     this.drawDebugPanel()
@@ -78,6 +107,12 @@ export class MapScene extends BaseScene {
 
     this.events.once('shutdown', () => this.cleanupGps())
     this.events.once('destroy', () => this.cleanupGps())
+  }
+
+  // Un bloque desbloqueado tocado en el selector pasa a ser el activo.
+  onBlockSelected(blockId) {
+    mapService.setActiveBlockId(blockId)
+    this.blockSelector?.refresh()
   }
 
   // ── GPS (POC) ─────────────────────────────────────────────────
@@ -153,25 +188,48 @@ export class MapScene extends BaseScene {
   onGpsPosition({ lat, lon, accuracy }) {
     if (this._geoStopped) return
     this.lastGpsPosition = { lat, lon, accuracy }
-
-    const inside = isInBounds(lat, lon, MAP_BOUNDS)
-    if (!inside) {
-      this.playerMarker?.hide()
-      this.zoomPlayerMarker?.hide()
-    } else {
-      const globalScreen = this.mapPixelToScreen(
-        latLonToPixel(lat, lon, MAP_BOUNDS, MAP_PIXEL_WIDTH, MAP_PIXEL_HEIGHT)
-      )
-      this.playerMarker?.setPosition(globalScreen.x, globalScreen.y)
-      this.updateZoomPlayerMarker()
-    }
-
+    this.refreshPlayerMarkerVisibility()
     this.updateDebugPanel({
-      status: inside ? 'GPS OK' : 'Fuera del mapa',
+      status: isInBounds(lat, lon, MAP_BOUNDS) ? 'GPS OK' : 'Fuera del mapa',
       lat,
       lon,
       accuracy,
     })
+  }
+
+  // Reglas de visibilidad del marker (vista global y zoom):
+  //   - Solo si hay posición GPS y cae dentro del rectángulo del mapa.
+  //   - Solo si el modo de desbloqueo es 'gps' (en 'meters' no tiene
+  //     sentido pintarlo — el jugador acumula metros del palo).
+  //   - Solo si la pieza donde cae está desbloqueada (regla acordada:
+  //     "no se revela nada fuera de piezas conseguidas").
+  refreshPlayerMarkerVisibility() {
+    if (!this.playerMarker) return
+    const pos = this.lastGpsPosition
+    if (!pos) return this.playerMarker.hide()
+    const mode = mapService.getUnlockMode() || 'gps'
+    if (mode !== 'gps') {
+      this.playerMarker.hide()
+      this.zoomPlayerMarker?.hide()
+      return
+    }
+    if (!isInBounds(pos.lat, pos.lon, MAP_BOUNDS)) {
+      this.playerMarker.hide()
+      this.zoomPlayerMarker?.hide()
+      return
+    }
+    const px = latLonToPixel(pos.lat, pos.lon, MAP_BOUNDS, MAP_PIXEL_WIDTH, MAP_PIXEL_HEIGHT)
+    const row = Math.floor(px.y / PIECE_ORIGINAL_SIZE)
+    const col = Math.floor(px.x / PIECE_ORIGINAL_SIZE)
+    const pieceId = `piece-${row}-${col}`
+    if (!mapService.isUnlocked(pieceId)) {
+      this.playerMarker.hide()
+      this.zoomPlayerMarker?.hide()
+      return
+    }
+    const screen = this.mapPixelToScreen(px)
+    this.playerMarker.setPosition(screen.x, screen.y)
+    this.updateZoomPlayerMarker()
   }
 
   // Conversión de píxel del mapa original (0..600 × 0..1000) a píxel de
@@ -255,9 +313,9 @@ export class MapScene extends BaseScene {
   // y Tutorial (Jersey 10 + stroke negro).
 
   drawEmptyHint() {
-    const panelW = GRID_W + 120
+    const panelW = GRID_W
     const panelH = 200
-    const cx = GAME_WIDTH / 2
+    const cx = MAP_X + GRID_W / 2
     const cy = MAP_Y + GRID_H / 2
     const px = cx - panelW / 2
     const py = cy - panelH / 2
@@ -367,11 +425,16 @@ export class MapScene extends BaseScene {
     g.strokeRect(lx + 3, ly - 7, 8, 8)
   }
 
-  drawButtons() {
+  drawBottomBar() {
+    const y = BTN_Y
+    const xVolver = BTN_ROW_X
+    const xMode = BTN_ROW_X + BTN_W + BTN_GAP
+    const xTut = BTN_ROW_X + (BTN_W + BTN_GAP) * 2
+
     makeNavButton(
       this,
-      Math.round(GAME_WIDTH / 2 - BTN_W / 2),
-      BTN_Y,
+      xVolver,
+      y,
       BTN_W,
       BTN_H,
       'VOLVER',
@@ -380,6 +443,70 @@ export class MapScene extends BaseScene {
       },
       { depth: 3 }
     )
+    makeNavButton(
+      this,
+      xMode,
+      y,
+      BTN_W,
+      BTN_H,
+      'CAMBIAR MODO',
+      () => this.toggleUnlockMode(),
+      { depth: 3 }
+    )
+    makeNavButton(
+      this,
+      xTut,
+      y,
+      BTN_W,
+      BTN_H,
+      'TUTORIAL',
+      () => this.openMapTutorial(),
+      { depth: 3 }
+    )
+  }
+
+  // Toggle directo entre GPS ↔ metros. Sin modal — feedback con toast.
+  toggleUnlockMode() {
+    const current = mapService.getUnlockMode() || 'gps'
+    const next = current === 'gps' ? 'meters' : 'gps'
+    mapService.setUnlockMode(next)
+    this.blockSelector?.refresh()
+    this.refreshPlayerMarkerVisibility()
+    this.showToast(next === 'gps' ? 'Modo cambiado a GPS' : 'Modo cambiado a metros')
+  }
+
+  // Placeholder — el MapTutorialScene llegará en un paso posterior.
+  openMapTutorial() {
+    this.showToast('Tutorial del mapa — próximamente')
+  }
+
+  showToast(message) {
+    const cx = GAME_WIDTH / 2
+    const cy = 120
+    const w = 360
+    const h = 44
+    const g = this.add.graphics().setDepth(100)
+    g.fillStyle(0x000000, 0.85)
+    g.fillRect(cx - w / 2, cy - h / 2, w, h)
+    g.lineStyle(1, COLORS.GOLD, 0.7)
+    g.strokeRect(cx - w / 2, cy - h / 2, w, h)
+    const t = this.add
+      .text(cx, cy, message, {
+        ...uiLabelStyle(14, COLOR_GOLD, 2),
+        stroke: '#000000',
+      })
+      .setOrigin(0.5)
+      .setDepth(101)
+    this.tweens.add({
+      targets: [g, t],
+      alpha: 0,
+      delay: 1600,
+      duration: 350,
+      onComplete: () => {
+        g.destroy()
+        t.destroy()
+      },
+    })
   }
 
   // ── Vista zoom ────────────────────────────────────────────────
@@ -491,21 +618,24 @@ export class MapScene extends BaseScene {
       col < COLS - 1
     )
 
-    // Puntos de interés (solo en piezas desbloqueadas)
+    // Puntos de interés (solo del bloque activo y en piezas desbloqueadas)
     if (isUnlocked) {
       const scale = ZOOM_SIZE / PIECE_ORIGINAL_SIZE
       const imgLeft = ZOOM_CX - ZOOM_HALF
       const imgTop = ZOOM_CY - ZOOM_HALF
-      const points = mapService.getPoisForPiece(row, col)
+      const activeBlockId = mapService.getActiveBlockId()
+      const points = mapService.getPoisForPiece(row, col, activeBlockId)
       points.forEach((point) => {
         this.addZoomPoint(track, point, imgLeft + point.x * scale, imgTop + point.y * scale)
       })
     }
 
-    // Marker del jugador en la vista de zoom (POC)
+    // Marker del jugador en la vista de zoom — se crea siempre que haya
+    // una lectura previa de GPS y luego se aplica la lógica de visibilidad
+    // (modo, bounds, pieza desbloqueada) desde refreshPlayerMarkerVisibility.
     if (this.lastGpsPosition) {
       this.zoomPlayerMarker = new PlayerMarker(this, { radius: 12, depth: 26 })
-      this.updateZoomPlayerMarker()
+      this.refreshPlayerMarkerVisibility()
     }
 
     // Botón VOLVER del zoom
@@ -816,6 +946,9 @@ export class MapScene extends BaseScene {
     } catch (_) {}
 
     const nextBlock = mapService.checkAndCompleteBlock(point.blockId, 'gps')
+
+    // Refresca contador del selector de bloques.
+    this.blockSelector?.refresh()
 
     // Redibujamos el modal para que aparezca el sello.
     this.showPointModal(point)

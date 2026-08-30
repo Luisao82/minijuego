@@ -46,6 +46,24 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Added (Layout nuevo del mapa — selector de bloques + barra 3 botones)
+
+- **Reorganización visual completa del mapa según el mockup.**
+  - Grid del mapa desplazado a la derecha (`MAP_X = 628`) para dejar la mitad izquierda al selector de bloques.
+  - Nuevo componente `BlockSelector` (`src/game/components/BlockSelector.js`) en la mitad izquierda: label del modo activo (*"Modo GPS"* / *"Modo metros"*) + lista vertical de tarjetas de bloque.
+  - Cada tarjeta muestra el estado del bloque:
+    - **Completado** → medalla dorada provisional (imagen final la aportará el equipo).
+    - **Activo / en progreso** → esquinas en "L" (mismo estilo que el header) + contador según el modo: *"N de M visitas"* en GPS o *"X m"* restantes en metros.
+    - **Bloqueado** → grisado con candado + texto de condición.
+  - Al tocar una tarjeta desbloqueada, ese bloque pasa a ser el activo y sus POIs son los que aparecen en el mapa.
+- **Barra inferior con tres botones:** `VOLVER` / `CAMBIAR MODO` / `TUTORIAL`.
+- **`CAMBIAR MODO` — toggle directo GPS ↔ metros** con toast pixel-art breve (*"Modo cambiado a GPS"* / *"Modo cambiado a metros"*). Sin modal de confirmación; reversible con el mismo botón.
+- **`TUTORIAL` — placeholder** (toast "próximamente") hasta que exista `MapTutorialScene`.
+- **Restricciones acordadas ya activas:**
+  - El marker azul del jugador solo se pinta si `unlockMode === 'gps'` (o null por defecto), la posición cae dentro del rectángulo del mapa, **y** la pieza donde cae está desbloqueada. Fuera de estas condiciones se oculta silenciosamente.
+  - En la vista de zoom, los POIs se filtran por `activeBlockId` — solo se ven los del bloque seleccionado.
+- **`activeBlockId` por defecto:** al entrar al mapa, si no había ninguno, se selecciona el primer bloque (`sevilla-esencial`).
+
 ### Added (Check-in de POIs — mecánica jugable)
 
 - **Check-in físico de POIs desde el modal del POI en el mapa.**
