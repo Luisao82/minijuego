@@ -129,6 +129,17 @@ export class MapScene extends BaseScene {
   // con el resto de UI del reto). Debug visible para calibrar mapBounds.
 
   async startGpsTracking() {
+    // Solo tiene sentido si el modo es GPS. En modo metros no pedimos
+    // permiso ni arrancamos el watch — el usuario no lo necesita.
+    if ((mapService.getUnlockMode() || 'gps') !== 'gps') return
+
+    // Escuchamos el resume de la app para re-chequear el permiso cuando
+    // el usuario vuelve de los ajustes del sistema o del popup del
+    // navegador. Solo una vez, incluso si startGpsTracking se llama varias.
+    if (!this._resumeUnsubscribe) {
+      this._resumeUnsubscribe = geoService.onAppResume(() => this._recheckOnResume())
+    }
+
     const perm = await geoService.checkPermission()
 
     if (perm === 'unavailable') {
@@ -137,59 +148,207 @@ export class MapScene extends BaseScene {
     }
     if (perm === 'denied') {
       this.updateDebugPanel({ status: 'GPS: permiso denegado' })
+      this.showPermissionDeniedModal()
       return
     }
 
-    // En nativo, pedir permiso explícitamente antes de arrancar el watch
-    // para que el popup del sistema salga con contexto claro.
     if (perm === 'prompt') {
       const next = await geoService.requestPermission()
       if (next === 'denied') {
         this.updateDebugPanel({ status: 'GPS: permiso denegado' })
+        this.showPermissionDeniedModal()
         return
       }
       // En web, `next` seguirá siendo 'prompt' porque no hay API de request
-      // explícita: el popup del navegador se dispara con getCurrentPosition
-      // / watchPosition. Seguimos adelante y dejamos que el propio watch
-      // lance el prompt.
+      // explícita: el popup del navegador se dispara con watchPosition.
     }
 
     if (this._geoStopped) return
 
     this.updateDebugPanel({ status: 'GPS: esperando primera lectura…' })
+    this._watchActive = true
     try {
       await geoService.watchPosition(
         (pos) => this.onGpsPosition(pos),
         (err) => {
-          // El usuario puede rechazar aquí en web (popup del navegador).
-          // En navigator.geolocation los códigos son:
-          //   1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
           const code = err?.code
+          // navigator.geolocation error codes: 1 = PERMISSION_DENIED,
+          // 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
+          if (code === 1) {
+            this._watchActive = false
+            this.updateDebugPanel({ status: 'GPS: permiso denegado' })
+            this.showPermissionDeniedModal()
+            return
+          }
           const msg =
-            code === 1
-              ? 'permiso denegado'
-              : code === 2
-                ? 'posición no disponible'
-                : code === 3
-                  ? 'timeout'
-                  : err?.message || 'error de GPS'
+            code === 2 ? 'posición no disponible' : code === 3 ? 'timeout' : err?.message || 'error'
           this.updateDebugPanel({ status: `GPS: ${msg}` })
         }
       )
     } catch (err) {
+      this._watchActive = false
       this.updateDebugPanel({ status: `GPS error: ${err?.message ?? err}` })
     }
   }
 
+  // Se llama cuando la app vuelve del foreground (ej. tras salir a los
+  // ajustes del sistema). Si el permiso ahora es 'granted' y no hay
+  // watch activo, arranca el tracking y cierra el modal si estaba abierto.
+  async _recheckOnResume() {
+    if (this._geoStopped) return
+    if ((mapService.getUnlockMode() || 'gps') !== 'gps') return
+    const perm = await geoService.checkPermission()
+    if (perm !== 'granted') return
+    if (this._watchActive) return
+    this._watchActive = true
+    this.closePermissionDeniedModal()
+    try {
+      await geoService.watchPosition(
+        (pos) => this.onGpsPosition(pos),
+        () => {}
+      )
+    } catch (_) {
+      this._watchActive = false
+    }
+  }
+
+  // ── Modal: permiso GPS denegado ──────────────────────────────
+  //
+  // Ofrece dos salidas: abrir la ficha de ajustes del sistema para
+  // reactivar el permiso, o cambiar a modo metros para poder seguir
+  // jugando sin GPS. En web, si el sistema no soporta abrir ajustes
+  // directamente, mostramos un mensaje explicando cómo hacerlo desde
+  // los ajustes del navegador.
+
+  showPermissionDeniedModal() {
+    if (this._permissionModalOpen) return
+    this._permissionModalOpen = true
+
+    const PW = 520
+    const PH = 300
+    const PX = Math.round((GAME_WIDTH - PW) / 2)
+    const PY = Math.round((GAME_HEIGHT - PH) / 2)
+    const CX = GAME_WIDTH / 2
+    const D = 90
+
+    const store = (o) => {
+      this._permissionModalObjs = this._permissionModalObjs || []
+      this._permissionModalObjs.push(o)
+      return o
+    }
+
+    const overlay = store(this.add.graphics().setDepth(D))
+    overlay.fillStyle(0x000000, 0.75)
+    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
+    overlay.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT),
+      Phaser.Geom.Rectangle.Contains
+    )
+
+    const panel = store(this.add.graphics().setDepth(D + 1))
+    panel.fillStyle(0x000000, 0.5)
+    panel.fillRect(PX + 5, PY + 5, PW, PH)
+    panel.fillStyle(COLORS.DARK_BG, 1)
+    panel.fillRect(PX, PY, PW, PH)
+    panel.lineStyle(3, COLORS.GOLD, 1)
+    panel.strokeRect(PX, PY, PW, PH)
+    panel.lineStyle(1, COLORS.GOLD, 0.25)
+    panel.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10)
+    panel.setInteractive(new Phaser.Geom.Rectangle(PX, PY, PW, PH), Phaser.Geom.Rectangle.Contains)
+
+    store(
+      this.add
+        .text(CX, PY + 34, 'PERMISO DE UBICACIÓN', {
+          ...uiLabelStyle(18, COLOR_GOLD, 3),
+          stroke: '#000000',
+        })
+        .setOrigin(0.5)
+        .setDepth(D + 2)
+    )
+
+    store(
+      this.add
+        .text(
+          CX,
+          PY + 100,
+          'Para el reto GPS necesitamos acceso\na tu ubicación.\n\nActívalo en los ajustes o pásate al\nmodo metros para seguir jugando.',
+          {
+            ...headingStyle(20, '#e8e8f0', 2),
+            stroke: '#000000',
+            align: 'center',
+            lineSpacing: 6,
+          }
+        )
+        .setOrigin(0.5)
+        .setDepth(D + 2)
+    )
+
+    const BW = 200
+    const BH = 48
+    const gap = 20
+    const totalW = BW * 2 + gap
+    const xL = CX - Math.round(totalW / 2)
+    const xR = xL + BW + gap
+    const by = PY + PH - BH - 22
+
+    const beforeL = this.children.list.length
+    makeNavButton(this, xL, by, BW, BH, 'ABRIR AJUSTES', () => this._onOpenSettings(), {
+      depth: D + 2,
+    })
+    this.children.list.slice(beforeL).forEach((o) => store(o))
+
+    const beforeR = this.children.list.length
+    makeNavButton(this, xR, by, BW, BH, 'MODO METROS', () => this._onSwitchToMeters(), {
+      depth: D + 2,
+    })
+    this.children.list.slice(beforeR).forEach((o) => store(o))
+  }
+
+  closePermissionDeniedModal() {
+    if (!this._permissionModalOpen) return
+    this._permissionModalOpen = false
+    ;(this._permissionModalObjs || []).forEach((o) => {
+      if (o?.active) o.destroy()
+    })
+    this._permissionModalObjs = []
+  }
+
+  async _onOpenSettings() {
+    const ok = await geoService.openNativeSettings()
+    if (!ok) {
+      // Web / plataforma sin plugin: no podemos abrir los ajustes por
+      // nosotros. Mostramos un toast con instrucciones básicas.
+      this.showToast('Actívalo desde los ajustes del navegador')
+    }
+    // El modal queda abierto — se cerrará solo cuando el usuario vuelva
+    // con el permiso concedido (evento appResume / focus).
+  }
+
+  _onSwitchToMeters() {
+    mapService.setUnlockMode('meters')
+    this.closePermissionDeniedModal()
+    this.blockSelector?.refresh()
+    this.refreshPlayerMarkerVisibility()
+    this.showToast('Modo cambiado a metros')
+  }
+
   async cleanupGps() {
     this._geoStopped = true
+    this._watchActive = false
     try {
       await geoService.stopWatch()
     } catch (_) {}
+    if (this._resumeUnsubscribe) {
+      try {
+        this._resumeUnsubscribe()
+      } catch (_) {}
+      this._resumeUnsubscribe = null
+    }
     if (this.playerMarker) this.playerMarker.destroy()
     if (this.zoomPlayerMarker) this.zoomPlayerMarker.destroy()
     this.playerMarker = null
     this.zoomPlayerMarker = null
+    this.closePermissionDeniedModal()
   }
 
   onGpsPosition({ lat, lon, accuracy }) {
@@ -473,13 +632,30 @@ export class MapScene extends BaseScene {
   }
 
   // Toggle directo entre GPS ↔ metros. Sin modal — feedback con toast.
-  toggleUnlockMode() {
+  // Efectos secundarios: al pasar a metros paramos el watch y ocultamos
+  // el marker; al pasar a GPS reintentamos el tracking (puede abrir el
+  // modal de permiso denegado si el usuario no lo concedió antes).
+  async toggleUnlockMode() {
     const current = mapService.getUnlockMode() || 'gps'
     const next = current === 'gps' ? 'meters' : 'gps'
     mapService.setUnlockMode(next)
     this.blockSelector?.refresh()
-    this.refreshPlayerMarkerVisibility()
-    this.showToast(next === 'gps' ? 'Modo cambiado a GPS' : 'Modo cambiado a metros')
+
+    if (next === 'meters') {
+      // Parar watch y cerrar modal si estaba abierto por permiso denegado
+      this._watchActive = false
+      try {
+        await geoService.stopWatch()
+      } catch (_) {}
+      this.closePermissionDeniedModal()
+      this.refreshPlayerMarkerVisibility()
+      this.showToast('Modo cambiado a metros')
+    } else {
+      this.showToast('Modo cambiado a GPS')
+      // Arranca el tracking; si el permiso está denegado, showPermissionDeniedModal
+      // se disparará dentro de startGpsTracking.
+      this.startGpsTracking()
+    }
   }
 
   openMapTutorial() {

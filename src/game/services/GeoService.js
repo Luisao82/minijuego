@@ -12,6 +12,8 @@
 
 import { Capacitor } from '@capacitor/core'
 import { Geolocation } from '@capacitor/geolocation'
+import { App } from '@capacitor/app'
+import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings'
 
 const DEFAULT_TIMEOUT = 10000
 
@@ -37,7 +39,10 @@ export class GeoService {
       deps.navGeolocation ?? (typeof navigator !== 'undefined' ? navigator.geolocation : null)
     this._navPermissions =
       deps.navPermissions ?? (typeof navigator !== 'undefined' ? navigator.permissions : null)
+    this._nativeSettings = deps.nativeSettings ?? NativeSettings
+    this._app = deps.app ?? App
     this._watchId = null
+    this._resumeHandle = null
   }
 
   async checkPermission() {
@@ -130,15 +135,53 @@ export class GeoService {
     }
   }
 
-  // Abre los ajustes nativos de la app para que el usuario pueda cambiar
-  // el permiso de ubicación si lo rechazó antes.
+  // Abre la ficha de ajustes de la app en el sistema operativo (allí el
+  // usuario puede reactivar el permiso de ubicación si lo rechazó antes).
+  // En web no hay equivalente universal: devuelve false y la UI debe
+  // mostrar un mensaje explicando cómo llegar a los ajustes del navegador.
+  async openNativeSettings() {
+    if (!this._isNative) return false
+    try {
+      await this._nativeSettings.open({
+        optionAndroid: AndroidSettings.ApplicationDetails,
+        optionIOS: IOSSettings.App,
+      })
+      return true
+    } catch (_) {
+      return false
+    }
+  }
+
+  // Registra un callback que se llamará cada vez que la app vuelva al
+  // foreground (útil para re-consultar `checkPermission()` tras un viaje
+  // del usuario a los ajustes del sistema). Devuelve una función para
+  // cancelar la suscripción.
   //
-  // Pendiente de integrar un plugin (candidato:
-  // @capacitor-community/native-settings). Por ahora, no-op para no bloquear
-  // el resto de la infraestructura; la UI que llame a esto debe tener un
-  // fallback amigable explicando cómo llegar a los ajustes manualmente.
-  openNativeSettings() {
-    return Promise.resolve(false)
+  // En web se traduce a los eventos `focus` + `visibilitychange` de la
+  // pestaña, que no son exactamente lo mismo pero cubren el caso equivalente.
+  onAppResume(callback) {
+    if (this._isNative && this._app?.addListener) {
+      let handle
+      const promise = this._app.addListener('appStateChange', (state) => {
+        if (state.isActive) callback()
+      })
+      Promise.resolve(promise).then((h) => {
+        handle = h
+      })
+      return () => {
+        if (handle?.remove) handle.remove()
+      }
+    }
+    if (typeof window === 'undefined') return () => {}
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') callback()
+    }
+    window.addEventListener('focus', callback)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.removeEventListener('focus', callback)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }
 }
 

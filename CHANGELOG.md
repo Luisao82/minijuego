@@ -46,6 +46,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Added (UX de permiso GPS denegado)
+
+- **Nuevo modal pixel-art de permiso denegado** que aparece cuando el usuario rechaza el GPS (en el popup del sistema, del navegador, o tras revocarlo desde ajustes). Ofrece dos salidas:
+  - **`ABRIR AJUSTES`** — invoca `geoService.openNativeSettings()` que en móvil salta directamente a la ficha de la app en el sistema operativo. En web muestra un toast recordando cambiar el permiso desde el navegador.
+  - **`MODO METROS`** — cambia `unlockMode` a metros para que el usuario pueda seguir jugando sin GPS. Cierra el modal, refresca el selector y muestra un toast.
+- **Re-consulta del permiso al volver del foreground.** `GeoService.onAppResume(cb)` suscribe al evento `appStateChange` de `@capacitor/app` en móvil, y a `focus`/`visibilitychange` en web. `MapScene` la usa para: si el usuario vuelve tras cambiar el permiso a "permitido" en los ajustes → arranca el watch y cierra el modal automáticamente.
+- **`GeoService.openNativeSettings()` implementado de verdad** (antes era no-op). Usa `capacitor-native-settings` con `AndroidSettings.ApplicationDetails` / `IOSSettings.App` para llevar al usuario directo a la ficha de permisos de la app.
+- **`toggleUnlockMode` mejorado**: al pasar de GPS a metros para y limpia el watch; al pasar de metros a GPS arranca `startGpsTracking` (que abrirá el modal si sigue denegado).
+- Deps nuevas: `capacitor-native-settings@^8.2.0`, `@capacitor/app@^8.1.1`.
+
 ### Changed (Refactor MapTutorialScene sobre BaseNarratedScene)
 
 - **`MapTutorialScene` reescrita como subclase de `BaseNarratedScene`** (el patrón data-driven que ya usa `StoryScene`). Pasa de 382 líneas duplicadas de `TutorialScene` a 82 líneas que solo aportan contenido, paleta y hooks. Aprovecha la máquina de escribir, layout de diálogo, avance por bloques, imagen central e input compartidos.
