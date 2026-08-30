@@ -46,6 +46,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Added (Tutorial del mapa + selector inicial de modo)
+
+- **Nueva escena `MapTutorialScene`** con el mismo patrón visual que `TutorialScene` (narrador cian, diálogo con máquina de escribir, imagen central). 6 bloques narrativos que presentan el mapa, los retos, Sevilla Esencial, el modo GPS y el modo metros. Contenido en `src/game/config/mapTutorialContent.js` — editable sin tocar código.
+- **Selector inicial de modo al final del tutorial**: en el último bloque, en lugar del continuar, aparecen dos botones `MODO GPS` y `MODO METROS`. Al elegir se persiste `unlockMode`, se marca `mapTutorialSeen`, y se vuelve al mapa.
+- **Auto-lanzamiento del tutorial la primera vez** que se entra a `MapScene` (`unlockMode === null` y `mapTutorialSeen === false`) — el usuario no puede llegar al mapa "vacío" sin haber elegido modo.
+- **Botón `TUTORIAL` del mapa** ahora abre `MapTutorialScene` (deja de ser placeholder). El botón `VOLVER AL MAPA` de la escena no marca `mapTutorialSeen` — si el usuario sale a medias, verá el tutorial la próxima vez; si llega al final y elige modo, se marca visto.
+- Nuevo id de escena `SCENES.MAP_TUTORIAL` registrado en `main.js`.
+- Las imágenes `map-tut-01.webp` … `map-tut-06.webp` aún no existen (las aporta el equipo); la escena las carga solo si están presentes y se ve el diálogo sin imagen mientras tanto.
+
 ### Added (Modo metros — cada partida cuenta hacia el desbloqueo)
 
 - **`BaseGameScene._recordRun` engancha el contador de metros del reto.** Al terminar cualquier partida (éxito o fracaso), si `mapService.getUnlockMode() === 'meters'` y hay un bloque activo pendiente:

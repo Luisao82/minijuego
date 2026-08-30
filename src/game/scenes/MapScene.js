@@ -79,9 +79,16 @@ export class MapScene extends BaseScene {
       if (mapData) mapService.setMapData(mapData)
     }
 
+    // Primera entrada al mapa: si el usuario aún no ha visto el tutorial y
+    // no ha elegido modo, lanzamos MapTutorialScene y salimos sin dibujar
+    // el mapa (evita flash). El tutorial marca `mapTutorialSeen` y setea
+    // `unlockMode` al terminar, y vuelve aquí.
+    if (!mapService.hasSeenMapTutorial() && mapService.getUnlockMode() === null) {
+      this.scene.start(SCENES.MAP_TUTORIAL, { character: this.characterData })
+      return
+    }
+
     // Asegura que hay un bloque activo: por defecto el primero desbloqueado.
-    // Cuando el tutorial + selector de modo estén hechos, esta elección
-    // vendrá de ahí; hasta entonces, arrancamos en 'gps' y activo=primero.
     if (!mapService.getActiveBlockId()) {
       const first = mapService.getFirstBlock()
       if (first) mapService.setActiveBlockId(first.id)
@@ -475,9 +482,8 @@ export class MapScene extends BaseScene {
     this.showToast(next === 'gps' ? 'Modo cambiado a GPS' : 'Modo cambiado a metros')
   }
 
-  // Placeholder — el MapTutorialScene llegará en un paso posterior.
   openMapTutorial() {
-    this.showToast('Tutorial del mapa — próximamente')
+    this.scene.start(SCENES.MAP_TUTORIAL, { character: this.characterData })
   }
 
   showToast(message) {

@@ -17,6 +17,7 @@ import { CollectionScene } from './scenes/CollectionScene'
 import { StatsScene } from './scenes/StatsScene'
 import { FinaleScene } from './scenes/FinaleScene'
 import { MapScene } from './scenes/MapScene'
+import { MapTutorialScene } from './scenes/MapTutorialScene'
 import { CreditsScene } from './scenes/CreditsScene'
 import { LicensesScene } from './scenes/LicensesScene'
 import { PrivacyScene } from './scenes/PrivacyScene'
@@ -54,6 +55,7 @@ const config = {
     StatsScene,
     FinaleScene,
     MapScene,
+    MapTutorialScene,
     CreditsScene,
     LicensesScene,
     PrivacyScene,

@@ -51,6 +51,7 @@ export const SCENES = {
   STATS: 'StatsScene',
   FINALE: 'FinaleScene',
   MAP: 'MapScene',
+  MAP_TUTORIAL: 'MapTutorialScene',
   CREDITS: 'CreditsScene',
   LICENSES: 'LicensesScene',
   PRIVACY: 'PrivacyScene',
