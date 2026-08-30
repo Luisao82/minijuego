@@ -91,13 +91,17 @@ export class GeoService {
     })
   }
 
-  async watchPosition(callback) {
+  async watchPosition(callback, errorCallback = null) {
     await this.stopWatch()
     if (this._isNative) {
       this._watchId = await this._geolocation.watchPosition(
         { enableHighAccuracy: true },
         (pos, err) => {
-          if (err || !pos) return
+          if (err) {
+            if (errorCallback) errorCallback(err)
+            return
+          }
+          if (!pos) return
           callback(normalizeCoords(pos))
         }
       )
@@ -106,7 +110,9 @@ export class GeoService {
     if (!this._navGeolocation) throw new Error('Geolocation not available')
     this._watchId = this._navGeolocation.watchPosition(
       (pos) => callback(normalizeCoords(pos)),
-      () => {},
+      (err) => {
+        if (errorCallback) errorCallback(err)
+      },
       { enableHighAccuracy: true }
     )
   }

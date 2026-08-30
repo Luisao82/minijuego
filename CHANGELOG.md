@@ -46,6 +46,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Fixed (POC visual del GPS)
+
+- **En web (navegador móvil), el popup del permiso no salía.** `MapScene.startGpsTracking` bailaba cuando `checkPermission` seguía en `prompt` tras `requestPermission` — en web no hay API de request explícita, el popup solo se dispara al llamar realmente a `watchPosition`/`getCurrentPosition`. Ahora, con `prompt` en web se sigue adelante y el propio `watchPosition` provoca el prompt.
+- **Errores del `watchPosition` en web se tragaban silenciosamente.** `GeoService.watchPosition` acepta ahora un `errorCallback` opcional, y `MapScene` lo usa para pintar en el panel de debug el motivo del fallo (permiso denegado, posición no disponible, timeout, etc.).
+
 ### Added (POC visual del GPS)
 
 - **Punto azul de posición del jugador en el mapa (POC de prueba en móvil).**

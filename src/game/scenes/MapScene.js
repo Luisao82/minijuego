@@ -87,17 +87,52 @@ export class MapScene extends BaseScene {
 
   async startGpsTracking() {
     const perm = await geoService.checkPermission()
-    let effective = perm
-    if (perm === 'prompt') {
-      effective = await geoService.requestPermission()
-    }
-    if (effective !== 'granted') {
-      this.updateDebugPanel({ status: `GPS: ${effective}` })
+
+    if (perm === 'unavailable') {
+      this.updateDebugPanel({ status: 'GPS no disponible' })
       return
     }
+    if (perm === 'denied') {
+      this.updateDebugPanel({ status: 'GPS: permiso denegado' })
+      return
+    }
+
+    // En nativo, pedir permiso explícitamente antes de arrancar el watch
+    // para que el popup del sistema salga con contexto claro.
+    if (perm === 'prompt') {
+      const next = await geoService.requestPermission()
+      if (next === 'denied') {
+        this.updateDebugPanel({ status: 'GPS: permiso denegado' })
+        return
+      }
+      // En web, `next` seguirá siendo 'prompt' porque no hay API de request
+      // explícita: el popup del navegador se dispara con getCurrentPosition
+      // / watchPosition. Seguimos adelante y dejamos que el propio watch
+      // lance el prompt.
+    }
+
     if (this._geoStopped) return
+
+    this.updateDebugPanel({ status: 'GPS: esperando primera lectura…' })
     try {
-      await geoService.watchPosition((pos) => this.onGpsPosition(pos))
+      await geoService.watchPosition(
+        (pos) => this.onGpsPosition(pos),
+        (err) => {
+          // El usuario puede rechazar aquí en web (popup del navegador).
+          // En navigator.geolocation los códigos son:
+          //   1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
+          const code = err?.code
+          const msg =
+            code === 1
+              ? 'permiso denegado'
+              : code === 2
+                ? 'posición no disponible'
+                : code === 3
+                  ? 'timeout'
+                  : err?.message || 'error de GPS'
+          this.updateDebugPanel({ status: `GPS: ${msg}` })
+        }
+      )
     } catch (err) {
       this.updateDebugPanel({ status: `GPS error: ${err?.message ?? err}` })
     }
