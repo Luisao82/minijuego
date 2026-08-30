@@ -46,6 +46,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Added (Modo metros — cada partida cuenta hacia el desbloqueo)
+
+- **`BaseGameScene._recordRun` engancha el contador de metros del reto.** Al terminar cualquier partida (éxito o fracaso), si `mapService.getUnlockMode() === 'meters'` y hay un bloque activo pendiente:
+  - Convierte `distanceTraveled` (px en 2D, metros en 3D) a metros "reales" con la fórmula `(distanceTraveled / getPoleLength()) * POLE_METERS`. Nueva constante `POLE_METERS = 15` en `src/game/config/mapBounds.js`, calibrable.
+  - Suma esos metros al contador del reto (`mapService.addDistance`).
+  - Llama a `mapService.tryUnlockNextByMeters()`, que si el contador alcanza el `unlockDistance` del bloque activo lo cierra con `mode='meters'`, resetea el contador y avanza el activo al siguiente.
+- **Nuevo método `MapService.tryUnlockNextByMeters()`**: la mecánica de "pausar" el contador queda implícita — si no hay bloque activo o el activo ya está completo, no acumula y no cierra nada.
+- Sin descuento por fallar: 3 m recorridos = 3 m sumados aunque no cojas la bandera.
+- No hay feedback en la pantalla de game over todavía (el jugador ve el cambio la próxima vez que entra al mapa). Puede añadirse como pulido en E/F.
+
 ### Added (Layout nuevo del mapa — selector de bloques + barra 3 botones)
 
 - **Reorganización visual completa del mapa según el mockup.**

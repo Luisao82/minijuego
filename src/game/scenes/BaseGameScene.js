@@ -3,6 +3,7 @@ import { SCENES, GAME_WIDTH, COLORS, CONTROL_PANEL, PHASE1 } from '../config/gam
 import { COLOR_GOLD, COLOR_REWARD } from '../config/fonts'
 import { headingStyle, uiLabelStyle } from '../config/textStyles'
 import { mapService } from '../services/MapService'
+import { POLE_METERS } from '../config/mapBounds'
 import { skinService } from '../services/SkinService'
 import { gameStatsService } from '../services/GameStatsService'
 import { flagDeliveryService } from '../services/FlagDeliveryService'
@@ -343,6 +344,24 @@ export class BaseGameScene extends BaseScene {
       durationSecs: Math.round((this.runSystem?.elapsed ?? 0) * 100) / 100,
       hasJumped: this.hasJumped,
     })
+    this._creditRetoMeters()
+  }
+
+  // Suma los metros recorridos en el palo al contador del reto — solo si
+  // el usuario ha elegido el modo 'meters' y hay un bloque activo pendiente.
+  // Éxito o fracaso, la distancia cuenta tal cual (sin descuento). Si el
+  // bloque activo alcanza su umbral, se marca completado y avanza el activo.
+  _creditRetoMeters() {
+    if (mapService.getUnlockMode() !== 'meters') return
+    const activeId = mapService.getActiveBlockId()
+    const active = mapService.getBlock(activeId)
+    if (!active || mapService.isBlockCompleted(active.id)) return
+    const poleLen = this.getPoleLength()
+    if (!poleLen || !Number.isFinite(this.distanceTraveled)) return
+    const meters = (this.distanceTraveled / poleLen) * POLE_METERS
+    if (meters <= 0) return
+    mapService.addDistance(meters)
+    mapService.tryUnlockNextByMeters()
   }
 
   // ========================================

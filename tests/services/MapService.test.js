@@ -366,6 +366,58 @@ describe('MapService', () => {
     })
   })
 
+  describe('tryUnlockNextByMeters', () => {
+    beforeEach(() => {
+      mapService.setMapData(FIXTURE)
+      mapService.setActiveBlockId('sevilla-esencial')
+    })
+
+    it('no completa si aún no llega al umbral', () => {
+      mapService.addDistance(30) // umbral = 50
+      const next = mapService.tryUnlockNextByMeters()
+      expect(next).toBeNull()
+      expect(mapService.isBlockCompleted('sevilla-esencial')).toBe(false)
+    })
+
+    it('completa cuando el contador alcanza el umbral, resetea y avanza el activo', () => {
+      mapService.addDistance(60)
+      const next = mapService.tryUnlockNextByMeters()
+      expect(next.id).toBe('triana-de-barrio')
+      expect(mapService.isBlockCompleted('sevilla-esencial')).toBe(true)
+      expect(mapService.getBlockCompletionMode('sevilla-esencial')).toBe('meters')
+      expect(mapService.getUnlockDistanceCounter()).toBe(0)
+      expect(mapService.getActiveBlockId()).toBe('triana-de-barrio')
+    })
+
+    it('no rebobina progreso: solo cierra el bloque activo actual', () => {
+      // Simulamos que el activo era triana pero por lo que sea el contador
+      // está altísimo. Solo debe cerrar triana, no volver atrás.
+      mapService.markBlockCompleted('sevilla-esencial', 'meters')
+      mapService.setActiveBlockId('triana-de-barrio')
+      mapService.addDistance(250) // umbral triana = 200
+      const next = mapService.tryUnlockNextByMeters()
+      expect(next).toBeNull() // no hay siguiente
+      expect(mapService.isBlockCompleted('triana-de-barrio')).toBe(true)
+      expect(mapService.getBlockCompletionMode('triana-de-barrio')).toBe('meters')
+      expect(mapService.getUnlockDistanceCounter()).toBe(0)
+    })
+
+    it('no hace nada si el bloque activo ya estaba completado', () => {
+      mapService.markBlockCompleted('sevilla-esencial', 'gps')
+      mapService.addDistance(100)
+      const next = mapService.tryUnlockNextByMeters()
+      expect(next).toBeNull()
+      expect(mapService.getUnlockDistanceCounter()).toBe(100) // no se resetea
+    })
+
+    it('no hace nada si no hay bloque activo', () => {
+      mapService.setActiveBlockId(null)
+      mapService.addDistance(100)
+      const next = mapService.tryUnlockNextByMeters()
+      expect(next).toBeNull()
+    })
+  })
+
   describe('tutorial del mapa', () => {
     it('arranca sin ver', () => {
       expect(mapService.hasSeenMapTutorial()).toBe(false)

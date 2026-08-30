@@ -319,6 +319,26 @@ class MapService {
     return next
   }
 
+  // Si el bloque activo puede cerrarse por metros (contador ≥
+  // unlockDistance), lo marca completado con mode 'meters', resetea el
+  // contador y avanza el activo al siguiente. Devuelve el siguiente
+  // bloque desbloqueado (o null si no se ha cerrado nada).
+  tryUnlockNextByMeters() {
+    const activeId = this.getActiveBlockId()
+    const active = this.getBlock(activeId)
+    if (!active) return null
+    if (this.isBlockCompleted(active.id)) return null
+    const need = active.unlockDistance ?? 0
+    if (need <= 0) return null
+    const acc = this.getUnlockDistanceCounter()
+    if (acc < need) return null
+    this.markBlockCompleted(active.id, 'meters')
+    this.resetDistanceCounter()
+    const next = this.getNextBlock(active.id)
+    if (next) this.setActiveBlockId(next.id)
+    return next
+  }
+
   // ── Tutorial del mapa ───────────────────────────────────────────
 
   hasSeenMapTutorial() {
