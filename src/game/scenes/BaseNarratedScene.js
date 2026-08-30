@@ -395,26 +395,40 @@ export class BaseNarratedScene extends BaseScene {
     this.drawEndButton()
   }
 
+  // Devuelve la lista de botones finales. Por defecto, un único botón
+  // configurado con `getEndButtonConfig()` para mantener el contrato
+  // anterior. Subclases pueden sobreescribir para ofrecer varios (p.ej.
+  // "MODO GPS" / "MODO METROS" al final del tutorial del mapa).
+  getEndButtons() {
+    return [this.getEndButtonConfig()]
+  }
+
   drawEndButton() {
-    const cfg = this.getEndButtonConfig()
+    const buttons = this.getEndButtons()
     const btnW = 220
     const btnH = 50
+    const gap = 8
     const btnX = DLG_X + DLG_W - btnW - 14
-    const btnY = DLG_Y + DLG_H - btnH - 10
+    const totalH = buttons.length * btnH + (buttons.length - 1) * gap
+    const startY = DLG_Y + DLG_H - 10 - totalH
+    const fontSize = buttons.length === 1 ? '30px' : '26px'
 
-    makeNavButton(
-      this,
-      btnX,
-      btnY,
-      btnW,
-      btnH,
-      cfg.label,
-      () => {
-        this.stopAllTimers()
-        cfg.onClick()
-      },
-      { depth: 5, fontSize: '30px' }
-    )
+    buttons.forEach((cfg, i) => {
+      const btnY = startY + i * (btnH + gap)
+      makeNavButton(
+        this,
+        btnX,
+        btnY,
+        btnW,
+        btnH,
+        cfg.label,
+        () => {
+          this.stopAllTimers()
+          cfg.onClick()
+        },
+        { depth: 5, fontSize }
+      )
+    })
   }
 
   // =====================================================

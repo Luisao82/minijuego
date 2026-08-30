@@ -46,9 +46,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`Permissions-Policy` en `vercel.json` bloqueaba `geolocation` a todos los orígenes** (`geolocation=()`), incluida la propia app; el navegador rechazaba silenciosamente cualquier `navigator.geolocation.getCurrentPosition` sin siquiera mostrar el popup del permiso. Se sustituye por `geolocation=(self)` para que el propio dominio pueda pedir ubicación cuando el usuario active el reto GPS del mapa.
 
+### Changed (Refactor MapTutorialScene sobre BaseNarratedScene)
+
+- **`MapTutorialScene` reescrita como subclase de `BaseNarratedScene`** (el patrón data-driven que ya usa `StoryScene`). Pasa de 382 líneas duplicadas de `TutorialScene` a 82 líneas que solo aportan contenido, paleta y hooks. Aprovecha la máquina de escribir, layout de diálogo, avance por bloques, imagen central e input compartidos.
+- **Añadido hook `getEndButtons()` a `BaseNarratedScene`** — devuelve una lista de botones finales (por defecto un único wrap de `getEndButtonConfig()` para no romper `StoryScene`). `MapTutorialScene` lo sobreescribe para pintar los dos botones `MODO GPS` / `MODO METROS`. El layout apila los botones y ajusta la fuente si hay más de uno.
+- **`mapTutorialContent.js` adaptado al contrato de la base**: `text` → `pages: [text]` y `MAP_TUTORIAL_END_TEXT` extraído para el mensaje final *"¿Cómo prefieres empezar?"*.
+
 ### Added (Tutorial del mapa + selector inicial de modo)
 
-- **Nueva escena `MapTutorialScene`** con el mismo patrón visual que `TutorialScene` (narrador cian, diálogo con máquina de escribir, imagen central). 6 bloques narrativos que presentan el mapa, los retos, Sevilla Esencial, el modo GPS y el modo metros. Contenido en `src/game/config/mapTutorialContent.js` — editable sin tocar código.
+- **Nueva escena `MapTutorialScene`** hereda de `BaseNarratedScene` con paleta cian del tutorial y narrador `narrator-tutorial`. 6 bloques narrativos que presentan el mapa, los retos, Sevilla Esencial, el modo GPS y el modo metros. Contenido en `src/game/config/mapTutorialContent.js` — editable sin tocar código.
 - **Selector inicial de modo al final del tutorial**: en el último bloque, en lugar del continuar, aparecen dos botones `MODO GPS` y `MODO METROS`. Al elegir se persiste `unlockMode`, se marca `mapTutorialSeen`, y se vuelve al mapa.
 - **Auto-lanzamiento del tutorial la primera vez** que se entra a `MapScene` (`unlockMode === null` y `mapTutorialSeen === false`) — el usuario no puede llegar al mapa "vacío" sin haber elegido modo.
 - **Botón `TUTORIAL` del mapa** ahora abre `MapTutorialScene` (deja de ser placeholder). El botón `VOLVER AL MAPA` de la escena no marca `mapTutorialSeen` — si el usuario sale a medias, verá el tutorial la próxima vez; si llega al final y elige modo, se marca visto.
