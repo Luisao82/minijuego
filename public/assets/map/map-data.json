@@ -11,7 +11,7 @@
       "title": "Sevilla Esencial",
       "order": 0,
       "contentAlwaysVisible": true,
-      "unlockDistance": 50,
+      "unlockDistance": 1500,
       "badgeGps": "map/badges/badge-gps.webp",
       "badgeMeters": "map/badges/badge-meters.webp",
       "pois": [
