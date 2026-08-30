@@ -17,30 +17,33 @@ import {
 } from '../config/mapBounds'
 import { haversineDistance, isInBounds, latLonToPixel } from '../utils/geo'
 
-// ── Layout mapa general ───────────────────────────────────────
-// Grid del mapa desplazado a la derecha para dejar hueco al selector de
-// bloques a la izquierda (según el mockup del diseño del reto).
+// ── Layout general (mismo band que CollectionScene para coherencia) ──
+// Header a Y=55, band de fondo semi-transparente Y=120 → Y=620.
+const BAND_Y = 120
+const BAND_H = 500
+
+// Grid del mapa desplazado a la derecha (dentro del band). Piezas más
+// pequeñas para que el grid completo (5 filas) quepa en el band.
 const COLS = 3
 const ROWS = 5
-const TILE = 120
+const TILE = 96
 const GAP = 2
-const GRID_W = COLS * TILE + (COLS - 1) * GAP // 364
-const GRID_H = ROWS * TILE + (ROWS - 1) * GAP // 608
+const GRID_W = COLS * TILE + (COLS - 1) * GAP // 292
+const GRID_H = ROWS * TILE + (ROWS - 1) * GAP // 488
 const MAP_RIGHT_MARGIN = 32
-const MAP_X = GAME_WIDTH - GRID_W - MAP_RIGHT_MARGIN // 628
-const MAP_Y = 80
-const BAND_Y = 72
-const BAND_H = 690
+const MAP_X = GAME_WIDTH - GRID_W - MAP_RIGHT_MARGIN // 700
+const MAP_Y = BAND_Y + Math.round((BAND_H - GRID_H) / 2) // centrado vertical en el band
 
 // Cabecera del selector: título "LISTA DE RETOS" a la izquierda y el
-// selector radio de modo (GPS / METROS) a la derecha, justo antes del mapa.
+// selector radio de modo (GPS / METROS) a la derecha, alineado con la
+// parte superior del mapa.
 const HEADER_X = 32
-const HEADER_Y = MAP_Y // 80
-const HEADER_H = 48
+const HEADER_Y = MAP_Y
+const HEADER_H = 44
 
 // Selector de bloques (mitad izquierda, debajo del header)
 const SEL_X = 32
-const SEL_Y = HEADER_Y + HEADER_H + 12 // 140
+const SEL_Y = HEADER_Y + HEADER_H + 12
 const SEL_W = MAP_X - SEL_X - 24
 
 // ── Layout zoom ───────────────────────────────────────────────
@@ -51,12 +54,14 @@ const ZOOM_HALF = ZOOM_SIZE / 2 // 230
 const ARROW_GAP = 48 // distancia del borde de imagen al centro de la flecha
 
 // ── Barra inferior (VOLVER / TUTORIAL) ────────────────────────
+// Centrada verticalmente entre el borde inferior del band y el bottom
+// de la escena — mismo criterio que CollectionScene.
 const BTN_W = 240
 const BTN_H = 58
 const BTN_GAP = 40
-const BTN_Y = MAP_Y + GRID_H + 8 // 696 — bottom a 754
-const BTN_ROW_W = BTN_W * 2 + BTN_GAP // 520
-const BTN_ROW_X = Math.round((GAME_WIDTH - BTN_ROW_W) / 2) // 252
+const BTN_Y = Math.round((GAME_HEIGHT + BAND_Y + BAND_H) / 2 - BTN_H / 2)
+const BTN_ROW_W = BTN_W * 2 + BTN_GAP
+const BTN_ROW_X = Math.round((GAME_WIDTH - BTN_ROW_W) / 2)
 
 export class MapScene extends BaseScene {
   constructor() {
@@ -100,7 +105,7 @@ export class MapScene extends BaseScene {
     }
 
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
-    drawSceneHeader(this, GAME_WIDTH / 2, 40, 'MAPA DE SEVILLA', 240)
+    drawSceneHeader(this, GAME_WIDTH / 2, 55, 'MAPA DE SEVILLA', 240)
     this.drawMap()
     if (mapService.getUnlocked().length === 0) this.drawEmptyHint()
 
