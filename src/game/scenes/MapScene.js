@@ -5,7 +5,15 @@ import { headingStyle, mutedStyle, uiLabelLight, uiLabelStyle } from '../config/
 import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { mapService } from '../services/MapService'
-import { PIECE_ORIGINAL_SIZE } from '../config/mapBounds'
+import { geoService } from '../services/GeoService'
+import { PlayerMarker } from '../components/PlayerMarker'
+import {
+  MAP_BOUNDS,
+  MAP_PIXEL_WIDTH,
+  MAP_PIXEL_HEIGHT,
+  PIECE_ORIGINAL_SIZE,
+} from '../config/mapBounds'
+import { haversineDistance, isInBounds, latLonToPixel } from '../utils/geo'
 
 // ── Layout mapa general ───────────────────────────────────────
 const COLS = 3
@@ -42,6 +50,11 @@ export class MapScene extends BaseScene {
     this.zoomGroup = [] // objetos del zoom, destruidos al cerrar
     this.pointModal = [] // objetos del modal de punto, destruidos al cerrar
     this.zoomOpen = false
+    this.playerMarker = null
+    this.zoomPlayerMarker = null
+    this.debugText = null
+    this.lastGpsPosition = null
+    this._geoStopped = false
   }
 
   create() {
@@ -57,6 +70,147 @@ export class MapScene extends BaseScene {
     this.drawMap()
     if (mapService.getUnlocked().length === 0) this.drawEmptyHint()
     this.drawButtons()
+
+    this.playerMarker = new PlayerMarker(this, { radius: 7, depth: 12 })
+    this.drawDebugPanel()
+    this.startGpsTracking()
+
+    this.events.once('shutdown', () => this.cleanupGps())
+    this.events.once('destroy', () => this.cleanupGps())
+  }
+
+  // ── GPS (POC) ─────────────────────────────────────────────────
+  // Primera integración cruda: pide permiso al entrar al mapa, arranca
+  // watchPosition y refresca marker + debug con cada tick. Aún sin
+  // selector de modo ni restricción por pieza desbloqueada (llegará
+  // con el resto de UI del reto). Debug visible para calibrar mapBounds.
+
+  async startGpsTracking() {
+    const perm = await geoService.checkPermission()
+    let effective = perm
+    if (perm === 'prompt') {
+      effective = await geoService.requestPermission()
+    }
+    if (effective !== 'granted') {
+      this.updateDebugPanel({ status: `GPS: ${effective}` })
+      return
+    }
+    if (this._geoStopped) return
+    try {
+      await geoService.watchPosition((pos) => this.onGpsPosition(pos))
+    } catch (err) {
+      this.updateDebugPanel({ status: `GPS error: ${err?.message ?? err}` })
+    }
+  }
+
+  async cleanupGps() {
+    this._geoStopped = true
+    try {
+      await geoService.stopWatch()
+    } catch (_) {}
+    if (this.playerMarker) this.playerMarker.destroy()
+    if (this.zoomPlayerMarker) this.zoomPlayerMarker.destroy()
+    this.playerMarker = null
+    this.zoomPlayerMarker = null
+  }
+
+  onGpsPosition({ lat, lon, accuracy }) {
+    if (this._geoStopped) return
+    this.lastGpsPosition = { lat, lon, accuracy }
+
+    const inside = isInBounds(lat, lon, MAP_BOUNDS)
+    if (!inside) {
+      this.playerMarker?.hide()
+      this.zoomPlayerMarker?.hide()
+    } else {
+      const globalScreen = this.mapPixelToScreen(
+        latLonToPixel(lat, lon, MAP_BOUNDS, MAP_PIXEL_WIDTH, MAP_PIXEL_HEIGHT)
+      )
+      this.playerMarker?.setPosition(globalScreen.x, globalScreen.y)
+      this.updateZoomPlayerMarker()
+    }
+
+    this.updateDebugPanel({
+      status: inside ? 'GPS OK' : 'Fuera del mapa',
+      lat,
+      lon,
+      accuracy,
+    })
+  }
+
+  // Conversión de píxel del mapa original (0..600 × 0..1000) a píxel de
+  // pantalla del grid pequeño. Respeta los GAP entre piezas.
+  mapPixelToScreen(px) {
+    const col = Math.max(0, Math.min(COLS - 1, Math.floor(px.x / PIECE_ORIGINAL_SIZE)))
+    const row = Math.max(0, Math.min(ROWS - 1, Math.floor(px.y / PIECE_ORIGINAL_SIZE)))
+    const xInPiece = px.x - col * PIECE_ORIGINAL_SIZE
+    const yInPiece = px.y - row * PIECE_ORIGINAL_SIZE
+    const scale = TILE / PIECE_ORIGINAL_SIZE
+    return {
+      x: MAP_X + col * (TILE + GAP) + xInPiece * scale,
+      y: MAP_Y + row * (TILE + GAP) + yInPiece * scale,
+    }
+  }
+
+  updateZoomPlayerMarker() {
+    if (!this.zoomOpen || !this.zoomPlayerMarker || !this.lastGpsPosition) return
+    const { lat, lon } = this.lastGpsPosition
+    if (!isInBounds(lat, lon, MAP_BOUNDS)) {
+      this.zoomPlayerMarker.hide()
+      return
+    }
+    const px = latLonToPixel(lat, lon, MAP_BOUNDS, MAP_PIXEL_WIDTH, MAP_PIXEL_HEIGHT)
+    const zoomRow = Math.floor(px.y / PIECE_ORIGINAL_SIZE)
+    const zoomCol = Math.floor(px.x / PIECE_ORIGINAL_SIZE)
+    if (zoomRow !== this._zoomRow || zoomCol !== this._zoomCol) {
+      this.zoomPlayerMarker.hide()
+      return
+    }
+    const xInPiece = px.x - zoomCol * PIECE_ORIGINAL_SIZE
+    const yInPiece = px.y - zoomRow * PIECE_ORIGINAL_SIZE
+    const scale = ZOOM_SIZE / PIECE_ORIGINAL_SIZE
+    this.zoomPlayerMarker.setPosition(
+      ZOOM_CX - ZOOM_HALF + xInPiece * scale,
+      ZOOM_CY - ZOOM_HALF + yInPiece * scale
+    )
+  }
+
+  // Panel de debug provisional (esquina superior). Se retirará cuando el
+  // reto esté afinado; útil para calibrar mapBounds sobre el terreno.
+  drawDebugPanel() {
+    this.debugText = this.add
+      .text(8, 8, 'GPS: esperando…', mutedStyle(12, '#a8ccff'))
+      .setDepth(50)
+      .setScrollFactor(0)
+  }
+
+  updateDebugPanel({ status = 'GPS…', lat = null, lon = null, accuracy = null } = {}) {
+    if (!this.debugText) return
+    const lines = [status]
+    if (lat !== null && lon !== null) {
+      lines.push(`lat ${lat.toFixed(5)}  lon ${lon.toFixed(5)}`)
+      if (accuracy !== null) lines.push(`± ${Math.round(accuracy)} m`)
+      const nearest = this.nearestPoi(lat, lon)
+      if (nearest) {
+        lines.push(`~ ${nearest.title}: ${Math.round(nearest.distance)} m`)
+      }
+    }
+    this.debugText.setText(lines.join('\n'))
+  }
+
+  nearestPoi(lat, lon) {
+    let best = null
+    for (const block of mapService.getBlocks()) {
+      for (const poi of block.pois || []) {
+        if (poi.lat === null || poi.lat === undefined) continue
+        if (poi.lon === null || poi.lon === undefined) continue
+        const d = haversineDistance(lat, lon, poi.lat, poi.lon)
+        if (!best || d < best.distance) {
+          best = { title: poi.title, distance: d }
+        }
+      }
+    }
+    return best
   }
 
   // ── Pista cuando aún no hay ninguna pieza ─────────────────────
@@ -196,6 +350,8 @@ export class MapScene extends BaseScene {
 
   openZoomView(row, col) {
     this.zoomOpen = true
+    this._zoomRow = row
+    this._zoomCol = col
 
     // Contingencia: si MapService no tiene los datos, intenta cachearlos
     // desde la cache de Phaser (carga tardía o entrada directa a la escena).
@@ -310,6 +466,12 @@ export class MapScene extends BaseScene {
       })
     }
 
+    // Marker del jugador en la vista de zoom (POC)
+    if (this.lastGpsPosition) {
+      this.zoomPlayerMarker = new PlayerMarker(this, { radius: 12, depth: 26 })
+      this.updateZoomPlayerMarker()
+    }
+
     // Botón VOLVER del zoom
     const btnX = Math.round(ZOOM_CX - BTN_W / 2)
     const btnY = GAME_HEIGHT - BTN_H - 8
@@ -374,7 +536,13 @@ export class MapScene extends BaseScene {
       if (o?.active) o.destroy()
     })
     this.zoomGroup = []
+    if (this.zoomPlayerMarker) {
+      this.zoomPlayerMarker.destroy()
+      this.zoomPlayerMarker = null
+    }
     this.zoomOpen = false
+    this._zoomRow = null
+    this._zoomCol = null
   }
 
   // ── Modal de punto de interés ─────────────────────────────────

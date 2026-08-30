@@ -42,6 +42,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **`MapService.load()`: los arrays vacíos por defecto ya no se comparten entre llamadas.** El objeto plantilla anterior compartía referencia de `unlocked`, `seen`, etc., así que un `push()` sobre el estado devuelto contaminaba llamadas futuras cuando `localStorage` estaba vacío. Se sustituye por una factory `createEmptyState()` que devuelve arrays nuevos en cada carga.
 
+### Added (POC visual del GPS)
+
+- **Punto azul de posición del jugador en el mapa (POC de prueba en móvil).**
+  - Nuevo componente `PlayerMarker` (círculo pulsante con halo).
+  - `MapScene` pide permiso de ubicación al entrar, arranca `watchPosition` y actualiza el marcador en tiempo real tanto en la vista global como en la de zoom.
+  - Panel de debug (esquina superior) con `lat`/`lon`/precisión y distancia al POI más cercano — pensado para calibrar `mapBounds` durante pruebas reales sobre el terreno; se retirará cuando el reto esté afinado.
+  - Sin restricción de "solo en piezas desbloqueadas" ni selector de modo todavía — llegarán con la UI del reto.
+  - `stopWatch()` y destroy del marker enganchados a `shutdown`/`destroy` de la escena para no consumir GPS en background.
+
 ## [1.12.0] - 2026-08-29
 
 ### Added
