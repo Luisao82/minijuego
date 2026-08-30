@@ -18,6 +18,29 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **Permisos de ubicación en las builds nativas.**
   - iOS: `NSLocationWhenInUseUsageDescription` en `ios/App/App/Info.plist` con el texto que verá el usuario en el popup del sistema.
   - Android: `ACCESS_COARSE_LOCATION` y `ACCESS_FINE_LOCATION` en `android/app/src/main/AndroidManifest.xml`.
+- **Nuevo modelo de datos del mapa: bloques temáticos con POIs por lat/lon.**
+  - `public/assets/map/map-data.json` reescrito: en la raíz `mapBounds` (4 esquinas GPS) y `blocks[]`. Cada POI declara solo `lat`/`lon` reales; su pieza y su posición en píxeles del mapa ilustrado se derivan al vuelo. Ya no hay `pieces[].points[]` con `x`/`y`/`row`/`col`.
+  - Fotos reorganizadas por bloque: `public/assets/map/photos/sevilla-esencial/` y `public/assets/map/photos/triana-de-barrio/`. `escultura_torero_roto.webp` renombrada a `torero-roto.webp` (kebab-case consistente).
+  - Bloques iniciales: `sevilla-esencial` (3 POIs, `contentAlwaysVisible: true`, `unlockDistance: 50`) y `triana-de-barrio` (2 POIs, `unlockDistance: 200`).
+
+### Changed
+
+- **`MapService` extendido** con métodos para bloques, POIs derivadas, modo GPS/metros, contador de metros, bloques completados y tutorial visto:
+  - `setMapData(data)` — cachea el JSON al cargarlo desde PreloadScene.
+  - `getBlocks()`, `getBlock(id)`, `getFirstBlock()`, `getNextBlock(id)`.
+  - `getPoisForPiece(row, col, blockId?)` — POIs cuya posición derivada cae en la pieza, con `x`/`y` locales listos para la UI. `getPoiPiece(id)`.
+  - `isVisitedInPerson`, `markVisitedInPerson`, `getVisitedCount(blockId)`.
+  - `getUnlockMode` / `setUnlockMode('gps'|'meters'|null)`.
+  - `getUnlockDistanceCounter` / `addDistance(m)` / `resetDistanceCounter`.
+  - `getActiveBlockId` / `setActiveBlockId`.
+  - `getCompletedBlocks`, `isBlockCompleted`, `getBlockCompletionMode`, `markBlockCompleted(id, mode)`, `isBlockUnlocked(id)` (derivado de `completedBlocks`, sin persistir "unlocked blocks").
+  - `hasSeenMapTutorial` / `markMapTutorialSeen`.
+- **`PreloadScene`** ahora itera `mapData.blocks[].pois[]` para pre-cargar imágenes y llama a `mapService.setMapData(mapData)` al terminar.
+- **`MapScene`** consume POIs vía `mapService.getPoisForPiece(row, col)` en lugar de leer `pieces[].points[]` del JSON. La UI visible no cambia — mismo layout, mismos modales — pero ahora las posiciones de los POIs se derivan de sus coord GPS reales.
+
+### Fixed
+
+- **`MapService.load()`: los arrays vacíos por defecto ya no se comparten entre llamadas.** El objeto plantilla anterior compartía referencia de `unlocked`, `seen`, etc., así que un `push()` sobre el estado devuelto contaminaba llamadas futuras cuando `localStorage` estaba vacío. Se sustituye por una factory `createEmptyState()` que devuelve arrays nuevos en cada carga.
 
 ## [1.12.0] - 2026-08-29
 

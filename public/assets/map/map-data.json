@@ -1,61 +1,71 @@
 {
-  "pieces": [
-    { "id": "piece-0-0", "row": 0, "col": 0, "points": [] },
-    { "id": "piece-0-1", "row": 0, "col": 1, "points": [] },
-    { "id": "piece-0-2", "row": 0, "col": 2, "points": [] },
-    { "id": "piece-1-0", "row": 1, "col": 0, "points": [] },
-    { "id": "piece-1-1", "row": 1, "col": 1, "points": [] },
-    { "id": "piece-1-2", "row": 1, "col": 2, "points": [] },
-    { "id": "piece-2-0", "row": 2, "col": 0, "points": []},
-    { "id": "piece-2-1", "row": 2, "col": 1, "points": [
-      {
-        "id": "piece-2-1-p01",
-        "x": 146,
-        "y": 35,
-        "photo": "map/photos/relojeria.webp",
-        "title": "Relojería",
-        "text": "Relojería típica de la calle Sierpes."
-      },
-      {
-        "id": "piece-2-1-p02",
-        "x": 179,
-        "y": 79,
-        "photo": "map/photos/bar.webp",
-        "title": "Bar Curioso",
-        "text": "Bar con una de las fotos más curiosas de Sevilla."
-      },
-      {
-        "id": "piece-2-1-p03",
-        "x": 189,
-        "y": 188,
-        "photo": "map/photos/giralda.webp",
-        "title": "La Giralda",
-        "text": "La Giralda, símbolo de Sevilla."
-      },
-      {
-        "id": "piece-2-1-p04",
-        "x": 2,
-        "y": 195,
-        "photo": "map/photos/escultura_torero_roto.webp",
-        "title": "El Torero Roto",
-        "text": "escultura del torero roto......"
-      }
-    ]},
-    { "id": "piece-2-2", "row": 2, "col": 2, "points": [] },
-    { "id": "piece-3-0", "row": 3, "col": 0, "points": [] },
-    { "id": "piece-3-1", "row": 3, "col": 1, "points": [
-      {
-        "id": "piece-3-1-p01",
-        "x": 121,
-        "y": 66,
-        "photo": "map/photos/torreDelOro.webp",
-        "title": "Torre del Oro",
-        "text": "Torre del Oro, famosa torre de Sevilla."
-      }
-    ]},
-    { "id": "piece-3-2", "row": 3, "col": 2, "points": [] },
-    { "id": "piece-4-0", "row": 4, "col": 0, "points": [] },
-    { "id": "piece-4-1", "row": 4, "col": 1, "points": [] },
-    { "id": "piece-4-2", "row": 4, "col": 2, "points": [] }
+  "mapBounds": {
+    "nw": { "lat": 37.41, "lon": -6.01 },
+    "ne": { "lat": 37.41, "lon": -5.978 },
+    "sw": { "lat": 37.37, "lon": -6.01 },
+    "se": { "lat": 37.37, "lon": -5.978 }
+  },
+  "blocks": [
+    {
+      "id": "sevilla-esencial",
+      "title": "Sevilla Esencial",
+      "order": 0,
+      "contentAlwaysVisible": true,
+      "unlockDistance": 50,
+      "badgeGps": "map/badges/badge-gps.webp",
+      "badgeMeters": "map/badges/badge-meters.webp",
+      "pois": [
+        {
+          "id": "giralda",
+          "title": "La Giralda",
+          "text": "La Giralda, símbolo de Sevilla.",
+          "photo": "map/photos/sevilla-esencial/giralda.webp",
+          "lat": 37.3859,
+          "lon": -5.993
+        },
+        {
+          "id": "torre-oro",
+          "title": "Torre del Oro",
+          "text": "Torre del Oro, famosa torre de Sevilla.",
+          "photo": "map/photos/sevilla-esencial/torreDelOro.webp",
+          "lat": 37.3826,
+          "lon": -5.9963
+        },
+        {
+          "id": "relojeria",
+          "title": "Relojería",
+          "text": "Relojería típica de la calle Sierpes.",
+          "photo": "map/photos/sevilla-esencial/relojeria.webp",
+          "lat": 37.391,
+          "lon": -5.994
+        }
+      ]
+    },
+    {
+      "id": "triana-de-barrio",
+      "title": "Triana de barrio",
+      "order": 1,
+      "unlockDistance": 200,
+      "badgeGps": "map/badges/badge-gps.webp",
+      "badgeMeters": "map/badges/badge-meters.webp",
+      "pois": [
+        {
+          "id": "bar-curioso",
+          "title": "Bar Curioso",
+          "text": "Bar con una de las fotos más curiosas de Sevilla.",
+          "photo": "map/photos/triana-de-barrio/bar.webp",
+          "lat": 37.3895,
+          "lon": -5.99331
+        },
+        {
+          "id": "torero-roto",
+          "title": "El Torero Roto",
+          "text": "Escultura del torero roto.",
+          "photo": "map/photos/triana-de-barrio/torero-roto.webp",
+          "lat": 37.38539,
+          "lon": -6.00286
+        }
+      ]
+    }
   ]
 }

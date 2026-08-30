@@ -7,6 +7,7 @@ import { unlockService } from '../services/UnlockService'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
 import { ambientBoatsService } from '../services/AmbientBoatsService'
 import { boatFlagsService } from '../services/BoatFlagsService'
+import { mapService } from '../services/MapService'
 
 // Tamaño del "píxel de época": cada unidad lógica equivale a este número
 // de píxeles reales de pantalla. Todos los grosores de franja y el paso
@@ -344,9 +345,10 @@ export class PreloadScene extends BaseScene {
     this.load.json('map-data', 'map/map-data.json')
     this.load.on('filecomplete-json-map-data', () => {
       const mapData = this.cache.json.get('map-data')
-      mapData?.pieces?.forEach((piece) => {
-        piece.points?.forEach((point) => {
-          if (point.photo) this.load.image(point.id, point.photo)
+      mapService.setMapData(mapData)
+      mapData?.blocks?.forEach((block) => {
+        block.pois?.forEach((poi) => {
+          if (poi.photo) this.load.image(poi.id, poi.photo)
         })
       })
     })

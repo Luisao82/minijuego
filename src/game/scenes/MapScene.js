@@ -5,6 +5,7 @@ import { headingStyle, mutedStyle, uiLabelLight, uiLabelStyle } from '../config/
 import { makeNavButton } from '../components/NavButton'
 import { drawBandBackground, drawSceneHeader } from '../utils/backgroundUtils'
 import { mapService } from '../services/MapService'
+import { PIECE_ORIGINAL_SIZE } from '../config/mapBounds'
 
 // ── Layout mapa general ───────────────────────────────────────
 const COLS = 3
@@ -17,9 +18,6 @@ const MAP_X = Math.round((GAME_WIDTH - GRID_W) / 2) // 330
 const MAP_Y = 80
 const BAND_Y = 72
 const BAND_H = 690
-
-// Tamaño original de cada pieza en px — usado para escalar coordenadas de puntos
-const PIECE_ORIGINAL_SIZE = 200
 
 // ── Layout zoom ───────────────────────────────────────────────
 const ZOOM_SIZE = 460
@@ -41,18 +39,17 @@ export class MapScene extends BaseScene {
   init(data) {
     super.init(data)
     this.characterData = data?.character || null
-    this.piecesData = {} // `${row}-${col}` → points[]
     this.zoomGroup = [] // objetos del zoom, destruidos al cerrar
     this.pointModal = [] // objetos del modal de punto, destruidos al cerrar
     this.zoomOpen = false
   }
 
   create() {
-    const mapData = this.cache.json.get('map-data')
-    if (mapData?.pieces) {
-      mapData.pieces.forEach((p) => {
-        this.piecesData[`${p.row}-${p.col}`] = p.points || []
-      })
+    // Contingencia: si por lo que sea PreloadScene no cargó el JSON,
+    // rehidratamos MapService desde la cache aquí antes de dibujar.
+    if (!mapService.getMapData()) {
+      const mapData = this.cache.json.get('map-data')
+      if (mapData) mapService.setMapData(mapData)
     }
 
     drawBandBackground(this, 'bg-characters', BAND_Y, BAND_H)
@@ -200,12 +197,11 @@ export class MapScene extends BaseScene {
   openZoomView(row, col) {
     this.zoomOpen = true
 
-    // Repopular si create() no encontró el JSON en cache (carga tardía)
-    if (Object.keys(this.piecesData).length === 0) {
+    // Contingencia: si MapService no tiene los datos, intenta cachearlos
+    // desde la cache de Phaser (carga tardía o entrada directa a la escena).
+    if (!mapService.getMapData()) {
       const mapData = this.cache.json.get('map-data')
-      mapData?.pieces?.forEach((p) => {
-        this.piecesData[`${p.row}-${p.col}`] = p.points || []
-      })
+      if (mapData) mapService.setMapData(mapData)
     }
 
     const id = `piece-${row}-${col}`
@@ -308,7 +304,7 @@ export class MapScene extends BaseScene {
       const scale = ZOOM_SIZE / PIECE_ORIGINAL_SIZE
       const imgLeft = ZOOM_CX - ZOOM_HALF
       const imgTop = ZOOM_CY - ZOOM_HALF
-      const points = this.piecesData[`${row}-${col}`] || []
+      const points = mapService.getPoisForPiece(row, col)
       points.forEach((point) => {
         this.addZoomPoint(track, point, imgLeft + point.x * scale, imgTop + point.y * scale)
       })
