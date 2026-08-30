@@ -50,6 +50,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 - **En web (navegador móvil), el popup del permiso no salía.** `MapScene.startGpsTracking` bailaba cuando `checkPermission` seguía en `prompt` tras `requestPermission` — en web no hay API de request explícita, el popup solo se dispara al llamar realmente a `watchPosition`/`getCurrentPosition`. Ahora, con `prompt` en web se sigue adelante y el propio `watchPosition` provoca el prompt.
 - **Errores del `watchPosition` en web se tragaban silenciosamente.** `GeoService.watchPosition` acepta ahora un `errorCallback` opcional, y `MapScene` lo usa para pintar en el panel de debug el motivo del fallo (permiso denegado, posición no disponible, timeout, etc.).
+- **Esquinas del mapa afinadas con las coord reales medidas por el equipo** en Google Maps, sustituyendo la estimación inicial. Aplicado tanto en `src/game/config/mapBounds.js` (usado por `MapScene` para pintar el marker) como en `mapBounds` de `map-data.json` (usado por `MapService` para derivar la pieza y posición pixel de cada POI). Con las nuevas esquinas, posiciones GPS de Sevilla centro caen ahora dentro del mapa.
 
 ### Added (POC visual del GPS)
 

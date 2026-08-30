@@ -6,11 +6,14 @@
 // terreno; al ajustarlas aquí todos los POIs se recolocan automáticamente
 // en el mapa ilustrado sin tocar sus lat/lon.
 
+// Esquinas medidas por el equipo sobre el mapa real de Google Maps.
+// Debe mantenerse EN SINCRONÍA con el bloque `mapBounds` de
+// public/assets/map/map-data.json (a día de hoy dos fuentes de verdad).
 export const MAP_BOUNDS = {
-  nw: { lat: 37.4100, lon: -6.0100 }, // Norte de Triana / La Cartuja oeste
-  ne: { lat: 37.4100, lon: -5.9780 }, // Macarena / La Barzola
-  sw: { lat: 37.3700, lon: -6.0100 }, // Sur de Los Remedios / Tablada
-  se: { lat: 37.3700, lon: -5.9780 }, // Parque de María Luisa / Bermejales
+  nw: { lat: 37.408546, lon: -6.014119 },
+  ne: { lat: 37.408546, lon: -5.981311 },
+  sw: { lat: 37.369732, lon: -6.014119 },
+  se: { lat: 37.369732, lon: -5.981311 },
 }
 
 // Dimensiones del mapa en píxeles originales.
