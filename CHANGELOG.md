@@ -28,6 +28,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   - `BalanceBar`/`BalanceSystem` aceptan una aceleración extra (0 por defecto, sin cambios en el modo botones). `BalanceUI` sustituye los botones por un indicador de fuerza en los modos analógicos.
   - `lab/LabPanel.js`: panel LAB (HTML, herramienta interna) para calibrar en vivo y exportar los valores. Vite define `__LAB__` (`VITE_LAB=true` en las vistas previas, activo en desarrollo); en producción el panel no se empaqueta.
   - El simulador de `hardware/` usa ahora los módulos del juego (se elimina su copia `analogModel.js`).
+  - Temporal, solo laboratorio: todas las vistas (incluida la 3D) aparecen desbloqueadas para probar los modos de control en cada una (`PerspectiveUnlockService` con `unlockAll`). En producción se mantienen las condiciones de desbloqueo.
 
 ### Fixed
 

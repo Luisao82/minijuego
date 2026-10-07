@@ -136,3 +136,13 @@ describe('PerspectiveUnlockService', () => {
     })
   })
 })
+
+describe('PerspectiveUnlockService — build de laboratorio', () => {
+  it('con unlockAll todas las vistas están disponibles sin cumplir condiciones', () => {
+    localStorage.clear()
+    const service = createPerspectiveUnlockService({ unlockAll: true })
+    service.setData([{ id: 'triana' }, { id: '3d', condition: { type: 'completion' } }])
+    expect(service.isUnlocked('3d')).toBe(true)
+    expect(service.isUnlocked('inexistente')).toBe(false)
+  })
+})

@@ -18,10 +18,15 @@
 //   const newUnlocks = perspectiveUnlockService.checkNewUnlocks(rewardStorage)
 //   perspectiveUnlockService.saveUnlocks(newUnlocks)
 
+import { LAB_ENABLED } from '../config/controlConfig'
+
 const STORAGE_KEY = 'cucana_unlocked_perspectives'
 const DEFAULT_UNLOCKED = ['triana']
 
-export function createPerspectiveUnlockService() {
+// unlockAll: en la build de laboratorio todas las vistas (incluida la 3D) están
+// disponibles para poder probar los modos de control en cada una. Temporal:
+// en producción es false y se mantienen las condiciones de desbloqueo.
+export function createPerspectiveUnlockService({ unlockAll = false } = {}) {
   let perspectives = []
 
   return {
@@ -61,7 +66,7 @@ export function createPerspectiveUnlockService() {
     isUnlocked(perspectiveId) {
       const p = this.getById(perspectiveId)
       if (!p) return false
-      if (!p.condition) return true // sin condición = siempre disponible
+      if (!p.condition || unlockAll) return true // sin condición = siempre disponible
       return this.getUnlocked().includes(perspectiveId)
     },
 
@@ -121,4 +126,4 @@ export function createPerspectiveUnlockService() {
 }
 
 // Instancia singleton por defecto
-export const perspectiveUnlockService = createPerspectiveUnlockService()
+export const perspectiveUnlockService = createPerspectiveUnlockService({ unlockAll: LAB_ENABLED })
