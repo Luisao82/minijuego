@@ -7,6 +7,23 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Prototipo hardware de la tabla de equilibrio** (`hardware/tabla-equilibrio/`). Primer paso del futuro "modo tabla" (mando físico opcional: inclinación lateral con giroscopio + microrruptor delantero para impulso/salto, conectado por Bluetooth LE). No toca el juego.
+  - Firmware ESP32-S3 (Arduino IDE): `p1_blink` (comprobación de placa e IDE), `p2_boton` (botón simulado con cable, antirrebote y pull-up interna) y `p3_ble_simulado` (servicio BLE propio que envía inclinación simulada + estado del botón cada 20 ms).
+  - `diagnostico/index.html`: página con Web Bluetooth que se conecta a la tabla y mide paquetes/s, jitter, hueco máximo, pérdidas, cortes, desconexiones y latencia de ida y vuelta (ping/echo). Reconexión automática.
+  - `README.md` con la guía paso a paso de las pruebas y la especificación del protocolo BLE.
+  - `p4_giroscopio`: lectura real del MPU6050 por I2C (sin librerías extra) con filtro complementario, detección del sensor al arrancar (WHO_AM_I), calibración del centro y de la deriva del giroscopio (al arrancar, botón BOOT o `c` por serie), eje e inversión configurables y salida para el Serial Plotter. El byte 4 del paquete pasa a ser de banderas (botón + error de sensor) y la página de diagnóstico muestra el estado del sensor.
+  - Esquema de montaje del MPU6050 en una sola protoboard usando las líneas de alimentación.
+  - Utilidades de depuración del montaje: `util_escaner_i2c` (busca el sensor y detecta SDA/SCL cruzados) y `util_detector_tension` (usa un pin como punta de prueba para distinguir 3,3 V / GND / al aire sin multímetro).
+  - `simulador/`: barra de equilibrio con la física real del juego (importa `BalanceBar` y `BalanceSystem` vía Vite) controlada por la tabla o por teclado. Permite ajustar zona muerta, inclinación máxima y curva de respuesta, y probar dos fuerzas extra propuestas para los modos analógicos (vaivén del palo y gravedad de péndulo invertido) en `simulador/analogModel.js`.
+  - Conexión Web Bluetooth y estilos extraídos a `shared/` (compartidos por diagnóstico y simulador).
+  - ESLint: bloque para `hardware/**/*.js` con globals de navegador.
+
+### Fixed
+
+- Diagnóstico de la tabla: el arranque de la conexión ya no cuenta como un corte de más de 200 ms.
+
 ## [1.12.0] - 2026-08-29
 
 ### Added

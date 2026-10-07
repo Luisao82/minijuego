@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simulador equilibrio</title>
+    <link rel="stylesheet" href="../shared/tabla.css" />
+  </head>
+  <body>
+    <main>
+      <h1>La Cucaña — simulador de equilibrio</h1>
+
+      <section id="needsVite" hidden>
+        <h2>Hay que abrirlo con el servidor del juego</h2>
+        El simulador usa la física real del juego (<code>src/game</code>). En la carpeta del
+        proyecto ejecuta <code>npm run dev</code> y abre en Chrome:
+        <code>http://localhost:9876/hardware/tabla-equilibrio/simulador/</code>
+      </section>
+
+      <section>
+        <h2>Entrada</h2>
+        <div class="row">
+          <label class="check"
+            ><input type="radio" name="source" value="board" checked /> Tabla (Bluetooth)</label
+          >
+          <label class="check"
+            ><input type="radio" name="source" value="keys" /> Teclado ← → (como los botones)</label
+          >
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <button id="connect">Conectar tabla</button>
+          <span id="status">Desconectado</span>
+          <span>Inclinación: <b id="tilt">—</b></span>
+          <span>inputDirection: <b id="input">0.00</b></span>
+          <label class="check"><input type="checkbox" id="invert" /> Invertir</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Partida</h2>
+        <div class="bar big" id="bar">
+          <div class="center"></div>
+          <div class="limit" id="limitL"></div>
+          <div class="limit" id="limitR"></div>
+          <div class="cursor" id="cursor"></div>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <button id="start">Empezar (espacio o botón de la tabla)</button>
+          <span class="big-number" id="time">0.0 s</span>
+          <span id="result" class="warn">Listo</span>
+        </div>
+        <div class="grid" style="margin-top: 12px">
+          <div class="stat">Mejor tiempo<b id="best">—</b></div>
+          <div class="stat">Cruces del centro<b id="crosses">0</b></div>
+          <div class="stat">Fuerza del drift<b id="drift">—</b></div>
+          <div class="stat">Fuerza extra<b id="extra">—</b></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Respuesta de la inclinación (solo tabla)</h2>
+        <div class="row">
+          <label class="ctl"
+            >Zona muerta
+            <input
+              type="range"
+              id="deadZone"
+              min="0"
+              max="4"
+              step="0.25"
+              value="1" /><output></output
+          ></label>
+          <label class="ctl"
+            >Inclinación máxima
+            <input type="range" id="maxTilt" min="5" max="25" step="1" value="13" /><output></output
+          ></label>
+          <label class="ctl"
+            >Curva (1 = lineal)
+            <input type="range" id="curve" min="1" max="3" step="0.1" value="1.5" /><output></output
+          ></label>
+        </div>
+        <label class="check" style="margin-top: 10px"
+          ><input type="checkbox" id="calibrateOnStart" checked /> Tomar como centro la posición al
+          empezar</label
+        >
+      </section>
+
+      <section>
+        <h2>Inestabilidad extra (propuesta para modos analógicos)</h2>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="swayOn" /> Vaivén del palo</label>
+          <label class="ctl"
+            >Fuerza del vaivén
+            <input type="range" id="sway" min="0" max="4" step="0.1" value="1" /><output></output
+          ></label>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <label class="check"><input type="checkbox" id="gravityOn" /> Gravedad (péndulo)</label>
+          <label class="ctl"
+            >Fuerza de la gravedad
+            <input type="range" id="gravity" min="0" max="8" step="0.1" value="2" /><output></output
+          ></label>
+        </div>
+        <p class="hint">Sin marcar nada, la física es exactamente la del juego actual.</p>
+      </section>
+
+      <section>
+        <h2>Palo y personaje</h2>
+        <div class="row">
+          <label class="ctl"
+            >Stat de equilibrio
+            <input type="range" id="stat" min="0" max="10" step="1" value="5" /><output></output
+          ></label>
+          <label class="ctl"
+            >Grasa del palo (%)
+            <input
+              type="range"
+              id="grease"
+              min="0"
+              max="100"
+              step="5"
+              value="100" /><output></output
+          ></label>
+          <label class="ctl"
+            >Duración hasta la bandera (s)
+            <input type="range" id="target" min="2" max="15" step="1" value="8" /><output></output
+          ></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Historial</h2>
+        <pre id="log"></pre>
+      </section>
+    </main>
+
+    <script type="module">
+      import { BoardConnection, isBluetoothAvailable } from '../shared/boardConnection.js'
+      import { mapTiltToInput, InstabilityModel } from './analogModel.js'
+
+      const $ = (id) => document.getElementById(id)
+      const num = (id) => Number($(id).value)
+
+      let game
+      try {
+        // Física real del juego: requiere el servidor de Vite (resuelve los imports sin extensión)
+        const [{ BalanceBar }, { BalanceSystem }, config] = await Promise.all([
+          import('/src/game/entities/BalanceBar.js'),
+          import('/src/game/systems/BalanceSystem.js'),
+          import('/src/game/config/gameConfig.js'),
+        ])
+        game = { BalanceBar, BalanceSystem, BALANCE: config.BALANCE, OIL: config.OIL }
+      } catch {
+        $('needsVite').hidden = false
+        $('start').disabled = true
+      }
+
+      // Las salidas de los sliders muestran su valor
+      document.querySelectorAll('label.ctl').forEach((label) => {
+        const input = label.querySelector('input')
+        const output = label.querySelector('output')
+        const refresh = () => (output.textContent = input.value)
+        input.addEventListener('input', refresh)
+        refresh()
+      })
+
+      const log = (msg) => ($('log').textContent = `${msg}\n` + $('log').textContent)
+
+      // ---------- Entrada ----------
+      const keys = { dir: 0 }
+      let rawTilt = 0
+      let centerOffset = 0
+      let lastPresses = null
+
+      const source = () => document.querySelector('input[name=source]:checked').value
+
+      const currentInput = () => {
+        if (source() === 'keys') return keys.dir
+        const tilt = (rawTilt - centerOffset) * ($('invert').checked ? -1 : 1)
+        return mapTiltToInput(tilt, {
+          deadZoneDeg: num('deadZone'),
+          maxTiltDeg: num('maxTilt'),
+          curve: num('curve'),
+        })
+      }
+
+      const board = new BoardConnection({
+        onPacket: (p) => {
+          rawTilt = p.tilt
+          $('tilt').textContent = `${(p.tilt - centerOffset).toFixed(1)}°`
+          // Pulsar el microrruptor = empezar (como parar la barra de impulso)
+          if (lastPresses !== null && p.presses !== lastPresses && state !== 'playing') start()
+          lastPresses = p.presses
+        },
+        onStatus: (s, text) => {
+          $('status').textContent = text
+          $('status').className = s === 'connected' ? 'good' : s === 'disconnected' ? '' : 'bad'
+          $('connect').disabled = !['disconnected', 'failed'].includes(s)
+          // Si se pierde la tabla en plena partida, se para: no es culpa del jugador
+          if (s === 'lost' && state === 'playing')
+            finish('Conexión perdida — partida anulada', 'bad')
+        },
+      })
+
+      $('connect').addEventListener('click', async () => {
+        try {
+          await board.connect()
+        } catch (err) {
+          $('status').textContent = `Error: ${err.message}`
+        }
+      })
+      if (!isBluetoothAvailable()) $('connect').disabled = true
+
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat) return
+        if (e.code === 'ArrowLeft') keys.dir = -1
+        if (e.code === 'ArrowRight') keys.dir = 1
+        if (e.code === 'Space' && state !== 'playing') {
+          e.preventDefault()
+          start()
+        }
+      })
+      // Igual que BalanceUI: soltar un lado solo anula si era el activo
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' && keys.dir === -1) keys.dir = 0
+        if (e.code === 'ArrowRight' && keys.dir === 1) keys.dir = 0
+      })
+
+      // ---------- Partida ----------
+      let state = 'idle'
+      let bar, system, instability
+      let elapsed = 0
+      let crosses = 0
+      let lastFrame = 0
+      let best = 0
+
+      const describeConfig = () => {
+        const parts = [
+          source() === 'keys'
+            ? 'teclado'
+            : `tabla ±${num('maxTilt')}° zm ${num('deadZone')}° curva ${num('curve')}`,
+          `stat ${num('stat')}`,
+          `grasa ${num('grease')}%`,
+        ]
+        if ($('swayOn').checked) parts.push(`vaivén ${num('sway')}`)
+        if ($('gravityOn').checked) parts.push(`gravedad ${num('gravity')}`)
+        return parts.join(' · ')
+      }
+
+      const placeLimits = () => {
+        const limit = bar ? bar.limit : new game.BalanceBar(num('stat')).limit
+        $('limitL').style.left = `${((1 - limit) / 2) * 100}%`
+        $('limitR').style.left = `${((1 + limit) / 2) * 100}%`
+      }
+
+      function start() {
+        if (!game) return
+        if (source() === 'board' && $('calibrateOnStart').checked) centerOffset = rawTilt
+        bar = new game.BalanceBar(num('stat'))
+        system = new game.BalanceSystem(bar)
+        instability = new InstabilityModel()
+        elapsed = 0
+        crosses = 0
+        lastFrame = performance.now()
+        state = 'playing'
+        placeLimits()
+        $('result').textContent = '¡Aguanta!'
+        $('result').className = 'warn'
+      }
+
+      function finish(text, cls) {
+        state = 'ended'
+        $('result').textContent = text
+        $('result').className = cls
+        log(`${elapsed.toFixed(1)} s — ${text} — ${describeConfig()}`)
+      }
+
+      $('start').addEventListener('click', start)
+      $('stat').addEventListener('input', () => state !== 'playing' && placeLimits())
+
+      const step = (now) => {
+        requestAnimationFrame(step)
+        const input = currentInput()
+        $('input').textContent = input.toFixed(2)
+        if (state !== 'playing') return
+
+        const dt = Math.min(0.05, (now - lastFrame) / 1000)
+        lastFrame = now
+        elapsed += dt
+
+        const greaseRatio = num('grease') / 100
+        const amplify = 1 + Math.pow(greaseRatio, game.OIL.CURVE_POWER) * game.OIL.DRIFT_MULTIPLIER
+        const extraAccel = instability.update(dt, bar.position, {
+          swayStrength: $('swayOn').checked ? num('sway') : 0,
+          gravityStrength: $('gravityOn').checked ? num('gravity') : 0,
+          amplify,
+        })
+
+        // BalanceBar suma inputDirection × INPUT_FORCE a la velocidad: la fuerza extra se
+        // inyecta por el mismo canal para no tocar el código del juego
+        const prevSign = Math.sign(bar.position)
+        system.update(dt, input + extraAccel / game.BALANCE.INPUT_FORCE, greaseRatio)
+        if (prevSign !== 0 && Math.sign(bar.position) !== 0 && prevSign !== Math.sign(bar.position))
+          crosses++
+
+        $('cursor').style.left = `${((bar.position + 1) / 2) * 100}%`
+        $('time').textContent = `${elapsed.toFixed(1)} s`
+        $('crosses').textContent = crosses
+        $('drift').textContent = system.driftForce.toFixed(2)
+        $('extra').textContent = extraAccel.toFixed(2)
+
+        if (system.isFailed()) {
+          finish('¡Al agua!', 'bad')
+        } else if (elapsed >= num('target')) {
+          finish('¡BANDERA!', 'good')
+        }
+
+        if (state === 'ended' && elapsed > best) {
+          best = elapsed
+          $('best').textContent = `${best.toFixed(1)} s`
+        }
+      }
+
+      if (game) placeLimits()
+      requestAnimationFrame(step)
+    </script>
+  </body>
+</html>

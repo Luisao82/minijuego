@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Diagnóstico tabla</title>
+    <link rel="stylesheet" href="../shared/tabla.css" />
+  </head>
+  <body>
+    <main>
+      <h1>La Cucaña — diagnóstico de la tabla</h1>
+
+      <section id="unsupported" hidden>
+        <h2>Navegador sin Web Bluetooth</h2>
+        Abre esta página en <b>Chrome</b> o <b>Edge</b> (Mac, Windows o Android) y sírvela desde
+        <b>localhost</b> o https, por ejemplo con XAMPP:
+        <code>http://localhost/minijuego/Prueba2/hardware/tabla-equilibrio/diagnostico/</code>
+      </section>
+
+      <section>
+        <h2>Conexión</h2>
+        <div class="row">
+          <button id="connect">Conectar</button>
+          <button id="disconnect" disabled>Desconectar</button>
+          <button id="reset">Reiniciar medidas</button>
+          <span id="status">Desconectado</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Tabla</h2>
+        <div class="bar">
+          <div class="center"></div>
+          <div class="cursor" id="cursor"></div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <span>Inclinación: <b id="tilt">—</b></span>
+          <span>inputDirection: <b id="input">—</b></span>
+          <span>Botón:</span>
+          <div class="btn-led" id="led"></div>
+          <span>Pulsaciones: <b id="presses">0</b></span>
+          <span>Sensor: <b id="sensor">—</b></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Calidad del enlace (últimos 5 s)</h2>
+        <div class="grid">
+          <div class="stat">Paquetes/s<b id="rate">—</b></div>
+          <div class="stat">Intervalo medio<b id="interval">—</b></div>
+          <div class="stat">Jitter<b id="jitter">—</b></div>
+          <div class="stat">Hueco máximo<b id="maxGap">—</b></div>
+          <div class="stat">Latencia (ida y vuelta)<b id="rtt">—</b></div>
+          <div class="stat">Latencia estimada<b id="latency">—</b></div>
+          <div class="stat">Paquetes perdidos<b id="lost">0</b></div>
+          <div class="stat">Cortes &gt; 200 ms<b id="stalls">0</b></div>
+          <div class="stat">Desconexiones<b id="disconnects">0</b></div>
+        </div>
+        <p class="hint">
+          Objetivo: ~50 paquetes/s, jitter &lt; 10 ms, latencia estimada &lt; 40 ms y ningún corte.
+        </p>
+      </section>
+
+      <section>
+        <h2>Registro</h2>
+        <pre id="log"></pre>
+      </section>
+    </main>
+
+    <script type="module">
+      import { BoardConnection, isBluetoothAvailable } from '../shared/boardConnection.js'
+
+      const MAX_TILT_DEG = 13
+      const WINDOW_MS = 5000
+      const STALL_MS = 200
+      const PING_EVERY_MS = 500
+
+      const $ = (id) => document.getElementById(id)
+
+      let pingTimer = null
+      let arrivals = []
+      let rtts = []
+      let pendingPings = new Map()
+      let nextPingId = 1
+      let lastSeq = null
+      let lastArrival = null
+      let stallOpen = false
+      const totals = { lost: 0, stalls: 0, disconnects: 0 }
+
+      const log = (msg) => {
+        const t = new Date().toLocaleTimeString()
+        $('log').textContent = `[${t}] ${msg}\n` + $('log').textContent
+      }
+
+      const show = (id, text, cls) => {
+        $(id).textContent = text
+        $(id).className = cls || ''
+      }
+
+      const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length
+
+      const classify = (value, good, warn) =>
+        value <= good ? 'good' : value <= warn ? 'warn' : 'bad'
+
+      const resetStats = () => {
+        arrivals = []
+        rtts = []
+        pendingPings = new Map()
+        lastSeq = null
+        lastArrival = null
+        stallOpen = false
+        totals.lost = 0
+        totals.stalls = 0
+        totals.disconnects = 0
+        render()
+      }
+
+      const onPacket = (p, now) => {
+        if (lastSeq !== null) {
+          const gap = (p.seq - lastSeq - 1 + 65536) % 65536
+          if (gap > 0 && gap < 1000) totals.lost += gap
+        }
+        lastSeq = p.seq
+
+        arrivals.push(now)
+        lastArrival = now
+        stallOpen = false
+
+        if (pendingPings.has(p.echo)) {
+          rtts.push({ at: now, ms: now - pendingPings.get(p.echo) })
+          pendingPings.delete(p.echo)
+        }
+
+        const input = Math.max(-1, Math.min(1, p.tilt / MAX_TILT_DEG))
+        $('cursor').style.left = `${50 + input * 50}%`
+        $('tilt').textContent = `${p.tilt.toFixed(1)}°`
+        $('input').textContent = input.toFixed(2)
+        $('led').classList.toggle('on', p.buttonDown)
+        $('presses').textContent = p.presses
+
+        const sensorText = p.sensorError ? 'ERROR' : 'OK'
+        if ($('sensor').textContent !== sensorText) {
+          if (p.sensorError) log('El ESP32 informa de error en el sensor (¿cable suelto?)')
+          show('sensor', sensorText, p.sensorError ? 'bad' : 'good')
+        }
+      }
+
+      const STATUS_CLASS = {
+        connecting: 'warn',
+        connected: 'good',
+        reconnecting: 'bad',
+        lost: 'bad',
+        failed: 'bad',
+        disconnected: '',
+      }
+
+      const onStatus = (state, text) => {
+        show('status', text, STATUS_CLASS[state])
+        const connected = state === 'connected'
+        $('connect').disabled = !['disconnected', 'failed'].includes(state)
+        $('disconnect').disabled = !connected
+
+        if (connected) {
+          lastSeq = null
+          // Los cortes se cuentan desde el primer paquete: el arranque de la conexión no es un corte
+          lastArrival = null
+          clearInterval(pingTimer)
+          pingTimer = setInterval(sendPing, PING_EVERY_MS)
+        } else if (state !== 'connecting') {
+          clearInterval(pingTimer)
+          $('led').classList.remove('on')
+        }
+
+        if (state === 'lost') totals.disconnects++
+        if (state !== 'connecting' && state !== 'reconnecting') log(text)
+      }
+
+      const board = new BoardConnection({ onPacket, onStatus })
+
+      const sendPing = async () => {
+        const id = nextPingId
+        nextPingId = (nextPingId % 65535) + 1
+        pendingPings.set(id, performance.now())
+        if (!(await board.ping(id))) pendingPings.delete(id)
+      }
+
+      const render = () => {
+        const now = performance.now()
+        arrivals = arrivals.filter((t) => now - t <= WINDOW_MS)
+        rtts = rtts.filter((r) => now - r.at <= WINDOW_MS)
+        for (const [id, sentAt] of pendingPings) if (now - sentAt > 2000) pendingPings.delete(id)
+
+        if (board.isConnected && lastArrival && now - lastArrival > STALL_MS && !stallOpen) {
+          stallOpen = true
+          totals.stalls++
+          log(`Corte: ${STALL_MS} ms sin datos`)
+        }
+
+        if (arrivals.length > 2) {
+          const intervals = arrivals.slice(1).map((t, i) => t - arrivals[i])
+          const avg = mean(intervals)
+          const jitter = Math.sqrt(mean(intervals.map((x) => (x - avg) ** 2)))
+          const maxGap = Math.max(...intervals)
+          const rate = (arrivals.length / WINDOW_MS) * 1000
+          show('rate', rate.toFixed(0), rate >= 40 ? 'good' : rate >= 25 ? 'warn' : 'bad')
+          show('interval', `${avg.toFixed(1)} ms`)
+          show('jitter', `${jitter.toFixed(1)} ms`, classify(jitter, 10, 20))
+          show('maxGap', `${maxGap.toFixed(0)} ms`, classify(maxGap, 60, STALL_MS))
+        } else {
+          ;['rate', 'interval', 'jitter', 'maxGap'].forEach((id) => show(id, '—'))
+        }
+
+        if (rtts.length) {
+          const avgRtt = mean(rtts.map((r) => r.ms))
+          const maxRtt = Math.max(...rtts.map((r) => r.ms))
+          show('rtt', `${avgRtt.toFixed(0)} ms (máx ${maxRtt.toFixed(0)})`)
+          show('latency', `≈ ${(avgRtt / 2).toFixed(0)} ms`, classify(avgRtt / 2, 40, 70))
+        } else {
+          show('rtt', '—')
+          show('latency', '—')
+        }
+
+        show('lost', totals.lost, totals.lost ? 'warn' : 'good')
+        show('stalls', totals.stalls, totals.stalls ? 'bad' : 'good')
+        show('disconnects', totals.disconnects, totals.disconnects ? 'bad' : 'good')
+      }
+
+      $('connect').addEventListener('click', async () => {
+        try {
+          await board.connect()
+        } catch (err) {
+          onStatus('disconnected', `Error al conectar: ${err.message}`)
+        }
+      })
+
+      $('disconnect').addEventListener('click', () => board.disconnect())
+
+      $('reset').addEventListener('click', () => {
+        resetStats()
+        log('Medidas reiniciadas')
+      })
+
+      if (!isBluetoothAvailable()) {
+        $('unsupported').hidden = false
+        $('connect').disabled = true
+      }
+
+      setInterval(render, 250)
+    </script>
+  </body>
+</html>

@@ -54,6 +54,15 @@ export default [
       },
     },
   },
+  {
+    // Herramientas web del prototipo de la tabla de equilibrio (Web Bluetooth)
+    files: ['hardware/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'module',
+      globals: { ...globals.browser },
+    },
+  },
   prettierConfig,
   {
     ignores: [
