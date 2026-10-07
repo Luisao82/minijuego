@@ -10,6 +10,7 @@ export class BalanceBar {
   constructor(equilibrioStat) {
     this.velocity = 0
     this.driftAcceleration = 0
+    this.extraAcceleration = 0
     this.inputDirection = 0
     this.equilibrioStat = equilibrioStat
 
@@ -31,6 +32,12 @@ export class BalanceBar {
 
   setDriftAcceleration(accel) {
     this.driftAcceleration = accel
+  }
+
+  // Fuerzas adicionales (vaivén, gravedad de péndulo) de los modos analógicos.
+  // 0 en el modo botones: la física queda exactamente como siempre.
+  setExtraAcceleration(accel) {
+    this.extraAcceleration = accel
   }
 
   setInputDirection(dir) {
@@ -59,6 +66,9 @@ export class BalanceBar {
 
     // 2. Contrafuerza del jugador (acumula velocity mientras se mantiene pulsado)
     this.velocity += this.inputDirection * BALANCE.INPUT_FORCE * dt
+
+    // 2b. Inestabilidad extra de los modos analógicos (0 en modo botones)
+    this.velocity += this.extraAcceleration * dt
 
     // 3. Amortiguamiento: frena la velocity de forma natural al soltar el botón
     this.velocity *= 1 - BALANCE.DAMPING * dt

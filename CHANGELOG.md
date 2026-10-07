@@ -20,6 +20,15 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   - Conexión Web Bluetooth y estilos extraídos a `shared/` (compartidos por diagnóstico y simulador).
   - ESLint: bloque para `hardware/**/*.js` con globals de navegador.
 
+- **Modos de control del equilibrio (solo build de laboratorio).** Además de los botones, el equilibrio se puede jugar **girando el móvil** como un volante o con la **tabla de equilibrio** por Bluetooth. La inclinación es una fuerza dosificada, no la posición del cursor: quedarse recto no mantiene el equilibrio.
+  - `config/controlConfig.js`: modos, respuesta analógica (`ANALOG`), inestabilidad extra (`INSTABILITY`, a 0 = física de siempre) y bandera `LAB_ENABLED`.
+  - `systems/AnalogBalanceSystem.js`: inclinación → fuerza (zona muerta + curva) y fuerzas de vaivén y gravedad de péndulo, amplificadas por la grasa. Lógica pura con tests.
+  - `input/`: `ControlInput` (punto único de entrada del equilibrio), `DeviceTiltSource` (sensor del móvil, con permiso de iOS), `BoardTiltSource` y `boardConnection` (tabla por Web Bluetooth; el microrruptor equivale a tocar la pantalla).
+  - `services/ControlSettingsService.js`: modo y calibración persistidos en el dispositivo; fuera del laboratorio siempre botones y valores de config.
+  - `BalanceBar`/`BalanceSystem` aceptan una aceleración extra (0 por defecto, sin cambios en el modo botones). `BalanceUI` sustituye los botones por un indicador de fuerza en los modos analógicos.
+  - `lab/LabPanel.js`: panel LAB (HTML, herramienta interna) para calibrar en vivo y exportar los valores. Vite define `__LAB__` (`VITE_LAB=true` en las vistas previas, activo en desarrollo); en producción el panel no se empaqueta.
+  - El simulador de `hardware/` usa ahora los módulos del juego (se elimina su copia `analogModel.js`).
+
 ### Fixed
 
 - Diagnóstico de la tabla: el arranque de la conexión ya no cuenta como un corte de más de 200 ms.

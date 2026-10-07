@@ -38,6 +38,13 @@ async function bootstrap() {
     // ignoramos: arrancar con fallback es mejor que no arrancar
   }
   StartGame('game-container')
+
+  // Build de laboratorio: panel de calibración de los modos de control.
+  // En producción __LAB__ es false: Vite elimina este bloque y el módulo no se empaqueta.
+  if (__LAB__) {
+    const { mountLabPanel } = await import('./game/lab/LabPanel')
+    mountLabPanel()
+  }
 }
 
 if (document.readyState === 'loading') {

@@ -2,6 +2,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   base: './',
+  // Build de laboratorio (panel LAB + modos analógicos). En desarrollo, activo
+  // salvo VITE_LAB=false.
+  define: {
+    __LAB__: JSON.stringify(process.env.VITE_LAB !== 'false'),
+  },
   build: {
     rollupOptions: {
       output: {

@@ -18,6 +18,7 @@ import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
 import { showExitConfirmModal } from '../components/ExitConfirmModal'
 import { createGameOverPanel } from '../components/GameOverPanel'
 import { weightedRandom } from '../utils/math'
+import { controlInput } from '../input/ControlInput'
 
 // Flujo compartido de la partida, común a todas las vistas (2D y 3D):
 // fases (impulso → carrera/equilibrio → salto/caída → resultado), input,
@@ -173,8 +174,11 @@ export class BaseGameScene extends BaseScene {
     const equilibrio = this.characterData?.stats?.equilibrio || 5
     this.balanceBar = new BalanceBar(equilibrio)
     this.balanceSystem = new BalanceSystem(this.balanceBar)
-    this.balanceUI = new BalanceUI(this, this.balanceBar, this.balanceSystem)
+    this.balanceUI = new BalanceUI(this, this.balanceBar, this.balanceSystem, {
+      analog: controlInput.isAnalog(),
+    })
     this.balanceUI.create()
+    controlInput.beginBalance()
   }
 
   updateRunning(dt) {
@@ -185,7 +189,11 @@ export class BaseGameScene extends BaseScene {
 
     if (this.balanceBar) {
       const greaseRatio = this.oilSystem.getGreaseRatio(progressRatio)
-      this.balanceSystem.update(dt, this.balanceUI?.getInputDirection() ?? 0, greaseRatio)
+      // Botones o inclinación (móvil / tabla): ControlInput decide según el modo
+      const input = controlInput.balanceInput(this.balanceUI?.getInputDirection() ?? 0)
+      const extra = controlInput.extraAcceleration(dt, this.balanceBar.position, greaseRatio)
+      this.balanceSystem.update(dt, input, greaseRatio, extra)
+      this.balanceUI?.setAnalogInput(input)
       // BalanceUI recibe el multiplicador final para la visualización
       // (no necesita conocer la mecánica interna del growth factor).
       this.balanceUI?.update(this.oilSystem.getDriftMultiplier(progressRatio))
@@ -391,6 +399,10 @@ export class BaseGameScene extends BaseScene {
     })
     this.input.keyboard.on('keyup-LEFT', () => this.balanceUI?.releaseLeft())
     this.input.keyboard.on('keyup-RIGHT', () => this.balanceUI?.releaseRight())
+
+    // El microrruptor de la tabla equivale a tocar la pantalla
+    this._boardTapHandler = () => this.handleTap(null)
+    controlInput.setTapHandler(this._boardTapHandler)
   }
 
   handleTap(pointer) {
@@ -537,5 +549,6 @@ export class BaseGameScene extends BaseScene {
   _onShutdown() {
     this.powerBarUI?.destroy()
     this.balanceUI?.destroy()
+    controlInput.clearTapHandler(this._boardTapHandler)
   }
 }

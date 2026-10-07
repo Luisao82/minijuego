@@ -1,5 +1,5 @@
 // Conexión Web Bluetooth con la tabla de equilibrio (ESP32).
-// Compartido entre la página de diagnóstico y el simulador.
+// La usan el juego (modo tabla) y las páginas de hardware/tabla-equilibrio/.
 // El protocolo debe coincidir con firmware/p3_ble_simulado y p4_giroscopio.
 
 export const SERVICE_UUID = '6b1d0001-4c75-4361-9b2a-0a5ec0cafe01'

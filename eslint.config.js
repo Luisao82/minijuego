@@ -12,6 +12,7 @@ export default [
       globals: {
         ...globals.browser,
         Phaser: 'readonly',
+        __LAB__: 'readonly', // definido por Vite (build de laboratorio)
       },
     },
     rules: {

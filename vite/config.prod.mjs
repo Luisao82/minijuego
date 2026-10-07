@@ -18,6 +18,12 @@ const phasermsg = () => {
 
 export default defineConfig({
   base: './',
+  // Build de laboratorio (panel LAB + modos analógicos): solo con VITE_LAB=true,
+  // que se define únicamente para las vistas previas de Vercel. En producción es
+  // false y el código del laboratorio se elimina del bundle.
+  define: {
+    __LAB__: JSON.stringify(process.env.VITE_LAB === 'true'),
+  },
   logLevel: 'warn',
   build: {
     sourcemap: 'hidden',

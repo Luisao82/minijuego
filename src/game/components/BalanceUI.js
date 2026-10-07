@@ -4,9 +4,13 @@ import { BalanceDebugPanel } from './BalanceDebugPanel'
 // Componente UI de la Fase 2 — Barra de equilibrio y botones táctiles
 // Gestiona su propio ciclo de vida: create → update → destroy
 // Encapsula el estado de input direccional (izquierda / derecha).
+// En los modos analógicos (móvil / tabla) no hay botones: un indicador bajo
+// la barra muestra la fuerza que aplica el jugador al inclinarse.
+
+const INDICATOR = { WIDTH: 200, HEIGHT: 8, GAP: 18 }
 
 export class BalanceUI {
-  constructor(scene, balanceBar, balanceSystem) {
+  constructor(scene, balanceBar, balanceSystem, { analog = false } = {}) {
     this._scene = scene
     this._balanceBar = balanceBar
     this._balanceSystem = balanceSystem
@@ -17,6 +21,9 @@ export class BalanceUI {
     this._btnRight = null
     this._debugPanel = null
     this._inputDir = 0
+    this._analog = analog
+    this._indicator = null
+    this._analogInput = 0
   }
 
   create() {
@@ -51,7 +58,12 @@ export class BalanceUI {
     this._cursor = this._scene.add.graphics()
     this._elements.push(this._cursor)
 
-    this._createButtons()
+    if (this._analog) {
+      this._indicator = this._scene.add.graphics()
+      this._elements.push(this._indicator)
+    } else {
+      this._createButtons()
+    }
 
     if (DEBUG.BALANCE_PANEL) {
       this._debugPanel = new BalanceDebugPanel(this._scene)
@@ -60,12 +72,18 @@ export class BalanceUI {
 
   update(oilMult = 0) {
     this._updateCursor()
+    this._updateIndicator()
     this._updateTimer()
     this._debugPanel?.update(this._balanceBar, this._balanceSystem, oilMult, this._inputDir)
   }
 
   getInputDirection() {
     return this._inputDir
+  }
+
+  // Fuerza aplicada este frame (-1..1), para el indicador de los modos analógicos
+  setAnalogInput(value) {
+    this._analogInput = value
   }
 
   pressLeft() {
@@ -103,6 +121,7 @@ export class BalanceUI {
     this._timerText = null
     this._btnLeft = null
     this._btnRight = null
+    this._indicator = null
     this._inputDir = 0
     this._debugPanel?.destroy()
     this._debugPanel = null
@@ -155,6 +174,32 @@ export class BalanceUI {
       cursorX + 6,
       barY + HEIGHT + 4
     )
+  }
+
+  // Barra fina bajo la de equilibrio que se llena desde el centro hacia el lado
+  // en que empuja el jugador, proporcional a su inclinación
+  _updateIndicator() {
+    if (!this._indicator) return
+
+    const { HEIGHT } = BALANCE.BAR
+    const x = GAME_WIDTH / 2 - INDICATOR.WIDTH / 2
+    const y = CONTROL_PANEL.CENTER_Y + HEIGHT / 2 + INDICATOR.GAP
+    const fill = Math.round(this._analogInput * (INDICATOR.WIDTH / 2))
+
+    this._indicator.clear()
+    this._indicator.fillStyle(COLORS.BLACK, 1)
+    this._indicator.fillRect(x - 2, y - 2, INDICATOR.WIDTH + 4, INDICATOR.HEIGHT + 4)
+    this._indicator.fillStyle(0x1a1a2e, 1)
+    this._indicator.fillRect(x, y, INDICATOR.WIDTH, INDICATOR.HEIGHT)
+    this._indicator.fillStyle(COLORS.GOLD, 1)
+    this._indicator.fillRect(
+      GAME_WIDTH / 2 + Math.min(0, fill),
+      y,
+      Math.abs(fill),
+      INDICATOR.HEIGHT
+    )
+    this._indicator.fillStyle(COLORS.WHITE, 1)
+    this._indicator.fillRect(GAME_WIDTH / 2 - 1, y - 2, 2, INDICATOR.HEIGHT + 4)
   }
 
   _updateTimer() {

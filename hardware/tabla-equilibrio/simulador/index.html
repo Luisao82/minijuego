@@ -135,8 +135,10 @@
     </main>
 
     <script type="module">
-      import { BoardConnection, isBluetoothAvailable } from '../shared/boardConnection.js'
-      import { mapTiltToInput, InstabilityModel } from './analogModel.js'
+      import {
+        BoardConnection,
+        isBluetoothAvailable,
+      } from '../../../src/game/input/boardConnection.js'
 
       const $ = (id) => document.getElementById(id)
       const num = (id) => Number($(id).value)
@@ -144,12 +146,12 @@
       let game
       try {
         // Física real del juego: requiere el servidor de Vite (resuelve los imports sin extensión)
-        const [{ BalanceBar }, { BalanceSystem }, config] = await Promise.all([
+        const [{ BalanceBar }, { BalanceSystem }, analog] = await Promise.all([
           import('/src/game/entities/BalanceBar.js'),
           import('/src/game/systems/BalanceSystem.js'),
-          import('/src/game/config/gameConfig.js'),
+          import('/src/game/systems/AnalogBalanceSystem.js'),
         ])
-        game = { BalanceBar, BalanceSystem, BALANCE: config.BALANCE, OIL: config.OIL }
+        game = { BalanceBar, BalanceSystem, ...analog }
       } catch {
         $('needsVite').hidden = false
         $('start').disabled = true
@@ -174,14 +176,19 @@
 
       const source = () => document.querySelector('input[name=source]:checked').value
 
+      // Mismos parámetros que el panel LAB del juego (AnalogBalanceSystem)
+      const tuning = () => ({
+        deadZoneDeg: num('deadZone'),
+        maxTiltDeg: num('maxTilt'),
+        curve: num('curve'),
+        invert: $('invert').checked,
+        sway: $('swayOn').checked ? num('sway') : 0,
+        gravity: $('gravityOn').checked ? num('gravity') : 0,
+      })
+
       const currentInput = () => {
-        if (source() === 'keys') return keys.dir
-        const tilt = (rawTilt - centerOffset) * ($('invert').checked ? -1 : 1)
-        return mapTiltToInput(tilt, {
-          deadZoneDeg: num('deadZone'),
-          maxTiltDeg: num('maxTilt'),
-          curve: num('curve'),
-        })
+        if (source() === 'keys' || !game) return keys.dir
+        return game.mapTiltToInput(rawTilt - centerOffset, tuning())
       }
 
       const board = new BoardConnection({
@@ -228,7 +235,7 @@
 
       // ---------- Partida ----------
       let state = 'idle'
-      let bar, system, instability
+      let bar, system, analog
       let elapsed = 0
       let crosses = 0
       let lastFrame = 0
@@ -258,7 +265,7 @@
         if (source() === 'board' && $('calibrateOnStart').checked) centerOffset = rawTilt
         bar = new game.BalanceBar(num('stat'))
         system = new game.BalanceSystem(bar)
-        instability = new InstabilityModel()
+        analog = new game.AnalogBalanceSystem(tuning())
         elapsed = 0
         crosses = 0
         lastFrame = performance.now()
@@ -289,17 +296,11 @@
         elapsed += dt
 
         const greaseRatio = num('grease') / 100
-        const amplify = 1 + Math.pow(greaseRatio, game.OIL.CURVE_POWER) * game.OIL.DRIFT_MULTIPLIER
-        const extraAccel = instability.update(dt, bar.position, {
-          swayStrength: $('swayOn').checked ? num('sway') : 0,
-          gravityStrength: $('gravityOn').checked ? num('gravity') : 0,
-          amplify,
-        })
+        analog.tuning = tuning()
+        const extraAccel = analog.extraAcceleration(dt, bar.position, greaseRatio)
 
-        // BalanceBar suma inputDirection × INPUT_FORCE a la velocidad: la fuerza extra se
-        // inyecta por el mismo canal para no tocar el código del juego
         const prevSign = Math.sign(bar.position)
-        system.update(dt, input + extraAccel / game.BALANCE.INPUT_FORCE, greaseRatio)
+        system.update(dt, input, greaseRatio, extraAccel)
         if (prevSign !== 0 && Math.sign(bar.position) !== 0 && prevSign !== Math.sign(bar.position))
           crosses++
 

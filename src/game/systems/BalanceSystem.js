@@ -37,7 +37,10 @@ export class BalanceSystem {
   //   limpio el sistema vuelve al comportamiento base. La curva (OIL.CURVE_POWER)
   //   hace que el tramo 100%-70% castigue mucho y el tramo 30%-0% se sienta
   //   casi limpio — recompensa progresiva al gastar el palo zona a zona.
-  update(dt, inputDirection, greaseRatio = 0) {
+  //
+  // extraAcceleration: fuerzas de los modos analógicos (AnalogBalanceSystem).
+  //   0 por defecto → física idéntica a la del modo botones.
+  update(dt, inputDirection, greaseRatio = 0, extraAcceleration = 0) {
     if (this.bar.failed) return
 
     this.elapsed += dt
@@ -65,6 +68,7 @@ export class BalanceSystem {
     const driftAccel = this.driftDirection * this.driftForce * driftFactor
 
     this.bar.setDriftAcceleration(driftAccel)
+    this.bar.setExtraAcceleration(extraAcceleration)
     this.bar.setInputDirection(inputDirection)
     this.bar.update(dt)
   }

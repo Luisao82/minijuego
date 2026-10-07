@@ -18,11 +18,13 @@ hardware/tabla-equilibrio/
 ├── diagnostico/
 │   └── index.html         # Página que mide la calidad del Bluetooth
 ├── simulador/
-│   ├── index.html         # Barra de equilibrio con la física real del juego
-│   └── analogModel.js     # Respuesta analógica + inestabilidad extra (lógica pura)
+│   └── index.html         # Barra de equilibrio con la física real del juego
 └── shared/
-    ├── boardConnection.js # Conexión Web Bluetooth (compartida)
     └── tabla.css          # Estilos compartidos
+
+Módulos del juego que usan estas páginas:
+  src/game/input/boardConnection.js        # Conexión Web Bluetooth con la tabla
+  src/game/systems/AnalogBalanceSystem.js  # Respuesta analógica + inestabilidad extra
 ```
 
 ## Material
@@ -187,7 +189,7 @@ El ESP32-S3 es tan ancho que en la protoboard de 830 puntos solo deja libre **un
 
 ## Paso 8 — Simulador de equilibrio
 
-Prueba la sensación de jugar con la tabla **antes de tocar el juego**. Usa la física real (`BalanceBar` + `BalanceSystem` importados de `src/game`), así que necesita el servidor de Vite:
+Prueba la sensación de jugar con la tabla **antes de tocar el juego**. Usa la física real (`BalanceBar`, `BalanceSystem` y `AnalogBalanceSystem` importados de `src/game`), así que necesita el servidor de Vite:
 
 ```
 npm run dev
@@ -204,6 +206,24 @@ y abrir en Chrome: `http://localhost:9876/hardware/tabla-equilibrio/simulador/`
   - Ambas se amplifican con la grasa igual que el drift.
 - **Palo y personaje:** stat de equilibrio (mueve los límites rojos), grasa y duración hasta la bandera.
 - El **historial** guarda cada intento con su configuración para comparar.
+
+## Paso 9 — Laboratorio dentro del juego
+
+El juego tiene tres modos de control para el equilibrio (`src/game/config/controlConfig.js`):
+
+| Modo                    | Equilibrio              | Impulso / salto        |
+| ----------------------- | ----------------------- | ---------------------- |
+| Botones (el de siempre) | Mantener ◀ ▶            | Tocar la pantalla      |
+| Girar el móvil          | Girarlo como un volante | Tocar la pantalla      |
+| Tabla (Bluetooth)       | Inclinar la tabla       | Microrruptor delantero |
+
+En la **build de laboratorio** aparece un botón **LAB** arriba en el centro con el panel de calibración: modo de control, activar el sensor del móvil, conectar la tabla, lectura en vivo, zona muerta, inclinación máxima, curva, invertir, vaivén y gravedad. Los cambios se guardan en el dispositivo y se aplican al momento. **Exportar** copia el bloque listo para pegar en `controlConfig.js`.
+
+- **Desarrollo** (`npm run dev`): laboratorio activo por defecto (`VITE_LAB=false` para desactivarlo).
+- **Vista previa de Vercel**: activo si el entorno _Preview_ tiene la variable `VITE_LAB=true`. Proteger las vistas previas con _Deployment Protection → Vercel Authentication_ para que solo entre el dueño.
+- **Producción y apps de las tiendas**: `__LAB__` vale `false` al compilar y el panel se elimina del bundle. El modo es siempre "botones".
+
+Limitaciones: el sensor del móvil necesita HTTPS (Vercel lo es) y en iPhone pide permiso con un toque; la tabla por Bluetooth web solo funciona en Chrome (Android, Mac, Windows), **no en iPhone**.
 
 ---
 
@@ -232,5 +252,6 @@ Se envía siempre el **estado completo**: si un paquete llega tarde, el siguient
 
 1. ~~Soldar el MPU6050 y leer la inclinación real~~ → `p4_giroscopio`.
 2. ~~Soldar el microrruptor~~ (hecho; falta montarlo con el tope de goma en la tabla).
-3. Ajustar la sensación con el simulador y cerrar el diseño de los modos de control (botones / giroscopio del móvil / tabla).
-4. Integrar el "modo tabla" en el juego como entrada opcional (táctil / tabla).
+3. ~~Integrar los modos de control en el juego~~ → laboratorio (paso 9), solo en builds de laboratorio.
+4. Calibrar en el laboratorio y fijar los valores en `controlConfig.js`.
+5. Decidir la parte pública: selector de modo, récords, tutorial y plugin Bluetooth nativo para la app.
