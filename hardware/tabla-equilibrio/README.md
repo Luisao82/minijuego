@@ -29,13 +29,62 @@ Módulos del juego que usan estas páginas:
 
 ## Material
 
-| Pieza                                      | Estado                        |
-| ------------------------------------------ | ----------------------------- |
-| Freenove ESP32-S3 WROOM (8 MB)             | ✅ Funcionando                |
-| MPU6050 (GY-521)                           | ✅ Pines soldados             |
-| Microrruptores de palanca con rodillo      | ✅ Cables soldados (COM + NO) |
-| Protoboards + cables macho-macho (GTIWUNG) | ✅                            |
-| Soldador + estaño                          | ✅                            |
+Leyenda: ✅ lo tengo · 🚚 pedido · 🛒 por comprar · ⏳ más adelante
+
+### Electrónica
+
+| Estado | Cant.     | Pieza                                                                                  | Notas                                                                    |
+| ------ | --------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| ✅     | 1         | Freenove ESP32-S3 WROOM (8 MB)                                                         | Funcionando. Su USB-C sirve para corriente y para programar              |
+| ✅     | 1         | MPU6050 (GY-521 / HW-123)                                                              | Pines soldados y repasados                                               |
+| ✅     | 1 (de 10) | Microrruptor de palanca con rodillo                                                    | Cables soldados en COM + NO                                              |
+| ✅     | 1         | Powerbank                                                                              | Alimentación; se apaga desde ella o desenchufando                        |
+| ✅     | 1         | Cable USB-A → USB-C                                                                    | El que trae la Freenove                                                  |
+| 🚚     | 1 kit     | VooGenzek: placas perforadas + zócalos hembra/macho + bornes de tornillo + separadores | Placa 50×70 para el ESP32, 20×80 para el MPU6050                         |
+| 🛒     | 1         | LED de 5 mm                                                                            | Estado del Bluetooth                                                     |
+| 🛒     | 1         | Resistencia de 220 Ω                                                                   | Vale cualquiera entre 150 y 330 Ω                                        |
+| 🛒     | 1         | Portaled de panel de 5 mm                                                              | Para la tapa                                                             |
+| 🛒     | 1         | Pulsador de panel de 12 mm, momentáneo, NA                                             | Botón de calibrar                                                        |
+| 🛒     | 1         | Jack hembra 3,5 mm de panel (PJ-392 / PJ-391A)                                         | Entrada del microrruptor en la caja                                      |
+| 🛒     | 1         | Jack macho 3,5 mm (de tornillo o de soldar)                                            | Para el cable del microrruptor                                           |
+| 🛒     | ~1 m      | Cable fino de 2 hilos                                                                  | Del microrruptor al jack (o un cable jack ya hecho, cortando un extremo) |
+| 🛒     | un poco   | Termorretráctil o cinta aislante                                                       | Aislar soldaduras del jack y del microrruptor                            |
+
+### Caja (impresión 3D en resina)
+
+| Estado | Cant. | Pieza                                                            | Notas                                                                                         |
+| ------ | ----- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| ✅     | —     | Impresora Anycubic Photon Mono 4 Ultra + resina Anycubic Texture | La primera prueba de encaje con esta resina; la definitiva, mejor con resina tough / tipo ABS |
+| 🛒     | 4 + 4 | Tornillos M3 × 10 mm + tuercas                                   | Cerrar la tapa (cantidad a confirmar con el diseño)                                           |
+| 🛒     | 4     | Tornillos para madera                                            | Atornillar la caja a la tabla                                                                 |
+| 🛒     | 1–2   | Bridas                                                           | Anclar el cable USB para que los tirones no lleguen al conector                               |
+
+### Herramientas y prototipo
+
+| Estado | Pieza                                             |
+| ------ | ------------------------------------------------- |
+| ✅     | Soldador + estaño                                 |
+| ✅     | Protoboards + cables dupont macho-macho (GTIWUNG) |
+
+### Tabla (más adelante)
+
+| Estado | Pieza                                                          | Notas                                           |
+| ------ | -------------------------------------------------------------- | ----------------------------------------------- |
+| ⏳     | Wobble board para 120–150 kg (o tablero de 18 mm + semiesfera) | Base que bascula en los dos ejes                |
+| ⏳     | Tacos de goma maciza (4–6)                                     | Topes que cargan el peso: delante y a los lados |
+| ⏳     | Cinta antideslizante (grip)                                    | Superficie de la tabla                          |
+| ⏳     | Grapas o bridas adhesivas                                      | Sujetar el cable del microrruptor bajo la tabla |
+
+Descartado: módulo USB-C de panel e interruptor de encendido (se usa el USB-C de la propia placa y se apaga desde la powerbank).
+
+Las pruebas 1, 2 y 3 **no necesitan soldar**.
+
+------------------------------------------ | ----------------------------- |
+| Freenove ESP32-S3 WROOM (8 MB) | ✅ Funcionando |
+| MPU6050 (GY-521) | ✅ Pines soldados |
+| Microrruptores de palanca con rodillo | ✅ Cables soldados (COM + NO) |
+| Protoboards + cables macho-macho (GTIWUNG) | ✅ |
+| Soldador + estaño | ✅ |
 
 Las pruebas 1, 2 y 3 **no necesitan soldar**.
 
