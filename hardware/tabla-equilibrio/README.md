@@ -14,7 +14,8 @@ hardware/tabla-equilibrio/
 │   ├── p1_blink/          # Prueba 1: placa + IDE funcionando
 │   ├── p2_boton/          # Prueba 2: botón simulado con un cable
 │   ├── p3_ble_simulado/   # Prueba 3: Bluetooth con inclinación falsa
-│   └── p4_giroscopio/     # Prueba 4: MPU6050 real + botón + Bluetooth
+│   ├── p4_giroscopio/     # Prueba 4: MPU6050 real + botón + Bluetooth
+│   └── p5_tabla/          # Firmware de la placa soldada: LED de estado, botón CAL, calibración guardada
 ├── diagnostico/
 │   └── index.html         # Página que mide la calidad del Bluetooth
 ├── simulador/
@@ -41,13 +42,13 @@ Leyenda: ✅ lo tengo · 🚚 pedido · 🛒 por comprar · ⏳ más adelante
 | ✅     | 1         | Powerbank                                                                              | Alimentación; se apaga desde ella o desenchufando                        |
 | ✅     | 1         | Cable USB-A → USB-C                                                                    | El que trae la Freenove                                                  |
 | 🚚     | 1 kit     | VooGenzek: placas perforadas + zócalos hembra/macho + bornes de tornillo + separadores | Placa 50×70 para el ESP32, 20×80 para el MPU6050                         |
-| 🛒     | 1         | LED de 5 mm                                                                            | Estado del Bluetooth                                                     |
-| 🛒     | 1         | Resistencia de 220 Ω                                                                   | Vale cualquiera entre 150 y 330 Ω                                        |
-| 🛒     | 1         | Portaled de panel de 5 mm                                                              | Para la tapa                                                             |
-| 🛒     | 1         | Pulsador de panel de 12 mm, momentáneo, NA                                             | Botón de calibrar                                                        |
-| 🛒     | 1         | Jack hembra 3,5 mm de panel (PJ-392 / PJ-391A)                                         | Entrada del microrruptor en la caja                                      |
-| 🛒     | 1         | Jack macho 3,5 mm (de tornillo o de soldar)                                            | Para el cable del microrruptor                                           |
-| 🛒     | ~1 m      | Cable fino de 2 hilos                                                                  | Del microrruptor al jack (o un cable jack ya hecho, cortando un extremo) |
+| ✅     | 1         | LED de 5 mm                                                                            | Estado del Bluetooth                                                     |
+| ✅     | 1         | Resistencia de 220 Ω                                                                   | Vale cualquiera entre 150 y 330 Ω                                        |
+| ✅     | 1         | Portaled de panel de 5 mm                                                              | Para la tapa                                                             |
+| ✅     | 1         | Pulsador de panel de 12 mm, momentáneo, NA                                             | Botón de calibrar                                                        |
+| ✅     | 1         | Jack hembra 3,5 mm de panel (PJ-392 / PJ-391A)                                         | Entrada del microrruptor en la caja                                      |
+| ✅     | 1         | Jack macho 3,5 mm (de tornillo o de soldar)                                            | Para el cable del microrruptor                                           |
+| ✅     | ~1 m      | Cable fino de 2 hilos                                                                  | Del microrruptor al jack (o un cable jack ya hecho, cortando un extremo) |
 | 🛒     | un poco   | Termorretráctil o cinta aislante                                                       | Aislar soldaduras del jack y del microrruptor                            |
 
 ### Caja (impresión 3D en resina)
@@ -273,6 +274,35 @@ En la **build de laboratorio** aparece un botón **LAB** arriba en el centro con
 - **Producción y apps de las tiendas**: `__LAB__` vale `false` al compilar y el panel se elimina del bundle. El modo es siempre "botones".
 
 Limitaciones: el sensor del móvil necesita HTTPS (Vercel lo es) y en iPhone pide permiso con un toque; la tabla por Bluetooth web solo funciona en Chrome (Android, Mac, Windows), **no en iPhone**.
+
+---
+
+## Paso 10 — Placa soldada y firmware definitivo
+
+Placa perforada de 50×70 (cara de los números arriba; columnas A–R, filas 1–24; la tira de pads de la fila 1 se corta para que el USB-C quede a ras del borde):
+
+| Pieza                           | Posición                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------- |
+| Zócalos del ESP32               | Columnas D y N, filas 1–20 (GND en D1, 3V3 en N20, USB-C hacia la fila 1) |
+| MPU6050 (soldado bajo el ESP32) | Fila 13, E–L: VCC E13 · GND F13 · SCL G13 · SDA H13                       |
+| Borne CAL                       | Q9 (señal) · Q11 (GND)                                                    |
+| Borne LED                       | Q13 (señal) · Q15 (GND) — la resistencia de 220 Ω va en la pata del LED   |
+| Borne MICRO                     | Q17 (señal) · Q19 (GND)                                                   |
+| Libre (antena del ESP32)        | Filas 21–23 entre D y N                                                   |
+
+Cables por la cara de abajo: N20→E13 (3V3), N7→G13 (SCL), N10→H13 (SDA), N16→Q9 (GPIO 6), N17→Q13 (GPIO 5), N18→Q17 (GPIO 4). Bus de GND en U: D1 → columna B → tira de pads inferior → columna R hasta la fila 11; puentes Q11–R11, Q15–R15, Q19–R19 y cable F13 → B15.
+
+Firmware: `firmware/p5_tabla/p5_tabla.ino`.
+
+| LED             | Estado                       |
+| --------------- | ---------------------------- |
+| Parpadeo lento  | Esperando conexión Bluetooth |
+| Fijo            | Conectada al juego           |
+| Parpadeo rápido | Calibrando                   |
+| Doble parpadeo  | Error del sensor             |
+
+- La calibración se **guarda en memoria**: solo calibra sola la primera vez. Para recalibrar: tabla plana y quieta, y pulsar **CAL** (o BOOT, o `c` en el Monitor Serie).
+- Sin ordenador conectado no envía mensajes por el puerto serie.
 
 ---
 
