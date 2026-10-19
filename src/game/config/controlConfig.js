@@ -4,9 +4,9 @@
 // DEVICE_TILT → girar el móvil como un volante (giroscopio del dispositivo)
 // BOARD       → tabla de equilibrio física (ESP32 + MPU6050 por Bluetooth)
 //
-// Los modos analógicos convierten grados de inclinación en inputDirection
-// (-1..1) con ANALOG y añaden la inestabilidad de INSTABILITY. Los valores se
-// calibran con el panel LAB (solo en builds de laboratorio) y se fijan aquí.
+// El modo botones usa la física de siempre (BALANCE en gameConfig.js) y no
+// lee nada de este archivo. Cada modo analógico tiene su propia calibración
+// (TUNING_DEFAULTS), que se ajusta con el panel LAB y se fija aquí.
 
 export const CONTROL_MODES = {
   BUTTONS: 'buttons',
@@ -14,18 +14,67 @@ export const CONTROL_MODES = {
   BOARD: 'board',
 }
 
-export const ANALOG = {
-  DEAD_ZONE_DEG: 1, // Por debajo de esta inclinación no hay fuerza (temblor de la mano/cuerpo)
-  MAX_TILT_DEG: 13, // Inclinación que equivale a mantener pulsado el botón (fuerza completa)
-  CURVE: 1.5, // Curva de respuesta: 1 = lineal, >1 = más precisión en correcciones finas
-  INVERT: false, // Invierte el sentido si la tabla o el móvil van al revés
+// Cómo actúa la inclinación sobre el cursor:
+//   FORCE    → acelera el cursor, igual que el botón (física de BalanceSystem).
+//              Con inercia: muy exigente si se controla con todo el cuerpo.
+//   VELOCITY → mueve el cursor a una velocidad proporcional a la inclinación,
+//              sin inercia acumulada. Un drift que cambia de sentido con el
+//              tiempo obliga a corregir siempre (VelocityBalanceSystem).
+export const CONTROL_MODELS = {
+  FORCE: 'force',
+  VELOCITY: 'velocity',
 }
 
-// Fuerzas extra para que la barra nunca esté quieta en los modos analógicos.
-// Ambas se amplifican con la grasa igual que el drift. 0 = física del juego tal cual.
-export const INSTABILITY = {
-  SWAY: 0, // Vaivén del palo: perturbación suave y continua (u/s²)
-  GRAVITY: 0, // Péndulo invertido: cuanto más lejos del centro, más tira hacia fuera (u/s² por unidad)
+// Campos de la calibración:
+//   model                     → CONTROL_MODELS
+//   deadZoneDeg, maxTiltDeg   → inclinación sin efecto / inclinación de fuerza completa
+//   curve, invert             → curva de respuesta (1 = lineal) / invertir sentido
+//   limitScale                → multiplica el margen entre límites rojos (1 = el del personaje)
+//   gravity                   → empuje hacia fuera proporcional a la distancia al centro
+//   Solo FORCE:    sway (vaivén), driftScale, growthScale (crecimiento por cruce), dampingExtra
+//   Solo VELOCITY: speed (u/s a fuerza completa), driftSpeed (u/s), driftChange
+//                  (rapidez con que el drift cambia de sentido), driftGrowth (aumento por segundo)
+const COMMON_TUNING = {
+  sway: 0,
+  driftScale: 1,
+  growthScale: 1,
+  dampingExtra: 0,
+  speed: 1.2,
+  driftSpeed: 0.35,
+  driftChange: 1,
+  driftGrowth: 0.03,
+}
+
+export const TUNING_DEFAULTS = {
+  [CONTROL_MODES.DEVICE_TILT]: {
+    ...COMMON_TUNING,
+    model: CONTROL_MODELS.FORCE,
+    deadZoneDeg: 1,
+    maxTiltDeg: 13,
+    curve: 1.5,
+    invert: false,
+    limitScale: 1,
+    gravity: 0,
+  },
+  // Pensada para gente que prueba una o dos veces: poca inclinación, sin
+  // inercia, drift suave y algo más de margen
+  [CONTROL_MODES.BOARD]: {
+    ...COMMON_TUNING,
+    model: CONTROL_MODELS.VELOCITY,
+    deadZoneDeg: 1,
+    maxTiltDeg: 8,
+    curve: 1.2,
+    invert: false,
+    limitScale: 1.2,
+    gravity: 0.3,
+    driftScale: 0.6,
+    growthScale: 0.4,
+    dampingExtra: 1,
+    speed: 1,
+    driftSpeed: 0.3,
+    driftChange: 0.8,
+    driftGrowth: 0.02,
+  },
 }
 
 // Lecturas del giroscopio del móvil

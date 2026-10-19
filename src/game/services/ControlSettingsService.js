@@ -2,27 +2,21 @@
 //
 // Fuera del laboratorio (labEnabled = false) el modo es siempre BUTTONS y la
 // calibración la de config/controlConfig.js: el juego publicado no cambia.
-// En el laboratorio, el modo y los ajustes se guardan en localStorage para
-// poder calibrar entre partida y partida.
+// En el laboratorio, el modo y la calibración de CADA modo analógico (móvil y
+// tabla por separado) se guardan en localStorage para ajustar entre partidas.
 //
 // Uso:
 //   import { controlSettingsService } from '../services/ControlSettingsService'
 //   controlSettingsService.getMode()
-//   controlSettingsService.getTuning() → { deadZoneDeg, maxTiltDeg, curve, invert, sway, gravity }
+//   controlSettingsService.getTuning()        → calibración del modo actual
+//   controlSettingsService.getTuning(mode)    → calibración de un modo concreto
 
-import { ANALOG, INSTABILITY, CONTROL_MODES, LAB_ENABLED } from '../config/controlConfig'
+import { CONTROL_MODES, TUNING_DEFAULTS, LAB_ENABLED } from '../config/controlConfig'
 
 const MODE_KEY = 'cucana_control_mode'
-const TUNING_KEY = 'cucana_lab_tuning'
+const TUNING_KEY = 'cucana_lab_tuning_v2'
 
-export const DEFAULT_TUNING = Object.freeze({
-  deadZoneDeg: ANALOG.DEAD_ZONE_DEG,
-  maxTiltDeg: ANALOG.MAX_TILT_DEG,
-  curve: ANALOG.CURVE,
-  invert: ANALOG.INVERT,
-  sway: INSTABILITY.SWAY,
-  gravity: INSTABILITY.GRAVITY,
-})
+const ANALOG_MODES = Object.keys(TUNING_DEFAULTS)
 
 const _read = (key) => {
   try {
@@ -41,17 +35,25 @@ const _write = (key, value) => {
   }
 }
 
-export function createControlSettingsService({ labEnabled }) {
-  let tuningCache = null
+// Con botones no hay calibración analógica: se devuelve la del móvil para
+// que los consumidores siempre reciban un objeto válido
+const defaultsFor = (mode) => TUNING_DEFAULTS[mode] ?? TUNING_DEFAULTS[CONTROL_MODES.DEVICE_TILT]
 
-  const loadTuning = () => {
-    try {
-      const stored = JSON.parse(_read(TUNING_KEY) || '{}')
-      return { ...DEFAULT_TUNING, ...stored }
-    } catch {
-      return { ...DEFAULT_TUNING }
+export function createControlSettingsService({ labEnabled }) {
+  let storedCache = null
+
+  const stored = () => {
+    if (!storedCache) {
+      try {
+        storedCache = JSON.parse(_read(TUNING_KEY) || '{}')
+      } catch {
+        storedCache = {}
+      }
     }
+    return storedCache
   }
+
+  const tuningCache = {}
 
   return {
     isLabEnabled() {
@@ -60,8 +62,8 @@ export function createControlSettingsService({ labEnabled }) {
 
     getMode() {
       if (!labEnabled) return CONTROL_MODES.BUTTONS
-      const stored = _read(MODE_KEY)
-      return Object.values(CONTROL_MODES).includes(stored) ? stored : CONTROL_MODES.BUTTONS
+      const mode = _read(MODE_KEY)
+      return Object.values(CONTROL_MODES).includes(mode) ? mode : CONTROL_MODES.BUTTONS
     },
 
     setMode(mode) {
@@ -70,40 +72,34 @@ export function createControlSettingsService({ labEnabled }) {
     },
 
     // Se consulta cada frame: se cachea en memoria
-    getTuning() {
-      if (!labEnabled) return DEFAULT_TUNING
-      if (!tuningCache) tuningCache = loadTuning()
-      return tuningCache
+    getTuning(mode = this.getMode()) {
+      if (!labEnabled) return defaultsFor(mode)
+      if (!tuningCache[mode]) tuningCache[mode] = { ...defaultsFor(mode), ...stored()[mode] }
+      return tuningCache[mode]
     },
 
-    setTuning(partial) {
+    setTuning(partial, mode = this.getMode()) {
+      if (!labEnabled || !ANALOG_MODES.includes(mode)) return
+      const all = stored()
+      all[mode] = { ...all[mode], ...partial }
+      tuningCache[mode] = null
+      _write(TUNING_KEY, JSON.stringify(all))
+    },
+
+    resetTuning(mode = this.getMode()) {
       if (!labEnabled) return
-      tuningCache = { ...this.getTuning(), ...partial }
-      _write(TUNING_KEY, JSON.stringify(tuningCache))
+      const all = stored()
+      delete all[mode]
+      tuningCache[mode] = null
+      _write(TUNING_KEY, JSON.stringify(all))
     },
 
-    resetTuning() {
-      if (!labEnabled) return
-      tuningCache = null
-      _write(TUNING_KEY, null)
-    },
-
-    // Bloque listo para pegar en config/controlConfig.js
-    exportTuning() {
-      const t = this.getTuning()
-      return [
-        'export const ANALOG = {',
-        `  DEAD_ZONE_DEG: ${t.deadZoneDeg},`,
-        `  MAX_TILT_DEG: ${t.maxTiltDeg},`,
-        `  CURVE: ${t.curve},`,
-        `  INVERT: ${t.invert},`,
-        '}',
-        '',
-        'export const INSTABILITY = {',
-        `  SWAY: ${t.sway},`,
-        `  GRAVITY: ${t.gravity},`,
-        '}',
-      ].join('\n')
+    // Bloque listo para pegar en TUNING_DEFAULTS de config/controlConfig.js
+    exportTuning(mode = this.getMode()) {
+      const t = this.getTuning(mode)
+      const key = Object.keys(CONTROL_MODES).find((k) => CONTROL_MODES[k] === mode) ?? mode
+      const lines = Object.entries(t).map(([k, v]) => `    ${k}: ${JSON.stringify(v)},`)
+      return [`  [CONTROL_MODES.${key}]: {`, ...lines, '  },'].join('\n')
     },
   }
 }

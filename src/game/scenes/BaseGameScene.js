@@ -9,7 +9,6 @@ import { flagDeliveryService } from '../services/FlagDeliveryService'
 import { PowerBar } from '../entities/PowerBar'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
-import { BalanceSystem } from '../systems/BalanceSystem'
 import { RunSystem } from '../systems/RunSystem'
 import { PowerBarUI } from '../components/PowerBarUI'
 import { BalanceUI } from '../components/BalanceUI'
@@ -173,7 +172,7 @@ export class BaseGameScene extends BaseScene {
 
     const equilibrio = this.characterData?.stats?.equilibrio || 5
     this.balanceBar = new BalanceBar(equilibrio)
-    this.balanceSystem = new BalanceSystem(this.balanceBar)
+    this.balanceSystem = controlInput.createBalanceSystem(this.balanceBar)
     this.balanceUI = new BalanceUI(this, this.balanceBar, this.balanceSystem, {
       analog: controlInput.isAnalog(),
     })

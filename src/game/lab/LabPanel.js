@@ -7,7 +7,7 @@
 // que ningún jugador verá, hecha con HTML para poder ajustar cómodamente en
 // el móvil entre partida y partida.
 
-import { CONTROL_MODES } from '../config/controlConfig'
+import { CONTROL_MODES, CONTROL_MODELS } from '../config/controlConfig'
 import { controlSettingsService as settings } from '../services/ControlSettingsService'
 import { controlInput } from '../input/ControlInput'
 import { DeviceTiltSource } from '../input/DeviceTiltSource'
@@ -16,12 +16,80 @@ import { mapTiltToInput } from '../systems/AnalogBalanceSystem'
 
 const REFRESH_MS = 100
 
+const { FORCE, VELOCITY } = CONTROL_MODELS
+const BOTH = [FORCE, VELOCITY]
+
+// models: en qué tipo de control tiene efecto cada ajuste
 const SLIDERS = [
-  { key: 'deadZoneDeg', label: 'Zona muerta (°)', min: 0, max: 4, step: 0.25 },
-  { key: 'maxTiltDeg', label: 'Inclinación máxima (°)', min: 5, max: 25, step: 1 },
-  { key: 'curve', label: 'Curva (1 = lineal)', min: 1, max: 3, step: 0.1 },
-  { key: 'sway', label: 'Vaivén del palo', min: 0, max: 4, step: 0.1 },
-  { key: 'gravity', label: 'Gravedad (péndulo)', min: 0, max: 8, step: 0.1 },
+  { key: 'deadZoneDeg', label: 'Zona muerta (°)', min: 0, max: 4, step: 0.25, models: BOTH },
+  {
+    key: 'maxTiltDeg',
+    label: 'Inclinación para el máximo (°)',
+    min: 3,
+    max: 25,
+    step: 0.5,
+    models: BOTH,
+  },
+  { key: 'curve', label: 'Curva (1 = lineal)', min: 1, max: 3, step: 0.1, models: BOTH },
+  {
+    key: 'limitScale',
+    label: 'Margen entre límites (×)',
+    min: 1,
+    max: 1.6,
+    step: 0.05,
+    models: BOTH,
+  },
+  { key: 'speed', label: 'Velocidad del cursor', min: 0.3, max: 3, step: 0.1, models: [VELOCITY] },
+  {
+    key: 'driftSpeed',
+    label: 'Fuerza del drift',
+    min: 0,
+    max: 1.2,
+    step: 0.05,
+    models: [VELOCITY],
+  },
+  {
+    key: 'driftChange',
+    label: 'Cambios de sentido del drift',
+    min: 0.2,
+    max: 3,
+    step: 0.1,
+    models: [VELOCITY],
+  },
+  {
+    key: 'driftGrowth',
+    label: 'Aumento del drift por segundo',
+    min: 0,
+    max: 0.1,
+    step: 0.005,
+    models: [VELOCITY],
+  },
+  {
+    key: 'driftScale',
+    label: 'Fuerza del drift (×)',
+    min: 0.2,
+    max: 1.5,
+    step: 0.05,
+    models: [FORCE],
+  },
+  {
+    key: 'growthScale',
+    label: 'Aumento por cambio de lado (×)',
+    min: 0,
+    max: 1.5,
+    step: 0.05,
+    models: [FORCE],
+  },
+  { key: 'dampingExtra', label: 'Amortiguación extra', min: 0, max: 4, step: 0.1, models: [FORCE] },
+  { key: 'sway', label: 'Vaivén del palo', min: 0, max: 4, step: 0.1, models: [FORCE] },
+  {
+    key: 'gravity',
+    label: 'Gravedad (tira hacia fuera)',
+    min: 0,
+    max: 4,
+    step: 0.05,
+    models: BOTH,
+  },
 ]
 
 const MODE_LABELS = {
@@ -62,7 +130,10 @@ export function mountLabPanel() {
   document.body.append(toggle, panel)
   toggle.addEventListener('click', () => {
     panel.hidden = !panel.hidden
-    if (!panel.hidden) syncModeRadios()
+    if (!panel.hidden) {
+      syncModeRadios()
+      refreshTuning()
+    }
   })
 
   const message = el('div', { className: 'msg' })
@@ -85,6 +156,7 @@ export function mountLabPanel() {
     radio.addEventListener('change', () => {
       settings.setMode(mode)
       if (mode === CONTROL_MODES.DEVICE_TILT) enableDeviceTilt()
+      refreshTuning()
       say(`Modo: ${MODE_LABELS[mode]} (se aplica en la siguiente fase de equilibrio)`)
     })
     return el('label', {}, [radio, ` ${MODE_LABELS[mode]}`])
@@ -125,24 +197,57 @@ export function mountLabPanel() {
   const tiltOut = el('b', { textContent: '—' })
   const inputOut = el('b', { textContent: '—' })
 
-  // ---------- Ajustes ----------
-  const sliderRows = SLIDERS.map(({ key, label, min, max, step }) => {
+  // ---------- Ajustes (de cada modo analógico por separado) ----------
+  const tuningTitle = el('h3')
+  const tuningSection = el('div')
+
+  const modelRadios = [
+    [FORCE, 'Fuerza (como los botones, con inercia)'],
+    [VELOCITY, 'Velocidad (sin inercia, para el cuerpo)'],
+  ].map(([model, label]) => {
+    const radio = el('input', { type: 'radio', name: 'lab-model', value: model })
+    radio.addEventListener('change', () => {
+      settings.setTuning({ model })
+      refreshTuning()
+      say('Tipo de control cambiado (se aplica en la siguiente partida)')
+    })
+    return el('label', {}, [radio, ` ${label}`])
+  })
+
+  const sliderRows = SLIDERS.map(({ key, label, min, max, step, models }) => {
     const output = el('b')
     const input = el('input', { type: 'range', min, max, step })
-    const refresh = () => {
-      input.value = settings.getTuning()[key]
-      output.textContent = settings.getTuning()[key]
-    }
+    const row = el('label', {}, [`${label}: `, output, input])
     input.addEventListener('input', () => {
       settings.setTuning({ [key]: Number(input.value) })
       output.textContent = input.value
     })
-    refresh()
-    return { row: el('label', {}, [`${label}: `, output, input]), refresh }
+    const refresh = (tuning) => {
+      input.value = tuning[key]
+      output.textContent = tuning[key]
+      row.hidden = !models.includes(tuning.model)
+    }
+    return { row, refresh }
   })
 
-  const invert = el('input', { type: 'checkbox', checked: settings.getTuning().invert })
+  const invert = el('input', { type: 'checkbox' })
   invert.addEventListener('change', () => settings.setTuning({ invert: invert.checked }))
+
+  function refreshTuning() {
+    const analog = controlInput.isAnalog()
+    tuningSection.hidden = !analog
+    tuningTitle.textContent = analog
+      ? `Calibración de: ${MODE_LABELS[settings.getMode()]}`
+      : 'Elige "Girar el móvil" o "Tabla" para calibrar'
+    if (!analog) return
+    const tuning = settings.getTuning()
+    modelRadios.forEach((label) => {
+      const radio = label.querySelector('input')
+      radio.checked = radio.value === tuning.model
+    })
+    sliderRows.forEach((s) => s.refresh(tuning))
+    invert.checked = tuning.invert
+  }
 
   const exportBox = el('textarea', { readOnly: true, hidden: true })
   const exportBtn = el('button', { textContent: 'Exportar' })
@@ -158,13 +263,29 @@ export function mountLabPanel() {
     }
   })
 
-  const resetBtn = el('button', { textContent: 'Restablecer' })
+  const resetBtn = el('button', { textContent: 'Restablecer este modo' })
   resetBtn.addEventListener('click', () => {
     settings.resetTuning()
-    sliderRows.forEach((s) => s.refresh())
-    invert.checked = settings.getTuning().invert
+    refreshTuning()
     say('Valores de config/controlConfig.js')
   })
+
+  tuningSection.append(
+    el('h3', { textContent: 'Tipo de control' }),
+    ...modelRadios,
+    el('h3', { textContent: 'Ajustes' }),
+    ...sliderRows.map((s) => s.row),
+    el('label', {}, [invert, ' Invertir sentido']),
+    el('p', {
+      className: 'msg',
+      textContent:
+        'La respuesta a la inclinación cambia al momento; la física, en la siguiente partida.',
+    }),
+    el('h3', { textContent: 'Guardar' }),
+    exportBtn,
+    resetBtn,
+    exportBox
+  )
 
   const closeBtn = el('button', { textContent: '✕' })
   closeBtn.addEventListener('click', () => (panel.hidden = true))
@@ -182,16 +303,10 @@ export function mountLabPanel() {
       el('span', {}, ['Fuerza ', inputOut]),
     ]),
     centerBtn,
-    el('h3', { textContent: 'Respuesta de la inclinación' }),
-    ...sliderRows.slice(0, 3).map((s) => s.row),
-    el('label', {}, [invert, ' Invertir sentido']),
-    el('h3', { textContent: 'Inestabilidad extra' }),
-    ...sliderRows.slice(3).map((s) => s.row),
-    el('h3', { textContent: 'Guardar' }),
-    exportBtn,
-    resetBtn,
-    exportBox
+    tuningTitle,
+    tuningSection
   )
+  refreshTuning()
 
   // Android no pide permiso: si el modo guardado es el del móvil, se activa solo
   const deviceTilt = controlInput.deviceTilt

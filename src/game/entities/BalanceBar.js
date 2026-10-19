@@ -11,6 +11,7 @@ export class BalanceBar {
     this.velocity = 0
     this.driftAcceleration = 0
     this.extraAcceleration = 0
+    this.extraDamping = 0
     this.inputDirection = 0
     this.equilibrioStat = equilibrioStat
 
@@ -59,8 +60,6 @@ export class BalanceBar {
   update(dt) {
     if (this.failed) return
 
-    this.prevPosition = this.position
-
     // 1. Aceleración del drift natural (impuesto por BalanceSystem)
     this.velocity += this.driftAcceleration * dt
 
@@ -71,13 +70,23 @@ export class BalanceBar {
     this.velocity += this.extraAcceleration * dt
 
     // 3. Amortiguamiento: frena la velocity de forma natural al soltar el botón
-    this.velocity *= 1 - BALANCE.DAMPING * dt
+    //    (extraDamping: solo modos analógicos, 0 con botones)
+    this.velocity *= 1 - (BALANCE.DAMPING + this.extraDamping) * dt
 
     // 4. Cap de velocidad: evita acumulación descontrolada independientemente del modelo
     this.velocity = Math.max(-BALANCE.VELOCITY_CAP, Math.min(BALANCE.VELOCITY_CAP, this.velocity))
 
     // 5. Integrar posición
-    this.position += this.velocity * dt
+    this.advanceBy(this.velocity * dt)
+  }
+
+  // Desplaza el cursor y aplica cruces de centro y límites. La usa update() y,
+  // en el control por velocidad (VelocityBalanceSystem), se llama directamente.
+  advanceBy(displacement) {
+    if (this.failed) return
+
+    this.prevPosition = this.position
+    this.position += displacement
 
     // 6. Detectar cruce del centro (cambio de signo distinto de cero)
     // Se guarda el input activo EN ESTE MOMENTO para evitar el bug de timing de 1 frame

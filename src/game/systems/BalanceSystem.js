@@ -14,16 +14,21 @@
 import { BALANCE, OIL } from '../config/gameConfig'
 
 export class BalanceSystem {
-  constructor(balanceBar) {
+  // driftScale / growthScale: solo para los modos analógicos (tabla y móvil en
+  // modelo de fuerza). Con botones valen 1 y la física es la de siempre.
+  constructor(balanceBar, { driftScale = 1, growthScale = 1 } = {}) {
     this.bar = balanceBar
+    this.driftScale = driftScale
+    this.growthScale = growthScale
     this.elapsed = 0
 
     // Fuerza máxima del drift escalada por la stat de equilibrio del personaje
     const t = Math.max(0, Math.min(10, balanceBar.equilibrioStat)) / 10
-    this.maxDrift = BALANCE.DRIFT_MIN + (1 - t) * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)
+    this.maxDrift =
+      (BALANCE.DRIFT_MIN + (1 - t) * (BALANCE.DRIFT_MAX - BALANCE.DRIFT_MIN)) * driftScale
 
     // Empieza con la fuerza mínima y crece con cada oscilación
-    this.driftForce = BALANCE.DRIFT_MIN
+    this.driftForce = BALANCE.DRIFT_MIN * driftScale
 
     // Dirección inicial aleatoria: ±1
     this.driftDirection = Math.random() < 0.5 ? 1 : -1
@@ -56,7 +61,7 @@ export class BalanceSystem {
       if (velSign !== this.driftDirection) {
         this.driftForce = Math.min(
           this.maxDrift,
-          this.driftForce + BALANCE.DRIFT_GROWTH_PER_CROSS * growthFactor
+          this.driftForce + BALANCE.DRIFT_GROWTH_PER_CROSS * growthFactor * this.growthScale
         )
       }
       this.driftDirection = velSign

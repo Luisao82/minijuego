@@ -7,11 +7,16 @@
 // se mantienen entre partidas. La escena activa registra su handler de "tap"
 // para que el microrruptor de la tabla actúe como tocar la pantalla.
 
-import { CONTROL_MODES } from '../config/controlConfig'
+import { CONTROL_MODES, CONTROL_MODELS } from '../config/controlConfig'
 import { controlSettingsService } from '../services/ControlSettingsService'
 import { AnalogBalanceSystem } from '../systems/AnalogBalanceSystem'
+import { BalanceSystem } from '../systems/BalanceSystem'
+import { VelocityBalanceSystem } from '../systems/VelocityBalanceSystem'
 import { DeviceTiltSource } from './DeviceTiltSource'
 import { BoardTiltSource } from './BoardTiltSource'
+
+// Margen máximo entre límites rojos al ampliarlo con limitScale
+const MAX_LIMIT = 0.95
 
 class ControlInput {
   constructor(settings) {
@@ -55,6 +60,25 @@ class ControlInput {
     return 0
   }
 
+  // Sistema de equilibrio para esta partida. Con botones, el de siempre.
+  // En los modos analógicos, según la calibración del modo: por fuerza
+  // (BalanceSystem con drift y amortiguación ajustados) o por velocidad.
+  // Los cambios de física desde el panel LAB se aplican en la siguiente partida.
+  createBalanceSystem(bar) {
+    if (!this.isAnalog()) return new BalanceSystem(bar)
+
+    const tuning = this.settings.getTuning()
+    bar.limit = Math.min(MAX_LIMIT, bar.limit * tuning.limitScale)
+
+    if (tuning.model === CONTROL_MODELS.VELOCITY) return new VelocityBalanceSystem(bar, tuning)
+
+    bar.extraDamping = tuning.dampingExtra
+    return new BalanceSystem(bar, {
+      driftScale: tuning.driftScale,
+      growthScale: tuning.growthScale,
+    })
+  }
+
   // Arranque de la fase de equilibrio. Con el móvil, la forma en que lo
   // sujeta el jugador en ese momento pasa a ser "recto". La tabla no se
   // re-centra: el jugador acaba de inclinarse hacia delante para el impulso.
@@ -74,8 +98,11 @@ class ControlInput {
     return this.lastInput
   }
 
+  // Vaivén y gravedad del modelo por fuerza. En el modelo por velocidad
+  // la gravedad ya la aplica VelocityBalanceSystem.
   extraAcceleration(dt, position, greaseRatio) {
-    return this.analog ? this.analog.extraAcceleration(dt, position, greaseRatio) : 0
+    if (!this.analog || this.analog.tuning.model === CONTROL_MODELS.VELOCITY) return 0
+    return this.analog.extraAcceleration(dt, position, greaseRatio)
   }
 }
 
