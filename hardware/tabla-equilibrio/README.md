@@ -39,7 +39,8 @@ Leyenda: ✅ lo tengo · 🚚 pedido · 🛒 por comprar · ⏳ más adelante
 | ✅     | 1         | Freenove ESP32-S3 WROOM (8 MB)                                                         | Funcionando. Su USB-C sirve para corriente y para programar              |
 | ✅     | 1         | MPU6050 (GY-521 / HW-123)                                                              | Pines soldados y repasados                                               |
 | ✅     | 1 (de 10) | Microrruptor de palanca con rodillo                                                    | Cables soldados en COM + NO                                              |
-| ✅     | 1         | Powerbank                                                                              | Alimentación; se apaga desde ella o desenchufando                        |
+| ✅     | 1         | Portapilas de 4 × AA en una fila                                                       | Alimentación, dentro de la caja                                          |
+| ✅     | 1         | Interruptor basculante cuadrado (KCD1)                                                 | Encendido y apagado, en la caja                                          |
 | ✅     | 1         | Cable USB-A → USB-C                                                                    | El que trae la Freenove                                                  |
 | 🚚     | 1 kit     | VooGenzek: placas perforadas + zócalos hembra/macho + bornes de tornillo + separadores | Placa 50×70 para el ESP32, 20×80 para el MPU6050                         |
 | ✅     | 1         | LED de 5 mm                                                                            | Estado del Bluetooth                                                     |
@@ -76,7 +77,7 @@ Leyenda: ✅ lo tengo · 🚚 pedido · 🛒 por comprar · ⏳ más adelante
 | ⏳     | Cinta antideslizante (grip)                                    | Superficie de la tabla                          |
 | ⏳     | Grapas o bridas adhesivas                                      | Sujetar el cable del microrruptor bajo la tabla |
 
-Descartado: módulo USB-C de panel e interruptor de encendido (se usa el USB-C de la propia placa y se apaga desde la powerbank).
+Descartado: módulo USB-C de panel (se usa el USB-C de la propia placa para programar) y la powerbank (sustituida por el portapilas con interruptor).
 
 Las pruebas 1, 2 y 3 **no necesitan soldar**.
 

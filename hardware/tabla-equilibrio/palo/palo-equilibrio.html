@@ -1,0 +1,466 @@
+<title>Palo de equilibrio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Taller: foto del palo a la izquierda, mandos y números a la derecha (apilado en móvil). Mismo lenguaje que los otros modelos del proyecto. */
+:root{
+  --bg:#111419;--surface:#181c22;--surface-2:#20262e;--line:#2c333d;
+  --fg:#ece7dc;--muted:#9aa3ad;--accent:#e2a73b;--accent-ink:#1d1406;--ok:#5fcf8a;
+  --display:'Barlow Condensed','Arial Narrow',ui-sans-serif,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px}
+.app{height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.stage{position:relative;min-height:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#1d1a17}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;top:12px;left:14px;right:14px;pointer-events:none}
+.hud h1{margin:0;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.02em;line-height:1;text-wrap:balance}
+.hud p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.chip{position:absolute;top:66px;left:14px;font:500 12px var(--mono);padding:4px 8px;border-radius:5px;background:rgba(17,20,25,.85);border:1px solid var(--line);pointer-events:none}
+.info{position:absolute;left:12px;bottom:12px;max-width:min(390px,calc(100% - 24px));background:rgba(17,20,25,.9);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.info h2{margin:0 0 4px;font-family:var(--display);font-weight:600;font-size:19px;color:var(--accent);letter-spacing:.02em}
+.info p{margin:0;line-height:1.45;font-size:13px}
+.panel{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding-right:2px}
+.panel h3{margin:0 0 8px;font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.stack{display:grid;gap:10px}
+button{font:500 13px var(--body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.slider{display:grid;gap:4px}
+.slider .lab{display:flex;justify-content:space-between;font-size:13px}
+.slider output{font-family:var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox]{accent-color:var(--accent)}
+.note{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.dims{font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-variant-numeric:tabular-nums}
+.dims span:nth-child(odd){color:var(--muted)}
+.parts{display:grid;gap:1px}
+.parts button{all:unset;display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:13px}
+.parts button:hover,.parts button:focus-visible{background:var(--surface-2)}
+.sw{width:10px;height:10px;border-radius:2px;flex:none}
+@media (max-width:820px){html,body{height:auto}.app{height:auto;grid-template-columns:minmax(0,1fr)}.stage{height:68vh}.panel{overflow:visible}}
+</style>
+
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="hud">
+      <h1>Palo de equilibrio · tabla sobre eje con gomas</h1>
+      <p>Arrastra para girar · rueda o pellizco para zoom · toca una pieza para ver qué es</p>
+    </div>
+    <span class="chip" id="chip">Inclinación 0°</span>
+    <div class="info" id="info">
+      <h2 id="infoName">Tabla sobre eje con gomas</h2>
+      <p id="infoDesc">La quilla central gira en un eje de acero con tres rodamientos, así que solo se inclina a los lados. Cuatro gomas en las esquinas la devuelven al centro, como los gomas de un monopatín: la inclinación depende de cuánto cargas el peso, no es todo o nada. Mueve el peso y la carga en el panel para probarlo.</p>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <section>
+      <h3>Vistas</h3>
+      <div class="row" id="views">
+        <button data-view="foto">Foto</button>
+        <button data-view="frente">De frente</button>
+        <button data-view="debajo">Por debajo</button>
+        <button data-view="rodamiento">Rodamiento</button>
+        <button data-view="caja">Caja giroscopio</button>
+      </div>
+    </section>
+
+    <section class="stack">
+      <h3>Probar</h3>
+      <div class="row"><button class="primary" id="btnMecer">Balancear</button></div>
+      <div class="slider">
+        <div class="lab"><label for="peso">Peso de quien se sube</label><output id="pesoOut">80 kg</output></div>
+        <input type="range" id="peso" min="20" max="130" step="5" value="80">
+      </div>
+      <div class="slider">
+        <div class="lab"><label for="carga">Carga hacia talones ↔ puntas</label><output id="cargaOut">0 cm</output></div>
+        <input type="range" id="carga" min="-6" max="6" step="0.1" value="0">
+      </div>
+      <div>
+        <div style="font-size:13px;margin-bottom:6px">Posición de las gomas (pasador)</div>
+        <div class="row" id="gomasPos">
+          <button data-pos="auto" class="primary">Según el peso</button>
+          <button data-pos="50">Niño</button>
+          <button data-pos="70">Joven</button>
+          <button data-pos="90">Adulto</button>
+          <button data-pos="115">Grande</button>
+        </div>
+      </div>
+      <p class="note" id="lectura"></p>
+      <label class="toggle"><input type="checkbox" id="xray"> Tabla translúcida (ver lo de debajo)</label>
+      <label class="toggle"><input type="checkbox" id="pies" checked> Pies de un adulto (escala)</label>
+    </section>
+
+    <section>
+      <h3>Piezas</h3>
+      <div class="parts" id="parts"></div>
+    </section>
+
+    <section>
+      <h3>Medidas y carga</h3>
+      <div class="dims">
+        <span>Tabla</span><span>90 × 26 cm, 2 × 18 mm</span>
+        <span>Altura</span><span>17 cm sobre la tarima</span>
+        <span>Inclinación</span><span>±12°, topes de goma</span>
+        <span>Eje</span><span>acero Ø20 × 94 cm</span>
+        <span>Rodamientos</span><span>3 × UCP204</span>
+        <span>Quilla</span><span>contrachapado 36 × 60 mm</span>
+        <span>Gomas</span><span>4, a 5 · 7 · 9 · 11,5 cm del eje</span>
+        <span>Usuario</span><span>20 a 130 kg</span>
+        <span>Carga de cálculo</span><span>≈ 4 kN (130 kg × 3)</span>
+      </div>
+      <p class="note">El ×3 cubre a alguien que se sube de un salto. Cada UCP204 aguanta más de 6 kN parado, así que con tres hay margen de sobra; lo que más trabaja es la tabla, por eso va doble y encolada a la quilla.</p>
+    </section>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const deg = Math.PI / 180
+const V = (x, y, z) => new THREE.Vector3(x, y, z)
+
+// Medidas en mm. X: a lo ancho (hacia donde se inclina), Z: a lo largo, Y: arriba. Tarima en y = 0
+const BASE_T = 18, EJE_Y = BASE_T + 33.3, EJE_R = 10
+const QUILLA_Y0 = EJE_Y + 22, QUILLA_H = 60, TABLA_Y0 = QUILLA_Y0 + QUILLA_H, TABLA_T = 36
+const TABLA_W = 260, TABLA_L = 900, RODAMIENTOS = [-400, 0, 400], TOPE = 12
+
+const stage = document.getElementById('stage')
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.95
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.physicallyCorrectLights = true
+stage.prepend(renderer.domElement)
+
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x1d1a17)
+scene.fog = new THREE.Fog(0x1d1a17, 2200, 4500)
+const camera = new THREE.PerspectiveCamera(30, 1, 5, 8000)
+const controls = new THREE.OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.minDistance = 120
+controls.maxDistance = 3200
+controls.maxPolarAngle = Math.PI * 0.62
+
+// Entorno para reflejos
+{
+  const env = new THREE.Scene()
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(10, 6, 10), new THREE.MeshStandardMaterial({ color: 0x6b625a, side: THREE.BackSide })))
+  for (const [w, h, x, y, z, k] of [[3, 1.6, -2.5, 2.9, 3, 9], [1.5, 2, 4.8, 0.5, 0, 4], [2, 1, 0, 2.9, -3, 3]]) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.97, 0.92).multiplyScalar(k), side: THREE.DoubleSide }))
+    m.position.set(x, y, z); m.lookAt(0, 0, 0); env.add(m)
+  }
+  scene.environment = new THREE.PMREMGenerator(renderer).fromScene(env, 0.04).texture
+}
+const key = new THREE.DirectionalLight(0xfff1df, 2.6)
+key.position.set(-900, 1600, 1200)
+key.castShadow = true
+key.shadow.mapSize.set(2048, 2048)
+Object.assign(key.shadow.camera, { left: -800, right: 800, top: 800, bottom: -800, near: 100, far: 5000 })
+key.shadow.bias = -0.0003; key.shadow.normalBias = 1.5
+scene.add(key)
+const fill = new THREE.DirectionalLight(0xc9d8ff, 0.7); fill.position.set(1400, 500, 700); scene.add(fill)
+const rim = new THREE.DirectionalLight(0xffffff, 0.8); rim.position.set(500, 900, -1500); scene.add(rim)
+scene.add(new THREE.HemisphereLight(0xfff4e6, 0x2a2018, 0.4))
+
+// ---------- Texturas ----------
+let seed = 5
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+function canvasTex(w, h, draw, repeat, srgb = true) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h
+  draw(c.getContext('2d'), w, h)
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8
+  if (repeat) t.repeat.set(...repeat)
+  if (srgb) t.encoding = THREE.sRGBEncoding
+  return t
+}
+function grain(c, w, h, base, dark, n) {
+  c.fillStyle = base; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < n; i++) {
+    const y = rnd() * h, a = 0.03 + rnd() * 0.11, amp = 2 + rnd() * 9, f = 0.003 + rnd() * 0.01
+    c.strokeStyle = `rgba(${dark},${a})`; c.lineWidth = 0.6 + rnd() * 2.2
+    c.beginPath(); for (let x = 0; x <= w; x += 8) c.lineTo(x, y + Math.sin(x * f + i) * amp); c.stroke()
+  }
+}
+const birchTex = canvasTex(1024, 256, (c, w, h) => grain(c, w, h, '#dcc39a', '110,75,35', 160))
+// Canto del contrachapado: láminas finas alternas
+const edgeTex = canvasTex(64, 256, (c, w, h) => {
+  for (let y = 0; y < h; y += 16) { c.fillStyle = (y / 16) % 2 ? '#c9a676' : '#e3cfa8'; c.fillRect(0, y, w, 16); c.fillStyle = 'rgba(80,50,20,.35)'; c.fillRect(0, y, w, 1) }
+})
+const tarimaTex = canvasTex(1024, 1024, (c, w, h) => grain(c, w, h, '#7d5b3a', '30,18,8', 220), [2, 2])
+const gripTex = canvasTex(256, 256, (c, w, h) => {
+  c.fillStyle = '#1c1d1f'; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < 6000; i++) { const v = 30 + rnd() * 40; c.fillStyle = `rgb(${v},${v},${v + 2})`; c.fillRect(rnd() * w, rnd() * h, 1.5, 1.5) }
+}, [3, 10])
+const gripBump = canvasTex(256, 256, (c, w, h) => {
+  const img = c.createImageData(w, h)
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255 }
+  c.putImageData(img, 0, 0)
+}, [3, 10], false)
+
+// ---------- Materiales ----------
+const M = {
+  birch: new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 }),
+  edge: new THREE.MeshStandardMaterial({ map: edgeTex, roughness: 0.8 }),
+  tarima: new THREE.MeshStandardMaterial({ map: tarimaTex, roughness: 0.75 }),
+  grip: new THREE.MeshStandardMaterial({ map: gripTex, bumpMap: gripBump, bumpScale: 0.6, roughness: 0.95 }),
+  castIron: new THREE.MeshStandardMaterial({ color: 0x3c4348, metalness: 0.4, roughness: 0.55 }),
+  chrome: new THREE.MeshStandardMaterial({ color: 0xd9dde1, metalness: 1, roughness: 0.18 }),
+  steel: new THREE.MeshStandardMaterial({ color: 0xbfc4c9, metalness: 1, roughness: 0.32 }),
+  zinc: new THREE.MeshStandardMaterial({ color: 0xd8d2b8, metalness: 1, roughness: 0.35 }),
+  alu: new THREE.MeshStandardMaterial({ color: 0xc9ccd0, metalness: 0.9, roughness: 0.4 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xc9a24a, metalness: 1, roughness: 0.3 }),
+  rubber: new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.9 }),
+  resin: new THREE.MeshPhysicalMaterial({ color: 0x8b9096, roughness: 0.5, clearcoat: 0.25 }),
+  red: new THREE.MeshStandardMaterial({ color: 0xc0302a, roughness: 0.4 }),
+  led: new THREE.MeshStandardMaterial({ color: 0x3ee07a, emissive: 0x2bd15f, emissiveIntensity: 1.2 }),
+  shoe: new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.8 }),
+  sole: new THREE.MeshStandardMaterial({ color: 0xe9e4da, roughness: 0.9 }),
+  cable: new THREE.MeshStandardMaterial({ color: 0x18181a, roughness: 0.55 })
+}
+for (const m of Object.values(M)) if (!m.map) { m.color.convertSRGBToLinear(); m.emissive && m.emissive.convertSRGBToLinear() }
+
+// ---------- Piezas ----------
+const PARTS = {}
+function part(key, name, desc, sw) { PARTS[key] = { name, desc, sw, meshes: [] } }
+part('tabla', 'Tabla', 'Dos tableros de contrachapado de abedul de 18 mm encolados y atornillados (36 mm), 90 × 26 cm, cantos redondeados. Encima, lija antideslizante. Es la pieza que más trabaja: con 130 kg en un pie dobla menos de 1 mm.', '#dcc39a')
+part('quilla', 'Quilla central', 'Tu apoyo central de punta a punta: viga de contrachapado de 36 × 60 mm encolada y atornillada bajo la tabla. Reparte el peso hasta el eje y hace la tabla mucho más rígida. Lleva tres rebajes donde pasan los rodamientos.', '#c9a676')
+part('eje', 'Eje de acero Ø20', 'Barra de acero calibrada de 20 mm y 94 cm. Va sujeta a la quilla con cuatro soportes atornillados, cada uno pegado a un rodamiento, para que el eje casi no trabaje a flexión.', '#bfc4c9')
+part('rodamientos', 'Rodamientos UCP204 (×3)', 'Soportes de pie de fundición con rodamiento de bolas y engrasador, para eje de 20 mm: uno en cada extremo y otro en el centro. Cada uno aguanta más de 6 kN parado; los tres juntos dan mucho margen para 130 kg con salto incluido. Se atornillan a la base con M10.', '#3c4348')
+part('soportes', 'Soportes del eje', 'Bloques de aluminio tipo SHF20 atornillados bajo la quilla, que abrazan el eje con un prisionero. Están junto a cada rodamiento para que la carga pase directa.', '#c9ccd0')
+part('base', 'Base', 'Tablero de 18 mm atornillado a la tarima. Lleva los tres rodamientos y los cuatro tacos de los topes. Así el eje no se mueve ni se desliza: la tabla solo gira.', '#7d5b3a')
+part('topes', 'Topes de goma', 'Cuatro topes de goma sobre tacos de madera, a 11 cm del eje. Son el límite final: paran la tabla a ±12° sin golpe seco.', '#161616')
+part('gomas', 'Gomas de centrado', 'Cuatro cilindros de goma blanda (o poliuretano, como los gomas de un monopatín), siempre un poco apretados entre la base y unas tiras bajo la tabla. Devuelven la tabla al centro: cuanto más se inclina, más empujan. Cada una va sobre un carro que se mueve por una guía con agujeros y se fija con un pasador. Más lejos del eje, más dura: niño 5 cm, joven 7, adulto 9 y grande 11,5.', '#e2a73b')
+part('caja', 'Caja del giroscopio', 'Caja plana de resina (unos 14 × 8 × 4 cm) atornillada debajo de la tabla, en el extremo que mira a la máquina, al lado de la quilla. Nadie la puede pisar. En la cara del extremo: interruptor KCD1, LED, botón CAL, USB-C y el conector GX12 del cable de la bandera.', '#8b9096')
+part('tarima', 'Tarima común', 'La tarima que comparten el mueble y el palo; el peso del mueble impide que se mueva.', '#7d5b3a')
+part('pies', 'Pies de un adulto', 'Zapatillas de la talla 43 para dar escala: el jugador se pone de lado, un pie delante y otro detrás.', '#2a2c30')
+
+function add(parent, geo, mat, key, x = 0, y = 0, z = 0) {
+  const m = new THREE.Mesh(geo, mat)
+  m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true
+  m.userData.part = key; PARTS[key].meshes.push(m); parent.add(m)
+  return m
+}
+const box = (w, h, d) => new THREE.BoxGeometry(w, h, d)
+const cylZ = (r, h, s = 32) => new THREE.CylinderGeometry(r, r, h, s).rotateX(Math.PI / 2)
+const cylY = (r, h, s = 32) => new THREE.CylinderGeometry(r, r, h, s)
+// Caja con veta arriba y abajo y canto de contrachapado en los lados
+const ply = (w, h, d) => [M.edge, M.edge, M.birch, M.birch, M.edge, M.edge]
+function roundedSlab(w, d, h, r) {
+  const s = new THREE.Shape()
+  s.moveTo(-w / 2 + r, -d / 2); s.lineTo(w / 2 - r, -d / 2); s.absarc(w / 2 - r, -d / 2 + r, r, -Math.PI / 2, 0)
+  s.lineTo(w / 2, d / 2 - r); s.absarc(w / 2 - r, d / 2 - r, r, 0, Math.PI / 2)
+  s.lineTo(-w / 2 + r, d / 2); s.absarc(-w / 2 + r, d / 2 - r, r, Math.PI / 2, Math.PI)
+  s.lineTo(-w / 2, -d / 2 + r); s.absarc(-w / 2 + r, -d / 2 + r, r, Math.PI, 3 * Math.PI / 2)
+  const g = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: true, bevelThickness: 1.5, bevelSize: 1.5, bevelSegments: 3 })
+  g.rotateX(-Math.PI / 2)
+  return g
+}
+
+// ---------- Fijo: tarima, base, rodamientos, topes ----------
+const fixed = new THREE.Group(); scene.add(fixed)
+add(fixed, box(1200, 40, 1500), M.tarima, 'tarima', 0, -20, 0)
+add(fixed, box(320, BASE_T, 960), ply(), 'base', 0, BASE_T / 2, 0)
+for (const z of RODAMIENTOS) {
+  // UCP204: zócalo de 127 mm con dos agujeros a 95, alojamiento redondo alrededor del eje
+  const g = new THREE.Group(); g.position.set(0, BASE_T, z); fixed.add(g)
+  add(g, box(127, 14, 38), M.castIron, 'rodamientos', 0, 7, 0)
+  const web = new THREE.Shape(); web.moveTo(-40, 0); web.lineTo(40, 0); web.lineTo(26, 30); web.lineTo(-26, 30); web.closePath()
+  const wg = new THREE.ExtrudeGeometry(web, { depth: 30, bevelEnabled: true, bevelThickness: 1, bevelSize: 1, bevelSegments: 2 }); wg.translate(0, 0, -15)
+  add(g, wg, M.castIron, 'rodamientos', 0, 10, 0)
+  add(g, cylZ(33, 38, 40), M.castIron, 'rodamientos', 0, 33.3, 0)
+  add(g, cylZ(22, 40.5, 40), M.chrome, 'rodamientos', 0, 33.3, 0)
+  add(g, cylY(3, 10, 12), M.brass, 'rodamientos', 0, 33.3 + 36, 0)
+  for (const x of [-47.5, 47.5]) {
+    add(g, cylY(8.6, 7, 6), M.zinc, 'rodamientos', x, 17.5, 0)
+    add(g, cylY(10, 1.5, 24), M.zinc, 'rodamientos', x, 14.7, 0)
+  }
+}
+const TOPE_X = 110, TOPE_Z = [-150, 150]
+// Altura del tope: justo donde llega la cara de abajo de la tabla a 12°
+const yTope = EJE_Y + (TABLA_Y0 - EJE_Y) * Math.cos(TOPE * deg) - TOPE_X * Math.sin(TOPE * deg)
+for (const x of [-TOPE_X, TOPE_X]) for (const z of TOPE_Z) {
+  const taco = yTope - 30 - BASE_T
+  add(fixed, box(70, taco, 70), ply(), 'topes', x, BASE_T + taco / 2, z)
+  add(fixed, cylY(22, 30, 32), M.rubber, 'topes', x, BASE_T + taco + 15, z)
+}
+
+// ---------- Gomas de centrado ----------
+const GOMA_Z = [-250, 250], POSICIONES = [50, 70, 90, 115]
+const GUIA_Y = BASE_T + 40, CARRO_Y = GUIA_Y + 6, GOMA_Y0 = CARRO_Y + 10
+const TIRA_Y = TABLA_Y0 - 6, GOMA_LIBRE = 52, TAPA_GOMA = 5
+const M_goma = new THREE.MeshStandardMaterial({ color: 0xe2a73b, roughness: 0.6 }); M_goma.color.convertSRGBToLinear()
+const gomas = []
+for (const z of GOMA_Z) {
+  add(fixed, box(270, 40, 46), ply(), 'gomas', 0, BASE_T + 20, z)
+  add(fixed, box(270, 6, 40), M.alu, 'gomas', 0, GUIA_Y + 3, z)
+  for (const x of POSICIONES) for (const sx of [-1, 1]) add(fixed, cylY(3.2, 6.4, 12), M.rubber, 'gomas', sx * x, GUIA_Y + 3.1, z + 12)
+  for (const sx of [-1, 1]) {
+    const carro = add(fixed, box(50, 10, 40), M.alu, 'gomas', 0, CARRO_Y + 5, z)
+    const pasador = add(fixed, cylY(3, 22, 12), M.chrome, 'gomas', 0, CARRO_Y + 6, z + 12)
+    const anilla = add(fixed, new THREE.TorusGeometry(6, 1.2, 8, 20), M.chrome, 'gomas', 0, CARRO_Y + 23, z + 12)
+    const cuerpo = add(fixed, new THREE.CylinderGeometry(15, 15, 1, 32).translate(0, 0.5, 0), M_goma, 'gomas', 0, GOMA_Y0, z)
+    const tapa = add(fixed, cylY(18, TAPA_GOMA, 32), M.alu, 'gomas', 0, 0, z)
+    gomas.push({ sx, carro, pasador, anilla, cuerpo, tapa })
+  }
+}
+
+// ---------- Lo que gira ----------
+const pivot = new THREE.Group(); pivot.position.set(0, EJE_Y, 0); scene.add(pivot)
+const local = y => y - EJE_Y
+add(pivot, cylZ(EJE_R, 940, 32), M.steel, 'eje', 0, 0, 0)
+// Quilla con rebajes sobre los rodamientos
+const qy = local(QUILLA_Y0), segs = [[-440, -425], [-375, -25], [25, 375], [425, 440]]
+for (const [a, b] of segs) add(pivot, box(36, QUILLA_H, b - a), ply(), 'quilla', 0, qy + QUILLA_H / 2, (a + b) / 2)
+for (const z of RODAMIENTOS) add(pivot, box(36, QUILLA_H - 22, 50), ply(), 'quilla', 0, qy + 22 + (QUILLA_H - 22) / 2, z)
+for (const z of [-355, -45, 45, 355]) {
+  add(pivot, box(60, 36, 22), M.alu, 'soportes', 0, qy - 18, z)
+  for (const x of [-21, 21]) add(pivot, cylY(4.2, 2, 6), M.steel, 'soportes', x, qy - 37, z)
+}
+// Tabla: dos capas, con lija encima
+for (const z of GOMA_Z) add(pivot, box(250, 6, 44), ply(), 'gomas', 0, local(TIRA_Y) + 3, z)
+const tablaMesh = add(pivot, roundedSlab(TABLA_W, TABLA_L, TABLA_T - 3, 40), M.birch, 'tabla', 0, local(TABLA_Y0) + 1.5, 0)
+const gripMesh = add(pivot, roundedSlab(TABLA_W - 24, TABLA_L - 24, 0.6, 30), M.grip, 'tabla', 0, local(TABLA_Y0 + TABLA_T) + 0.2, 0)
+for (const [x, z] of [[-90, -380], [90, -380], [-90, 380], [90, 380], [-90, 0], [90, 0]]) add(pivot, cylY(5, 1, 16), M.zinc, 'tabla', x, local(TABLA_Y0 + TABLA_T) + 1.1, z)
+
+// Caja del giroscopio bajo la tabla, en el extremo que mira a la máquina (z negativo)
+const cajaG = new THREE.Group(); cajaG.position.set(80, local(TABLA_Y0) - 20, -370); pivot.add(cajaG)
+add(cajaG, box(80, 40, 140), M.resin, 'caja', 0, 0, 0)
+const cara = -70.5
+add(cajaG, box(10, 14, 1.5), M.red, 'caja', -20, 4, cara)
+add(cajaG, cylZ(2.6, 2, 16), M.led, 'caja', 0, 8, cara)
+add(cajaG, cylZ(5, 2, 20), M.rubber, 'caja', 14, 8, cara)
+add(cajaG, box(9, 3.2, 1), new THREE.MeshStandardMaterial({ color: 0x050505 }), 'caja', 0, -8, cara)
+add(cajaG, cylZ(8, 12, 24), M.chrome, 'caja', 24, -6, cara - 6)
+for (const [x, z] of [[-34, -60], [34, -60], [-34, 60], [34, 60]]) add(cajaG, cylY(3.5, 2, 16), M.steel, 'caja', x, -21, z)
+{
+  const c = new THREE.CatmullRomCurve3([V(104, local(TABLA_Y0) - 26, -458), V(110, local(TABLA_Y0) - 40, -520), V(110, -40, -600), V(90, -EJE_Y + 4, -720)])
+  add(pivot, new THREE.TubeGeometry(c, 40, 3.5, 10), M.cable, 'caja')
+}
+
+// Punto donde carga el peso (centro de presión)
+const cdp = add(pivot, cylY(14, 1.2, 32), new THREE.MeshStandardMaterial({ color: 0xff5a3c, emissive: 0x7a1a0a, roughness: 0.5 }), 'pies', 0, local(TABLA_Y0 + TABLA_T) + 1.6, 0)
+
+// Pies para dar escala (talla 43, de lado sobre la tabla)
+const piesG = new THREE.Group(); pivot.add(piesG)
+for (const z of [-220, 220]) {
+  const g = new THREE.Group(); g.position.set(0, local(TABLA_Y0 + TABLA_T) + 1, z); piesG.add(g)
+  add(g, roundedSlab(285, 105, 18, 45), M.sole, 'pies', 0, 0, 0)
+  const up = add(g, roundedSlab(270, 95, 55, 42), M.shoe, 'pies', -5, 18, 0)
+  up.scale.set(1, 1, 1)
+  add(g, new THREE.SphereGeometry(48, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.shoe, 'pies', -40, 73, 0).scale.set(1.4, 0.9, 0.95)
+}
+
+// ---------- Interacción ----------
+// Modelo sencillo: la inclinación es la que equilibra el par del peso descentrado con el de las
+// cuatro gomas (siempre apretadas, trabajan las cuatro). Rigidez de cada goma, orientativa:
+const K_GOMA = 5500   // N/m: goma blanda de Ø30 o muelle suave; se afina probando
+let tilt = 0, mecer = false, t = 0, posGomas = 'auto'
+const chip = document.getElementById('chip'), lectura = document.getElementById('lectura')
+const pesoIn = document.getElementById('peso'), cargaIn = document.getElementById('carga')
+const pesoOut = document.getElementById('pesoOut'), cargaOut = document.getElementById('cargaOut')
+const btnMecer = document.getElementById('btnMecer')
+btnMecer.onclick = () => { mecer = !mecer; btnMecer.textContent = mecer ? 'Parar' : 'Balancear' }
+cargaIn.oninput = () => { mecer = false; btnMecer.textContent = 'Balancear' }
+document.getElementById('gomasPos').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return
+  posGomas = b.dataset.pos
+  for (const x of e.currentTarget.children) x.classList.toggle('primary', x === b)
+}
+const posPorPeso = kg => kg < 40 ? 50 : kg < 70 ? 70 : kg < 100 ? 90 : 115
+const nombrePos = { 50: 'niño', 70: 'joven', 90: 'adulto', 115: 'grande' }
+const rigidez = x => 4 * K_GOMA * (x / 1000) ** 2   // N·m/rad
+document.getElementById('xray').onchange = e => {
+  for (const m of [M.birch, M.grip]) { m.transparent = e.target.checked; m.opacity = e.target.checked ? 0.25 : 1; m.depthWrite = !e.target.checked; m.needsUpdate = true }
+  piesG.visible = !e.target.checked && document.getElementById('pies').checked
+}
+document.getElementById('pies').onchange = e => { piesG.visible = e.target.checked }
+
+const VIEWS = {
+  foto: { p: [1500, 850, 1650], t: [0, 80, -40] },
+  frente: { p: [0, 160, -1500], t: [0, 90, 0] },
+  debajo: { p: [700, 40, -900], t: [0, 90, -150] },
+  rodamiento: { p: [260, 170, -620], t: [0, 60, -400] },
+  caja: { p: [420, 120, -820], t: [80, 90, -440] }
+}
+let tween = null
+function goTo(name) { const v = VIEWS[name]; tween = { t: 0, p0: camera.position.clone(), t0: controls.target.clone(), p1: V(...v.p), t1: V(...v.t) } }
+document.getElementById('views').onclick = e => { const v = e.target.dataset.view; if (v) goTo(v) }
+camera.position.set(...VIEWS.foto.p); controls.target.set(...VIEWS.foto.t)
+
+const info = document.getElementById('info'), infoName = document.getElementById('infoName'), infoDesc = document.getElementById('infoDesc')
+function showPart(k) { if (!k) { info.hidden = true; return } info.hidden = false; infoName.textContent = PARTS[k].name; infoDesc.textContent = PARTS[k].desc }
+const partsEl = document.getElementById('parts')
+for (const [k, p] of Object.entries(PARTS)) {
+  const b = document.createElement('button')
+  b.innerHTML = `<span class="sw" style="background:${p.sw}"></span>${p.name}`
+  b.onclick = () => showPart(k)
+  partsEl.append(b)
+}
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2()
+let down = null
+renderer.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY] })
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return
+  const r = renderer.domElement.getBoundingClientRect()
+  mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+  ray.setFromCamera(mouse, camera)
+  const hit = ray.intersectObjects(scene.children, true).find(h => h.object.userData.part && h.object.material.opacity !== 0.25 && isVisible(h.object))
+  showPart(hit ? hit.object.userData.part : null)
+})
+function isVisible(o) { while (o) { if (!o.visible) return false; o = o.parent } return true }
+
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix() }
+new ResizeObserver(resize).observe(stage)
+let last = performance.now()
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt
+  if (mecer) cargaIn.value = (2.6 * Math.sin(t * 1.3) + 1.2 * Math.sin(t * 2.9 + 1)).toFixed(1)
+  const kg = +pesoIn.value, d = +cargaIn.value, x = posGomas === 'auto' ? posPorPeso(kg) : +posGomas
+  const k = rigidez(x)
+  const objetivo = Math.max(-TOPE, Math.min(TOPE, kg * 9.81 * (d / 100) / k / deg))
+  tilt += (objetivo - tilt) * Math.min(1, dt * 8)
+  pivot.rotation.z = -tilt * deg
+  cdp.position.x = d * 10
+  const th = tilt * deg
+  for (const g of gomas) {
+    const gx = g.sx * x
+    g.carro.position.x = g.pasador.position.x = g.anilla.position.x = g.cuerpo.position.x = g.tapa.position.x = gx
+    // Altura de la tira bajo la tabla en esa x con la tabla inclinada
+    const contacto = EJE_Y + (TIRA_Y - EJE_Y) * Math.cos(th) - gx * Math.sin(th)
+    const alto = Math.min(GOMA_LIBRE, contacto - TAPA_GOMA - GOMA_Y0)
+    g.cuerpo.scale.y = alto
+    g.tapa.position.y = GOMA_Y0 + alto + TAPA_GOMA / 2
+  }
+  const fmt = v => v.toFixed(1).replace('.', ',')
+  pesoOut.textContent = kg + ' kg'
+  cargaOut.textContent = (d > 0 ? '+' : '') + fmt(d) + ' cm'
+  chip.textContent = 'Inclinación ' + fmt(tilt) + '°' + (Math.abs(tilt) >= TOPE - 0.05 ? ' · contra el tope' : '')
+  const d10 = k * 10 * deg / (kg * 9.81) * 100
+  lectura.textContent = `Gomas en posición ${nombrePos[x]} (${fmt(x / 10)} cm del eje). Con ${kg} kg, para inclinar 10° hay que cargar el peso ${fmt(d10)} cm hacia un lado` + (d10 > 6 ? ': demasiado duro para este peso.' : d10 < 1.5 ? ': demasiado blando, se va al tope enseguida.' : '.')
+  if (tween) {
+    tween.t = Math.min(1, tween.t + dt / 0.9)
+    const k = 1 - Math.pow(1 - tween.t, 3)
+    camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.t0, tween.t1, k)
+    if (tween.t === 1) tween = null
+  }
+  controls.update()
+  renderer.render(scene, camera)
+  requestAnimationFrame(loop)
+}
+resize()
+requestAnimationFrame(loop)
+</script>

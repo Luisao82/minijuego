@@ -6,11 +6,15 @@
 //  impresora y TU resina (la resina encoge un poco al curar).
 //
 //  Filas (de arriba abajo):
+//    0. Conector GX12 de panel ......... Ø 11,8 – 12,8 mm (cable de 3 hilos a la bandera)
 //    1. Jack 3,5 mm y portaled ......... Ø 5,8 – 8,0 mm
 //    2. Pulsador de calibrar ........... Ø 11,8 – 12,6 mm
 //    3. Ventana del USB-C .............. 4 tamaños de ventana redondeada
 //    4. Tornillos y tuercas ............ agujero pasante + hexágono para tuerca
 //       (M2, M2.5 y M3: el hexágono se prueba metiendo la tuerca)
+//    Columna derecha: interruptor KCD1 (basculante) — 3 recortes rectangulares
+//       alrededor de 19 × 13 mm; el bueno es el que lo sujeta por sus pestañas
+//       sin holgura
 //
 //  Cada agujero lleva grabada su medida debajo.
 //  Uso: prueba cada pieza en los agujeros y apunta el más pequeño en
@@ -18,8 +22,8 @@
 // =====================================================================
 
 grosor = 2.5;          // = grosor de pared de la caja
-ancho_placa = 104;
-alto_placa = 74;
+ancho_placa = 146;   // cabe plana en la impresora (153 × 87)
+alto_placa = 86;     // casi el fondo de la impresora (87)
 radio_esquina = 3;
 
 grabado = 0.6;         // profundidad de los textos
@@ -38,12 +42,20 @@ agujeros_pulsador = [11.8, 12.0, 12.2, 12.4, 12.6];
 ventanas_usb = [[9.4, 3.6], [10.0, 4.0], [11.0, 5.0], [12.5, 6.5]];  // [ancho, alto]
 // [nombre, Ø pasante, entrecaras de la tuerca + holgura]
 tornillos = [["M2", 2.4, 4.3], ["M2.5", 2.9, 5.3], ["M3", 3.4, 5.8]];
+recortes_interruptor = [[18.8, 12.8], [19.2, 13.0], [19.6, 13.4]];  // [largo, ancho]
+agujeros_gx12 = [11.8, 12.0, 12.2, 12.5, 12.8];   // rosca M12 del conector
 
 // Altura (Y) del centro de cada fila
+fila_gx12 = 77.5;
 fila_jack = 62;
 fila_pulsador = 42;
 fila_usb = 24;
 fila_tornillos = 8;
+
+// Columna del interruptor (a la derecha del resto)
+columna_interruptor = 126;
+filas_interruptor = [62, 40, 18];
+radio_recorte = 0.6;  // esquinas casi vivas, como el cuerpo del interruptor
 
 // ---------------------------------------------------------------------
 
@@ -59,6 +71,12 @@ module ventana_2d(an, al) {
     hull()
         for (dx = [-(an - al) / 2, (an - al) / 2])
             translate([dx, 0]) circle(d = al);
+}
+
+// Rectángulo con esquinas apenas redondeadas (centrado)
+module recorte_2d(largo, ancho) {
+    offset(r = radio_recorte)
+        square([largo - 2 * radio_recorte, ancho - 2 * radio_recorte], center = true);
 }
 
 // Con $fn = 6, el diámetro de circle es entre vértices
@@ -86,6 +104,13 @@ module agujeros_2d() {
         translate([x0, fila_tornillos]) circle(d = tornillos[i][1]);
         translate([x0 + 9, fila_tornillos]) hexagono_2d(tornillos[i][2]);
     }
+
+    for (i = [0 : len(recortes_interruptor) - 1])
+        translate([columna_interruptor, filas_interruptor[i]])
+            recorte_2d(recortes_interruptor[i][0], recortes_interruptor[i][1]);
+
+    for (i = [0 : len(agujeros_gx12) - 1])
+        translate([12 + i * 24, fila_gx12]) circle(d = agujeros_gx12[i]);
 }
 
 // Las medidas grabadas bajo cada agujero
@@ -104,6 +129,14 @@ module etiquetas_2d() {
     }
     for (i = [0 : len(tornillos) - 1])
         translate([10 + i * 33 + 20, fila_tornillos]) etiqueta_2d(tornillos[i][0]);
+    for (i = [0 : len(recortes_interruptor) - 1]) {
+        r = recortes_interruptor[i];
+        translate([columna_interruptor, filas_interruptor[i] - r[1] / 2 - 3.2])
+            etiqueta_2d(str(r[0], "x", r[1]));
+    }
+    // Al lado del agujero: debajo no cabe sin pisar la fila del jack
+    for (i = [0 : len(agujeros_gx12) - 1])
+        translate([12 + i * 24 + agujeros_gx12[i] / 2 + 5, fila_gx12]) etiqueta_2d(str(agujeros_gx12[i]));
 }
 
 // Capa inferior: placa con agujeros. Capa superior (los últimos 0,6 mm):
