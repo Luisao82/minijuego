@@ -1,0 +1,725 @@
+<title>Máquina Cucaña Trianera</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Taller de noche: visor 3D a la izquierda, panel de mandos a la derecha (apilado en móvil). Albero de acento. */
+:root{
+  --bg:#111419;--surface:#181c22;--surface-2:#20262e;--line:#2c333d;
+  --fg:#ece7dc;--muted:#9aa3ad;--accent:#e2a73b;--accent-ink:#1d1406;--blue:#5aa9ff;
+  --display:'Barlow Condensed','Arial Narrow',ui-sans-serif,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px}
+.app{height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.stage{position:relative;min-height:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;top:12px;left:14px;right:14px;pointer-events:none}
+.hud h1{margin:0;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.02em;line-height:1;text-wrap:balance}
+.hud p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.simcap{position:absolute;top:72px;left:14px;max-width:min(420px,calc(100% - 28px));background:var(--accent);color:var(--accent-ink);font:600 16px/1.25 var(--display);letter-spacing:.02em;padding:6px 10px;border-radius:6px}
+.info{position:absolute;left:12px;bottom:12px;max-width:min(390px,calc(100% - 24px));background:rgba(17,20,25,.9);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.info h2{margin:0 0 4px;font-family:var(--display);font-weight:600;font-size:19px;color:var(--accent);letter-spacing:.02em}
+.info p{margin:0;line-height:1.45;font-size:13px}
+.info .state{margin-top:6px;font-family:var(--mono);font-size:12px;color:var(--blue)}
+.panel{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding-right:2px}
+.panel h3{margin:0 0 8px;font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.stack{display:grid;gap:10px}
+button{font:500 13px var(--body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.parts{display:grid;gap:1px}
+.parts label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer}
+.parts label:hover{background:var(--surface-2)}
+.sw{width:10px;height:10px;border-radius:2px;flex:none}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.slider{display:grid;gap:4px}
+.slider .lab{display:flex;justify-content:space-between;font-size:13px}
+.slider output{font-family:var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox]{accent-color:var(--accent)}
+.note{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.dims{font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-variant-numeric:tabular-nums}
+.dims span:nth-child(odd){color:var(--muted)}
+@media (max-width:820px){html,body{height:auto}.app{height:auto;grid-template-columns:minmax(0,1fr)}.stage{height:64vh}.panel{overflow:visible}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="hud">
+      <h1>La Cucaña Trianera · máquina</h1>
+      <p>Arrastra para girar · rueda o pellizco para zoom · clic derecho o dos dedos para desplazar · toca una pieza para ver qué es y el vacío para quitar la ficha</p>
+    </div>
+    <div class="simcap" id="simcap" hidden></div>
+    <div class="info" id="info">
+      <h2 id="infoName">Máquina completa</h2>
+      <p id="infoDesc">Mueble de recreativa con pantalla, repisa con la bandera física empotrada en el centro, mandos de recreativa y el medio palo de equilibrio en el suelo, perpendicular a la máquina, todo sobre una tarima común.</p>
+      <div class="state" id="infoState"></div>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <section>
+      <h3>Vistas</h3>
+      <div class="row" id="views">
+        <button data-view="todo">Todo</button>
+        <button data-view="bandera">Bandera</button>
+        <button data-view="tabla">Palo</button>
+        <button data-view="caja">Caja giroscopio</button>
+        <button data-view="pantalla">Pantalla</button>
+        <button data-view="interior">Interior</button>
+      </div>
+    </section>
+
+    <section class="stack">
+      <h3>Mecanismos</h3>
+      <div class="row">
+        <button class="primary" id="btnSim">Simular partida</button>
+        <button id="btnUp">Subir bandera</button>
+        <button id="btnGrab">Coger bandera</button>
+        <button id="btnDemo">Tirón mientras baja</button>
+        <button id="btnReset">Reponer bandera</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="slow" checked> Cámara lenta ×5 en la bandera</label>
+      <div class="slider">
+        <div class="lab"><label for="tilt">Balanceo lateral del palo</label><output id="tiltOut">0°</output></div>
+        <input type="range" id="tilt" min="-12" max="12" step="0.5" value="0">
+      </div>
+      <div class="row"><button id="btnImp">Pulsar el botón frontal (impulso / salto)</button></div>
+    </section>
+
+    <section>
+      <h3>Piezas</h3>
+      <label class="toggle"><input type="checkbox" id="xray"> Rayos X: mueble y cajas translúcidos</label>
+      <div class="parts" id="parts" style="margin-top:8px"></div>
+    </section>
+
+    <section>
+      <h3>Medidas del prototipo</h3>
+      <div class="dims">
+        <span>Mueble</span><span>70 × 55 × 180 cm</span>
+        <span>Repisa</span><span>a 103 cm, 14 cm de grosor</span>
+        <span>Pantalla</span><span>24″, inclinada 5°</span>
+        <span>Palo</span><span>90 × 26 cm, ±12°</span>
+        <span>Impulso / salto</span><span>botón de 60 mm a 97 cm</span>
+        <span>Caja giroscopio</span><span>14,3 × 7,3 × 3,7 cm</span>
+        <span>Caja bandera</span><span>37 × 11 × 6 cm, empotrada</span>
+        <span>Bandera</span><span>blanca 10 × 6 cm, asoma 25 cm</span>
+      </div>
+      <p class="note">Pantalla, PC, alturas y distancias son supuestos para ver el conjunto. Cuando tengas las medidas reales se ajustan.</p>
+    </section>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const deg = Math.PI / 180, Y0 = 2
+const V = (x, y, z) => new THREE.Vector3(x, y, z)
+
+// ---------- Escena ----------
+const stage = document.getElementById('stage')
+const renderer = new THREE.WebGLRenderer({ antialias: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+stage.appendChild(renderer.domElement)
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x14181e)
+const camera = new THREE.PerspectiveCamera(40, 1, 0.5, 3000)
+camera.position.set(175, 150, 235)
+const controls = new THREE.OrbitControls(camera, renderer.domElement)
+controls.target.set(0, 80, 20)
+controls.enableDamping = true
+controls.minDistance = 6
+controls.maxDistance = 700
+controls.maxPolarAngle = Math.PI * 0.94
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight
+  renderer.setSize(w, h, false)
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+}
+new ResizeObserver(resize).observe(stage)
+resize()
+
+scene.add(new THREE.HemisphereLight(0xdfe8f5, 0x3a3128, 0.85))
+const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(120, 260, 200); scene.add(sun)
+const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-150, 90, -140); scene.add(fill)
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ color: 0x171b21, roughness: 1 }))
+floor.rotation.x = -Math.PI / 2; floor.position.y = -0.05; scene.add(floor)
+scene.add(new THREE.GridHelper(600, 60, 0x2a313b, 0x1f252d))
+
+// ---------- Utilidades ----------
+const parts = {}
+function part(key, name, desc, swatch, parent = scene) {
+  const g = new THREE.Group(); g.userData.key = key; parent.add(g)
+  parts[key] = { g, name, desc, swatch }
+  return g
+}
+const mat = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.65, metalness: 0 }, o || {}))
+function add(p, geo, color, x, y, z, o) { const m = new THREE.Mesh(geo, mat(color, o)); m.position.set(x, y, z); p.add(m); return m }
+const B = (p, w, h, d, c, x, y, z, o) => add(p, new THREE.BoxGeometry(w, h, d), c, x, y, z, o)
+const CZ = (p, r, len, c, x, y, z, o, seg = 24) => { const m = add(p, new THREE.CylinderGeometry(r, r, len, seg), c, x, y, z, o); m.rotation.x = Math.PI / 2; return m }
+const CX = (p, r, x0, x1, c, y, z, o, seg = 16) => { const m = add(p, new THREE.CylinderGeometry(r, r, x1 - x0, seg), c, (x0 + x1) / 2, y, z, o); m.rotation.z = -Math.PI / 2; return m }
+const CY = (p, r, y0, y1, c, x, z, o, seg = 16) => add(p, new THREE.CylinderGeometry(r, r, y1 - y0, seg), c, x, (y0 + y1) / 2, z, o)
+function seg(p, a, b, r, c, o) {
+  const d = new THREE.Vector3().subVectors(b, a)
+  const m = add(p, new THREE.CylinderGeometry(r, r, d.length(), 12), c, 0, 0, 0, o)
+  m.position.copy(a).addScaledVector(d, 0.5)
+  m.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize())
+  return m
+}
+const tube = (pts, r, c) => new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(24, pts.length * 14), r, 8), mat(c, { roughness: 0.8 }))
+
+const WOOD = 0xc39a62, WOOD_DARK = 0x8e6a40, WOOD_LIGHT = 0xd6b382, BLACK = 0x222428, METAL = 0xc4c8cc,
+  RUBBER = 0x1c1c1c, RESIN = 0x8f9499, WHITE = 0xf3f1ea, SERVO = 0x2f6fd6, FELT = 0x6b8f71
+const METAL_O = { metalness: 0.8, roughness: 0.3 }
+
+// ---------- Tarima ----------
+const tarima = part('tarima', 'Tarima común', 'Base de 80 × 153 cm que comparten el mueble y la tabla: el peso del mueble impide que la tabla se desplace o que la máquina vuelque hacia el jugador. Alfombrilla antideslizante bajo la tabla.', '#7d5b3a')
+B(tarima, 80, 2, 178, 0x7d5b3a, 0, 1, 31, { roughness: 0.9 })
+B(tarima, 44, 0.3, 104, 0x2b2e33, 0, 2.15, 70, { roughness: 1 })
+const FLOOR = 2.3, PIV = FLOOR + 10
+
+// ---------- Mueble ----------
+const mueble = part('mueble', 'Mueble', 'Contrachapado de 18 mm, 70 × 55 × 180 cm. Laterales con perfil de recreativa, techo, fondo, balda intermedia y trasera con puerta para llegar al PC.', '#c39a62')
+const prof = [[-55, 0], [0, 0], [0, 87], [30, 87], [30, 101], [4, 101], [-1, 158], [-1, 178], [-55, 178]]
+const shape = new THREE.Shape()
+prof.forEach(([z, y], i) => i ? shape.lineTo(z, y) : shape.moveTo(z, y))
+const sideGeo = new THREE.ExtrudeGeometry(shape, { depth: 1.8, bevelEnabled: false })
+for (const x of [-33.2, 35]) { const m = new THREE.Mesh(sideGeo, mat(WOOD)); m.rotation.y = -Math.PI / 2; m.position.set(x, Y0, 0); mueble.add(m) }
+B(mueble, 66.4, 1.8, 56, WOOD, 0, Y0 + 177.1, -27)
+B(mueble, 66.4, 174.4, 1.8, WOOD, 0, Y0 + 89, -54.1)
+B(mueble, 40, 50, 0.4, WOOD_DARK, 0, Y0 + 40, -55.2)
+CZ(mueble, 0.8, 0.8, METAL, 15, Y0 + 40, -55.6, METAL_O)
+B(mueble, 66.4, 1.8, 51.4, WOOD, 0, Y0 + 0.9, -27.5)
+B(mueble, 66.4, 1.8, 51.4, WOOD, 0, Y0 + 92.1, -27.5)
+
+// ---------- Frontal ----------
+const frontal = part('frontal', 'Frontal', 'Puerta inferior con rejilla de ventilación para el PC, marco de la pantalla y marquesina iluminada.', '#8e6a40')
+B(frontal, 66.4, 85, 1.8, WOOD_DARK, 0, Y0 + 44.5, -0.9)
+for (let i = 0; i < 6; i++) B(frontal, 30, 1.2, 0.4, 0x1d1f22, 0, Y0 + 18 + i * 4, 0.2)
+CZ(frontal, 0.9, 0.6, METAL, 26, Y0 + 70, 0.3, METAL_O)
+const bezel = new THREE.Group(); bezel.position.set(0, Y0 + 129.5, 1.5); bezel.rotation.x = -5 * deg; frontal.add(bezel)
+B(bezel, 6.45, 57.2, 1.8, BLACK, -29.975, 0, 0); B(bezel, 6.45, 57.2, 1.8, BLACK, 29.975, 0, 0)
+B(bezel, 53.5, 11.35, 1.8, BLACK, 0, 22.925, 0); B(bezel, 53.5, 15.35, 1.8, BLACK, 0, -20.925, 0)
+B(frontal, 66.4, 20, 1.8, 0x1d1f22, 0, Y0 + 168, -1.9)
+const mq = document.createElement('canvas'); mq.width = 512; mq.height = 128
+const mqTex = new THREE.CanvasTexture(mq)
+function drawMarquee() {
+  const c = mq.getContext('2d')
+  c.fillStyle = '#7d1b1b'; c.fillRect(0, 0, 512, 128)
+  c.fillStyle = '#e2a73b'; c.fillRect(0, 0, 512, 8); c.fillRect(0, 120, 512, 8)
+  c.fillStyle = '#f6d27a'; c.font = '600 64px "Barlow Condensed", "Arial Narrow", sans-serif'
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('LA CUCAÑA TRIANERA', 256, 68)
+  mqTex.needsUpdate = true
+}
+drawMarquee()
+document.fonts && document.fonts.ready.then(drawMarquee)
+const mqMesh = new THREE.Mesh(new THREE.PlaneGeometry(64, 18), new THREE.MeshBasicMaterial({ map: mqTex }))
+mqMesh.position.set(0, Y0 + 168, -0.98); frontal.add(mqMesh)
+
+// ---------- Repisa ----------
+const repisa = part('repisa', 'Repisa delantera', 'Repisa hueca de 14 cm de grosor a 103 cm del suelo. La caja de la bandera va empotrada dentro, en línea con el palo: por fuera solo se ve la ranura lateral de la tapa por la que sale la bandera. Por dentro pasan los cables.', '#3a3f46')
+const LT = Y0 + 100.4
+B(repisa, 66.4, 1.2, 12.5, 0x2a2d31, 0, LT, 6.25)
+B(repisa, 66.4, 1.2, 14.5, 0x2a2d31, 0, LT, 22.75)
+B(repisa, 16.2, 1.2, 3, 0x2a2d31, -25.1, LT, 14)
+B(repisa, 16.2, 1.2, 3, 0x2a2d31, 25.1, LT, 14)
+B(repisa, 66.4, 1.2, 30, 0x2a2d31, 0, Y0 + 87.6, 15)
+B(repisa, 66.4, 11.6, 1.2, 0x2a2d31, 0, Y0 + 94, 29.4)
+B(repisa, 66.4, 1.2, 0.6, 0xe2a73b, 0, Y0 + 99.5, 30.3)
+
+const mandos = part('mandos', 'Mandos (propuesta)', 'Joystick y tres botones de recreativa para moverse por los menús sin pantalla táctil: A aceptar, B atrás y START. Van, junto con el botón de impulso, a una placa USB (encoder, en verde dentro de la repisa) que el PC ve como un mando; el juego los leería con la API de mandos del navegador.', '#c0392b')
+B(mandos, 9, 0.4, 9, BLACK, -26, Y0 + 101.2, 21)
+CY(mandos, 0.5, Y0 + 101.4, Y0 + 107, METAL, -26, 21, METAL_O)
+add(mandos, new THREE.SphereGeometry(1.9, 20, 14), 0xc0392b, -26, Y0 + 108.5, 21)
+for (const [x, c] of [[12, 0x2f6fd6], [19, 0x8e44ad], [26, 0x2a9d8f]]) { CY(mandos, 1.6, Y0 + 101, Y0 + 101.8, BLACK, x, 21); CY(mandos, 1.3, Y0 + 101.8, Y0 + 102.6, c, x, 21) }
+B(mandos, 9, 0.2, 5, 0x1b6e3a, 20, Y0 + 88.4, 8)
+for (const p of [[-26, 21], [12, 21], [19, 21], [26, 21], [0, 29]]) mandos.add(tube([V(p[0], Y0 + 99.6, p[1]), V(p[0] * 0.6 + 8, Y0 + 92, (p[1] + 8) / 2), V(18, Y0 + 88.6, 8)], 0.12, 0x444444))
+mandos.add(tube([V(24, Y0 + 88.6, 8), V(26, Y0 + 88, -6), V(-6, Y0 + 70, -20), V(-14, Y0 + 40, -6.6)], 0.25, 0x111111))
+
+// ---------- Pantalla ----------
+const pantalla = part('pantalla', 'Monitor 24″', 'Monitor de 24 pulgadas (supuesto) en soporte VESA atornillado a un travesaño, inclinado 5° hacia atrás. La imagen de prueba sigue la inclinación de la tabla.', '#5aa9ff')
+pantalla.position.copy(bezel.position); pantalla.rotation.x = bezel.rotation.x
+B(pantalla, 55, 32.5, 4.5, 0x1a1b1e, 0, 2, -3.6)
+B(pantalla, 10, 10, 1, 0x44474d, 0, 2, -6.3)
+B(pantalla, 66.4, 4, 2, WOOD_DARK, 0, 2, -7.8)
+const sc = document.createElement('canvas'); sc.width = 192; sc.height = 108
+const sx = sc.getContext('2d')
+const screenTex = new THREE.CanvasTexture(sc)
+screenTex.magFilter = THREE.NearestFilter; screenTex.minFilter = THREE.NearestFilter
+const screen = new THREE.Mesh(new THREE.PlaneGeometry(52.7, 29.6), new THREE.MeshBasicMaterial({ map: screenTex }))
+screen.position.set(0, 2, -1.3); pantalla.add(screen)
+function drawScreen(st) {
+  const tilt = st.tilt || 0, mode = st.mode || 'idle'
+  sx.fillStyle = '#7cc8ee'; sx.fillRect(0, 0, 192, 60)
+  sx.fillStyle = '#ffe08a'; sx.fillRect(164, 8, 10, 10)
+  const cols = ['#f2c14e', '#f4f1de', '#e76f51', '#f4f1de', '#e9c46a', '#d9c6a5']
+  let x = 0
+  for (let i = 0; i < 12; i++) {
+    const w = 14 + (i * 7) % 9, h = 14 + (i * 11) % 14
+    sx.fillStyle = cols[i % cols.length]; sx.fillRect(x, 58 - h, w, h)
+    sx.fillStyle = '#3a5a80'
+    for (let wy = 58 - h + 3; wy < 55; wy += 5) for (let wx = x + 2; wx < x + w - 2; wx += 4) sx.fillRect(wx, wy, 2, 2)
+    x += w + 1
+  }
+  sx.fillStyle = '#2f6db5'; sx.fillRect(0, 58, 192, 50)
+  sx.fillStyle = '#4f8fd6'; for (let i = 0; i < 14; i++) sx.fillRect((i * 29) % 192, 64 + (i * 7) % 26, 10, 1)
+  sx.fillStyle = '#8b5a2b'; sx.fillRect(0, 69, 150, 3)
+  sx.fillStyle = '#d8c08a'; for (let i = 0; i < 150; i += 12) sx.fillRect(i + 3, 69, 4, 1)
+  if (mode !== 'win') { sx.fillStyle = '#5a3a1a'; sx.fillRect(149, 57, 1, 13); sx.fillStyle = '#f4f1de'; sx.fillRect(150, 57, 8, 5) }
+  let cx = 95, cy = 0
+  if (mode === 'impulse') cx = 12
+  else if (mode === 'balance') cx = 12 + Math.round(st.progress * 126)
+  else if (mode === 'jump') { cx = 138 + Math.round(st.jumpT * 12); cy = -Math.round(Math.sin(Math.PI * st.jumpT) * 14) }
+  else if (mode === 'win') { cx = 150; cy = -4 }
+  const lean = mode === 'idle' || mode === 'balance' ? Math.round(tilt / 4) : 0
+  sx.fillStyle = '#f0c8a0'; sx.fillRect(cx - 1 + lean, 51 + cy, 4, 4)
+  sx.fillStyle = '#f4f1de'; sx.fillRect(cx - 2 + Math.round(lean / 2), 55 + cy, 6, 8)
+  sx.fillStyle = '#c0392b'; sx.fillRect(cx - 2 + Math.round(lean / 2), 58 + cy, 6, 2)
+  sx.fillStyle = '#2b2b2b'; sx.fillRect(cx - 2, 63 + cy, 2, 6); sx.fillRect(cx + 2, 63 + cy, 2, 6)
+  if (mode === 'win') { sx.fillStyle = '#5a3a1a'; sx.fillRect(cx + 5, 38 + cy, 1, 16); sx.fillStyle = '#f4f1de'; sx.fillRect(cx + 6, 38 + cy, 8, 5) }
+  if (mode === 'idle' || mode === 'balance') {
+    sx.fillStyle = '#14171c'; sx.fillRect(44, 92, 104, 10)
+    sx.fillStyle = '#c0392b'; sx.fillRect(46, 94, 12, 6); sx.fillRect(134, 94, 12, 6)
+    sx.fillStyle = '#e9c46a'; sx.fillRect(58, 94, 76, 6)
+    sx.fillStyle = '#2a9d8f'; sx.fillRect(84, 94, 24, 6)
+    sx.fillStyle = '#ffffff'; sx.fillRect(96 + Math.round(tilt / 12 * 46) - 1, 91, 3, 12)
+  }
+  if (mode === 'impulse') {
+    sx.fillStyle = '#14171c'; sx.fillRect(6, 24, 10, 42)
+    sx.fillStyle = st.impulse > 0.8 ? '#2a9d8f' : '#e9c46a'; const hgt = Math.round(st.impulse * 38); sx.fillRect(8, 64 - hgt, 6, hgt)
+  }
+  sx.font = 'bold 8px monospace'; sx.fillStyle = '#ffffff'; sx.fillText('LA CUCAÑA', 4, 10)
+  if (st.label) { sx.fillStyle = '#ffe08a'; sx.fillText(st.label, 74, 86) }
+  screenTex.needsUpdate = true
+}
+
+// ---------- PC ----------
+const pc = part('pc', 'PC y alimentación', 'Torre Windows con Bluetooth: recibe la tabla por BLE y mueve el juego. Regleta y cargador USB de 5 V 2 A que alimenta el servo de la bandera.', '#34373c')
+B(pc, 20, 44, 45, 0x2a2c30, -20, Y0 + 23.8, -29)
+B(pc, 20, 44, 0.5, 0x34373c, -20, Y0 + 23.8, -6.25)
+CZ(pc, 1, 0.4, 0x3b82c4, -20, Y0 + 40, -5.9)
+B(pc, 30, 4, 6, 0xeeeeee, 8, Y0 + 3.8, -45)
+B(pc, 4, 4, 4, 0xf5f5f5, 18, Y0 + 7.8, -45)
+
+// ---------- Tabla (pivota) ----------
+const BZ = 70
+const boardPivot = new THREE.Group(); boardPivot.position.set(0, PIV, BZ); scene.add(boardPivot)
+const tabla = part('tabla', 'Palo de equilibrio', 'Medio palo de 86 cm (medio tronco de 10 cm de radio) bajo una tabla de 26 × 90 cm, perpendicular a la máquina. El jugador se pone de lado, un pie delante y otro detrás, como si avanzara por la cucaña hacia la bandera. Solo se balancea de un lado a otro: no lleva micros ni piezas que sufran.', '#8a5a35', boardPivot)
+B(tabla, 26, 1.8, 90, 0xb88a55, 0, 0.9, 0)
+B(tabla, 24, 0.12, 88, 0x2b2e33, 0, 1.86, 0, { roughness: 1 })
+for (const z of [-22, 22]) B(tabla, 22, 0.05, 10, 0x4a5058, 3, 1.93, z)
+const hull = add(tabla, new THREE.CylinderGeometry(10, 10, 86, 40, 1, false, -Math.PI / 2, Math.PI), 0x8a5a35, 0, 0, 0, { roughness: 0.95, side: THREE.DoubleSide })
+hull.rotation.x = Math.PI / 2
+
+const base = part('base', 'Topes de goma', 'Cuatro topes de goma a los lados del palo que limitan el balanceo a ±12°. Al no cabecear, el palo no necesita micro ni topes delante y detrás.', '#1c1c1c')
+const hS = PIV - 13 * Math.tan(12 * deg) - FLOOR
+for (const x of [-15, 15]) for (const z of [BZ - 25, BZ + 25]) B(base, 4, hS, 8, RUBBER, x, FLOOR + hS / 2, z, { roughness: 1 })
+
+const boton = part('boton', 'Botón de impulso y salto', 'Botón grande de recreativa (60 mm) en el frontal de la repisa, justo delante del jugador. Primera pulsación: coger impulso. Segunda: saltar. Al saltar la mano ya está delante, a un palmo de la bandera, que sale justo encima en la misma dirección.', '#e2a73b')
+CZ(boton, 3.7, 0.6, BLACK, 0, Y0 + 95, 30.3)
+const plunger = new THREE.Group(); plunger.position.set(0, Y0 + 95, 0); boton.add(plunger)
+CZ(plunger, 3, 1.4, 0xe2a73b, 0, 0, 31.2, { roughness: 0.35 })
+
+const cajaGiro = part('cajaGiro', 'Caja del giroscopio', 'Caja de resina de 14,3 × 7,3 × 3,7 cm atornillada en el centro del palo, entre los dos pies y sobre el eje de balanceo. Tapa con interruptor ON/OFF, botón CAL y LED de estado. USB-C delante y conector GX12 de la bandera en el lateral izquierdo.', '#8f9499', boardPivot)
+const gz = 0, gy = 1.8
+B(cajaGiro, 7.3, 0.25, 14.3, RESIN, 0, gy + 0.125, gz)
+for (const x of [-3.525, 3.525]) B(cajaGiro, 0.25, 3.2, 14.3, RESIN, x, gy + 1.85, gz)
+for (const dz of [-7.025, 7.025]) B(cajaGiro, 6.8, 3.2, 0.25, RESIN, 0, gy + 1.85, gz + dz)
+B(cajaGiro, 7.3, 0.25, 14.3, 0x9da2a7, 0, gy + 3.575, gz)
+B(cajaGiro, 1.3, 0.45, 1.9, 0xc0392b, -2, gy + 3.9, gz + 0.2)
+CY(cajaGiro, 0.55, gy + 3.7, gy + 4.1, 0x222222, 0.6, gz + 0.2)
+add(cajaGiro, new THREE.SphereGeometry(0.32, 12, 8), 0x3ee07a, 2.4, gy + 3.75, gz + 0.2, { emissive: 0x2bd15f, emissiveIntensity: 0.9 })
+B(cajaGiro, 1, 0.4, 0.3, 0x111111, -1.6, gy + 1.6, gz - 7.2)
+CX(cajaGiro, 0.9, -4.9, -3.65, METAL, gy + 1.85, gz + 2.85, METAL_O)
+
+const electronica = part('electronica', 'Electrónica del palo', 'Placa perforada con el ESP32-S3 y el MPU6050 (giroscopio), canal central con interruptor y botón, y portapilas plano de 4 × AA. Envía la inclinación por Bluetooth y mueve el servo de la bandera por el cable de 3 hilos.', '#2f7d32', boardPivot)
+B(electronica, 4.6, 0.16, 6.1, 0x2f7d32, 0, gy + 0.75, gz - 3.85)
+B(electronica, 2.6, 0.15, 5, 0x1b4d2b, 0, gy + 1.75, gz - 3.85)
+B(electronica, 1.8, 0.3, 2.5, 0xb7bcc2, 0, gy + 1.98, gz - 4.75, METAL_O)
+B(electronica, 0.9, 0.35, 0.7, METAL, 0, gy + 1.95, gz - 6.25, METAL_O)
+for (const x of [-1.15, 1.15]) B(electronica, 0.25, 0.9, 5, 0x111111, x, gy + 1.25, gz - 3.85)
+B(electronica, 1.6, 0.12, 2.1, 0x1f5fbf, -1.3, gy + 0.9, gz - 1.75)
+B(electronica, 5.8, 1.6, 6.2, 0x111111, 0, gy + 1.05, gz + 4.3)
+for (let i = 0; i < 4; i++) CZ(electronica, 0.7, 5, i % 2 ? 0x2b2b2b : 0xb87333, -2.175 + i * 1.45, gy + 1.75, gz + 4.3)
+
+const persona = part('persona', 'Jugador (1,75 m)', 'Jugador de lado sobre el palo: pie izquierdo delante, derecho detrás y tronco girado hacia la pantalla. Se equilibra como en una tabla de snow: el tronco quieto en el centro y las piernas (rodillas, tobillos y cadera) siguiendo el balanceo. La mano izquierda pulsa el botón y coge la bandera.', '#f4f1de')
+const SKIN = 0xd9a47e, SHIRT = 0xf4f1de, PANTS = 0x2b3445, SHOE = 0x1b1b1b, SASH = 0xc0392b, HAIR = 0x2a1d14
+const pMesh = (geo, c) => { const m = new THREE.Mesh(geo, mat(c, { roughness: 0.8 })); persona.add(m); return m }
+const cyl = (r, c) => pMesh(new THREE.CylinderGeometry(r, r, 1, 14), c)
+const ball = (r, c) => pMesh(new THREE.SphereGeometry(r, 16, 12), c)
+const body = {
+  pelvis: pMesh(new THREE.BoxGeometry(20, 16, 32), PANTS), belly: cyl(13, SHIRT), sash: cyl(14.2, SASH),
+  chest: pMesh(new THREE.BoxGeometry(20, 30, 36), SHIRT), neck: cyl(5, SKIN), head: ball(10.5, SKIN),
+  hair: pMesh(new THREE.SphereGeometry(11.3, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), HAIR),
+  legs: [0, 1].map(() => ({ hip: ball(8, PANTS), thigh: cyl(7.5, PANTS), knee: ball(6.6, PANTS), shin: cyl(5.6, PANTS), ankle: ball(4.6, PANTS), foot: pMesh(new THREE.BoxGeometry(25, 7, 10), SHOE) })),
+  arms: [0, 1].map(() => ({ sh: ball(5.8, SHIRT), upper: cyl(4.7, SHIRT), elbow: ball(4.3, SHIRT), fore: cyl(3.6, SKIN), hand: ball(4.2, SKIN) }))
+}
+body.head.scale.set(0.95, 1.15, 0.95)
+const handAnchor = new THREE.Group(); scene.add(handAnchor)
+const handL = V(-10, 110, 45), handR = V(14, 105, 85)
+let crouch = 0.4
+
+function setLimb(m, a, b) { const d = new THREE.Vector3().subVectors(b, a), L = d.length(); m.position.copy(a).addScaledVector(d, 0.5); m.scale.set(1, Math.max(L, 0.01), 1); m.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()) }
+// Cinemática inversa de dos huesos: dónde queda el codo o la rodilla
+function ik(A, T, L1, L2, pole) {
+  const d0 = T.clone().sub(A), d = Math.max(1, Math.min(d0.length(), L1 + L2 - 0.5)), dir = d0.normalize()
+  const a = (L1 * L1 - L2 * L2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, L1 * L1 - a * a))
+  const n = pole.clone().sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize()
+  return { mid: A.clone().addScaledVector(dir, a).addScaledVector(n, h), end: A.clone().addScaledVector(dir, d) }
+}
+
+// ---------- Bandera ----------
+const cajaBandera = part('cajaBandera', 'Caja de la bandera', 'Caja de 37 × 11 × 6 cm empotrada en la repisa, algo a la derecha del centro para que quepa la bandera tumbada. La placa trasera sujeta todo el mecanismo; el brazo sale por la ranura lateral de la repisa y abajo queda todo oculto.', '#d6b382')
+const mecBandera = part('mecBandera', 'Mecanismo de la bandera', 'Bandera blanca de 10 × 6 cm en un palo que asoma 25 cm sobre la repisa. El brazo gira sobre su propio tornillo M4, no sobre el servo. El aspa del servo (SG90 o MG90S) solo lo empuja desde abajo con un rodillo de goma; una goma elástica lo baja. Tope arriba a 85° con almohadilla. Si el jugador tira mientras baja, el brazo se separa del aspa y el servo no nota fuerza.', '#e8a33d')
+const placaBandera = part('placaBandera', 'Placa de la bandera', 'Placa perforada de 2 × 8 cm: bornes TABLA, MICRO y 5V, pines del servo y condensador.', '#2f7d32')
+for (const g of [cajaBandera, mecBandera, placaBandera]) { g.position.set(15, Y0 + 95.2, 15); g.rotation.y = Math.PI }
+B(cajaBandera, 36.5, 8.6, 0.5, WOOD_LIGHT, 14.75, -2.5, -3)
+B(cajaBandera, 2.5, 2.6, 0.5, WOOD_LIGHT, -0.75, 3.1, -3)
+B(cajaBandera, 37.1, 8.6, 0.3, WOOD_LIGHT, 14.75, -2.5, 2.65)
+for (const x of [-3.65, 33.15]) B(cajaBandera, 0.3, 8.6, 6.05, WOOD_LIGHT, x, -2.5, -0.225)
+B(cajaBandera, 37.1, 0.3, 6.05, WOOD_LIGHT, 14.75, -6.65, -0.225)
+B(cajaBandera, 37.1, 0.3, 2.65, WOOD_LIGHT, 14.75, 1.95, -1.425)
+
+B(placaBandera, 8, 0.16, 2, 0x2f7d32, 12, -6.3, 0.6)
+for (const x of [9, 11, 13]) B(placaBandera, 1, 0.9, 0.8, 0x1f5fbf, x, -5.75, 0.6)
+B(placaBandera, 0.3, 0.9, 0.8, 0x111111, 15.3, -5.75, 0.6)
+CY(placaBandera, 0.4, -6.2, -5.1, 0x3c3489, 14.4, 1.2)
+
+const FM = mecBandera
+const S = { x: 1.2, y: -0.3 }, R = 1.8, C = 0.7
+B(FM, 1, 0.75, 3.35, BLACK, 5.5, -0.925, -1.075); B(FM, 1, 0.15, 0.6, FELT, 5.5, -0.475, 0.3, { roughness: 1 })
+const upStop = new THREE.Group(); upStop.position.set(-0.55, 3.6, 0); upStop.rotation.z = -5 * deg; FM.add(upStop)
+B(upStop, 0.75, 1, 3.35, BLACK, -0.12, 0, -1.075); B(upStop, 0.15, 1, 0.6, FELT, 0.33, 0, 0.3, { roughness: 1 })
+B(FM, 2.25, 1.2, 2.3, SERVO, S.x + 0.55, S.y, -1.55, { roughness: 0.4 })
+B(FM, 3.2, 1.2, 0.25, SERVO, S.x + 0.55, S.y, -0.85, { roughness: 0.4 })
+B(FM, 0.4, 1.2, 1.9, BLACK, S.x - 1, S.y, -1.85); B(FM, 0.4, 1.2, 1.9, BLACK, S.x + 2.1, S.y, -1.85)
+CZ(FM, 0.28, 0.2, WHITE, S.x, S.y, -0.32)
+const horn = new THREE.Group(); horn.position.set(S.x, S.y, -0.22); FM.add(horn)
+CZ(horn, 0.38, 0.14, WHITE, 0, 0, 0); B(horn, R + 0.3, 0.45, 0.14, WHITE, R / 2, 0, 0)
+CZ(horn, 0.3, 0.8, RUBBER, R, 0, 0.42, { roughness: 1 })
+CZ(FM, 0.34, 3, WHITE, 0, 0, -1.25)
+CZ(FM, 0.22, 3.85, METAL, 0, 0, -0.85, METAL_O)
+CZ(FM, 0.48, 0.3, METAL, 0, 0, 1.15, METAL_O, 6)
+B(FM, 0.3, 0.3, 3.6, BLACK, 5.2, -4.2, -0.95)
+const armG = new THREE.Group(); FM.add(armG)
+B(armG, 9.2, 0.8, 0.4, RESIN, 4, 0, 0.4)
+CZ(armG, 0.08, 0.35, METAL, 4.2, -0.1, 0.75, METAL_O, 8)
+B(armG, 2.2, 0.3, 0.6, RESIN, 7.7, 0, 0.75)
+const orange = { side: THREE.DoubleSide }
+const tubeM = add(armG, new THREE.CylinderGeometry(0.5, 0.5, 2.2, 24, 1, true), 0xe8a33d, 7.7, 0, 1.15, orange); tubeM.rotation.z = -Math.PI / 2
+const funM = add(armG, new THREE.CylinderGeometry(0.85, 0.5, 0.6, 24, 1, true), 0xe8a33d, 9.1, 0, 1.15, orange); funM.rotation.z = -Math.PI / 2
+B(armG, 1.3, 0.65, 0.6, BLACK, 7.4, 0.88, 1.15)
+const lever = new THREE.Group(); lever.position.set(6.8, 0.56, 1.15); armG.add(lever)
+B(lever, 1.1, 0.06, 0.3, METAL, 0.55, 0, 0, METAL_O)
+const flagG = new THREE.Group(); armG.add(flagG)
+CX(flagG, 0.22, 6.8, 10.6, 0xd9b77e, 0, 1.15, { roughness: 0.8 })
+CX(flagG, 0.14, 10.6, 30.6, 0xeee2a0, 0, 1.15, { roughness: 0.4 })
+CX(flagG, 0.55, 10.9, 16, 0x3aa0c8, 0, 1.15, { roughness: 1 })
+add(flagG, new THREE.SphereGeometry(0.5, 16, 12), RUBBER, 31, 0, 1.15, { roughness: 1 })
+const clothGeo = new THREE.PlaneGeometry(10, 6, 30, 16), clothBase = clothGeo.attributes.position.array.slice()
+add(flagG, clothGeo, 0xf7f5ee, 25.6, -3.15, 1.15, { roughness: 0.9, side: THREE.DoubleSide })
+const bandM = add(FM, new THREE.CylinderGeometry(0.09, 0.09, 1, 8), 0x8b5a2b, 0, 0, 0, { roughness: 0.9 })
+
+// ---------- Cables ----------
+const cables = part('cables', 'Cables y enlace', 'Cable de 3 hilos del palo a la bandera (GX12), USB de 5 V del cargador al servo, USB del encoder de los mandos al PC y HDMI del PC a la pantalla. La línea discontinua azul es el enlace Bluetooth: no lleva cable.', '#5aa9ff')
+cables.add(tube([V(18, Y0 + 8, -45), V(28, Y0 + 30, -46), V(30, Y0 + 80, -30), V(20, Y0 + 88, -12), V(6, Y0 + 92, 2), V(6, Y0 + 89, 14)], 0.3, 0xf0f0f0))
+cables.add(tube([V(-20, Y0 + 30, -51.6), V(-14, Y0 + 70, -50), V(-8, Y0 + 115, -24), V(0, Y0 + 128, -8.3)], 0.45, 0x111111))
+const bleCurve = new THREE.QuadraticBezierCurve3(V(0, PIV + 6, BZ), V(-14, 80, 35), V(-20, Y0 + 30, -6))
+const bleLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(bleCurve.getPoints(60)), new THREE.LineDashedMaterial({ color: 0x5aa9ff, dashSize: 3, gapSize: 2.5, transparent: true }))
+bleLine.computeLineDistances(); cables.add(bleLine)
+let boardCables = []
+function rebuildBoardCables() {
+  boardCables.forEach(m => { cables.remove(m); m.geometry.dispose() })
+  boardPivot.updateMatrixWorld(true)
+  const w = (x, y, z) => boardPivot.localToWorld(V(x, y, z))
+  boardCables = [
+    tube([w(-4.9, gy + 1.85, gz + 2.85), w(-9, gy + 1.2, gz + 2.85), w(-13.5, 0.2, gz + 4), V(-18, FLOOR + 0.6, BZ + 2), V(-22, FLOOR + 0.6, 40), V(-26, FLOOR + 0.6, 8),
+      V(-26, Y0 + 4, 0.6), V(-28, Y0 + 40, -6), V(-24, Y0 + 88, -8), V(-4, Y0 + 88, -8), V(-8, Y0 + 92, 4), V(-6, Y0 + 89, 15)], 0.35, 0x1d1d1f)
+  ]
+  boardCables.forEach(m => cables.add(m))
+}
+let microWire = null
+function rebuildMicroWire() {
+  if (microWire) { FM.remove(microWire); microWire.geometry.dispose() }
+  microWire = tube([armToFm(7.4, 1.2, 1.15), armToFm(4, 0.55, 0.7), armToFm(1, 0.55, 0.7), V(-1.4, 1.2, 0.4), V(-2.6, -1, -2.7)], 0.07, BLACK)
+  FM.add(microWire)
+}
+
+// ---------- Lógica de la bandera ----------
+function armToFm(x, y, z) { const c = Math.cos(theta), s = Math.sin(theta); return V(x * c - y * s, x * s + y * c, z) }
+const thF = p => { const x = S.x + R * Math.cos(p), y = S.y + R * Math.sin(p), rho = Math.hypot(x, y); return Math.atan2(y, x) + Math.asin(Math.min(1, C / rho)) }
+const PHI_DOWN = -20 * deg, PHI_UP = 102 * deg, MAX_UP = 85 * deg, SERVO_RATE = 600 * deg, FALL_RATE = 900 * deg, TRAVEL = 0.25, HOLD = 0.5
+let phi = PHI_DOWN, theta = 0, phase = 'down', phaseT = 0, present = true, grabbed = false, grip = null, pull = null, autoGrab = false, msg = '', msgT = 0
+const PH = { down: 'Bandera abajo', rising: 'Subiendo: el aspa empuja el brazo', up: 'Arriba contra el tope de 85°', lowering: 'Bajando: la goma baja el brazo' }
+const say = (t, s = 2.5) => { msg = t; msgT = s }
+function startCycle() { if (phase !== 'down' || grip || pull) return; phase = 'rising'; phaseT = 0; grabbed = false }
+function resetFlag() { if (present || pull) return; armG.attach(flagG); flagG.position.set(0, 0, 0); flagG.rotation.set(0, 0, 0); flagG.visible = true; present = true }
+function doGrab() {
+  if (!present) { say('Ya no hay bandera: pulsa Reponer bandera'); return }
+  if (grip) return
+  if (phase === 'down') { say('Con la bandera abajo no cuenta: el juego lo ignora'); return }
+  grabbed = true; grip = { t: 0, start: theta, angle: theta }
+}
+document.getElementById('btnUp').onclick = startCycle
+document.getElementById('btnGrab').onclick = doGrab
+document.getElementById('btnReset').onclick = resetFlag
+document.getElementById('btnDemo').onclick = () => { if (phase !== 'down' || grip || pull) return; resetFlag(); startCycle(); autoGrab = true }
+
+// ---------- Tabla: inclinación e impulso ----------
+const tiltIn = document.getElementById('tilt'), tiltOut = document.getElementById('tiltOut')
+let tiltDeg = 0, imp = null, presses = 0
+tiltIn.oninput = () => { tiltDeg = +tiltIn.value; tiltOut.textContent = tiltDeg.toFixed(1).replace('.', ',') + '°' }
+document.getElementById('btnImp').onclick = () => { if (!imp) { imp = { t: 0, label: presses % 2 ? '¡SALTA!' : '¡IMPULSO!' }; presses++ } }
+
+// ---------- Piezas, rayos X, vistas ----------
+const order = ['mueble', 'frontal', 'repisa', 'boton', 'mandos', 'pantalla', 'pc', 'cajaBandera', 'mecBandera', 'placaBandera', 'tabla', 'cajaGiro', 'electronica', 'base', 'cables', 'tarima', 'persona']
+const partsEl = document.getElementById('parts')
+for (const k of order) {
+  const p = parts[k], id = 'p-' + k
+  const lab = document.createElement('label')
+  lab.innerHTML = `<input type="checkbox" id="${id}" checked><span class="sw" style="background:${p.swatch}"></span><span>${p.name}</span>`
+  lab.querySelector('input').onchange = e => { p.g.visible = e.target.checked }
+  partsEl.appendChild(lab)
+}
+const XRAY = ['mueble', 'frontal', 'repisa', 'cajaGiro', 'cajaBandera']
+const xrayIn = document.getElementById('xray')
+function applyXray(on) {
+  for (const k of XRAY) parts[k].g.traverse(o => {
+    if (!o.isMesh) return
+    o.material.transparent = on; o.material.opacity = on ? 0.16 : 1; o.material.depthWrite = !on; o.material.needsUpdate = true
+  })
+}
+xrayIn.onchange = () => applyXray(xrayIn.checked)
+
+const VIEWS = {
+  todo: { p: [190, 150, 260], t: [0, 75, 30] },
+  bandera: { p: [72, 135, 98], t: [10, 110, 15] },
+  tabla: { p: [110, 80, 150], t: [0, 12, 70] },
+  caja: { p: [26, 38, 98], t: [0, 16, 70] },
+  pantalla: { p: [0, 140, 95], t: [0, 131, 0] },
+  interior: { p: [-140, 115, -150], t: [0, 70, -28] },
+  sim: { p: [175, 150, 185], t: [5, 85, 40] }
+}
+let tween = null
+function goTo(k) {
+  const v = VIEWS[k]
+  tween = { t: 0, p0: camera.position.clone(), t0: controls.target.clone(), p1: V(...v.p), t1: V(...v.t) }
+  if (k === 'interior' && !xrayIn.checked) { xrayIn.checked = true; applyXray(true) }
+}
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => goTo(b.dataset.view))
+
+// ---------- Selección de piezas ----------
+const infoEl = document.getElementById('info'), infoName = document.getElementById('infoName'), infoDesc = document.getElementById('infoDesc'), infoState = document.getElementById('infoState')
+let selected = null, flash = 0
+function keyOf(o) { while (o && !o.userData.key) o = o.parent; return o ? o.userData.key : null }
+function visibleChain(o) { while (o) { if (!o.visible) return false; o = o.parent } return true }
+function setGlow(key, on) {
+  if (!key) return
+  parts[key].g.traverse(o => { if (o.isMesh && o.material.emissive && !o.userData.keepEmissive) o.material.emissive.setHex(on ? 0x3a2a08 : 0x000000) })
+}
+function select(key) {
+  setGlow(selected, false)
+  selected = key
+  infoEl.hidden = !key
+  if (!key) return
+  infoName.textContent = parts[key].name; infoDesc.textContent = parts[key].desc
+  setGlow(key, true); flash = 1.2
+}
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2()
+let downAt = null
+renderer.domElement.addEventListener('pointerdown', e => { downAt = { x: e.clientX, y: e.clientY } })
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!downAt) return
+  const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y); downAt = null
+  if (moved > 5) return
+  const r = renderer.domElement.getBoundingClientRect()
+  ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1)
+  ray.setFromCamera(ptr, camera)
+  for (const h of ray.intersectObjects(scene.children, true)) {
+    const o = h.object
+    if (!o.isMesh || !visibleChain(o) || o.material.opacity < 0.5) continue
+    const k = keyOf(o)
+    if (k) { select(k); return }
+  }
+  select(null)
+})
+const lidLed = cajaGiro.children.find(o => o.material && o.material.emissive && o.material.emissive.getHex() === 0x2bd15f)
+if (lidLed) lidLed.userData.keepEmissive = true
+
+// ---------- Jugador y simulación de partida ----------
+const flagPoint = () => { FM.updateMatrixWorld(); return FM.localToWorld(armToFm(17, 0, 1.15)) }
+function grabToHand() { grabbed = true; present = false; handAnchor.attach(flagG) }
+function updatePerson(dt, mode) {
+  boardPivot.updateMatrixWorld(true)
+  crouch += ((sim && sim.mode === 'balance' ? 0.75 : 0.4) - crouch) * Math.min(1, dt * 3)
+  const twist = 35 * deg, f = V(Math.cos(twist), 0, -Math.sin(twist)), right = V(-f.z, 0, f.x), left = right.clone().negate()
+  // Snow: la cadera compensa un poco y las piernas siguen al palo; el tronco no se mueve del centro
+  const P = V(-tiltDeg * 0.45, PIV + 1.8 + 92 - crouch * 6 - Math.abs(tiltDeg) * 0.2, BZ)
+  const C = V(0, P.y + 33, BZ)
+  body.pelvis.position.copy(P)
+  setLimb(body.sash, P.clone().add(V(0, 6, 0)), P.clone().add(V(0, 12, 0)))
+  setLimb(body.belly, P.clone().add(V(0, 11, 0)), C.clone().add(V(0, -14, 0)))
+  body.chest.position.copy(C); body.chest.rotation.set(0, twist, 0)
+  setLimb(body.neck, C.clone().add(V(0, 14, 0)), C.clone().add(V(0, 22, 0)))
+  const headC = C.clone().add(V(0, 33, 0)).addScaledVector(f, -1)
+  body.head.position.copy(headC); body.hair.position.copy(headC).add(V(0, 1.5, 0)).addScaledVector(f, -1.5)
+  ;[-22, 22].forEach((z, i) => {
+    const L = body.legs[i], hip = P.clone().add(V(0, -4, z > 0 ? 9 : -9))
+    const k = ik(hip, boardPivot.localToWorld(V(0, 9.8, z)), 44, 42, V(1, 0, 0))
+    L.hip.position.copy(hip); L.knee.position.copy(k.mid); L.ankle.position.copy(k.end)
+    setLimb(L.thigh, hip, k.mid); setLimb(L.shin, k.mid, k.end)
+    L.foot.position.copy(boardPivot.localToWorld(V(5, 5.3, z))); L.foot.quaternion.copy(boardPivot.quaternion)
+  })
+  const sway = f.clone().multiplyScalar(tiltDeg * 0.9)
+  const tR = C.clone().addScaledVector(right, 26).addScaledVector(f, -4).add(V(0, -24, 0)).sub(sway)
+  let tL
+  if (mode === 'button') tL = V(0, Y0 + 95, imp && imp.t < 0.25 ? 35.2 : 37)
+  else if (mode === 'flag') tL = flagPoint()
+  else if (mode === 'raise') tL = C.clone().addScaledVector(left, 18).addScaledVector(f, 8).add(V(0, 52, 0))
+  else tL = C.clone().addScaledVector(left, 26).addScaledVector(f, 6).add(V(0, -20, 0)).add(sway)
+  handL.lerp(tL, 1 - Math.exp(-dt * 9)); handR.lerp(tR, 1 - Math.exp(-dt * 6))
+  ;[[left, handL], [right, handR]].forEach(([side, hand], i) => {
+    const A = body.arms[i], sh = C.clone().add(V(0, 10, 0)).addScaledVector(side, 17)
+    const r = ik(sh, hand, 29, 27, V(0, -1, 0).addScaledVector(side, 0.6).addScaledVector(f, -0.3))
+    A.sh.position.copy(sh); A.elbow.position.copy(r.mid); A.hand.position.copy(r.end)
+    setLimb(A.upper, sh, r.mid); setLimb(A.fore, r.mid, r.end)
+    if (i === 0) handAnchor.position.copy(r.end)
+  })
+}
+
+const simcap = document.getElementById('simcap')
+let sim = null
+const caption = txt => { if (simcap.textContent !== txt) simcap.textContent = txt }
+const press = label => { imp = { t: 0, label }; presses++ }
+function startSim() {
+  if (sim || phase !== 'down' || grip || pull) return
+  resetFlag(); presses = 0; sim = { t: 0 }; simcap.hidden = false; select(null); goTo('sim')
+}
+function endSim() {
+  sim = null; simcap.hidden = true; resetFlag()
+  tiltDeg = 0; tiltIn.value = 0; tiltOut.textContent = '0°'
+}
+function runSim(dtR) {
+  sim.t += dtR
+  const T = sim.t
+  let arm = 'balance'
+  if (T < 2.2) {
+    sim.mode = 'impulse'; sim.hint = 'PULSA'; sim.impulse = (Math.sin(T * 5 - 1.5) + 1) / 2; tiltDeg = 0
+    if (T > 1.3) arm = 'button'
+    caption('1 · Coger impulso: pulsa el botón cuando la barra está arriba')
+  } else if (T < 9.2) {
+    if (!sim.p1) { sim.p1 = true; press('¡IMPULSO!') }
+    const b = T - 2.2
+    sim.mode = 'balance'; sim.hint = false; sim.progress = Math.min(1, b / 6.8)
+    tiltDeg = Math.max(-11, Math.min(11, (6.5 * Math.sin(b * 1.4) + 2.5 * Math.sin(b * 3.3 + 1)) * Math.min(1, b / 0.8)))
+    if (T < 2.5 || T > 8.6) arm = 'button'
+    caption('2 · Equilibrio: el palo se balancea; el tronco quieto, trabajan las piernas')
+  } else {
+    if (!sim.p2) { sim.p2 = true; press('¡SALTA!'); sim.jumpAt = T }
+    tiltDeg *= Math.exp(-dtR * 5); if (Math.abs(tiltDeg) < 0.05) tiltDeg = 0
+    sim.jumpT = Math.min(1, (T - sim.jumpAt) / 0.8)
+    if (!sim.flagStarted && T > 9.6) { sim.flagStarted = true; startCycle() }
+    if (!sim.won) {
+      sim.mode = 'jump'
+      caption('3 · Salto: el personaje llega a la punta y sube la bandera')
+      arm = sim.flagStarted && theta > 45 * deg ? 'flag' : 'button'
+      if (arm === 'flag' && present && handAnchor.position.distanceTo(flagPoint()) < 6) { grabToHand(); sim.won = true; sim.wonAt = T }
+      if (T > 18) endSim()
+    } else {
+      sim.mode = 'win'; sim.hint = '¡BANDERA!'
+      caption('4 · ¡Bandera cogida!')
+      arm = T - sim.wonAt > 0.25 ? 'raise' : 'flag'
+      if (T - sim.wonAt > 3.5) endSim()
+    }
+  }
+  tiltIn.value = tiltDeg; tiltOut.textContent = tiltDeg.toFixed(1).replace('.', ',') + '°'
+  return arm
+}
+document.getElementById('btnSim').onclick = startSim
+
+// ---------- Bucle ----------
+const clock = new THREE.Clock()
+const toward = (v, g, m) => Math.abs(g - v) < m ? g : v + Math.sign(g - v) * m
+let t = 0, last = { tilt: null, fwd: null, theta: null }
+drawScreen({ tilt: 0 })
+function stateText() {
+  if (msgT > 0) return msg
+  if (selected === 'mecBandera' || selected === 'cajaBandera' || selected === 'placaBandera') {
+    let s = PH[phase] + ' · ' + (present && !pull ? 'micro pulsado' : 'micro suelto')
+    if (grip) s += theta - Math.min(MAX_UP, thF(phi)) > 1.5 * deg ? ' · el brazo se separa del aspa: fuerza en el servo = 0' : ' · la fuerza va al tope y al tornillo'
+    else if (grabbed) s += ' · BANDERA COGIDA'
+    return s
+  }
+  if (selected === 'base' || selected === 'tabla') return 'Balanceo ' + tiltDeg.toFixed(1).replace('.', ',') + '°'
+  if (selected === 'boton') return 'Siguiente pulsación: ' + (presses % 2 ? 'saltar' : 'coger impulso') + (imp ? ' · PULSADO' : '')
+  if (selected === 'cajaGiro' || selected === 'electronica') return 'Giroscopio: ' + tiltDeg.toFixed(1).replace('.', ',') + '° · LED fijo: conectada por Bluetooth'
+  if (grip || grabbed || phase !== 'down') return 'Bandera: ' + PH[phase].toLowerCase() + (grabbed ? ' · COGIDA' : '')
+  return ''
+}
+function step() {
+  const dtR = Math.min(clock.getDelta(), 0.05); t += dtR
+  const dt = dtR / (document.getElementById('slow').checked ? 5 : 1)
+  const armMode = sim ? runSim(dtR) : 'balance'
+
+  if (phase !== 'down') {
+    phaseT += dt
+    if (phase === 'rising' && phaseT >= TRAVEL) { phase = 'up'; phaseT = 0 }
+    else if (phase === 'up' && phaseT >= HOLD) { phase = 'lowering'; phaseT = 0 }
+    else if (phase === 'lowering' && phaseT >= TRAVEL) { phase = 'down'; phaseT = 0 }
+  }
+  if (autoGrab && phase === 'lowering' && phaseT >= TRAVEL * 0.35) { autoGrab = false; doGrab() }
+  phi = toward(phi, (phase === 'rising' || phase === 'up') ? PHI_UP : PHI_DOWN, SERVO_RATE * dt)
+  const finger = Math.min(MAX_UP, thF(phi)), rest = Math.max(0, finger)
+  if (grip) {
+    grip.t += dt
+    grip.angle = toward(grip.angle, Math.min(MAX_UP, grip.start + 12 * deg), 200 * deg * dt)
+    theta = Math.max(grip.angle, rest)
+    if (grip.t > 0.55) { grip = null; present = false; FM.attach(flagG); pull = { d: 0, dir: V(Math.cos(theta), Math.sin(theta), 0) } }
+  } else theta = theta < rest ? rest : Math.max(rest, theta - FALL_RATE * dt)
+  armG.rotation.z = theta; horn.rotation.z = phi
+  if (pull) { const s = Math.max(dt, dtR * 0.4) * 30; pull.d += s; flagG.position.addScaledVector(pull.dir, s); if (pull.d > 36) { flagG.visible = false; pull = null } }
+  lever.rotation.z = present && !pull ? 0 : -0.32
+  const p = clothGeo.attributes.position.array
+  for (let i = 0; i < p.length; i += 3) { const x = clothBase[i], y = clothBase[i + 1]; p[i + 2] = 0.7 * ((3 - y) / 6) * Math.sin(t * 5 - x * 0.8 + y * 0.4) }
+  clothGeo.attributes.position.needsUpdate = true; clothGeo.computeVertexNormals()
+  if (theta !== last.theta) {
+    last.theta = theta; rebuildMicroWire()
+    const a = armToFm(4.2, -0.1, 0.85), d = V(5.2, -4.2, 0.85).sub(a), L = d.length()
+    bandM.position.copy(a).addScaledVector(d, 0.5); bandM.scale.set(1, L, 1); bandM.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize())
+  }
+
+  let label = false
+  if (imp) { imp.t += dtR; if (imp.t < 0.9) label = imp.label; if (imp.t >= 0.9) imp = null }
+  plunger.position.z = imp && imp.t < 0.25 ? -0.7 : 0
+  if (tiltDeg !== last.tilt) { last.tilt = tiltDeg; boardPivot.rotation.set(0, 0, -tiltDeg * deg); rebuildBoardCables() }
+  if (sim) drawScreen(Object.assign({}, sim, { tilt: tiltDeg, label: label || sim.hint }))
+  else if (tiltDeg !== last.stilt || label !== last.label || last.mode !== 'idle') { last.stilt = tiltDeg; last.label = label; last.mode = 'idle'; drawScreen({ tilt: tiltDeg, label }) }
+  if (persona.visible) updatePerson(dtR, armMode)
+  bleLine.material.opacity = 0.45 + 0.4 * Math.sin(t * 4)
+
+  if (flash > 0) { flash -= dtR; if (flash <= 0) setGlow(selected, false) }
+  infoState.textContent = stateText()
+  if (msgT > 0) msgT -= dtR
+
+  if (tween) {
+    tween.t = Math.min(1, tween.t + dtR / 0.9)
+    const e = 1 - Math.pow(1 - tween.t, 3)
+    camera.position.lerpVectors(tween.p0, tween.p1, e)
+    controls.target.lerpVectors(tween.t0, tween.t1, e)
+    if (tween.t >= 1) tween = null
+  }
+  controls.update()
+  renderer.render(scene, camera)
+  requestAnimationFrame(step)
+}
+step()
+</script>
