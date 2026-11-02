@@ -110,8 +110,9 @@ input[type=checkbox]{accent-color:var(--accent)}
         <span>Palo</span><span>90 × 26 cm, ±12°</span>
         <span>Impulso / salto</span><span>botón de 60 mm a 97 cm</span>
         <span>Caja giroscopio</span><span>14,3 × 7,3 × 3,7 cm</span>
-        <span>Caja bandera</span><span>37 × 11 × 6 cm, empotrada</span>
-        <span>Bandera</span><span>blanca 10 × 6 cm, asoma 25 cm</span>
+        <span>Caja bandera</span><span>37 × 11 × 7 cm, empotrada</span>
+        <span>Bandera</span><span>espuma Ø25 × 153 mm, tela 10 × 6 cm</span>
+        <span>Ranura</span><span>3,6 cm en la tapa de la repisa</span>
       </div>
       <p class="note">Pantalla, PC, alturas y distancias son supuestos para ver el conjunto. Cuando tengas las medidas reales se ajustan.</p>
     </section>
@@ -128,9 +129,15 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z)
 const stage = document.getElementById('stage')
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1.05
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
 stage.appendChild(renderer.domElement)
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x14181e)
+scene.background = new THREE.Color(0x15171b)
+scene.fog = new THREE.Fog(0x15171b, 600, 1500)
 const camera = new THREE.PerspectiveCamera(40, 1, 0.5, 3000)
 camera.position.set(175, 150, 235)
 const controls = new THREE.OrbitControls(camera, renderer.domElement)
@@ -148,12 +155,58 @@ function resize() {
 new ResizeObserver(resize).observe(stage)
 resize()
 
-scene.add(new THREE.HemisphereLight(0xdfe8f5, 0x3a3128, 0.85))
-const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(120, 260, 200); scene.add(sun)
-const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-150, 90, -140); scene.add(fill)
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ color: 0x171b21, roughness: 1 }))
-floor.rotation.x = -Math.PI / 2; floor.position.y = -0.05; scene.add(floor)
-scene.add(new THREE.GridHelper(600, 60, 0x2a313b, 0x1f252d))
+// Entorno para los reflejos: una nave con paneles de luz, como un pabellón de feria
+{
+  const env = new THREE.Scene()
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(12, 6, 12), new THREE.MeshBasicMaterial({ color: 0x3a3632, side: THREE.BackSide })))
+  for (const [x, y, z, w, h, k] of [[-3, 2.9, 2, 4, 1.5, 6], [4, 2.9, -2, 3, 1.2, 4], [5.9, 0.5, 2, 0.1, 2, 2.5], [0, 0.5, -5.9, 4, 1.5, 1.5]]) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.05, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.95, 0.88).multiplyScalar(k) }))
+    m.position.set(x, y, z); env.add(m)
+  }
+  scene.environment = new THREE.PMREMGenerator(renderer).fromScene(env, 0.04).texture
+}
+scene.add(new THREE.HemisphereLight(0xfff2e2, 0x2a2219, 0.35))
+const sun = new THREE.DirectionalLight(0xfff0dc, 2.4); sun.position.set(150, 330, 260)
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.3
+Object.assign(sun.shadow.camera, { left: -170, right: 170, top: 170, bottom: -170, near: 50, far: 900 })
+scene.add(sun)
+const fill = new THREE.DirectionalLight(0xcfdcff, 0.55); fill.position.set(-220, 120, 120); scene.add(fill)
+const rim = new THREE.DirectionalLight(0xffffff, 0.6); rim.position.set(-120, 200, -260); scene.add(rim)
+
+// ---------- Texturas generadas ----------
+let seed = 11
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+function canvasTex(w, h, draw, srgb = true) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h
+  draw(c.getContext('2d'), w, h)
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8
+  if (srgb) t.encoding = THREE.sRGBEncoding
+  return t
+}
+// Veta clara en gris: el color de cada madera la tiñe
+const woodTex = canvasTex(1024, 512, (c, w, h) => {
+  c.fillStyle = '#f2f2f2'; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < 260; i++) {
+    const y = rnd() * h, a = 0.03 + rnd() * 0.1, amp = 1 + rnd() * 6, f = 0.003 + rnd() * 0.012
+    c.strokeStyle = `rgba(70,50,30,${a})`; c.lineWidth = 0.5 + rnd() * 2
+    c.beginPath(); for (let x = 0; x <= w; x += 8) c.lineTo(x, y + Math.sin(x * f + i) * amp); c.stroke()
+  }
+})
+const floorTex = canvasTex(1024, 1024, (c, w, h) => {
+  c.fillStyle = '#3d3935'; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < 9000; i++) { const v = 45 + rnd() * 45; c.fillStyle = `rgba(${v},${v - 4},${v - 8},0.35)`; c.fillRect(rnd() * w, rnd() * h, 2, 2) }
+  c.strokeStyle = 'rgba(25,22,20,0.8)'; c.lineWidth = 3
+  for (let i = 0; i <= 4; i++) { c.beginPath(); c.moveTo(i * w / 4, 0); c.lineTo(i * w / 4, h); c.stroke(); c.beginPath(); c.moveTo(0, i * h / 4); c.lineTo(w, i * h / 4); c.stroke() }
+})
+floorTex.repeat.set(14, 14)
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.55, metalness: 0 }))
+floor.rotation.x = -Math.PI / 2; floor.position.y = -0.05; floor.receiveShadow = true; scene.add(floor)
+const foamBump = canvasTex(256, 256, (c, w, h) => {
+  const img = c.createImageData(w, h)
+  for (let i = 0; i < img.data.length; i += 4) { const v = 150 + rnd() * 105; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255 }
+  c.putImageData(img, 0, 0)
+}, false)
+foamBump.repeat.set(4, 2)
 
 // ---------- Utilidades ----------
 const parts = {}
@@ -162,7 +215,13 @@ function part(key, name, desc, swatch, parent = scene) {
   parts[key] = { g, name, desc, swatch }
   return g
 }
-const mat = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.65, metalness: 0 }, o || {}))
+function mat(color, o) {
+  const m = new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.65, metalness: 0 }, o || {}))
+  // Los colores están escritos en sRGB, como en una carta de colores
+  m.color.convertSRGBToLinear(); m.emissive.convertSRGBToLinear()
+  if (WOODS.has(color)) { m.map = woodTex; m.roughness = 0.72 }
+  return m
+}
 function add(p, geo, color, x, y, z, o) { const m = new THREE.Mesh(geo, mat(color, o)); m.position.set(x, y, z); p.add(m); return m }
 const B = (p, w, h, d, c, x, y, z, o) => add(p, new THREE.BoxGeometry(w, h, d), c, x, y, z, o)
 const CZ = (p, r, len, c, x, y, z, o, seg = 24) => { const m = add(p, new THREE.CylinderGeometry(r, r, len, seg), c, x, y, z, o); m.rotation.x = Math.PI / 2; return m }
@@ -178,8 +237,9 @@ function seg(p, a, b, r, c, o) {
 const tube = (pts, r, c) => new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(24, pts.length * 14), r, 8), mat(c, { roughness: 0.8 }))
 
 const WOOD = 0xc39a62, WOOD_DARK = 0x8e6a40, WOOD_LIGHT = 0xd6b382, BLACK = 0x222428, METAL = 0xc4c8cc,
-  RUBBER = 0x1c1c1c, RESIN = 0x8f9499, WHITE = 0xf3f1ea, SERVO = 0x2f6fd6, FELT = 0x6b8f71
-const METAL_O = { metalness: 0.8, roughness: 0.3 }
+  RUBBER = 0x1c1c1c, RESIN = 0x8b9096, WHITE = 0xf3f1ea, SERVO = 0x2f62c8, FELT = 0x232323
+const METAL_O = { metalness: 1, roughness: 0.3 }
+const WOODS = new Set([WOOD, WOOD_DARK, WOOD_LIGHT, 0x7d5b3a, 0xb88a55, 0x8a5a35])
 
 // ---------- Tarima ----------
 const tarima = part('tarima', 'Tarima común', 'Base de 80 × 153 cm que comparten el mueble y la tabla: el peso del mueble impide que la tabla se desplace o que la máquina vuelque hacia el jugador. Alfombrilla antideslizante bajo la tabla.', '#7d5b3a')
@@ -212,6 +272,7 @@ B(bezel, 53.5, 11.35, 1.8, BLACK, 0, 22.925, 0); B(bezel, 53.5, 15.35, 1.8, BLAC
 B(frontal, 66.4, 20, 1.8, 0x1d1f22, 0, Y0 + 168, -1.9)
 const mq = document.createElement('canvas'); mq.width = 512; mq.height = 128
 const mqTex = new THREE.CanvasTexture(mq)
+mqTex.encoding = THREE.sRGBEncoding
 function drawMarquee() {
   const c = mq.getContext('2d')
   c.fillStyle = '#7d1b1b'; c.fillRect(0, 0, 512, 128)
@@ -222,16 +283,16 @@ function drawMarquee() {
 }
 drawMarquee()
 document.fonts && document.fonts.ready.then(drawMarquee)
-const mqMesh = new THREE.Mesh(new THREE.PlaneGeometry(64, 18), new THREE.MeshBasicMaterial({ map: mqTex }))
+const mqMesh = new THREE.Mesh(new THREE.PlaneGeometry(64, 18), new THREE.MeshBasicMaterial({ map: mqTex, toneMapped: false }))
 mqMesh.position.set(0, Y0 + 168, -0.98); frontal.add(mqMesh)
 
 // ---------- Repisa ----------
-const repisa = part('repisa', 'Repisa delantera', 'Repisa hueca de 14 cm de grosor a 103 cm del suelo. La caja de la bandera va empotrada dentro, en línea con el palo: por fuera solo se ve la ranura lateral de la tapa por la que sale la bandera. Por dentro pasan los cables.', '#3a3f46')
+const repisa = part('repisa', 'Repisa delantera', 'Repisa hueca de 14 cm de grosor a 103 cm del suelo. La caja de la bandera va empotrada dentro, en línea con el palo: por fuera solo se ve la ranura de 3,6 cm de la tapa por la que sale la bandera (la espuma mide 2,5). Por dentro pasan los cables.', '#3a3f46')
 const LT = Y0 + 100.4
-B(repisa, 66.4, 1.2, 12.5, 0x2a2d31, 0, LT, 6.25)
-B(repisa, 66.4, 1.2, 14.5, 0x2a2d31, 0, LT, 22.75)
-B(repisa, 16.2, 1.2, 3, 0x2a2d31, -25.1, LT, 14)
-B(repisa, 16.2, 1.2, 3, 0x2a2d31, 25.1, LT, 14)
+B(repisa, 66.4, 1.2, 12.2, 0x2a2d31, 0, LT, 6.1)
+B(repisa, 66.4, 1.2, 14.2, 0x2a2d31, 0, LT, 22.9)
+B(repisa, 16.2, 1.2, 3.6, 0x2a2d31, -25.1, LT, 14)
+B(repisa, 16.2, 1.2, 3.6, 0x2a2d31, 25.1, LT, 14)
 B(repisa, 66.4, 1.2, 30, 0x2a2d31, 0, Y0 + 87.6, 15)
 B(repisa, 66.4, 11.6, 1.2, 0x2a2d31, 0, Y0 + 94, 29.4)
 B(repisa, 66.4, 1.2, 0.6, 0xe2a73b, 0, Y0 + 99.5, 30.3)
@@ -254,8 +315,8 @@ B(pantalla, 66.4, 4, 2, WOOD_DARK, 0, 2, -7.8)
 const sc = document.createElement('canvas'); sc.width = 192; sc.height = 108
 const sx = sc.getContext('2d')
 const screenTex = new THREE.CanvasTexture(sc)
-screenTex.magFilter = THREE.NearestFilter; screenTex.minFilter = THREE.NearestFilter
-const screen = new THREE.Mesh(new THREE.PlaneGeometry(52.7, 29.6), new THREE.MeshBasicMaterial({ map: screenTex }))
+screenTex.magFilter = THREE.NearestFilter; screenTex.minFilter = THREE.NearestFilter; screenTex.encoding = THREE.sRGBEncoding
+const screen = new THREE.Mesh(new THREE.PlaneGeometry(52.7, 29.6), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }))
 screen.position.set(0, 2, -1.3); pantalla.add(screen)
 function drawScreen(st) {
   const tilt = st.tilt || 0, mode = st.mode || 'idle'
@@ -378,56 +439,79 @@ function ik(A, T, L1, L2, pole) {
 }
 
 // ---------- Bandera ----------
-const cajaBandera = part('cajaBandera', 'Caja de la bandera', 'Caja de 37 × 11 × 6 cm empotrada en la repisa, algo a la derecha del centro para que quepa la bandera tumbada. La placa trasera sujeta todo el mecanismo; el brazo sale por la ranura lateral de la repisa y abajo queda todo oculto.', '#d6b382')
-const mecBandera = part('mecBandera', 'Mecanismo de la bandera', 'Bandera blanca de 10 × 6 cm en un palo que asoma 25 cm sobre la repisa. El brazo gira sobre su propio tornillo M4, no sobre el servo. El aspa del servo (SG90 o MG90S) solo lo empuja desde abajo con un rodillo de goma; una goma elástica lo baja. Tope arriba a 85° con almohadilla. Si el jugador tira mientras baja, el brazo se separa del aspa y el servo no nota fuerza.', '#e8a33d')
+// Mismas medidas que hardware/tabla-equilibrio/bandera/mecanismo_bandera.scad, en cm
+const cajaBandera = part('cajaBandera', 'Caja de la bandera', 'Caja de 37 × 11 × 7 cm empotrada en la repisa, en línea con el palo. Dentro va la placa del mecanismo sobre sus patas (el servo queda en el aire por detrás) y la placa perforada. La tapa tiene la ranura por la que sube la bandera; abajo queda todo oculto.', '#d6b382')
+const mecBandera = part('mecBandera', 'Mecanismo de la bandera', 'Las piezas de resina del .scad: placa con patas, brazo con tubo y embudo, base del palo con imán y bandera de espuma de polietileno de Ø25 × 153 mm con la tela blanca arriba. El brazo gira sobre su propio tornillo M4; el aspa del MG90S solo lo empuja con un rodillo de goma y la goma (por delante) lo baja. Topes a 0° y 85° con fieltro. Si el jugador tira mientras baja, el brazo se separa del aspa y el servo no nota fuerza.', '#e8a33d')
 const placaBandera = part('placaBandera', 'Placa de la bandera', 'Placa perforada de 2 × 8 cm: bornes TABLA, MICRO y 5V, pines del servo y condensador.', '#2f7d32')
-for (const g of [cajaBandera, mecBandera, placaBandera]) { g.position.set(15, Y0 + 95.2, 15); g.rotation.y = Math.PI }
-B(cajaBandera, 36.5, 8.6, 0.5, WOOD_LIGHT, 14.75, -2.5, -3)
-B(cajaBandera, 2.5, 2.6, 0.5, WOOD_LIGHT, -0.75, 3.1, -3)
-B(cajaBandera, 37.1, 8.6, 0.3, WOOD_LIGHT, 14.75, -2.5, 2.65)
-for (const x of [-3.65, 33.15]) B(cajaBandera, 0.3, 8.6, 6.05, WOOD_LIGHT, x, -2.5, -0.225)
-B(cajaBandera, 37.1, 0.3, 6.05, WOOD_LIGHT, 14.75, -6.65, -0.225)
-B(cajaBandera, 37.1, 0.3, 2.65, WOOD_LIGHT, 14.75, 1.95, -1.425)
+for (const g of [cajaBandera, mecBandera, placaBandera]) { g.position.set(15, Y0 + 94.6, 16.63); g.rotation.y = Math.PI }
+B(cajaBandera, 37, 11, 0.5, WOOD_LIGHT, 16, -0.9, -2.15)
+B(cajaBandera, 37, 11, 0.5, WOOD_LIGHT, 16, -0.9, 4.35)
+B(cajaBandera, 37, 0.5, 7, WOOD_LIGHT, 16, -6.15, 1.1)
+for (const x of [-2.25, 34.25]) B(cajaBandera, 0.5, 11, 7, WOOD_LIGHT, x, -0.9, 1.1)
+B(cajaBandera, 37, 0.5, 3.23, WOOD_LIGHT, 16, 4.35, -0.785)
+B(cajaBandera, 7.5, 0.5, 3.77, WOOD_LIGHT, 30.75, 4.35, 2.715)
+B(cajaBandera, 1.5, 0.5, 3.77, WOOD_LIGHT, -1.75, 4.35, 2.715)
 
-B(placaBandera, 8, 0.16, 2, 0x2f7d32, 12, -6.3, 0.6)
-for (const x of [9, 11, 13]) B(placaBandera, 1, 0.9, 0.8, 0x1f5fbf, x, -5.75, 0.6)
-B(placaBandera, 0.3, 0.9, 0.8, 0x111111, 15.3, -5.75, 0.6)
-CY(placaBandera, 0.4, -6.2, -5.1, 0x3c3489, 14.4, 1.2)
+B(placaBandera, 8, 0.16, 2, 0x2f7d32, 26, -5.82, 1.6)
+for (const x of [23, 25, 27]) B(placaBandera, 1, 0.9, 0.8, 0x1f5fbf, x, -5.3, 1.6)
+B(placaBandera, 0.3, 0.9, 0.8, 0x111111, 29.3, -5.3, 1.6)
+CY(placaBandera, 0.4, -5.74, -4.6, 0x3c3489, 28.4, 2.2)
 
 const FM = mecBandera
-const S = { x: 1.2, y: -0.3 }, R = 1.8, C = 0.7
-B(FM, 1, 0.75, 3.35, BLACK, 5.5, -0.925, -1.075); B(FM, 1, 0.15, 0.6, FELT, 5.5, -0.475, 0.3, { roughness: 1 })
-const upStop = new THREE.Group(); upStop.position.set(-0.55, 3.6, 0); upStop.rotation.z = -5 * deg; FM.add(upStop)
-B(upStop, 0.75, 1, 3.35, BLACK, -0.12, 0, -1.075); B(upStop, 0.15, 1, 0.6, FELT, 0.33, 0, 0.3, { roughness: 1 })
-B(FM, 2.25, 1.2, 2.3, SERVO, S.x + 0.55, S.y, -1.55, { roughness: 0.4 })
-B(FM, 3.2, 1.2, 0.25, SERVO, S.x + 0.55, S.y, -0.85, { roughness: 0.4 })
-B(FM, 0.4, 1.2, 1.9, BLACK, S.x - 1, S.y, -1.85); B(FM, 0.4, 1.2, 1.9, BLACK, S.x + 2.1, S.y, -1.85)
-CZ(FM, 0.28, 0.2, WHITE, S.x, S.y, -0.32)
-const horn = new THREE.Group(); horn.position.set(S.x, S.y, -0.22); FM.add(horn)
-CZ(horn, 0.38, 0.14, WHITE, 0, 0, 0); B(horn, R + 0.3, 0.45, 0.14, WHITE, R / 2, 0, 0)
-CZ(horn, 0.3, 0.8, RUBBER, R, 0, 0.42, { roughness: 1 })
-CZ(FM, 0.34, 3, WHITE, 0, 0, -1.25)
-CZ(FM, 0.22, 3.85, METAL, 0, 0, -0.85, METAL_O)
-CZ(FM, 0.48, 0.3, METAL, 0, 0, 1.15, METAL_O, 6)
-B(FM, 0.3, 0.3, 3.6, BLACK, 5.2, -4.2, -0.95)
+const S = { x: 1.2, y: -0.3 }, R = 1.8, C = 0.8, ZT = 2.63
+const resinO = { roughness: 0.5 }
+// Placa con patas, buje, topes y poste alto de la goma
+B(FM, 8, 9.2, 0.6, RESIN, 2.4, 0.2, -0.3, resinO)
+for (const [x, y] of [[-1.1, -3.9], [5.9, -3.9], [5.9, 4.3], [-1.1, -2]]) CZ(FM, 0.55, 1.8, RESIN, x, y, -1.5, resinO)
+CZ(FM, 0.6, 1.3, RESIN, 0, 0, 0.65, resinO)
+B(FM, 1.4, 0.8, 1.8, RESIN, 5.5, -1.05, 0.9, resinO); B(FM, 1.4, 0.15, 1.4, FELT, 5.5, -0.575, 1.1, { roughness: 1 })
+const upStop = new THREE.Group(); upStop.rotation.z = 85 * deg; FM.add(upStop)
+B(upStop, 1.4, 0.8, 1.8, RESIN, 3.5, 1.05, 0.9, resinO); B(upStop, 1.4, 0.15, 1.4, FELT, 3.5, 0.575, 1.1, { roughness: 1 })
+CZ(FM, 0.35, 2.25, RESIN, 4.5, -3.5, 1.125, resinO); CZ(FM, 0.5, 0.15, RESIN, 4.5, -3.5, 2.33, resinO)
+// Servo MG90S: cuerpo por detrás de la placa, orejetas por delante
+B(FM, 1.25, 2.28, 2.28, SERVO, S.x, -0.85, -0.46, { roughness: 0.3 })
+B(FM, 1.25, 3.2, 0.25, SERVO, S.x, -0.85, 0.125, { roughness: 0.3 })
+CZ(FM, 0.6, 0.24, SERVO, S.x, S.y, 0.8, { roughness: 0.3 })
+const horn = new THREE.Group(); horn.position.set(S.x, S.y, 1.0); FM.add(horn)
+CZ(horn, 0.36, 0.16, WHITE, 0, 0, 0); B(horn, R + 0.3, 0.45, 0.16, WHITE, R / 2, 0, 0)
+CZ(horn, 0.32, 0.8, RUBBER, R, 0, 0.45, { roughness: 1 })
+// Tornillo M4 del eje con su autoblocante
+CZ(FM, 0.2, 2.6, METAL, 0, 0, 0.9, METAL_O)
+CZ(FM, 0.45, 0.08, METAL, 0, 0, 1.84, METAL_O)
+CZ(FM, 0.4, 0.4, METAL, 0, 0, 2.08, METAL_O, 6)
+CZ(FM, 0.31, 0.13, 0x3b6fd1, 0, 0, 2.34)
+// Brazo: barra, poste de la goma por delante, tubo con embudo y bandeja del micro
 const armG = new THREE.Group(); FM.add(armG)
-B(armG, 9.2, 0.8, 0.4, RESIN, 4, 0, 0.4)
-CZ(armG, 0.08, 0.35, METAL, 4.2, -0.1, 0.75, METAL_O, 8)
-B(armG, 2.2, 0.3, 0.6, RESIN, 7.7, 0, 0.75)
-const orange = { side: THREE.DoubleSide }
-const tubeM = add(armG, new THREE.CylinderGeometry(0.5, 0.5, 2.2, 24, 1, true), 0xe8a33d, 7.7, 0, 1.15, orange); tubeM.rotation.z = -Math.PI / 2
-const funM = add(armG, new THREE.CylinderGeometry(0.85, 0.5, 0.6, 24, 1, true), 0xe8a33d, 9.1, 0, 1.15, orange); funM.rotation.z = -Math.PI / 2
-B(armG, 1.3, 0.65, 0.6, BLACK, 7.4, 0.88, 1.15)
-const lever = new THREE.Group(); lever.position.set(6.8, 0.56, 1.15); armG.add(lever)
-B(lever, 1.1, 0.06, 0.3, METAL, 0.55, 0, 0, METAL_O)
+B(armG, 8.6, 1, 0.5, RESIN, 4.3, 0, 1.55, resinO)
+CZ(armG, 0.6, 0.5, RESIN, 0, 0, 1.55, resinO)
+CZ(armG, 0.25, 0.6, RESIN, 4.5, 0, 2.1, resinO); CZ(armG, 0.4, 0.15, RESIN, 4.5, 0, 2.38, resinO)
+CX(armG, 0.83, 5.6, 8.6, RESIN, 0, ZT, resinO, 32)
+const funM = add(armG, new THREE.CylinderGeometry(1.03, 0.83, 0.6, 32, 1, true), RESIN, 8.9, 0, ZT, { roughness: 0.5, side: THREE.DoubleSide }); funM.rotation.z = -Math.PI / 2
+B(armG, 3, 1, 0.83, RESIN, 7.1, 0, 2.21, resinO)
+B(armG, 2.6, 2.2, 0.51, RESIN, 7.3, 1.5, 2.05, resinO)
+B(armG, 2, 1.03, 0.64, 0x151517, 7.3, 1.445, ZT, { roughness: 0.55 })
+for (const dx of [-0.7, 0, 0.7]) B(armG, 0.28, 0.35, 0.05, 0xc9a24a, 7.3 + dx, 2.13, ZT, METAL_O)
+const lever = new THREE.Group(); lever.position.set(8.15, 0.93, ZT); armG.add(lever)
+B(lever, 1.6, 0.04, 0.36, METAL, -0.8, 0, 0, METAL_O)
+CZ(lever, 0.24, 0.28, WHITE, -1.5, -0.24, 0)
+// Lo que se saca al coger la bandera: base con imán, espuma y tela
 const flagG = new THREE.Group(); armG.add(flagG)
-CX(flagG, 0.22, 6.8, 10.6, 0xd9b77e, 0, 1.15, { roughness: 0.8 })
-CX(flagG, 0.14, 10.6, 30.6, 0xeee2a0, 0, 1.15, { roughness: 0.4 })
-CX(flagG, 0.55, 10.9, 16, 0x3aa0c8, 0, 1.15, { roughness: 1 })
-add(flagG, new THREE.SphereGeometry(0.5, 16, 12), RUBBER, 31, 0, 1.15, { roughness: 1 })
-const clothGeo = new THREE.PlaneGeometry(10, 6, 30, 16), clothBase = clothGeo.attributes.position.array.slice()
-add(flagG, clothGeo, 0xf7f5ee, 25.6, -3.15, 1.15, { roughness: 0.9, side: THREE.DoubleSide })
-const bandM = add(FM, new THREE.CylinderGeometry(0.09, 0.09, 1, 8), 0x8b5a2b, 0, 0, 0, { roughness: 0.9 })
+CX(flagG, 0.6, 6, 9.5, 0x5f646b, 0, ZT, resinO, 24)
+CX(flagG, 1.25, 9.5, 9.8, 0x5f646b, 0, ZT, resinO, 40)
+CX(flagG, 1.25, 9.8, 25.1, 0xf6f5f0, 0, ZT, { roughness: 0.95, bumpMap: foamBump, bumpScale: 0.04 }, 40)
+const clothGeo = new THREE.PlaneGeometry(6, 10, 18, 30); clothGeo.translate(0, -5, 0)
+const clothBase = clothGeo.attributes.position.array.slice()
+const clothM = add(flagG, clothGeo, 0xfbfaf6, 22.1, -1.2, ZT, { roughness: 0.92, side: THREE.DoubleSide })
+// Goma elástica: lazo del poste del brazo al de la placa
+const bandM = add(FM, new THREE.BufferGeometry(), 0xc8924a, 0, 0, 0, { roughness: 0.7 })
+function rebuildBand() {
+  const a = armToFm(4.5, 0, 2.2), b = V(4.5, -3.5, 2.2)
+  const d = b.clone().sub(a).normalize(), n = V(-d.y, d.x, 0), pts = []
+  for (let i = 0; i <= 10; i++) { const u = Math.PI * i / 10; pts.push(a.clone().addScaledVector(n, 0.29 * Math.cos(u)).addScaledVector(d, -0.29 * Math.sin(u))) }
+  for (let i = 0; i <= 10; i++) { const u = Math.PI * i / 10; pts.push(b.clone().addScaledVector(n, -0.4 * Math.cos(u)).addScaledVector(d, 0.4 * Math.sin(u))) }
+  bandM.geometry.dispose()
+  bandM.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 60, 0.07, 6, true)
+}
 
 // ---------- Cables ----------
 const cables = part('cables', 'Cables y enlace', 'Cable de 3 hilos del palo a la bandera (GX12), USB de 5 V del cargador al servo, USB del encoder de los mandos al PC y HDMI del PC a la pantalla. La línea discontinua azul es el enlace Bluetooth: no lleva cable.', '#5aa9ff')
@@ -450,14 +534,14 @@ function rebuildBoardCables() {
 let microWire = null
 function rebuildMicroWire() {
   if (microWire) { FM.remove(microWire); microWire.geometry.dispose() }
-  microWire = tube([armToFm(7.4, 1.2, 1.15), armToFm(4, 0.55, 0.7), armToFm(1, 0.55, 0.7), V(-1.4, 1.2, 0.4), V(-2.6, -1, -2.7)], 0.07, BLACK)
+  microWire = tube([armToFm(6.8, 2.3, ZT), armToFm(5.5, 1.2, 2.0), armToFm(1.5, 0.7, 1.95), V(-0.9, 0.9, 1.6), V(-1.8, -2.8, -1), V(10, -5.6, -1), V(23, -5.4, 1.2)], 0.07, BLACK)
   FM.add(microWire)
 }
 
 // ---------- Lógica de la bandera ----------
 function armToFm(x, y, z) { const c = Math.cos(theta), s = Math.sin(theta); return V(x * c - y * s, x * s + y * c, z) }
 const thF = p => { const x = S.x + R * Math.cos(p), y = S.y + R * Math.sin(p), rho = Math.hypot(x, y); return Math.atan2(y, x) + Math.asin(Math.min(1, C / rho)) }
-const PHI_DOWN = -20 * deg, PHI_UP = 102 * deg, MAX_UP = 85 * deg, SERVO_RATE = 600 * deg, FALL_RATE = 900 * deg, TRAVEL = 0.25, HOLD = 0.5
+const PHI_DOWN = -19 * deg, PHI_UP = 99 * deg, MAX_UP = 85 * deg, SERVO_RATE = 600 * deg, FALL_RATE = 900 * deg, TRAVEL = 0.25, HOLD = 0.5
 let phi = PHI_DOWN, theta = 0, phase = 'down', phaseT = 0, present = true, grabbed = false, grip = null, pull = null, autoGrab = false, msg = '', msgT = 0
 const PH = { down: 'Bandera abajo', rising: 'Subiendo: el aspa empuja el brazo', up: 'Arriba contra el tope de 85°', lowering: 'Bajando: la goma baja el brazo' }
 const say = (t, s = 2.5) => { msg = t; msgT = s }
@@ -556,7 +640,7 @@ const lidLed = cajaGiro.children.find(o => o.material && o.material.emissive && 
 if (lidLed) lidLed.userData.keepEmissive = true
 
 // ---------- Jugador y simulación de partida ----------
-const flagPoint = () => { FM.updateMatrixWorld(); return FM.localToWorld(armToFm(17, 0, 1.15)) }
+const flagPoint = () => { FM.updateMatrixWorld(); return FM.localToWorld(armToFm(17, 0, ZT)) }
 function grabToHand() { grabbed = true; present = false; handAnchor.attach(flagG) }
 function updatePerson(dt, mode) {
   boardPivot.updateMatrixWorld(true)
@@ -651,6 +735,7 @@ const clock = new THREE.Clock()
 const toward = (v, g, m) => Math.abs(g - v) < m ? g : v + Math.sign(g - v) * m
 let t = 0, last = { tilt: null, fwd: null, theta: null }
 drawScreen({ tilt: 0 })
+scene.traverse(o => { if (o.isMesh && o !== floor && !o.material.isMeshBasicMaterial) { o.castShadow = true; o.receiveShadow = true } })
 function stateText() {
   if (msgT > 0) return msg
   if (selected === 'mecBandera' || selected === 'cajaBandera' || selected === 'placaBandera') {
@@ -689,12 +774,12 @@ function step() {
   if (pull) { const s = Math.max(dt, dtR * 0.4) * 30; pull.d += s; flagG.position.addScaledVector(pull.dir, s); if (pull.d > 36) { flagG.visible = false; pull = null } }
   lever.rotation.z = present && !pull ? 0 : -0.32
   const p = clothGeo.attributes.position.array
-  for (let i = 0; i < p.length; i += 3) { const x = clothBase[i], y = clothBase[i + 1]; p[i + 2] = 0.7 * ((3 - y) / 6) * Math.sin(t * 5 - x * 0.8 + y * 0.4) }
+  for (let i = 0; i < p.length; i += 3) { const x = clothBase[i], y = clothBase[i + 1], k = -y / 10; p[i + 2] = k * 0.9 * Math.sin(t * 4 - y * 0.7 + x * 0.4) + k * 0.4 }
   clothGeo.attributes.position.needsUpdate = true; clothGeo.computeVertexNormals()
+  // Con la bandera guardada en la caja la tela va recogida
+  clothM.scale.y = present && !pull ? Math.max(0.25, Math.sin(theta)) : 1
   if (theta !== last.theta) {
-    last.theta = theta; rebuildMicroWire()
-    const a = armToFm(4.2, -0.1, 0.85), d = V(5.2, -4.2, 0.85).sub(a), L = d.length()
-    bandM.position.copy(a).addScaledVector(d, 0.5); bandM.scale.set(1, L, 1); bandM.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize())
+    last.theta = theta; rebuildMicroWire(); rebuildBand()
   }
 
   let label = false

@@ -329,6 +329,8 @@ Se envía siempre el **estado completo**: si un paquete llega tarde, el siguient
 
 ## Siguientes pasos
 
+> La lista completa, con la bandera, las cajas y la máquina recreativa, está en la [hoja de ruta](HOJA_DE_RUTA.md).
+
 1. ~~Soldar el MPU6050 y leer la inclinación real~~ → `p4_giroscopio`.
 2. ~~Soldar el microrruptor~~ (hecho; falta montarlo con el tope de goma en la tabla).
 3. ~~Integrar los modos de control en el juego~~ → laboratorio (paso 9), solo en builds de laboratorio.
