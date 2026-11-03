@@ -1,0 +1,435 @@
+<title>Tabla de skate</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Taller: foto de la tabla a la izquierda, mandos y números a la derecha (apilado en móvil). Mismo lenguaje que los otros modelos del proyecto. */
+:root{
+  --bg:#111419;--surface:#181c22;--surface-2:#20262e;--line:#2c333d;
+  --fg:#ece7dc;--muted:#9aa3ad;--accent:#e2a73b;--accent-ink:#1d1406;--ok:#5fcf8a;
+  --display:'Barlow Condensed','Arial Narrow',ui-sans-serif,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px}
+.app{height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.stage{position:relative;min-height:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#1d1a17}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;top:12px;left:14px;right:14px;pointer-events:none}
+.hud h1{margin:0;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.02em;line-height:1;text-wrap:balance}
+.hud p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.chip{position:absolute;top:66px;left:14px;font:500 12px var(--mono);padding:4px 8px;border-radius:5px;background:rgba(17,20,25,.85);border:1px solid var(--line);pointer-events:none}
+.info{position:absolute;left:12px;bottom:12px;max-width:min(390px,calc(100% - 24px));background:rgba(17,20,25,.9);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.info h2{margin:0 0 4px;font-family:var(--display);font-weight:600;font-size:19px;color:var(--accent);letter-spacing:.02em}
+.info p{margin:0;line-height:1.45;font-size:13px}
+.panel{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding-right:2px}
+.panel h3{margin:0 0 8px;font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.stack{display:grid;gap:10px}
+button{font:500 13px var(--body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.slider{display:grid;gap:4px}
+.slider .lab{display:flex;justify-content:space-between;font-size:13px}
+.slider output{font-family:var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox]{accent-color:var(--accent)}
+.note{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.dims{font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-variant-numeric:tabular-nums}
+.dims span:nth-child(odd){color:var(--muted)}
+.parts{display:grid;gap:1px}
+.parts button{all:unset;display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:13px}
+.parts button:hover,.parts button:focus-visible{background:var(--surface-2)}
+.sw{width:10px;height:10px;border-radius:2px;flex:none}
+@media (max-width:820px){html,body{height:auto}.app{height:auto;grid-template-columns:minmax(0,1fr)}.stage{height:68vh}.panel{overflow:visible}}
+</style>
+
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="hud">
+      <h1>Palo de equilibrio · tabla con ejes de skate</h1>
+      <p>Arrastra para girar · rueda o pellizco para zoom · toca una pieza para ver qué es</p>
+    </div>
+    <span class="chip" id="chip">Inclinación 0°</span>
+    <div class="info" id="info">
+      <h2 id="infoName">Tabla con ejes de skate</h2>
+      <p id="infoDesc">Un skate hecho a mano sin ruedas: una tabla de contrachapado con dos ejes de skate debajo, y las puntas de cada eje atornilladas a unos tacos de madera de la base. No rueda: solo se inclina a los lados, y las gomas de los ejes la devuelven al centro.</p>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <section>
+      <h3>Vistas</h3>
+      <div class="row" id="views">
+        <button data-view="foto">Foto</button>
+        <button data-view="frente">De frente</button>
+        <button data-view="debajo">Por debajo</button>
+        <button data-view="eje">Eje y taco</button>
+        <button data-view="caja">Caja giroscopio</button>
+      </div>
+    </section>
+
+    <section class="stack">
+      <h3>Probar</h3>
+      <div class="row"><button class="primary" id="btnMecer">Balancear</button></div>
+      <div class="slider">
+        <div class="lab"><label for="incl">Inclinación</label><output id="inclOut">0°</output></div>
+        <input type="range" id="incl" min="-15" max="15" step="0.5" value="0">
+      </div>
+      <div>
+        <div style="font-size:13px;margin-bottom:6px">Gomas de los ejes</div>
+        <div class="row" id="gomasSel">
+          <button data-g="blandas">Blandas · niños</button>
+          <button data-g="medias" class="primary">De serie</button>
+          <button data-g="duras">Duras · adultos grandes</button>
+        </div>
+      </div>
+      <p class="note" id="lectura"></p>
+      <label class="toggle"><input type="checkbox" id="xray"> Tabla translúcida (ver lo de debajo)</label>
+      <label class="toggle"><input type="checkbox" id="pies" checked> Pies de un adulto (escala)</label>
+    </section>
+
+    <section>
+      <h3>Piezas</h3>
+      <div class="parts" id="parts"></div>
+    </section>
+
+    <section>
+      <h3>Medidas</h3>
+      <div class="dims">
+        <span>Tabla</span><span>80 × 25 cm, abedul 18 mm</span>
+        <span>Altura</span><span>≈ 12 cm sobre la tarima</span>
+        <span>Ejes</span><span>2 de skate (15 cm), a 45 cm</span>
+        <span>Inclinación</span><span>±12–15°, la frenan las gomas</span>
+        <span>Topes</span><span>4 de goma a ±15° (seguridad)</span>
+        <span>Base</span><span>80 × 40 cm, 18 mm</span>
+        <span>Usuario</span><span>20 a 130 kg</span>
+      </div>
+      <p class="note">Medidas aproximadas: la altura exacta depende del eje que llegue. Antes de cortar los tacos, mide cuánto sobresale la rosca de cada punta del eje.</p>
+    </section>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const deg = Math.PI / 180
+const V = (x, y, z) => new THREE.Vector3(x, y, z)
+
+// Medidas en mm. X: a lo ancho (hacia donde se inclina), Z: a lo largo, Y: arriba. Tarima en y = 0
+const BASE_T = 18, EJE_Y = BASE_T + 32, ALTO_EJE = 53, TABLA_Y0 = EJE_Y + ALTO_EJE, TABLA_T = 18
+const TABLA_W = 250, TABLA_L = 800, EJES_Z = [-225, 225], PIVOTE_Y = EJE_Y + 14, TOPE = 15
+const HANGER = 120, PUNTA = 32, TACO = 26
+
+const stage = document.getElementById('stage')
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.95
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.physicallyCorrectLights = true
+stage.prepend(renderer.domElement)
+
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x1d1a17)
+scene.fog = new THREE.Fog(0x1d1a17, 2200, 4500)
+const camera = new THREE.PerspectiveCamera(30, 1, 5, 8000)
+const controls = new THREE.OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.minDistance = 120
+controls.maxDistance = 3200
+controls.maxPolarAngle = Math.PI * 0.62
+
+// Entorno para reflejos
+{
+  const env = new THREE.Scene()
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(10, 6, 10), new THREE.MeshStandardMaterial({ color: 0x6b625a, side: THREE.BackSide })))
+  for (const [w, h, x, y, z, k] of [[3, 1.6, -2.5, 2.9, 3, 9], [1.5, 2, 4.8, 0.5, 0, 4], [2, 1, 0, 2.9, -3, 3]]) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.97, 0.92).multiplyScalar(k), side: THREE.DoubleSide }))
+    m.position.set(x, y, z); m.lookAt(0, 0, 0); env.add(m)
+  }
+  scene.environment = new THREE.PMREMGenerator(renderer).fromScene(env, 0.04).texture
+}
+const key = new THREE.DirectionalLight(0xfff1df, 2.6)
+key.position.set(-900, 1600, 1200)
+key.castShadow = true
+key.shadow.mapSize.set(2048, 2048)
+Object.assign(key.shadow.camera, { left: -800, right: 800, top: 800, bottom: -800, near: 100, far: 5000 })
+key.shadow.bias = -0.0003; key.shadow.normalBias = 1.5
+scene.add(key)
+const fill = new THREE.DirectionalLight(0xc9d8ff, 0.7); fill.position.set(1400, 500, 700); scene.add(fill)
+const rim = new THREE.DirectionalLight(0xffffff, 0.8); rim.position.set(500, 900, -1500); scene.add(rim)
+scene.add(new THREE.HemisphereLight(0xfff4e6, 0x2a2018, 0.4))
+
+// ---------- Texturas ----------
+let seed = 5
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+function canvasTex(w, h, draw, repeat, srgb = true) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h
+  draw(c.getContext('2d'), w, h)
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8
+  if (repeat) t.repeat.set(...repeat)
+  if (srgb) t.encoding = THREE.sRGBEncoding
+  return t
+}
+function grain(c, w, h, base, dark, n) {
+  c.fillStyle = base; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < n; i++) {
+    const y = rnd() * h, a = 0.03 + rnd() * 0.11, amp = 2 + rnd() * 9, f = 0.003 + rnd() * 0.01
+    c.strokeStyle = `rgba(${dark},${a})`; c.lineWidth = 0.6 + rnd() * 2.2
+    c.beginPath(); for (let x = 0; x <= w; x += 8) c.lineTo(x, y + Math.sin(x * f + i) * amp); c.stroke()
+  }
+}
+const birchTex = canvasTex(1024, 256, (c, w, h) => grain(c, w, h, '#dcc39a', '110,75,35', 160))
+// Canto del contrachapado: láminas finas alternas
+const edgeTex = canvasTex(64, 256, (c, w, h) => {
+  for (let y = 0; y < h; y += 16) { c.fillStyle = (y / 16) % 2 ? '#c9a676' : '#e3cfa8'; c.fillRect(0, y, w, 16); c.fillStyle = 'rgba(80,50,20,.35)'; c.fillRect(0, y, w, 1) }
+})
+const tarimaTex = canvasTex(1024, 1024, (c, w, h) => grain(c, w, h, '#7d5b3a', '30,18,8', 220), [2, 2])
+const gripTex = canvasTex(256, 256, (c, w, h) => {
+  c.fillStyle = '#1c1d1f'; c.fillRect(0, 0, w, h)
+  for (let i = 0; i < 6000; i++) { const v = 30 + rnd() * 40; c.fillStyle = `rgb(${v},${v},${v + 2})`; c.fillRect(rnd() * w, rnd() * h, 1.5, 1.5) }
+}, [3, 10])
+const gripBump = canvasTex(256, 256, (c, w, h) => {
+  const img = c.createImageData(w, h)
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255 }
+  c.putImageData(img, 0, 0)
+}, [3, 10], false)
+
+// ---------- Materiales ----------
+const M = {
+  birch: new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 }),
+  edge: new THREE.MeshStandardMaterial({ map: edgeTex, roughness: 0.8 }),
+  tarima: new THREE.MeshStandardMaterial({ map: tarimaTex, roughness: 0.75 }),
+  grip: new THREE.MeshStandardMaterial({ map: gripTex, bumpMap: gripBump, bumpScale: 0.6, roughness: 0.95 }),
+  castIron: new THREE.MeshStandardMaterial({ color: 0x3c4348, metalness: 0.4, roughness: 0.55 }),
+  chrome: new THREE.MeshStandardMaterial({ color: 0xd9dde1, metalness: 1, roughness: 0.18 }),
+  steel: new THREE.MeshStandardMaterial({ color: 0xbfc4c9, metalness: 1, roughness: 0.32 }),
+  zinc: new THREE.MeshStandardMaterial({ color: 0xd8d2b8, metalness: 1, roughness: 0.35 }),
+  alu: new THREE.MeshStandardMaterial({ color: 0xc9ccd0, metalness: 0.9, roughness: 0.4 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xc9a24a, metalness: 1, roughness: 0.3 }),
+  rubber: new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.9 }),
+  resin: new THREE.MeshPhysicalMaterial({ color: 0x8b9096, roughness: 0.5, clearcoat: 0.25 }),
+  red: new THREE.MeshStandardMaterial({ color: 0xc0302a, roughness: 0.4 }),
+  led: new THREE.MeshStandardMaterial({ color: 0x3ee07a, emissive: 0x2bd15f, emissiveIntensity: 1.2 }),
+  shoe: new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.8 }),
+  sole: new THREE.MeshStandardMaterial({ color: 0xe9e4da, roughness: 0.9 }),
+  cable: new THREE.MeshStandardMaterial({ color: 0x18181a, roughness: 0.55 })
+}
+for (const m of Object.values(M)) if (!m.map) { m.color.convertSRGBToLinear(); m.emissive && m.emissive.convertSRGBToLinear() }
+
+// ---------- Piezas ----------
+const PARTS = {}
+function part(key, name, desc, sw) { PARTS[key] = { name, desc, sw, meshes: [] } }
+part('tabla', 'Tabla', 'Contrachapado de abedul de 18 mm, 80 × 25 cm, con las puntas y los cantos redondeados y lijados. Encima, lija antideslizante. Con los ejes a 45 cm, 130 kg (incluso de un salto) los aguanta de sobra.', '#dcc39a')
+part('ejes', 'Ejes de skate (par)', 'Los dos ejes del enlace (ifundom, aluminio, 15 cm, 17,99 € el par). Cada uno se atornilla bajo la tabla con 4 tornillos M5 por su placa. El cuerpo del eje gira sobre su pivote y las gomas lo devuelven al centro: es lo que hace que la tabla se incline poco a poco y vuelva sola.', '#c9ccd0')
+part('gomas', 'Gomas del eje', 'Dos gomas de poliuretano en cada eje, alrededor del tornillo central. Vienen con los ejes. Para niños, unas más blandas; para adultos grandes, unas más duras (se venden por dureza, 78A a 97A). Se cambian en 5 minutos aflojando la tuerca del tornillo central, que también sirve para ajustar la dureza.', '#e2a73b')
+part('tacos', 'Tacos de las puntas', 'Cuatro tacos de madera dura (de un listón de 45 × 45) atornillados a la base. Cada punta roscada del eje pasa por un agujero de 8 mm y se aprieta con su tuerca y arandela. Así el eje queda fijo, no rueda y la tabla solo se puede inclinar. El grosor del taco no puede pasar de lo que sobresale la rosca.', '#a0703d')
+part('base', 'Base', 'Contrachapado de 18 mm, 80 × 40 cm, con tacos de goma debajo para que no se deslice (o atornillada a la tarima de la máquina).', '#7d5b3a')
+part('topes', 'Topes de seguridad', 'Cuatro topes de goma bajo los bordes de la tabla. Las gomas del eje ya frenan, pero estos topes hacen que la tabla no pase nunca de 15° aunque se suba alguien muy pesado con gomas blandas.', '#555555')
+part('caja', 'Caja del giroscopio', 'La misma caja plana de resina (14 × 8,4 × 4,4 cm) atornillada debajo de la tabla, entre los dos ejes, con la cara de mandos mirando a la máquina: interruptor KCD1, LED, botón CAL y conector GX12. Nadie la puede pisar, y queda a unos 4 cm de la base.', '#8b9096')
+part('tarima', 'Tarima común', 'La tarima que comparten el mueble y el palo.', '#7d5b3a')
+part('pies', 'Pies de un adulto', 'Zapatillas de la talla 43 para dar escala: el jugador se pone de lado, como en un skate.', '#2a2c30')
+
+function add(parent, geo, mat, key, x = 0, y = 0, z = 0) {
+  const m = new THREE.Mesh(geo, mat)
+  m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true
+  m.userData.part = key; PARTS[key].meshes.push(m); parent.add(m)
+  return m
+}
+const box = (w, h, d) => new THREE.BoxGeometry(w, h, d)
+const cylX = (r, h, s = 32) => new THREE.CylinderGeometry(r, r, h, s).rotateZ(Math.PI / 2)
+const cylZ = (r, h, s = 32) => new THREE.CylinderGeometry(r, r, h, s).rotateX(Math.PI / 2)
+const cylY = (r, h, s = 32) => new THREE.CylinderGeometry(r, r, h, s)
+const ply = () => [M.edge, M.edge, M.birch, M.birch, M.edge, M.edge]
+function roundedSlab(w, d, h, r) {
+  const s = new THREE.Shape()
+  s.moveTo(-w / 2 + r, -d / 2); s.lineTo(w / 2 - r, -d / 2); s.absarc(w / 2 - r, -d / 2 + r, r, -Math.PI / 2, 0)
+  s.lineTo(w / 2, d / 2 - r); s.absarc(w / 2 - r, d / 2 - r, r, 0, Math.PI / 2)
+  s.lineTo(-w / 2 + r, d / 2); s.absarc(-w / 2 + r, d / 2 - r, r, Math.PI / 2, Math.PI)
+  s.lineTo(-w / 2, -d / 2 + r); s.absarc(-w / 2 + r, -d / 2 + r, r, Math.PI, 3 * Math.PI / 2)
+  const g = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: true, bevelThickness: 1.5, bevelSize: 1.5, bevelSegments: 3 })
+  g.rotateX(-Math.PI / 2)
+  return g
+}
+const M_goma = new THREE.MeshStandardMaterial({ color: 0xe2a73b, roughness: 0.6 }); M_goma.color.convertSRGBToLinear()
+const M_hardwood = new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (c, w, h) => grain(c, w, h, '#a0703d', '50,25,8', 80)), roughness: 0.65 })
+
+// ---------- Fijo: tarima, base, tacos y cuerpo de los ejes ----------
+const fixed = new THREE.Group(); scene.add(fixed)
+add(fixed, box(1200, 40, 1400), M.tarima, 'tarima', 0, -20, 0)
+add(fixed, box(400, BASE_T, 800), ply(), 'base', 0, BASE_T / 2, 0)
+for (const x of [-170, 170]) for (const z of [-370, 370]) add(fixed, cylY(14, 6, 24), M.rubber, 'base', x, -3, z)
+
+const xTaco = HANGER / 2 + 6 + TACO / 2
+for (const z of EJES_Z) {
+  const s = Math.sign(z)   // hacia fuera de la tabla
+  // Puntas roscadas con arandela y tuerca a cada lado del taco
+  add(fixed, cylX(4, HANGER + 2 * PUNTA, 20), M.steel, 'ejes', 0, EJE_Y, z)
+  for (const sx of [-1, 1]) {
+    const h = EJE_Y + 26 - BASE_T
+    add(fixed, box(TACO, h, 45), M_hardwood, 'tacos', sx * xTaco, BASE_T + h / 2, z)
+    add(fixed, cylX(8, 1.6, 20), M.zinc, 'tacos', sx * (xTaco + TACO / 2 + 0.8), EJE_Y, z)
+    add(fixed, cylX(7.5, 6, 6), M.zinc, 'tacos', sx * (xTaco + TACO / 2 + 4.6), EJE_Y, z)
+    add(fixed, cylX(7.5, 6, 6), M.zinc, 'tacos', sx * (HANGER / 2 + 3), EJE_Y, z)
+    for (const dz of [-14, 14]) add(fixed, cylY(4.5, 2, 12), M.zinc, 'tacos', sx * xTaco, EJE_Y + 26 + 1, z + dz)
+  }
+  // Cuerpo (hanger): barra con el ensanche central y el brazo del pivote hacia fuera
+  const hg = new THREE.Group(); hg.position.set(0, EJE_Y, z); fixed.add(hg)
+  const sh = new THREE.Shape()
+  sh.moveTo(-HANGER / 2, -11); sh.lineTo(HANGER / 2, -11); sh.lineTo(HANGER / 2, 9); sh.lineTo(26, 13)
+  sh.quadraticCurveTo(0, 30, -26, 13); sh.lineTo(-HANGER / 2, 9); sh.closePath()
+  const hgGeo = new THREE.ExtrudeGeometry(sh, { depth: 24, bevelEnabled: true, bevelThickness: 3, bevelSize: 3, bevelSegments: 3 }); hgGeo.translate(0, 0, -12)
+  add(hg, hgGeo, M.alu, 'ejes')
+  add(hg, new THREE.TorusGeometry(12, 5, 12, 28).rotateX(Math.PI / 2).rotateX(-s * 0.55), M.alu, 'ejes', 0, 22, -s * 10)
+  add(hg, box(14, 12, 26), M.alu, 'ejes', 0, 22, s * 22).rotation.x = s * 0.6
+}
+
+// Topes de seguridad: la cara de abajo de la tabla llega a ellos a ±15°
+const TOPE_X = 105, TOPE_Z = [-330, 330]
+const yTope = PIVOTE_Y + (TABLA_Y0 - PIVOTE_Y) * Math.cos(TOPE * deg) - TOPE_X * Math.sin(TOPE * deg)
+for (const x of [-TOPE_X, TOPE_X]) for (const z of TOPE_Z) {
+  const taco = yTope - 15 - BASE_T
+  add(fixed, box(40, taco, 50), ply(), 'topes', x, BASE_T + taco / 2, z)
+  add(fixed, cylY(14, 15, 28), M.rubber, 'topes', x, BASE_T + taco + 7.5, z)
+}
+
+// ---------- Lo que se inclina: tabla, placas de los ejes, gomas, caja ----------
+const pivot = new THREE.Group(); pivot.position.set(0, PIVOTE_Y, 0); scene.add(pivot)
+const local = y => y - PIVOTE_Y
+const gomasMeshes = []
+for (const z of EJES_Z) {
+  const s = Math.sign(z)
+  // Placa atornillada a la tabla
+  add(pivot, box(64, 8, 96), M.alu, 'ejes', 0, local(TABLA_Y0) - 4, z)
+  add(pivot, box(40, 22, 30), M.alu, 'ejes', 0, local(TABLA_Y0) - 19, z + s * 26)
+  for (const dx of [-20, 20]) for (const dz of [-27, 27]) add(pivot, cylY(5, 1, 16), M.zinc, 'ejes', dx, local(TABLA_Y0 + TABLA_T) + 0.9, z + dz)
+  // Tornillo central inclinado con las dos gomas y la tuerca
+  const kp = new THREE.Group(); kp.position.set(0, local(TABLA_Y0) - 8, z - s * 14); kp.rotation.x = -s * 0.55; pivot.add(kp)
+  add(kp, cylY(4, 64, 16), M.steel, 'ejes', 0, -30, 0)
+  gomasMeshes.push(add(kp, cylY(13, 13, 28), M_goma, 'gomas', 0, -11, 0))
+  gomasMeshes.push(add(kp, cylY(12, 11, 28), M_goma, 'gomas', 0, -36, 0))
+  add(kp, cylY(14, 2, 28), M.zinc, 'ejes', 0, -42.5, 0)
+  add(kp, cylY(8, 7, 6), M.zinc, 'ejes', 0, -47, 0)
+}
+add(pivot, roundedSlab(TABLA_W, TABLA_L, TABLA_T - 3, 110), M.birch, 'tabla', 0, local(TABLA_Y0) + 1.5, 0)
+add(pivot, roundedSlab(TABLA_W - 20, TABLA_L - 20, 0.6, 100), M.grip, 'tabla', 0, local(TABLA_Y0 + TABLA_T) + 0.2, 0)
+
+// Caja del giroscopio bajo la tabla, entre los ejes, cara de mandos hacia la máquina (z negativo)
+const cajaG = new THREE.Group(); cajaG.position.set(0, local(TABLA_Y0) - 22, -20); pivot.add(cajaG)
+add(cajaG, box(84, 43.5, 141), M.resin, 'caja', 0, 0, 0)
+for (const [x, z] of [[-42, -56], [42, -56], [-42, 56], [42, 56]]) add(cajaG, cylY(6, 43.5, 20), M.resin, 'caja', x, 0, z)
+const cara = -71
+add(cajaG, box(19, 13, 1.5), M.red, 'caja', -26, 6, cara)
+add(cajaG, cylZ(3, 2, 16), M.led, 'caja', -8, 6, cara)
+add(cajaG, cylZ(6, 2, 20), M.rubber, 'caja', 8, 6, cara)
+add(cajaG, cylZ(8, 12, 24), M.chrome, 'caja', 26, 6, cara - 6)
+{
+  const y0 = local(TABLA_Y0) - 16
+  const c = new THREE.CatmullRomCurve3([V(26, y0, -103), V(28, y0 - 6, -150), V(40, -PIVOTE_Y + 34, -200), V(60, -PIVOTE_Y + 24, -390), V(65, -PIVOTE_Y + 10, -460), V(70, -PIVOTE_Y + 4, -700)])
+  add(pivot, new THREE.TubeGeometry(c, 60, 3.5, 10), M.cable, 'caja')
+}
+
+// Pies para dar escala (talla 43, de lado sobre la tabla)
+const piesG = new THREE.Group(); pivot.add(piesG)
+for (const z of [-200, 200]) {
+  const g = new THREE.Group(); g.position.set(0, local(TABLA_Y0 + TABLA_T) + 1, z); piesG.add(g)
+  add(g, roundedSlab(285, 105, 18, 45), M.sole, 'pies', 0, 0, 0)
+  add(g, roundedSlab(270, 95, 55, 42), M.shoe, 'pies', -5, 18, 0)
+  add(g, new THREE.SphereGeometry(48, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.shoe, 'pies', -40, 73, 0).scale.set(1.4, 0.9, 0.95)
+}
+
+// ---------- Interacción ----------
+const GOMAS = {
+  blandas: { color: 0x8ec9e8, txt: 'Gomas blandas (78A–83A): para niños de 20–40 kg; con ellas un adulto se iría a los topes enseguida.' },
+  medias: { color: 0xe2a73b, txt: 'Las gomas que traen los ejes: para la mayoría de jóvenes y adultos. Apretando o aflojando la tuerca central se afina un poco.' },
+  duras: { color: 0xc0302a, txt: 'Gomas duras (92A–97A): para adultos grandes, hasta 130 kg. Para niños quedaría demasiado dura.' }
+}
+let tilt = 0, mecer = false, t = 0
+const chip = document.getElementById('chip'), lectura = document.getElementById('lectura')
+const inclIn = document.getElementById('incl'), inclOut = document.getElementById('inclOut')
+const btnMecer = document.getElementById('btnMecer')
+btnMecer.onclick = () => { mecer = !mecer; btnMecer.textContent = mecer ? 'Parar' : 'Balancear' }
+inclIn.oninput = () => { mecer = false; btnMecer.textContent = 'Balancear' }
+function setGomas(k) {
+  M_goma.color.set(GOMAS[k].color).convertSRGBToLinear()
+  lectura.textContent = GOMAS[k].txt
+}
+document.getElementById('gomasSel').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return
+  setGomas(b.dataset.g)
+  for (const x of e.currentTarget.children) x.classList.toggle('primary', x === b)
+}
+setGomas('medias')
+document.getElementById('xray').onchange = e => {
+  for (const m of [M.birch, M.grip]) { m.transparent = e.target.checked; m.opacity = e.target.checked ? 0.25 : 1; m.depthWrite = !e.target.checked; m.needsUpdate = true }
+  piesG.visible = !e.target.checked && document.getElementById('pies').checked
+}
+document.getElementById('pies').onchange = e => { piesG.visible = e.target.checked }
+
+const VIEWS = {
+  foto: { p: [1150, 650, 1250], t: [0, 60, -20] },
+  frente: { p: [0, 130, -1300], t: [0, 70, 0] },
+  debajo: { p: [620, 30, -640], t: [0, 70, -60] },
+  eje: { p: [400, 210, -680], t: [0, 60, -225] },
+  caja: { p: [330, 60, -480], t: [0, 75, -60] }
+}
+let tween = null
+function goTo(name) { const v = VIEWS[name]; tween = { t: 0, p0: camera.position.clone(), t0: controls.target.clone(), p1: V(...v.p), t1: V(...v.t) } }
+document.getElementById('views').onclick = e => { const v = e.target.dataset.view; if (v) goTo(v) }
+camera.position.set(...VIEWS.foto.p); controls.target.set(...VIEWS.foto.t)
+
+const info = document.getElementById('info'), infoName = document.getElementById('infoName'), infoDesc = document.getElementById('infoDesc')
+function showPart(k) { if (!k) { info.hidden = true; return } info.hidden = false; infoName.textContent = PARTS[k].name; infoDesc.textContent = PARTS[k].desc }
+const partsEl = document.getElementById('parts')
+for (const [k, p] of Object.entries(PARTS)) {
+  const b = document.createElement('button')
+  b.innerHTML = `<span class="sw" style="background:${p.sw}"></span>${p.name}`
+  b.onclick = () => showPart(k)
+  partsEl.append(b)
+}
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2()
+let down = null
+renderer.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY] })
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return
+  const r = renderer.domElement.getBoundingClientRect()
+  mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+  ray.setFromCamera(mouse, camera)
+  const hit = ray.intersectObjects(scene.children, true).find(h => h.object.userData.part && h.object.material.opacity !== 0.25 && isVisible(h.object))
+  showPart(hit ? hit.object.userData.part : null)
+})
+function isVisible(o) { while (o) { if (!o.visible) return false; o = o.parent } return true }
+
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix() }
+new ResizeObserver(resize).observe(stage)
+let last = performance.now()
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt
+  if (mecer) inclIn.value = (8 * Math.sin(t * 1.3) + 4 * Math.sin(t * 2.9 + 1)).toFixed(1)
+  const objetivo = +inclIn.value
+  tilt += (objetivo - tilt) * Math.min(1, dt * 8)
+  pivot.rotation.z = -tilt * deg
+  const fmt = v => v.toFixed(1).replace('.', ',')
+  inclOut.textContent = fmt(+inclIn.value) + '°'
+  chip.textContent = 'Inclinación ' + fmt(tilt) + '°' + (Math.abs(tilt) >= TOPE - 0.05 ? ' · contra el tope' : '')
+  if (tween) {
+    tween.t = Math.min(1, tween.t + dt / 0.9)
+    const k = 1 - Math.pow(1 - tween.t, 3)
+    camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.t0, tween.t1, k)
+    if (tween.t === 1) tween = null
+  }
+  controls.update()
+  renderer.render(scene, camera)
+  requestAnimationFrame(loop)
+}
+resize()
+requestAnimationFrame(loop)
+</script>

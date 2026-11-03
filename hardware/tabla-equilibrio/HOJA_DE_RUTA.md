@@ -80,36 +80,33 @@ Con cuidado: tocar la mecánica afecta a las otras ramas (`feature/gps-challenge
 Depende de: 4.
 
 ### 6. Palo físico de equilibrio 🔧
-Se descarta el medio tronco. Propuesta (ver el [visor del palo](palo/palo-equilibrio.html)): **tabla con quilla central de punta a punta sobre un eje de acero con rodamientos**, que solo gira a izquierda y derecha, **más cuatro gomas de centrado** que la devuelven al centro como un monopatín.
+**Decidido: un skate hecho a mano sin ruedas** (ver el [visor de la tabla de skate](palo/tabla-skate.html)). Tabla de contrachapado con dos ejes de skate debajo; las puntas roscadas de cada eje van atornilladas a tacos de madera de la base, así que no rueda: solo se inclina a los lados y las gomas de los ejes la devuelven al centro. Probado con un skate prestado: la sensación es la que se busca.
 
-- ❓ Validar la propuesta: tabla 90 × 26 cm de 2 × 18 mm de abedul encolado; quilla de 36 × 60 mm; eje de acero Ø20 × 94 cm; 3 rodamientos de pie UCP204; 4 soportes de eje tipo SHF20; base de 18 mm atornillada a la tarima; 4 topes de goma a ±12°; superficie a 17 cm de la tarima.
-- ⏳ Carga de cálculo: 130 kg × 3 (subir de un salto) ≈ 4 kN. Comprobar con la tabla real antes de usarla en público.
-- ⏳ Seguridad: lija antideslizante, cantos redondeados y **faldón de goma o cepillo** alrededor de la base para que no se puedan meter dedos entre la tabla y los topes.
-- ✅ **Gomas de centrado** en las 4 esquinas (como los de un monopatín): la inclinación depende de cuánto se carga el peso, no es todo o nada. Van en guías con pasador para ajustar la dureza al peso: niño (5 cm del eje), joven (7), adulto (9) y grande (11,5).
-- ⏳ Elegir la goma (Ø25–30, blanda, o bushings de poliuretano) y afinar su dureza probando con personas de distinto peso.
-- ⏳ Caja del giroscopio atornillada **debajo** de la tabla, en el extremo que mira a la máquina (ya está en el visor).
-- ⏳ Actualizar el modelo de la máquina con este palo.
+- ⏳ Comprar los ejes y medir: cuánto sobresale la rosca de cada punta (el taco no puede ser más grueso), alto del eje (placa ↔ centro del eje) y si traen tuercas y arandelas.
+- ⏳ Tabla de abedul de 18 mm, unos 80 × 25 cm (o 75 × 21 como el skate de prueba), puntas y cantos redondeados, lija antideslizante. Ejes a unos 45 cm, con 4 tornillos M5 cada uno.
+- ⏳ Base de 18 mm, 80 × 40 cm, con 4 tacos de madera dura (agujero de 8 mm para la punta del eje, tuerca y arandela) y tacos de goma debajo.
+- ⏳ Gomas: probar las de serie; comprar un juego blando (78A–83A) para niños y uno duro (92A–97A) para adultos grandes si hace falta. La tuerca central también ajusta la dureza.
+- ⏳ Seguridad: 4 topes de goma bajo los bordes para que nunca pase de 15°; cantos redondeados; comprobar con 130 kg (y un salto) antes de usarla en público.
+- ⏳ Caja del giroscopio atornillada **debajo** de la tabla, entre los dos ejes, con la cara de mandos hacia la máquina (queda a unos 4 cm de la base).
+- ⏳ Actualizar el modelo de la máquina con esta tabla.
 
-**Lista de la compra del palo** (precios de Amazon.es del 2 de noviembre de 2026; total ≈ 324 €, o unos 265–285 € con el contrachapado cortado en una tienda de bricolaje):
+**Lista de la compra** (precios aproximados, noviembre de 2026; total ≈ 75–90 €):
 
 | Pieza | Cant. | Referencia | Precio |
 | --- | --- | --- | --- |
-| Contrachapado 18 mm (tabla doble, quilla, base, tacos y tiras) | ~1 m² | [AtHaus 120 × 80 cm](https://www.amazon.es/dp/B0DF2VJXGT) | 101,62 € |
-| Rodamientos de pie UCP204 (eje 20 mm) | 3 + 1 de repuesto | [2 uds.](https://www.amazon.es/dp/B0H6B3MBWR) × 2 | 39,98 € |
-| Eje de acero Ø20 × 1000 (cortar a 940) | 1 | [Eje de precisión H6](https://www.amazon.es/dp/B07NLB3RWS) | 24,00 € |
-| Soportes de eje SHF20 | 4 | [PATIKIL × 4](https://www.amazon.es/dp/B0D9RSP8CQ) | 19,09 € |
-| Gomas de centrado (o [bushings de skate](https://www.amazon.es/dp/B0CQ248CH1)) | 4 | [Amortiguadores M8 30 × 30](https://www.amazon.es/dp/B0H6XTQ1YP) | 12,99 € |
-| Topes de goma | 4 | [QUARKZMAN 40 × 30 M8](https://www.amazon.es/dp/B0D6Z2J2YX) | 22,79 € |
-| Guías y carros de las gomas | 1,5 m | [Pletina aluminio 40 × 5](https://www.amazon.es/dp/B0C6M12QPZ) | 13,81 € |
-| Pasadores de bola de 6 mm con anilla | 4 (mirar cuántos trae el pack) | [QUARKZMAN](https://www.amazon.es/dp/B0CNXJV56G) | 18,29 € |
-| Tornillos M10 × 60 de los rodamientos | 6 | [Hexagonales M10 × 60](https://www.amazon.es/dp/B096BLH3NQ) | 12,99 € |
-| Tuercas autoblocantes M10 + arandelas | 6 | [DIN 985 + DIN 125](https://www.amazon.es/dp/B0FV3LGX2L) | 10,90 € |
+| Ejes de skate de aluminio, 15 cm, con gomas | 1 par | [ifundom](https://www.amazon.es/dp/B0GF41PK4Z) | 17,99 € |
+| Contrachapado de abedul 18 mm para la tabla, 80 × 25 cm | 1 | Corte en tienda de bricolaje | 12–15 € |
+| Contrachapado 18 mm para la base, 80 × 40 cm | 1 | Corte en tienda de bricolaje | 10–15 € |
+| Listón de madera dura 45 × 45 (4 tacos de las puntas + 4 de los topes) | ~50 cm | Tienda de bricolaje | ~5 € |
+| Topes de goma | 4 | Tacos de goma Ø25–30 con rosca M6/M8 | ~5 € |
+| Tornillos M5 × 30 de los ejes, con tuerca autoblocante | 8 | Tienda de bricolaje | ~4 € |
+| Tuercas M8 + arandelas de las puntas (si no las traen) | 4 | Tienda de bricolaje | ~2 € |
 | Tornillos para madera 4 × 40 | caja | [fischer, 200 uds.](https://www.amazon.es/dp/B084T4Y7HL) | 6,16 € |
-| Lija antideslizante | 3 tiras de 90 cm | [WELSTIK 10 cm × 5 m](https://www.amazon.es/dp/B08CVHMKZQ) | 13,99 € |
-| Cola de carpintero D3 | 1 | [Pattex Madera Express](https://www.amazon.es/dp/B00GDFZ83U) | 8,35 € |
-| Faldón de cepillo (puede esperar a la feria) | ~2 m | [Burlete de cepillo 2 × 1 m](https://www.amazon.es/dp/B0C93XBN7Y) | 18,99 € |
+| Lija antideslizante | 1 tira de 80 cm | [WELSTIK 10 cm × 5 m](https://www.amazon.es/dp/B08CVHMKZQ) | 13,99 € |
+| Tacos de goma antideslizantes para la base | 4 | Tienda de bricolaje | ~4 € |
+| Gomas de recambio blandas o duras (solo si hacen falta) | 1 juego | [Bushings de skate](https://www.amazon.es/dp/B0CQ248CH1) | ~8–10 € |
 
-Antes de comprar: comprobar en cada ficha que el rodamiento es UCP204 para eje de 20 mm y cuántos pasadores trae el pack. Las gomas de 30 mm son más bajas que las del visor: van sobre un taco de madera.
+**Descartado:** tabla con quilla sobre eje de acero, chumaceras y gomas con pasadores (≈ 324 €). Se queda en el [visor antiguo](palo/palo-equilibrio.html) por si hiciera falta.
 
 Depende de: 2.
 
@@ -151,4 +148,5 @@ Para regenerar los STL tras cambiar una medida: `./bandera/exportar_bandera.sh` 
 | **Todas las piezas a imprimir** (toca una para aislarla) | [en Claude](https://claude.ai/artifact/CTJbrocxsSLxX7Cy2hfynf) |
 | Máquina completa | [`maquina/maquina-cucana.html`](maquina/maquina-cucana.html) · [en Claude](https://claude.ai/artifact/SxhPPBKngYZF1Sx27gFwCr) |
 | Mecanismo de la bandera, realista | [en Claude](https://claude.ai/artifact/EcZTavTqwEvG1bEUP5Wjc8) |
-| Palo de equilibrio (tabla sobre eje), realista | [`palo/palo-equilibrio.html`](palo/palo-equilibrio.html) · [en Claude](https://claude.ai/artifact/WPm1c7BXRCndj8tkaVmDtZ) |
+| **Palo de equilibrio: tabla con ejes de skate** | [`palo/tabla-skate.html`](palo/tabla-skate.html) · [en Claude](https://claude.ai/artifact/A2Yf5WTE2DbToUPYchHhcW) |
+| Palo de equilibrio descartado (tabla sobre eje de acero) | [`palo/palo-equilibrio.html`](palo/palo-equilibrio.html) · [en Claude](https://claude.ai/artifact/WPm1c7BXRCndj8tkaVmDtZ) |
