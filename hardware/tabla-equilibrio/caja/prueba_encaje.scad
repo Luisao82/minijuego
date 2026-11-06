@@ -15,6 +15,8 @@
 //    Columna derecha: interruptor KCD1 (basculante) — 3 recortes rectangulares
 //       alrededor de 19 × 13 mm; el bueno es el que lo sujeta por sus pestañas
 //       sin holgura
+//    Sueltos en los huecos libres: jack DC 5,5 × 2,1 de panel (DC-099), la
+//       entrada de 5 V de la caja de la bandera ... Ø 10,6 – 11,4 mm
 //
 //  Cada agujero lleva grabada su medida debajo.
 //  Uso: prueba cada pieza en los agujeros y apunta el más pequeño en
@@ -44,6 +46,8 @@ ventanas_usb = [[9.4, 3.6], [10.0, 4.0], [11.0, 5.0], [12.5, 6.5]];  // [ancho, 
 tornillos = [["M2", 2.4, 4.3], ["M2.5", 2.9, 5.3], ["M3", 3.4, 5.8]];
 recortes_interruptor = [[18.8, 12.8], [19.2, 13.0], [19.6, 13.4]];  // [largo, ancho]
 agujeros_gx12 = [11.8, 12.0, 12.2, 12.5, 12.8];   // rosca M12 del conector
+// Jack DC de 5 V: [Ø, x, y]. No caben en fila, van en los huecos libres
+agujeros_dc = [[10.6, 130, 77.5], [10.8, 108, 62], [11.0, 108, 42], [11.4, 108, 24]];
 
 // Altura (Y) del centro de cada fila
 fila_gx12 = 77.5;
@@ -111,6 +115,9 @@ module agujeros_2d() {
 
     for (i = [0 : len(agujeros_gx12) - 1])
         translate([12 + i * 24, fila_gx12]) circle(d = agujeros_gx12[i]);
+
+    for (a = agujeros_dc)
+        translate([a[1], a[2]]) circle(d = a[0]);
 }
 
 // Las medidas grabadas bajo cada agujero
@@ -137,6 +144,11 @@ module etiquetas_2d() {
     // Al lado del agujero: debajo no cabe sin pisar la fila del jack
     for (i = [0 : len(agujeros_gx12) - 1])
         translate([12 + i * 24 + agujeros_gx12[i] / 2 + 5, fila_gx12]) etiqueta_2d(str(agujeros_gx12[i]));
+    // El primero va en la fila del GX12: también con la medida al lado
+    for (i = [0 : len(agujeros_dc) - 1]) {
+        a = agujeros_dc[i];
+        translate(i == 0 ? [a[1] + a[0] / 2 + 5, a[2]] : [a[1], a[2] - a[0] / 2 - 3.2]) etiqueta_2d(str(a[0]));
+    }
 }
 
 // Capa inferior: placa con agujeros. Capa superior (los últimos 0,6 mm):

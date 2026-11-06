@@ -10,7 +10,7 @@
 //             brazo (sus patas, con tornillos M4)
 //    tramo2   El del medio
 //    tramo3   El de la placa perforada y la pared con los conectores
-//             (GX12 del cable de la tabla y la entrada de 5 V del servo)
+//             (GX12 del cable de la tabla y el jack DC de 5 V del servo)
 //
 //  Cada tramo se imprime de pie (la sección, 103 × 75 mm, apoyada en la
 //  bandeja) y se sujeta bajo la repisa con tornillos por sus orejas de
@@ -19,7 +19,7 @@
 //  Mismos ejes que mecanismo_bandera.scad: el eje del brazo en el origen,
 //  X a lo largo, Y arriba, Z hacia delante (Z negativo = pared del fondo).
 //
-//  PENDIENTE: el conector de 5 V (d_entrada_5v) aún no está elegido.
+//  El Ø del jack DC de 5 V (d_entrada_5v) sale de la pieza de prueba de encaje.
 // =====================================================================
 
 pieza = "montaje";    // "montaje", "tramo1", "tramo2", "tramo3"
@@ -36,7 +36,7 @@ pestana = 4;                  // pestañas de unión: grosor (en X) y fondo
 d_m3 = 3.4;
 d_m4 = 4.5;
 d_gx12 = 12.2;
-d_entrada_5v = 11;            // por decidir (jack DC de panel, USB-C…)
+d_entrada_5v = 11;            // jack DC 5,5 × 2,1 de panel (DC-099)
 
 // Agujeros de las patas de la placa del mecanismo (iguales que en mecanismo_bandera.scad)
 patas = [[-11, -39], [59, -39], [59, 43], [-11, -20]];

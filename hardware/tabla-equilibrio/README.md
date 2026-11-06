@@ -15,7 +15,8 @@ hardware/tabla-equilibrio/
 │   ├── p2_boton/          # Prueba 2: botón simulado con un cable
 │   ├── p3_ble_simulado/   # Prueba 3: Bluetooth con inclinación falsa
 │   ├── p4_giroscopio/     # Prueba 4: MPU6050 real + botón + Bluetooth
-│   └── p5_tabla/          # Firmware de la placa soldada: LED de estado, botón CAL, calibración guardada
+│   ├── p5_tabla/          # Firmware de la placa soldada: LED de estado, botón CAL, calibración guardada
+│   └── p6_tabla_bandera/  # p5 + la bandera física: el juego la sube por Bluetooth y la tabla avisa al cogerla
 ├── diagnostico/
 │   └── index.html         # Página que mide la calidad del Bluetooth
 ├── simulador/
@@ -314,17 +315,21 @@ Firmware: `firmware/p5_tabla/p5_tabla.ino`.
 | Servicio       | `6b1d0001-4c75-4361-9b2a-0a5ec0cafe01` |
 | Datos (notify) | `6b1d0002-4c75-4361-9b2a-0a5ec0cafe01` |
 | Ping (write)   | `6b1d0003-4c75-4361-9b2a-0a5ec0cafe01` |
+| Bandera (write)| `6b1d0004-4c75-4361-9b2a-0a5ec0cafe01` |
 
-Paquete de datos — 12 bytes, little-endian, cada 20 ms:
+Paquete de datos — 13 bytes desde `p6_tabla_bandera` (12 con `p5_tabla`), little-endian, cada 20 ms:
 
 | Bytes | Campo       | Tipo   | Descripción                                 |
 | ----- | ----------- | ------ | ------------------------------------------- |
 | 0–1   | `seq`       | uint16 | Contador de paquetes (detecta pérdidas)     |
 | 2–3   | `tilt`      | int16  | Inclinación lateral en centésimas de grado  |
-| 4     | `flags`     | uint8  | bit 0 = botón pulsado, bit 1 = error sensor |
+| 4     | `flags`     | uint8  | bit 0 = botón pulsado, bit 1 = error sensor, bit 2 = bandera puesta en el portapalo, bit 3 = bandera en ciclo (subiendo, arriba o bajando) |
 | 5     | `presses`   | uint8  | Contador de pulsaciones (ninguna se pierde) |
 | 6–7   | `echo`      | uint16 | Id del último ping recibido                 |
 | 8–11  | `espMillis` | uint32 | Reloj interno del ESP32                     |
+| 12    | `grabs`     | uint8  | Contador de banderas cogidas (solo `p6`)    |
+
+Bandera (write): `[0x01]` sube la bandera y la deja arriba 500 ms; `[0x01, ms (uint16)]` la deja arriba ese tiempo (100–3000 ms). No sube si la bandera no está puesta o ya está en ciclo. Se cuenta como cogida si el palo sale del portapalo durante el ciclo; entonces el servo baja en el acto.
 
 Se envía siempre el **estado completo**: si un paquete llega tarde, el siguiente lo corrige.
 

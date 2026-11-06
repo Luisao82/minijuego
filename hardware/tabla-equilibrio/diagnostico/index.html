@@ -44,6 +44,43 @@
       </section>
 
       <section>
+        <h2>Bandera</h2>
+        <p class="hint" id="flagMissing" hidden>
+          Necesita el firmware <code>p6_tabla_bandera</code>: con <code>p5_tabla</code> no hay
+          bandera.
+        </p>
+        <div class="row">
+          <button id="raise" disabled>Subir bandera</button>
+          <label
+            >Arriba
+            <input
+              id="hold"
+              type="number"
+              min="100"
+              max="3000"
+              step="100"
+              value="500"
+              style="width: 5em"
+            />
+            ms</label
+          >
+          <span>Puesta:</span>
+          <div class="btn-led" id="flagLed"></div>
+          <span>Estado: <b id="flagState">—</b></span>
+          <span>Cogidas: <b id="grabs">—</b></span>
+        </div>
+        <div class="grid" style="margin-top: 10px">
+          <div class="stat">Orden → empieza a subir<b id="tStart">—</b></div>
+          <div class="stat">Orden → cogida<b id="tGrab">—</b></div>
+          <div class="stat">Ciclo completo<b id="tCycle">—</b></div>
+        </div>
+        <p class="hint">
+          Los tiempos son los del último ciclo, medidos al llegar el paquete que lo confirma (cada
+          20 ms). Coge la bandera mientras está arriba para medir el agarre.
+        </p>
+      </section>
+
+      <section>
         <h2>Calidad del enlace (últimos 5 s)</h2>
         <div class="grid">
           <div class="stat">Paquetes/s<b id="rate">—</b></div>
@@ -77,6 +114,8 @@
       const WINDOW_MS = 5000
       const STALL_MS = 200
       const PING_EVERY_MS = 500
+      const HOLD_MIN_MS = 100
+      const HOLD_MAX_MS = 3000
 
       const $ = (id) => document.getElementById(id)
 
@@ -89,6 +128,9 @@
       let lastArrival = null
       let stallOpen = false
       const totals = { lost: 0, stalls: 0, disconnects: 0 }
+      // Ciclo de bandera pedido desde aquí: momento de la orden y lo ya visto
+      let flagRun = null
+      let lastFlag = { present: false, cycling: false, grabs: null }
 
       const log = (msg) => {
         const t = new Date().toLocaleTimeString()
@@ -141,11 +183,48 @@
         $('led').classList.toggle('on', p.buttonDown)
         $('presses').textContent = p.presses
 
+        updateFlag(p, now)
+
         const sensorText = p.sensorError ? 'ERROR' : 'OK'
         if ($('sensor').textContent !== sensorText) {
           if (p.sensorError) log('El ESP32 informa de error en el sensor (¿cable suelto?)')
           show('sensor', sensorText, p.sensorError ? 'bad' : 'good')
         }
+      }
+
+      const ms = (t) => `${t.toFixed(0)} ms`
+
+      const updateFlag = (p, now) => {
+        if (p.grabs === null) return
+        const grabbed = lastFlag.grabs !== null && p.grabs !== lastFlag.grabs
+
+        if (flagRun) {
+          if (p.flagCycling && !flagRun.started) {
+            flagRun.started = true
+            show('tStart', ms(now - flagRun.at), classify(now - flagRun.at, 60, 120))
+          }
+          if (grabbed) {
+            show('tGrab', ms(now - flagRun.at))
+            log(`🚩 Bandera cogida a los ${ms(now - flagRun.at)} de la orden`)
+          }
+          if (flagRun.started && !p.flagCycling) {
+            show('tCycle', ms(now - flagRun.at))
+            log(`Ciclo terminado en ${ms(now - flagRun.at)}`)
+            flagRun = null
+          }
+        } else if (grabbed) {
+          log('🚩 Bandera cogida')
+        }
+
+        $('flagLed').classList.toggle('on', p.flagPresent)
+        $('flagState').textContent = p.flagCycling
+          ? 'en ciclo'
+          : p.flagPresent
+            ? 'lista'
+            : 'sin bandera'
+        $('grabs').textContent = p.grabs
+        $('raise').disabled = !board.hasFlag || p.flagCycling || !p.flagPresent
+        lastFlag = { present: p.flagPresent, cycling: p.flagCycling, grabs: p.grabs }
       }
 
       const STATUS_CLASS = {
@@ -162,6 +241,14 @@
         const connected = state === 'connected'
         $('connect').disabled = !['disconnected', 'failed'].includes(state)
         $('disconnect').disabled = !connected
+
+        $('flagMissing').hidden = !connected || board.hasFlag
+        if (!connected) {
+          $('raise').disabled = true
+          $('flagLed').classList.remove('on')
+          flagRun = null
+          lastFlag.grabs = null
+        }
 
         if (connected) {
           lastSeq = null
@@ -237,6 +324,19 @@
       })
 
       $('disconnect').addEventListener('click', () => board.disconnect())
+
+      $('raise').addEventListener('click', async () => {
+        const hold = Math.max(HOLD_MIN_MS, Math.min(HOLD_MAX_MS, Number($('hold').value) || 500))
+        ;['tStart', 'tGrab', 'tCycle'].forEach((id) => show(id, '—'))
+        flagRun = { at: performance.now(), started: false }
+        $('raise').disabled = true
+        if (await board.raiseFlag(hold)) {
+          log(`Subir bandera (${hold} ms arriba)`)
+        } else {
+          flagRun = null
+          log('No se pudo mandar la orden de subir')
+        }
+      })
 
       $('reset').addEventListener('click', () => {
         resetStats()

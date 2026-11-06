@@ -64,6 +64,7 @@ micro_ajuste = 3;           // recorrido de las ranuras (± mm) para afinar el c
 // Servo SG90 / MG90S (mismas medidas exteriores)
 servo_largo = 22.8;
 servo_ancho = 12.5;
+holgura_servo = 0.4;        // en el hueco de la placa: la resina encoge y los servos varían
 servo_entre_agujeros = 27.8;
 servo_eje_desde_extremo = 5.9;
 servo_d_agujero = 1.8;      // para sus tornillos rosca-chapa
@@ -187,7 +188,7 @@ servo_centro = eje_servo + [0, -(servo_largo / 2 - servo_eje_desde_extremo)];
 module placa_2d() {
     difference() {
         redondeado_2d(placa_min, placa_max);
-        translate(servo_centro) square([servo_ancho, servo_largo], center = true);
+        translate(servo_centro) square([servo_ancho + holgura_servo, servo_largo + holgura_servo], center = true);
         for (dy = [-servo_entre_agujeros / 2, servo_entre_agujeros / 2])
             translate(servo_centro + [0, dy]) circle(d = servo_d_agujero);
         for (p = agujeros_madera) translate(p) circle(d = d_tornillo_madera);

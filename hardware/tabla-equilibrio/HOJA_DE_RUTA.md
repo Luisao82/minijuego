@@ -26,8 +26,8 @@ Leyenda: ✅ hecho · 🔧 en curso · ⏳ pendiente · ❓ falta decidir
 Que las cajas se conecten y desconecten sin soldar ni abrir nada.
 
 - ⏳ Elegir el conector del cable de 3 hilos **caja del giroscopio ↔ caja de la bandera** (propuesta: GX12 de 3 pines, rosca, no se suelta con tirones).
-- ⏳ Elegir el conector de la **alimentación de 5 V del servo** en la caja de la bandera (propuesta: jack DC 5,5 × 2,1 o USB-C de panel).
-- 🔧 La pieza de prueba de encaje ya lleva huecos para el **GX12** (Ø11,8–12,8) y el **KCD1**. Falta comprar el GX12 y elegir el conector de 5 V de la caja de la bandera (cuando se elija, se añade su hueco).
+- ✅ Conector de la **alimentación de 5 V del servo** en la caja de la bandera: **jack DC 5,5 × 2,1 de panel, metálico (DC-099)**, con el positivo en el pin central. Falta comprarlo.
+- 🔧 La pieza de prueba de encaje ya lleva huecos para el **GX12** (Ø11,8–12,8) y el **KCD1**. También el del **jack DC de 5 V** (Ø10,6–11,4). Falta comprar el GX12 y el jack DC.
 - ⏳ **(nuevo)** Prever el **cable entre el palo, que se balancea, y la repisa**: largo de sobra, alivio de tensión en las dos cajas y por dónde va para que no lo pise el jugador.
 
 Depende de: nada. Bloquea: 2 y 3.
@@ -39,9 +39,9 @@ Dos versiones del mismo diseño paramétrico: una para la placa perforada actual
 - ✅ Portapilas: **63 × 58 × 15 mm**, cables por un lado de 63 mm.
 - ✅ Caja **plana** (portapilas al lado de la placa, unos 14 × 8 × 4 cm), montada **debajo de la tabla** para que no se pueda pisar. Nada metálico encima, debajo ni pegado al extremo de la antena del ESP32.
 - 🔧 En el extremo de la tabla que mira a la máquina, al lado de la quilla, con la cara de mandos (KCD1, LED, CAL, USB-C, GX12) hacia fuera. Lejos del rodamiento del extremo.
-- ⏳ Medir la altura de la placa montada y anotar hacia qué lado queda la antena.
+- ⏳ Medir la altura de la placa montada y la del USB-C, y confirmar que la antena queda en el extremo contrario al USB-C.
 - ⏳ Imprimir la prueba de encaje y fijar tolerancias (GX12, jack, LED, pulsador, USB-C, KCD1, tuercas).
-- ⏳ Diseño 3D de la caja **para la placa perforada**: placa, portapilas, interruptor KCD1, botón CAL, LED, jack del micro, conector de la bandera y ventana USB-C.
+- 🔧 Diseño 3D de la caja **para la placa perforada** ([`caja/caja_giroscopio.scad`](caja/caja_giroscopio.scad)): placa, portapilas, interruptor KCD1, botón CAL, LED y GX12 en la cara; **ventana USB-C en la pared del fondo** y **jack del micro en el lateral**. Provisional: no imprimir hasta tener las medidas.
 - ⏳ Visor 3D realista para revisarla antes de imprimir.
 - ⏳ PCB en Aisler (KiCad) y versión de la caja **para la PCB**.
 
@@ -58,12 +58,13 @@ Se queda la placa perforada actual (sin PCB).
 Depende de: 1. Se puede probar el mecanismo ya.
 
 ### 4. Firmware con la bandera ⏳
-Hoy van por separado `p5_tabla` (tabla) y `util_prueba_bandera` (bandera).
+Firmware unificado: [`firmware/p6_tabla_bandera`](firmware/p6_tabla_bandera/p6_tabla_bandera.ino), con la bandera en [`bandera.h`](firmware/p6_tabla_bandera/bandera.h).
 
-- ⏳ Juntar en un firmware (p6): servo en GPIO 17 y micro de la bandera en GPIO 18, sin bloquear la lectura del giroscopio.
-- ⏳ **(nuevo)** Ampliar el **protocolo BLE**: el juego manda «subir bandera» (característica de escritura) y la tabla avisa «bandera cogida» (un bit en `flags` y un contador, como el del botón).
-- ⏳ **(nuevo)** Seguridad del servo: soltar el servo en cuanto se coge la bandera y no repetir el ciclo si la bandera no está puesta.
-- ⏳ Probar latencias del ciclo completo: salto en pantalla → bandera arriba → agarre → juego.
+- 🔧 Un firmware (p6): servo en GPIO 17 y micro de la bandera en GPIO 18, sin bloquear la lectura del giroscopio. Compila; falta subirlo y probarlo en la placa.
+- 🔧 **Protocolo BLE** ampliado (ver [README](README.md#protocolo-ble)): el juego escribe «subir bandera» en la característica `…0004` y la tabla avisa con los bits «bandera puesta» y «en ciclo» y un contador de banderas cogidas (byte 12). Compatible con el juego actual, que lee solo los 8 primeros bytes.
+- 🔧 Seguridad del servo: al coger la bandera el servo baja en el acto y deja de mandar pulsos; no sube si la bandera no está puesta ni durante otro ciclo.
+- ⏳ Ajustar `ANGLE_DOWN` / `ANGLE_UP` de [`bandera.h`](firmware/p6_tabla_bandera/bandera.h) con el mecanismo impreso (comando `0-180` del Monitor Serie).
+- ⏳ Probar latencias del ciclo completo: salto en pantalla → bandera arriba → agarre → juego. La [página de diagnóstico](diagnostico/index.html) ya tiene el botón «Subir bandera» y mide orden → subida, orden → cogida y ciclo completo.
 
 Depende de: 3 (mecanismo probado). Bloquea: 5.
 
@@ -134,7 +135,7 @@ Los `.scad` se abren con OpenSCAD 2021.01 (instalado en el Mac). Los `.stl` son 
 | Bandera: rodillo del aspa | ídem (`pieza = "rodillo"`) | [`bandera_rodillo.stl`](bandera/bandera_rodillo.stl) | 🔧 prueba |
 | Caja de la bandera · tramo 1 (mecanismo) | [`caja/caja_bandera.scad`](caja/caja_bandera.scad) (`pieza = "tramo1"`) | [`bandera_caja_tramo1.stl`](caja/bandera_caja_tramo1.stl) | 🔧 provisional |
 | Caja de la bandera · tramo 2 | ídem (`pieza = "tramo2"`) | [`bandera_caja_tramo2.stl`](caja/bandera_caja_tramo2.stl) | 🔧 provisional |
-| Caja de la bandera · tramo 3 (electrónica) | ídem (`pieza = "tramo3"`) | [`bandera_caja_tramo3.stl`](caja/bandera_caja_tramo3.stl) | 🔧 provisional, falta el conector de 5 V |
+| Caja de la bandera · tramo 3 (electrónica) | ídem (`pieza = "tramo3"`) | [`bandera_caja_tramo3.stl`](caja/bandera_caja_tramo3.stl) | 🔧 provisional, falta ajustar el Ø del jack de 5 V |
 | Caja del giroscopio · bandeja | [`caja/caja_giroscopio.scad`](caja/caja_giroscopio.scad) (`pieza = "bandeja"`) | [`giroscopio_bandeja.stl`](caja/giroscopio_bandeja.stl) | 🔧 provisional, falta el alto de la placa |
 | Caja del giroscopio · tapa | ídem (`pieza = "tapa"`) | [`giroscopio_tapa.stl`](caja/giroscopio_tapa.stl) | 🔧 provisional |
 | Caja del giroscopio · PCB | — | — | ⏳ cuando haya PCB |
