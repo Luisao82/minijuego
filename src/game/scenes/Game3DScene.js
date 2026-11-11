@@ -103,6 +103,14 @@ export class Game3DScene extends BaseGameScene {
     this._world?.setFlagVisible(false)
   }
 
+  // Caída de la cámara: baja a BASE_SPEED + ACCEL·t desde el ojo hasta el agua
+  getTimeToWaterMs() {
+    if (this.phase === 'jumping') return this.jumpSystem.remainingTime() * 1000
+    const { BASE_SPEED, ACCEL } = GAME3D.CAMERA.FALL
+    const drop = GAME3D.POLE_Y + GAME3D.EYE_HEIGHT - GAME3D.CAMERA.WATER_EYE_Y
+    return ((-BASE_SPEED + Math.sqrt(BASE_SPEED ** 2 + 2 * ACCEL * drop)) / ACCEL) * 1000
+  }
+
   // ========================================
   // SALTO — mismo JumpSystem que en 2D, en metros y con el eje de avance
   // invertido (JumpSystem avanza con x decreciente; aquí x = -distancia)
@@ -133,7 +141,7 @@ export class Game3DScene extends BaseGameScene {
     this._jumpEyeY = GAME3D.POLE_Y + GAME3D.EYE_HEIGHT - y
 
     if (!this.hasFlag && this.isFlagReached()) {
-      this._onFlagGrabbed()
+      this._reachFlag()
     }
 
     if (this._jumpEyeY <= GAME3D.CAMERA.WATER_EYE_Y) {

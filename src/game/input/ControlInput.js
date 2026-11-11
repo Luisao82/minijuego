@@ -5,7 +5,8 @@
 //
 // Vive más allá de las escenas (singleton): el sensor y la conexión Bluetooth
 // se mantienen entre partidas. La escena activa registra su handler de "tap"
-// para que el microrruptor de la tabla actúe como tocar la pantalla.
+// para que el microrruptor de la tabla actúe como tocar la pantalla, y el de
+// "bandera cogida" para la bandera física.
 
 import { CONTROL_MODES, CONTROL_MODELS } from '../config/controlConfig'
 import { controlSettingsService } from '../services/ControlSettingsService'
@@ -26,6 +27,7 @@ class ControlInput {
     this._deviceTilt = null
     this._board = null
     this._tapHandler = null
+    this._flagGrabHandler = null
   }
 
   get mode() {
@@ -42,7 +44,12 @@ class ControlInput {
   }
 
   get board() {
-    if (!this._board) this._board = new BoardTiltSource({ onPress: () => this._tapHandler?.() })
+    if (!this._board) {
+      this._board = new BoardTiltSource({
+        onPress: () => this._tapHandler?.(),
+        onFlagGrab: () => this._flagGrabHandler?.(),
+      })
+    }
     return this._board
   }
 
@@ -52,6 +59,29 @@ class ControlInput {
 
   clearTapHandler(handler) {
     if (this._tapHandler === handler) this._tapHandler = null
+  }
+
+  setFlagGrabHandler(handler) {
+    this._flagGrabHandler = handler
+  }
+
+  clearFlagGrabHandler(handler) {
+    if (this._flagGrabHandler === handler) this._flagGrabHandler = null
+  }
+
+  // Bandera física: solo jugando con la tabla, con su firmware y el palo puesto
+  physicalFlagAvailable() {
+    return this.mode === CONTROL_MODES.BOARD && this.board.hasPhysicalFlag()
+  }
+
+  raiseFlag(holdMs) {
+    return this.board.raiseFlag(holdMs)
+  }
+
+  // Ventana y cámara lenta de la bandera física (ajustables en el panel LAB)
+  getFlagTuning() {
+    const { flagWindowMs, flagSlowMotion } = this.settings.getTuning(CONTROL_MODES.BOARD)
+    return { windowMs: flagWindowMs, slowMotion: flagSlowMotion }
   }
 
   getTiltDeg() {

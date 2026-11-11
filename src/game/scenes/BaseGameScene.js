@@ -10,7 +10,9 @@ import { PowerBar } from '../entities/PowerBar'
 import { BalanceBar } from '../entities/BalanceBar'
 import { ImpulseSystem } from '../systems/ImpulseSystem'
 import { RunSystem } from '../systems/RunSystem'
+import { FlagWindowSystem } from '../systems/FlagWindowSystem'
 import { PowerBarUI } from '../components/PowerBarUI'
+import { FlagAlert } from '../components/FlagAlert'
 import { BalanceUI } from '../components/BalanceUI'
 import { createOilIndicator } from '../components/OilIndicator'
 import { makeNavButton, measureNavButtonSize } from '../components/NavButton'
@@ -18,6 +20,7 @@ import { showExitConfirmModal } from '../components/ExitConfirmModal'
 import { createGameOverPanel } from '../components/GameOverPanel'
 import { weightedRandom } from '../utils/math'
 import { controlInput } from '../input/ControlInput'
+import { BOARD } from '../config/controlConfig'
 
 // Flujo compartido de la partida, común a todas las vistas (2D y 3D):
 // fases (impulso → carrera/equilibrio → salto/caída → resultado), input,
@@ -35,7 +38,7 @@ import { controlInput } from '../input/ControlInput'
 //   _afterSplashWin()    — transición tras el chapuzón con bandera
 //   _afterSplashLose()   — transición tras el chapuzón sin bandera
 // Y pueden sobreescribir: getHudTitle(), snapToFlag(), onFlagTaken(),
-// onRunProgress(dt), onOilChanged(), onFrame(dt).
+// getTimeToWaterMs(), onRunProgress(dt), onOilChanged(), onFrame(dt).
 
 // Palmadas escalonadas del público tras el chapuzón con bandera
 const APPLAUSE_DELAYS_MS = [
@@ -61,6 +64,12 @@ export class BaseGameScene extends BaseScene {
 
     this.hasFlag = false
     this.hasJumped = false
+
+    // Bandera física (tabla con bandera): ventana para cogerla y cámara lenta
+    this._flagWindow = null
+    this._flagAlert = null
+    this._flagGrabHandler = null
+    this._timeScale = 1
 
     this.powerBar = null
     this.impulseSystem = null
@@ -213,7 +222,9 @@ export class BaseGameScene extends BaseScene {
       this.runSystem.forceToEnd()
       this.distanceTraveled = this.runSystem.distance
       this.snapToFlag()
-      this._grabFlag()
+      this._reachFlag({ captureGrease: true })
+      this._destroyBalance()
+      this._startFall()
     }
   }
 
@@ -257,10 +268,64 @@ export class BaseGameScene extends BaseScene {
     this.onFlagTaken()
   }
 
-  _grabFlag() {
-    this._onFlagGrabbed({ captureGrease: true })
-    this._destroyBalance()
-    this._startFall()
+  // El personaje llega a la bandera, corriendo o en pleno salto (las vistas
+  // lo llaman cada frame que esté en rango: solo cuenta la primera vez).
+  // Sin bandera física la coge en el acto. Con ella, la sube, avisa y pone
+  // el juego a cámara lenta: solo la tiene si la coge a tiempo.
+  _reachFlag({ captureGrease = false } = {}) {
+    if (this.hasFlag || this._flagWindow) return
+    if (!controlInput.physicalFlagAvailable()) {
+      this._onFlagGrabbed({ captureGrease })
+      return
+    }
+
+    const { windowMs, slowMotion } = controlInput.getFlagTuning()
+    // Más lenta si hace falta: el personaje no debe tocar el agua antes de
+    // que acabe la ventana, o el jugador tendría menos tiempo del ajustado
+    const toWaterMs = this.getTimeToWaterMs()
+    const scale = toWaterMs === null ? slowMotion : Math.min(slowMotion, toWaterMs / windowMs)
+    this._flagWindow = new FlagWindowSystem({ windowMs, graceMs: BOARD.FLAG_GRAB_GRACE_MS })
+    this._flagGrabHandler = () => {
+      if (!this._flagWindow.grab()) return
+      this._endSlowMotion()
+      this._onFlagGrabbed({ captureGrease })
+    }
+    controlInput.setFlagGrabHandler(this._flagGrabHandler)
+
+    const holdMs = Math.max(BOARD.FLAG_MIN_HOLD_MS, windowMs - BOARD.FLAG_RAISE_OVERHEAD_MS)
+    // Si la orden no llega, la bandera no va a subir: se da por cogida
+    controlInput.raiseFlag(holdMs).then((sent) => {
+      if (!sent) this._flagGrabHandler?.()
+    })
+
+    this._flagAlert = new FlagAlert(this)
+    this._setTimeScale(scale)
+  }
+
+  // Avanza con el tiempo real: la ventana no se alarga con la cámara lenta
+  _updateFlagWindow(deltaMs) {
+    if (!this._flagWindow) return
+    if (this._flagWindow.update(deltaMs)) this._endSlowMotion()
+    this._flagAlert?.update(deltaMs, this._flagWindow.remainingRatio)
+  }
+
+  _closeFlagWindow() {
+    this._flagWindow?.close()
+    this._endSlowMotion()
+    controlInput.clearFlagGrabHandler(this._flagGrabHandler)
+  }
+
+  _endSlowMotion() {
+    this._flagAlert?.destroy()
+    this._flagAlert = null
+    this._setTimeScale(1)
+  }
+
+  // Afecta al update de la partida, a los tweens (caída 2D) y a los timers
+  _setTimeScale(scale) {
+    this._timeScale = scale
+    this.tweens.timeScale = scale
+    this.time.timeScale = scale
   }
 
   // ========================================
@@ -277,6 +342,7 @@ export class BaseGameScene extends BaseScene {
   _waterOutcome() {
     if (this.phase === 'splash_done' || this.phase === 'done') return
     this.phase = 'splash_done'
+    this._closeFlagWindow()
 
     this._playWaterSounds()
 
@@ -502,6 +568,13 @@ export class BaseGameScene extends BaseScene {
   // Feedback visual al coger la bandera (ocultarla del palo, sprite del jugador...)
   onFlagTaken() {}
 
+  // Tiempo de juego que le queda al personaje para tocar el agua al llegar a
+  // la bandera (corriendo: lo que dura la caída; saltando: lo que queda de
+  // vuelo). null si la vista no lo sabe: se usa la cámara lenta tal cual.
+  getTimeToWaterMs() {
+    return null
+  }
+
   // Presentación del avance durante la carrera (mover sprite, animación...)
   onRunProgress(_dt) {}
 
@@ -530,7 +603,8 @@ export class BaseGameScene extends BaseScene {
   // ========================================
 
   update(time, delta) {
-    const dt = Math.min(delta / 1000, 0.05)
+    this._updateFlagWindow(delta)
+    const dt = Math.min(delta / 1000, 0.05) * this._timeScale
 
     if (this.phase === 'impulse') {
       this.impulseSystem.update(dt)
@@ -549,5 +623,6 @@ export class BaseGameScene extends BaseScene {
     this.powerBarUI?.destroy()
     this.balanceUI?.destroy()
     controlInput.clearTapHandler(this._boardTapHandler)
+    this._closeFlagWindow()
   }
 }

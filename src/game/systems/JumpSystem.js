@@ -15,6 +15,7 @@ export class JumpSystem {
     this._vx = 0
     this._vy0 = 0
     this._gravity = 0
+    this._flightTime = 0
   }
 
   // Inicializa los parámetros del salto a partir del estado actual del personaje y la carrera
@@ -45,8 +46,14 @@ export class JumpSystem {
     const b = vy0
     const discriminant = b * b - 4 * a * -drop
     const flightTime = (-b + Math.sqrt(discriminant)) / (2 * a)
+    this._flightTime = flightTime
 
     this._vx = currentRunSpeed + jumpDistance / flightTime
+  }
+
+  // Segundos que faltan para llegar al agua
+  remainingTime() {
+    return Math.max(0, this._flightTime - this._elapsed)
   }
 
   // Avanza la física del salto — retorna la nueva posición del personaje

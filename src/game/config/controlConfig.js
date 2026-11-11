@@ -34,6 +34,8 @@ export const CONTROL_MODELS = {
 //   Solo FORCE:    sway (vaivén), driftScale, growthScale (crecimiento por cruce), dampingExtra
 //   Solo VELOCITY: speed (u/s a fuerza completa), driftSpeed (u/s), driftChange
 //                  (rapidez con que el drift cambia de sentido), driftGrowth (aumento por segundo)
+//   Solo tabla con bandera física: flagWindowMs (tiempo para cogerla desde que
+//                  se manda subir) y flagSlowMotion (velocidad del juego mientras tanto)
 const COMMON_TUNING = {
   sway: 0,
   driftScale: 1,
@@ -74,6 +76,8 @@ export const TUNING_DEFAULTS = {
     driftSpeed: 0.3,
     driftChange: 0.8,
     driftGrowth: 0.02,
+    flagWindowMs: 1500,
+    flagSlowMotion: 0.25,
   },
 }
 
@@ -86,6 +90,12 @@ export const DEVICE_TILT = {
 // La tabla deja de considerarse conectada si no llegan datos en este tiempo
 export const BOARD = {
   STALE_MS: 300,
+  // Orden por Bluetooth (~85 ms) + subida del servo (~250 ms): la bandera se
+  // queda arriba el resto de la ventana y baja cuando esta se acaba
+  FLAG_RAISE_OVERHEAD_MS: 350,
+  FLAG_MIN_HOLD_MS: 100,
+  // El aviso de "cogida" tarda en llegar: un agarre justo al final aún cuenta
+  FLAG_GRAB_GRACE_MS: 100,
 }
 
 // Build de laboratorio: modos analógicos + panel LAB de calibración.

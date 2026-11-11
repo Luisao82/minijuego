@@ -8,6 +8,7 @@ import {
   JUMP,
   OIL,
   COLORS,
+  MOVEMENT,
 } from '../config/gameConfig'
 import { getStoredPerspective } from '../config/perspectiveConfig'
 import { perspectiveUnlockService } from '../services/PerspectiveUnlockService'
@@ -386,6 +387,12 @@ export class GameScene extends BaseGameScene {
     this.player.redraw()
   }
 
+  getTimeToWaterMs() {
+    return this.phase === 'jumping'
+      ? this.jumpSystem.remainingTime() * 1000
+      : MOVEMENT.FALL_DURATION
+  }
+
   onFlagTaken() {
     this.flagGraphics.setVisible(false)
     this.player.setFlag(true)
@@ -418,7 +425,7 @@ export class GameScene extends BaseGameScene {
     this.distanceTraveled = POLE.START_X - this.player.x
 
     if (!this.hasFlag && this._checkFlagCollision()) {
-      this._onFlagGrabbed()
+      this._reachFlag()
     }
 
     if (this.player.y >= this.waterY) {

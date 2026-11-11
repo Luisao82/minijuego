@@ -20,6 +20,7 @@ const { FORCE, VELOCITY } = CONTROL_MODELS
 const BOTH = [FORCE, VELOCITY]
 
 // models: en qué tipo de control tiene efecto cada ajuste
+// boardOnly: solo con la tabla (bandera física)
 const SLIDERS = [
   { key: 'deadZoneDeg', label: 'Zona muerta (°)', min: 0, max: 4, step: 0.25, models: BOTH },
   {
@@ -90,6 +91,24 @@ const SLIDERS = [
     step: 0.05,
     models: BOTH,
   },
+  {
+    key: 'flagWindowMs',
+    label: 'Bandera: tiempo para cogerla (ms)',
+    min: 500,
+    max: 3000,
+    step: 100,
+    models: BOTH,
+    boardOnly: true,
+  },
+  {
+    key: 'flagSlowMotion',
+    label: 'Bandera: cámara lenta (1 = normal)',
+    min: 0.05,
+    max: 1,
+    step: 0.05,
+    models: BOTH,
+    boardOnly: true,
+  },
 ]
 
 const MODE_LABELS = {
@@ -120,6 +139,16 @@ const el = (tag, props = {}, children = []) => {
   const node = Object.assign(document.createElement(tag), props)
   children.forEach((child) => node.append(child))
   return node
+}
+
+// Por qué se usará o no la bandera física al llegar a la bandera
+const flagStatus = () => {
+  const board = controlInput.board
+  if (controlInput.mode !== CONTROL_MODES.BOARD) return 'no (el modo no es Tabla)'
+  if (!board.isLive()) return 'no (tabla sin conectar)'
+  if (!board.connection.hasFlag) return 'no (la tabla no lleva el firmware p6)'
+  if (!board.flagPresent) return 'no (la bandera no está en el portapalo)'
+  return 'sí, lista'
 }
 
 export function mountLabPanel() {
@@ -196,6 +225,7 @@ export function mountLabPanel() {
   // ---------- Lectura en vivo ----------
   const tiltOut = el('b', { textContent: '—' })
   const inputOut = el('b', { textContent: '—' })
+  const flagOut = el('b', { textContent: '—' })
 
   // ---------- Ajustes (de cada modo analógico por separado) ----------
   const tuningTitle = el('h3')
@@ -214,7 +244,7 @@ export function mountLabPanel() {
     return el('label', {}, [radio, ` ${label}`])
   })
 
-  const sliderRows = SLIDERS.map(({ key, label, min, max, step, models }) => {
+  const sliderRows = SLIDERS.map(({ key, label, min, max, step, models, boardOnly }) => {
     const output = el('b')
     const input = el('input', { type: 'range', min, max, step })
     const row = el('label', {}, [`${label}: `, output, input])
@@ -225,7 +255,8 @@ export function mountLabPanel() {
     const refresh = (tuning) => {
       input.value = tuning[key]
       output.textContent = tuning[key]
-      row.hidden = !models.includes(tuning.model)
+      row.hidden =
+        !models.includes(tuning.model) || (boardOnly && settings.getMode() !== CONTROL_MODES.BOARD)
     }
     return { row, refresh }
   })
@@ -302,6 +333,7 @@ export function mountLabPanel() {
       el('span', {}, ['Inclinación ', tiltOut]),
       el('span', {}, ['Fuerza ', inputOut]),
     ]),
+    el('div', {}, ['Bandera física: ', flagOut]),
     centerBtn,
     tuningTitle,
     tuningSection
@@ -327,5 +359,6 @@ export function mountLabPanel() {
       inputOut.textContent = controlInput.lastInput.toFixed(2)
     }
     if (BoardTiltSource.isSupported()) boardStatus.textContent = ` ${controlInput.board.statusText}`
+    flagOut.textContent = flagStatus()
   }, REFRESH_MS)
 }

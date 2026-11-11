@@ -83,3 +83,15 @@ describe('JumpSystem', () => {
     })
   })
 })
+
+describe('JumpSystem.remainingTime', () => {
+  it('llega a 0 justo cuando el personaje toca el agua', () => {
+    const sys = new JumpSystem()
+    sys.start(baseParams)
+    const total = sys.remainingTime()
+    expect(total).toBeGreaterThan(0)
+    const { y } = sys.update(total)
+    expect(y).toBeCloseTo(baseParams.waterY, 3)
+    expect(sys.remainingTime()).toBe(0)
+  })
+})

@@ -57,23 +57,23 @@ Se queda la placa perforada actual (sin PCB).
 
 Depende de: 1. Se puede probar el mecanismo ya.
 
-### 4. Firmware con la bandera ⏳
+### 4. Firmware con la bandera 🔧
 Firmware unificado: [`firmware/p6_tabla_bandera`](firmware/p6_tabla_bandera/p6_tabla_bandera.ino), con la bandera en [`bandera.h`](firmware/p6_tabla_bandera/bandera.h).
 
-- 🔧 Un firmware (p6): servo en GPIO 17 y micro de la bandera en GPIO 18, sin bloquear la lectura del giroscopio. Compila; falta subirlo y probarlo en la placa.
-- 🔧 **Protocolo BLE** ampliado (ver [README](README.md#protocolo-ble)): el juego escribe «subir bandera» en la característica `…0004` y la tabla avisa con los bits «bandera puesta» y «en ciclo» y un contador de banderas cogidas (byte 12). Compatible con el juego actual, que lee solo los 8 primeros bytes.
-- 🔧 Seguridad del servo: al coger la bandera el servo baja en el acto y deja de mandar pulsos; no sube si la bandera no está puesta ni durante otro ciclo.
+- ✅ Un firmware (p6): servo en GPIO 17 y micro de la bandera en GPIO 18, sin bloquear la lectura del giroscopio. Subido y probado con el juego (noviembre 2026).
+- ✅ **Protocolo BLE** ampliado (ver [README](README.md#protocolo-ble)): el juego escribe «subir bandera» en la característica `…0004` y la tabla avisa con los bits «bandera puesta» y «en ciclo» y un contador de banderas cogidas (byte 12). Compatible con el juego actual, que lee solo los 8 primeros bytes.
+- ✅ Seguridad del servo: al coger la bandera el servo baja en el acto y deja de mandar pulsos; no sube si la bandera no está puesta ni durante otro ciclo.
 - ⏳ Ajustar `ANGLE_DOWN` / `ANGLE_UP` de [`bandera.h`](firmware/p6_tabla_bandera/bandera.h) con el mecanismo impreso (comando `0-180` del Monitor Serie).
 - ⏳ Probar latencias del ciclo completo: salto en pantalla → bandera arriba → agarre → juego. La [página de diagnóstico](diagnostico/index.html) ya tiene el botón «Subir bandera» y mide orden → subida, orden → cogida y ciclo completo.
 
 Depende de: 3 (mecanismo probado). Bloquea: 5.
 
-### 5. Juego: coger la bandera física ⏳
+### 5. Juego: coger la bandera física 🔧
 Con cuidado: tocar la mecánica afecta a las otras ramas (`feature/gps-challenge` también modifica `BaseGameScene.js`).
 
-- ⏳ Al saltar con tabla + bandera física: el juego manda «subir bandera» y gana si llega «bandera cogida» dentro de la ventana de tiempo.
-- ⏳ Sin tabla, o con tabla sin bandera física: se mantiene tocar la pantalla.
-- ❓ Aviso en pantalla de «¡coge la bandera!»: destellos, marco rojo alrededor de la bandera… (pixel art, por decidir).
+- ✅ Al llegar a la bandera (corriendo o saltando) con tabla + bandera física: el juego manda «subir bandera», avisa «¡COGE LA BANDERA!» y pasa a cámara lenta; solo la consigue si llega «bandera cogida» dentro de la ventana. Hecho en el laboratorio; ventana (1,5 s) y cámara lenta (0,25) ajustables en el panel LAB. Probado con la bandera real (noviembre 2026).
+- ✅ Sin tabla, o con tabla sin bandera física: se mantiene tocar la pantalla.
+- ✅ Aviso en pantalla: texto «¡COGE LA BANDERA!» parpadeando, marco rojo en el borde de la pantalla y barra dorada con el tiempo que queda.
 - ⏳ **(nuevo)** Navegación con **joystick y botones** (API de mandos del navegador) para menús sin pantalla táctil, y el **botón frontal** de impulso y salto.
 - ⏳ **(nuevo)** Decisiones abiertas de octubre: ¿las partidas con tabla cuentan para récords y mapa?, ¿dificultad propia?, selector de modo, tutorial.
 - ⏳ **(nuevo)** Limpiar el laboratorio antes de fusionar: quitar el desbloqueo temporal de vistas (`PerspectiveUnlockService` con `unlockAll`) y fijar la calibración en `controlConfig.js`.
